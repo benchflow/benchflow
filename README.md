@@ -1,7 +1,12 @@
 # BenchFlow
-BenchFlow is an open source framework that provides a complete platform for executing performance benchmarks and performance tests. It enables the definition of a performance benchmark/test through a dedicated DSL and it automatises the deployment of the System Under Test on distributed infrastructures using [Docker](https://www.docker.com), the reliable performance benchmark execution using [Faban](http://faban.org), the data collection and cleaning, and the data analysis to compute metrics and KPIs.
+BenchFlow is an open source framework that provides a complete platform for executing performance benchmarks and performance tests. Its functionalities include:
+1. definition of a performance benchmark/test through a dedicated DSL;
+2. automatisation of the deployment of the System Under Test on distributed infrastructures using [Docker](https://www.docker.com);
+3. reliable execution of the performance benchmark using [Faban](http://faban.org);
+4. data collection and cleaning;
+5. data analysis in the form of computed metrics and KPIs.
 
-*Current Focus of the Framework*: The BenchFlow framework is currently mainly focused on enabling the performance benchmark of Workflow Management Systems supporting the BPMN 2.0 modeling and execution language. Despite the focus, most of its components are resusable and already general enough to support performance benchmarks of generic Web Services and of course you are welcomed to extend it and add the functionalities you need and that are missing.
+*Current Focus of the Framework*: The BenchFlow framework is currently mainly focused on enabling the performance benchmark of Workflow Management Systems supporting the BPMN 2.0 modeling and execution language. Despite the main focus, most of its components are reusable and already general enough to support performance benchmarks of generic Web Services. We strongly encourage extending BenchFlow by adding missing functionalities specific to your particular benchmarking needs. 
 
 *Website related to the current focus*: http://benchflow.inf.usi.ch
 
