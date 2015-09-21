@@ -49,11 +49,11 @@ TODO: point to the sub-projects briefly introducing them
 
 # Roadmap
 TODO (Example from: https://github.com/docker/docker/blob/master/ROADMAP.md)
-TODOs: Each of the sub-project has its own TODOs list 
 
 # TODOs
 * Fill all the TODOs in the README.md
 * Improve the contribution guidelines by following the Docker approach: https://github.com/docker/docker/blob/master/CONTRIBUTING.md
+* TODOs: Each of the sub-project has its own TODOs list 
 
 # Support, Discussion, and Community
 TODO
