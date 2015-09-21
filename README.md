@@ -1,5 +1,5 @@
 # BenchFlow
-BenchFlow is an open source framework that provides a complete platform for executing performance benchmarks and performance tests. Its functionalities include:
+BenchFlow is an open-source framework that provides a complete platform for executing performance benchmarks and performance tests. Its functionalities include:
 1. definition of a performance benchmark/test through a dedicated DSL;
 2. automatisation of the deployment of the System Under Test on distributed infrastructures using [Docker](https://www.docker.com);
 3. reliable execution of the performance benchmark using [Faban](http://faban.org);
