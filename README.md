@@ -15,34 +15,34 @@ The BenchFlow framework is currently mainly focused on enabling the performance 
 # About this repository
 This is a documentation and meta-repository. Follow the links you can find on this README file to read the documentation and to explore all the sub-projects of the BenchFlow framework.
 
-# Project Description
-TODO: describe the main components and the overall architecture of the system on dedicated md files, pointed by a brief summary to be presented here.
-
 # Project Status
 The project is currently in active development and is tested on Mac OS X for the client command line side tools, and Ubuntu 14.04.2 LTS for the server side tools. 
 
-***WARNING:***We are currently releasing all the Sub-projects of the BenchFlow framework in their current status.
+# Project Description
+TODO: describe the main components and the overall architecture of the system on dedicated md files, pointed by a brief summary to be presented here.
 
-Our current main branch is: dev
+***WARNING:*** We are currently releasing all the Sub-projects of the BenchFlow framework in their current status.
 
-# Project DevOps Lifecycle
-*Dev*: we use [Eclipse](https://www.eclipse.org/home/index.php) to develop BenchFlow. Each repository has one or more Eclipse projects if needed.
-TODO: Describe the DevOps automated lifecycle
-
-# Dependencies
-TODO: describe the main dependencies of the project
+Our current main branch is: ***dev***
 
 # Installation
-TODO
-
-# Requirements
 TODO
 
 # How to Use BenchFlow
 TODO
 
-# Sub-projects
+# Project DevOps Lifecycle
+*Dev*: we use [Eclipse](https://www.eclipse.org/home/index.php) to develop BenchFlow. Each repository has one or more Eclipse projects if needed. For dependency management we use [Maven](http://maven.apache.org) for Java and [GoDep](https://github.com/tools/godep) for Go.
+TODO: Describe the DevOps automated lifecycle
+
+# Dependencies
+TODO: describe the main dependencies of the project
+
+## Sub-projects
 TODO: point to the sub-projects briefly introducing them
+
+## Requirements
+TODO
 
 # How to Contribute
 [Contributing](documentation/contributing.md)
