@@ -8,9 +8,6 @@
 #   
 # Solution:
 #	This script trigger updates on DockerHub and waits for the dependencies to be built before triggering the build of the dependant images
-#   
-# Accepts Envs:
-#	- REPO_NAME: the name of the Docker Hub repository under the benchflow user, without leading /
 # 
 # NOTE:
 #	- Currently this script only works for https://github.com/benchflow/docker-images as it is the only repository
