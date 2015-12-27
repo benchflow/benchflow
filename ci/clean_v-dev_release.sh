@@ -4,7 +4,7 @@
 # Accepts Envs:
 #	- REPO_NAME: the name of the repository under the benchflow user, without leading /
 #	- GITHUB_ACCESS_TOKEN: the access token used to interact with git (generally stored in Travis)
-set -ex
+set -e
 # install before_deploy dependencies (JSON parser)
 sudo wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 -O /usr/bin/jq
 sudo chmod +x /usr/bin/jq

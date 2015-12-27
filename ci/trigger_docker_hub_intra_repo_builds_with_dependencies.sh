@@ -18,7 +18,7 @@
 #		- base-envconsul-java7 and base-envconsul-java8 depend on: base-envconsul
 # TODO:
 #	- Refactoring, refactoring, refactoring!
-set -ex
+set -e
 
 # install dependencies (JSON parser)
 sudo wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 -O /usr/bin/jq
