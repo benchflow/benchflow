@@ -158,7 +158,7 @@ CREATE TABLE host_properties (
 CREATE TABLE experiment_single_metrics (
   experiment_id text,
   process_duration float,
-  process_durationavg float,
+  process_duration_avg float,
   process_duration_q1 float,
   process_duration_q2 float,
   process_duration_q3 float,
