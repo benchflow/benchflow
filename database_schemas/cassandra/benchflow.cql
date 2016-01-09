@@ -155,7 +155,7 @@ CREATE TABLE host_properties (
   PRIMARY KEY(host_id)
 );
 
-CREATE TABLE experiment_single_metrics_process_duration (
+CREATE TABLE exp_process_duration (
   experiment_id text,
   process_duration float,
   process_duration_avg float,
@@ -172,7 +172,7 @@ CREATE TABLE experiment_single_metrics_process_duration (
   PRIMARY KEY ((experiment_id))
 );
 
-CREATE TABLE experiment_single_metrics_cpu (
+CREATE TABLE exp_cpu (
   experiment_id text,
   cpu float,
   cpu_avg float,
@@ -189,7 +189,7 @@ CREATE TABLE experiment_single_metrics_cpu (
   PRIMARY KEY ((experiment_id))
 );
 
-CREATE TABLE experiment_single_metrics_ram (
+CREATE TABLE exp_ram (
   experiment_id text,
   ram float,
   ram_avg float,
@@ -206,13 +206,13 @@ CREATE TABLE experiment_single_metrics_ram (
   PRIMARY KEY ((experiment_id))
 );
 
-CREATE TABLE experiment_single_metrics_throughput (
+CREATE TABLE exp_throughput (
   experiment_id text,
   throughput float,
   PRIMARY KEY ((experiment_id))
 );
 
-CREATE TABLE experiment_single_metrics_number_of_process_instances (
+CREATE TABLE exp_number_of_process_instances (
   experiment_id text,
   number_of_process_instances bigint,
   PRIMARY KEY ((experiment_id))
