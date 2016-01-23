@@ -3,12 +3,21 @@
 --    - This is fine since we are testing and developing
 DROP KEYSPACE IF EXISTS benchflow;
 
--- Create benchflow keyspace
+-- Create benchflow keyspace (currently we use only one node)
 CREATE KEYSPACE benchflow
 WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
 
 USE benchflow;
 
+-- The experiment root table
+CREATE TABLE experiment (
+  experiment_id text,
+  replication_num int,
+  trial_id text,
+  PRIMARY KEY ((trial_id, experiment_id))
+);
+
+-- Raw data
 CREATE TABLE environment_data (
   environment_data_id uuid,
   container_properties_id uuid,
@@ -38,13 +47,6 @@ CREATE TABLE network_interface_data (
   PRIMARY KEY (network_interface_data_id)
 );
 
-CREATE TABLE experiment (
-  experiment_id text,
-  replication_num int,
-  trial_id text,
-  PRIMARY KEY ((trial_id, experiment_id))
-);
-
 CREATE TABLE process (
   process_instance_id uuid,
   source_process_instance_id text,
@@ -71,6 +73,7 @@ CREATE TABLE construct (
   PRIMARY KEY ((trial_id, experiment_id), construct_instance_id, process_instance_id)
 );
 
+-- Environment metadata
 CREATE TABLE container_properties (
   container_properties_id uuid,
   container_id text,
@@ -155,9 +158,8 @@ CREATE TABLE host_properties (
   PRIMARY KEY(host_id)
 );
 
+-- Experiment metrics
 CREATE TABLE exp_process_duration (
-  experiment_id text,
-  process_duration float,
   process_duration_avg float,
   process_duration_q1 float,
   process_duration_q2 float,
@@ -169,12 +171,11 @@ CREATE TABLE exp_process_duration (
   process_duration_min float,
   process_duration_max float,
   process_duration_sd float,
+  experiment_id text,
   PRIMARY KEY ((experiment_id))
 );
 
 CREATE TABLE exp_cpu (
-  experiment_id text,
-  cpu float,
   cpu_avg float,
   cpu_q1 float,
   cpu_q2 float,
@@ -186,12 +187,11 @@ CREATE TABLE exp_cpu (
   cpu_min float,
   cpu_max float,
   cpu_sd float,
+  experiment_id text,
   PRIMARY KEY ((experiment_id))
 );
 
 CREATE TABLE exp_ram (
-  experiment_id text,
-  ram float,
   ram_avg float,
   ram_q1 float,
   ram_q2 float,
@@ -203,17 +203,84 @@ CREATE TABLE exp_ram (
   ram_min float,
   ram_max float,
   ram_sd float,
+  experiment_id text,
   PRIMARY KEY ((experiment_id))
 );
 
 CREATE TABLE exp_throughput (
-  experiment_id text,
   throughput float,
+  experiment_id text,
   PRIMARY KEY ((experiment_id))
 );
 
 CREATE TABLE exp_number_of_process_instances (
-  experiment_id text,
   number_of_process_instances bigint,
+  experiment_id text,
   PRIMARY KEY ((experiment_id))
+);
+
+-- Trial metrics
+CREATE TABLE trial_process_duration (
+  process_duration_avg float,
+  process_duration_q1 float,
+  process_duration_q2 float,
+  process_duration_q3 float,
+  process_duration_mean float,
+  process_duration_ci095 float,
+  process_duration_median float,
+  process_duration_mode float,
+  process_duration_min float,
+  process_duration_max float,
+  process_duration_sd float,
+  experiment_id text,
+  trial_id text,
+  PRIMARY KEY ((trial_id,experiment_id))
+);
+
+CREATE TABLE trial_cpu (
+  cpu_avg float,
+  cpu_q1 float,
+  cpu_q2 float,
+  cpu_q3 float,
+  cpu_mean float,
+  cpu_ci095 float,
+  cpu_median float,
+  cpu_mode float,
+  cpu_min float,
+  cpu_max float,
+  cpu_sd float,
+  experiment_id text,
+  trial_id text,
+  PRIMARY KEY ((trial_id,experiment_id))
+);
+
+CREATE TABLE trial_ram (
+  ram_avg float,
+  ram_q1 float,
+  ram_q2 float,
+  ram_q3 float,
+  ram_mean float,
+  ram_ci095 float,
+  ram_median float,
+  ram_mode float,
+  ram_min float,
+  ram_max float,
+  ram_sd float,
+  experiment_id text,
+  trial_id text,
+  PRIMARY KEY ((trial_id,experiment_id))
+);
+
+CREATE TABLE trial_throughput (
+  throughput float,
+  experiment_id text,
+  trial_id text,
+  PRIMARY KEY ((trial_id,experiment_id))
+);
+
+CREATE TABLE trial_number_of_process_instances (
+  number_of_process_instances bigint,
+  experiment_id text,
+  trial_id text,
+  PRIMARY KEY ((trial_id,experiment_id))
 );
