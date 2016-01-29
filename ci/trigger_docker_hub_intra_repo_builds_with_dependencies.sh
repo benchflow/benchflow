@@ -16,6 +16,7 @@
 #	- Currently declared dependencies (the names refer to the folder names here https://github.com/benchflow/docker-images/tree/dev/base-images):
 #		- all the images depend on: base
 #		- base-envconsul-java7 and base-envconsul-java8 depend on: base-envconsul
+#	- The echo commands are informative, but they also deal with the Travis behaviour described in the following: https://docs.travis-ci.com/user/common-build-problems/#My-builds-are-timing-out (output timeout)
 # TODO:
 #	- Refactoring, refactoring, refactoring!
 set -e
@@ -72,17 +73,22 @@ function trigger_docker_hub_build {
 #################################################### FUNCTIONS ####################################################
 
 # Trigger the build of all the images without dependencies (using the assigned docker_tags)
+echo "Triggering dev build"
 trigger_docker_hub_build dev
 
 # Wait for the build
 waited=$(wait_build dev)
 
 # Trigger the builds and wait for the build in dependency order
+echo "Triggering minio-client_dev build"
 trigger_docker_hub_build minio-client_dev $waited
 waited=$(wait_build minio-client_dev)
+echo "Triggering envconsul_dev build"
 trigger_docker_hub_build envconsul_dev $waited
 waited=$(wait_build envconsul_dev)
 
 # Trigger leaf builds in the dependency tree
+echo "Triggering envconsul-java7_dev build"
 trigger_docker_hub_build envconsul-java7_dev $waited
+echo "Triggering envconsul-java8_dev build"
 trigger_docker_hub_build envconsul-java8_dev 0
