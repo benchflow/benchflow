@@ -72,23 +72,26 @@ function trigger_docker_hub_build {
 }
 #################################################### FUNCTIONS ####################################################
 
-# Trigger the build of all the images without dependencies (using the assigned docker_tags)
-echo "Triggering dev build"
-trigger_docker_hub_build dev
+# TODO: enable again when it decides to start to work again, and we have time to debug it deeply.
+#		Currently we just trigger the update of the base image manually, they are updated very rarely.
 
-# Wait for the build
-waited=$(wait_build dev)
+# # Trigger the build of all the images without dependencies (using the assigned docker_tags)
+# echo "Triggering dev build"
+# trigger_docker_hub_build dev
 
-# Trigger the builds and wait for the build in dependency order
-echo "Triggering minio-client_dev build"
-trigger_docker_hub_build minio-client_dev $waited
-waited=$(wait_build minio-client_dev)
-echo "Triggering envconsul_dev build"
-trigger_docker_hub_build envconsul_dev $waited
-waited=$(wait_build envconsul_dev)
+# # Wait for the build
+# waited=$(wait_build dev)
 
-# Trigger leaf builds in the dependency tree
-echo "Triggering envconsul-java7_dev build"
-trigger_docker_hub_build envconsul-java7_dev $waited
-echo "Triggering envconsul-java8_dev build"
-trigger_docker_hub_build envconsul-java8_dev 0
+# # Trigger the builds and wait for the build in dependency order
+# echo "Triggering minio-client_dev build"
+# trigger_docker_hub_build minio-client_dev $waited
+# waited=$(wait_build minio-client_dev)
+# echo "Triggering envconsul_dev build"
+# trigger_docker_hub_build envconsul_dev $waited
+# waited=$(wait_build envconsul_dev)
+
+# # Trigger leaf builds in the dependency tree
+# echo "Triggering envconsul-java7_dev build"
+# trigger_docker_hub_build envconsul-java7_dev $waited
+# echo "Triggering envconsul-java8_dev build"
+# trigger_docker_hub_build envconsul-java8_dev 0
