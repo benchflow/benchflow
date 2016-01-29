@@ -78,6 +78,8 @@ trigger_docker_hub_build dev
 waited=$(wait_build dev)
 
 # Trigger the builds and wait for the build in dependency order
+trigger_docker_hub_build minio-client_dev $waited
+waited=$(wait_build minio-client_dev)
 trigger_docker_hub_build envconsul_dev $waited
 waited=$(wait_build envconsul_dev)
 
