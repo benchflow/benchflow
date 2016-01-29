@@ -58,12 +58,12 @@ function trigger_docker_hub_build {
 
 	# wait for the time remaining for the min_wait time before triggering the build
 	if [[ "$2" ]]; then
-		#echo "set $2"
+		echo "set $2"
 		wait_remaining=`expr $min_wait - $2`
-		#echo "wait_remaining $wait_remaining"
+		echo "wait_remaining $wait_remaining"
 
 		if [ "$wait_remaining" -gt "0" ]; then
-			#echo "sleep $wait_remaining"
+			echo "sleep $wait_remaining"
 			sleep $wait_remaining
 		fi
 	fi
