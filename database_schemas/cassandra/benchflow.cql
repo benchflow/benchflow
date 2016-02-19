@@ -221,6 +221,7 @@ CREATE TABLE exp_number_of_process_instances (
 
 -- Trial metrics
 CREATE TABLE trial_process_duration (
+  process_duration_weight bigint,
   process_duration_avg float,
   process_duration_q1 float,
   process_duration_q2 float,
@@ -239,6 +240,7 @@ CREATE TABLE trial_process_duration (
 );
 
 CREATE TABLE trial_cpu (
+  cpu_weight bigint,
   cpu_avg float,
   cpu_q1 float,
   cpu_q2 float,
@@ -257,6 +259,7 @@ CREATE TABLE trial_cpu (
 );
 
 CREATE TABLE trial_ram (
+  ram_weight bigint,
   ram_avg float,
   ram_q1 float,
   ram_q2 float,
