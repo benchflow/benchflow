@@ -170,6 +170,7 @@ CREATE TABLE exp_process_duration (
   process_duration_min float,
   process_duration_max float,
   process_duration_sd float,
+  process_duration_integral float,
   process_duration_best list<text>,
   process_duration_average list<text>,
   process_duration_worst list<text>,
@@ -188,6 +189,7 @@ CREATE TABLE exp_cpu (
   cpu_min float,
   cpu_max float,
   cpu_sd float,
+  cpu_integral float,
   cpu_best list<text>,
   cpu_average list<text>,
   cpu_worst list<text>,
@@ -206,6 +208,7 @@ CREATE TABLE exp_ram (
   ram_min float,
   ram_max float,
   ram_sd float,
+  ram_integral float,
   ram_best list<text>,
   ram_average list<text>,
   ram_worst list<text>,
@@ -240,6 +243,7 @@ CREATE TABLE trial_process_duration (
   process_duration_min float,
   process_duration_max float,
   process_duration_sd float,
+  process_duration_integral float,
   experiment_id text,
   trial_id text,
   PRIMARY KEY ((trial_id,experiment_id))
@@ -259,6 +263,7 @@ CREATE TABLE trial_cpu (
   cpu_min float,
   cpu_max float,
   cpu_sd float,
+  cpu_integral float,
   experiment_id text,
   trial_id text,
   PRIMARY KEY ((trial_id,experiment_id))
@@ -278,6 +283,7 @@ CREATE TABLE trial_ram (
   ram_min float,
   ram_max float,
   ram_sd float,
+  ram_integral,
   experiment_id text,
   trial_id text,
   PRIMARY KEY ((trial_id,experiment_id))
