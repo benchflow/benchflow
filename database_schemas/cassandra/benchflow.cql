@@ -228,6 +228,13 @@ CREATE TABLE exp_number_of_process_instances (
   PRIMARY KEY ((experiment_id))
 );
 
+CREATE TABLE exp_dump_size (
+  size bigint,
+  experiment_id text,
+  trial_id text,
+  PRIMARY KEY ((trial_id,experiment_id))
+);
+
 -- Trial metrics
 CREATE TABLE trial_process_duration (
   process_duration_weight bigint,
@@ -298,6 +305,13 @@ CREATE TABLE trial_throughput (
 
 CREATE TABLE trial_number_of_process_instances (
   number_of_process_instances bigint,
+  experiment_id text,
+  trial_id text,
+  PRIMARY KEY ((trial_id,experiment_id))
+);
+
+CREATE TABLE trial_dump_size (
+  size bigint,
   experiment_id text,
   trial_id text,
   PRIMARY KEY ((trial_id,experiment_id))
