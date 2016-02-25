@@ -160,75 +160,151 @@ CREATE TABLE host_properties (
 
 -- Experiment metrics
 CREATE TABLE exp_process_duration (
-  process_duration_avg float,
-  process_duration_q1 float,
-  process_duration_q2 float,
-  process_duration_q3 float,
-  process_duration_mean float,
-  process_duration_ci095 float,
-  process_duration_median float,
-  process_duration_mode float,
+  process_duration_weighted_avg float,
+  process_duration_q1_min float,
+  process_duration_q1_max float,
+  process_duration_q2_min float,
+  process_duration_q2_max float,
+  process_duration_q3_min float,
+  process_duration_q3_max float,
+  process_duration_p95_min float,
+  process_duration_p95_max float,
+  process_duration_ci095_min float,
+  process_duration_ci095_max float,
+  process_duration_median_min float,
+  process_duration_median_max float,
+  process_duration_mode_min float,
+  process_duration_mode_max float
   process_duration_min float,
   process_duration_max float,
   process_duration_sd float,
+  process_duration_best list<text>,
+  process_duration_average list<text>,
+  process_duration_worst list<text>,
   experiment_id text,
   PRIMARY KEY ((experiment_id))
 );
 
 CREATE TABLE exp_cpu (
-  cpu_avg float,
-  cpu_q1 float,
-  cpu_q2 float,
-  cpu_q3 float,
-  cpu_mean float,
-  cpu_ci095 float,
-  cpu_median float,
-  cpu_mode float,
+  cpu_weighted_avg float,
+  cpu_q1_min float,
+  cpu_q1_max float,
+  cpu_q2_min float,
+  cpu_q2_max float,
+  cpu_q3_min float,
+  cpu_q3_max float,
+  cpu_p95_min float,
+  cpu_p95_max float,
+  cpu_ci095_min float,
+  cpu_ci095_max float,
+  cpu_median_min float,
+  cpu_median_max float,
+  cpu_mode_min float,
+  cpu_mode_max float
   cpu_min float,
   cpu_max float,
   cpu_sd float,
+  cpu_best list<text>,
+  cpu_average list<text>,
+  cpu_worst list<text>,
   experiment_id text,
   PRIMARY KEY ((experiment_id))
 );
 
 CREATE TABLE exp_ram (
-  ram_avg float,
-  ram_q1 float,
-  ram_q2 float,
-  ram_q3 float,
-  ram_mean float,
-  ram_ci095 float,
-  ram_median float,
-  ram_mode float,
+  ram_weighted_avg float,
+  ram_q1_min float,
+  ram_q1_max float,
+  ram_q2_min float,
+  ram_q2_max float,
+  ram_q3_min float,
+  ram_q3_max float,
+  ram_p95_min float,
+  ram_p95_max float,
+  ram_ci095_min float,
+  ram_ci095_max float,
+  ram_median_min float,
+  ram_median_max float,
+  ram_mode_min float,
+  ram_mode_max float
   ram_min float,
   ram_max float,
   ram_sd float,
+  ram_best list<text>,
+  ram_average list<text>,
+  ram_worst list<text>,
   experiment_id text,
   PRIMARY KEY ((experiment_id))
 );
 
 CREATE TABLE exp_throughput (
-  throughput float,
+  throughput_avg float,
+  throughput_min float,
+  throughput_max float,
+  throughput_q1 float,
+  throughput_q2 float,
+  throughput_q3 float,
+  throughput_p95 float,
+  throughput_ci095_min float,
+  throughput_ci095_max float,
+  throughput_me float,
+  throughput_median float,
+  throughput_mode list<float>,
+  throughput_sd float,
   experiment_id text,
   PRIMARY KEY ((experiment_id))
 );
 
 CREATE TABLE exp_number_of_process_instances (
-  number_of_process_instances bigint,
+  number_of_process_instances_avg float,
+  number_of_process_instances_min float,
+  number_of_process_instances_max float,
+  number_of_process_instances_q1 float,
+  number_of_process_instances_q2 float,
+  number_of_process_instances_q3 float,
+  number_of_process_instances_p95 float,
+  number_of_process_instances_ci095_min float,
+  number_of_process_instances_ci095_max float,
+  number_of_process_instances_me float,
+  number_of_process_instances_median float,
+  number_of_process_instances_mode list<float>,
+  number_of_process_instances_sd float,
+  experiment_id text,
+  PRIMARY KEY ((experiment_id))
+);
+
+CREATE TABLE exp_byte_size (
+  size_avg float,
+  size_min float,
+  size_max float,
+  size_q1 float,
+  size_q2 float,
+  size_q3 float,
+  size_p95 float,
+  size_ci095_min float,
+  size_ci095_max float,
+  size_me float,
+  size_median float,
+  size_mode list<float>,
+  size_sd float,
   experiment_id text,
   PRIMARY KEY ((experiment_id))
 );
 
 -- Trial metrics
 CREATE TABLE trial_process_duration (
+  process_duration_num_data_points bigint,
   process_duration_avg float,
   process_duration_q1 float,
   process_duration_q2 float,
   process_duration_q3 float,
+  process_duration_p95 float,
   process_duration_mean float,
-  process_duration_ci095 float,
+  process_duration_ci095_min float,
+  process_duration_ci095_max float,
+  process_duration_me float,
   process_duration_median float,
-  process_duration_mode float,
+  process_duration_mode list<float>,
   process_duration_min float,
   process_duration_max float,
   process_duration_sd float,
@@ -238,34 +314,44 @@ CREATE TABLE trial_process_duration (
 );
 
 CREATE TABLE trial_cpu (
+  cpu_num_data_points bigint,
   cpu_avg float,
   cpu_q1 float,
   cpu_q2 float,
   cpu_q3 float,
+  cpu_p95 float,
   cpu_mean float,
-  cpu_ci095 float,
+  cpu_ci095_min float,
+  cpu_ci095_max float,
+  cpu_me float,
   cpu_median float,
-  cpu_mode float,
+  cpu_mode list<float>,
   cpu_min float,
   cpu_max float,
   cpu_sd float,
+  cpu_integral float,
   experiment_id text,
   trial_id text,
   PRIMARY KEY ((trial_id,experiment_id))
 );
 
 CREATE TABLE trial_ram (
+  ram_num_data_points bigint,
   ram_avg float,
   ram_q1 float,
   ram_q2 float,
   ram_q3 float,
+  ram_p95 float,
   ram_mean float,
-  ram_ci095 float,
+  ram_ci095_min float,
+  ram_ci095_max float,
+  ram_me float,
   ram_median float,
-  ram_mode float,
+  ram_mode list<float>,
   ram_min float,
   ram_max float,
   ram_sd float,
+  ram_integral,
   experiment_id text,
   trial_id text,
   PRIMARY KEY ((trial_id,experiment_id))
@@ -273,6 +359,7 @@ CREATE TABLE trial_ram (
 
 CREATE TABLE trial_throughput (
   throughput float,
+  execution_time bigint,
   experiment_id text,
   trial_id text,
   PRIMARY KEY ((trial_id,experiment_id))
@@ -280,6 +367,13 @@ CREATE TABLE trial_throughput (
 
 CREATE TABLE trial_number_of_process_instances (
   number_of_process_instances bigint,
+  experiment_id text,
+  trial_id text,
+  PRIMARY KEY ((trial_id,experiment_id))
+);
+
+CREATE TABLE trial_byte_size (
+  size bigint,
   experiment_id text,
   trial_id text,
   PRIMARY KEY ((trial_id,experiment_id))
