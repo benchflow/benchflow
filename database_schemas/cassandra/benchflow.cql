@@ -351,7 +351,7 @@ CREATE TABLE trial_ram (
   ram_min float,
   ram_max float,
   ram_sd float,
-  ram_integral,
+  ram_integral float,
   experiment_id text,
   trial_id text,
   PRIMARY KEY ((trial_id,experiment_id))
