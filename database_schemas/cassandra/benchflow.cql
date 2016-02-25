@@ -174,7 +174,7 @@ CREATE TABLE exp_process_duration (
   process_duration_median_min float,
   process_duration_median_max float,
   process_duration_mode_min float,
-  process_duration_mode_max float
+  process_duration_mode_max float,
   process_duration_min float,
   process_duration_max float,
   process_duration_sd float,
@@ -200,7 +200,7 @@ CREATE TABLE exp_cpu (
   cpu_median_min float,
   cpu_median_max float,
   cpu_mode_min float,
-  cpu_mode_max float
+  cpu_mode_max float,
   cpu_min float,
   cpu_max float,
   cpu_sd float,
@@ -226,7 +226,7 @@ CREATE TABLE exp_ram (
   ram_median_min float,
   ram_median_max float,
   ram_mode_min float,
-  ram_mode_max float
+  ram_mode_max float,
   ram_min float,
   ram_max float,
   ram_sd float,
