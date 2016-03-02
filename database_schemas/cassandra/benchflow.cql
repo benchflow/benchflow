@@ -18,6 +18,16 @@ CREATE TABLE experiment (
 );
 
 -- Raw data
+CREATE TABLE database_sizes (
+  experiment_id text,
+  trial_id text,
+  dbms text,
+  database_name text,
+  database_table text,
+  size bigint,
+  PRIMARY KEY ((trial_id, experiment_id), dbms)
+);
+
 CREATE TABLE environment_data (
   environment_data_id uuid,
   container_properties_id uuid,
