@@ -316,6 +316,51 @@ CREATE TABLE exp_byte_size (
   PRIMARY KEY ((experiment_id))
 );
 
+CREATE TABLE exp_io (
+  reads_avg double,
+  reads_min bigint,
+  reads_max bigint,
+  reads_q1 bigint,
+  reads_q2 bigint,
+  reads_q3 bigint,
+  reads_p95 bigint,
+  reads_ci095_min double,
+  reads_ci095_max double,
+  reads_me double,
+  reads_median bigint,
+  reads_mode list<bigint>,
+  reads_sd double,
+  writes_avg double,
+  writes_min bigint,
+  writes_max bigint,
+  writes_q1 bigint,
+  writes_q2 bigint,
+  writes_q3 bigint,
+  writes_p95 bigint,
+  writes_ci095_min double,
+  writes_ci095_max double,
+  writes_me double,
+  writes_median bigint,
+  writes_mode list<bigint>,
+  writes_sd double,
+  total_avg double,
+  total_min bigint,
+  total_max bigint,
+  total_q1 bigint,
+  total_q2 bigint,
+  total_q3 bigint,
+  total_p95 bigint,
+  total_ci095_min double,
+  total_ci095_max double,
+  total_me double,
+  total_median bigint,
+  total_mode list<bigint>,
+  total_sd double,
+  experiment_id text,
+  device text,
+  PRIMARY KEY (experiment_id, device)
+);
+
 -- Trial metrics
 CREATE TABLE trial_process_duration (
   process_duration_num_data_points bigint,
