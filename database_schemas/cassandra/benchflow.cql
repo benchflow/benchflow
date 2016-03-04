@@ -28,20 +28,22 @@ CREATE TABLE database_sizes (
 );
 
 CREATE TABLE io_data (
+  io_data_id uuid,
   experiment_id text,
   trial_id text,
-  container_properties_id uuid,
+  container_id text,
   device text,
   writes bigint,
   reads bigint,
   sync bigint,
   async bigint,
   total bigint,
-  PRIMARY KEY ((trial_id, experiment_id), container_properties_id)
+  PRIMARY KEY ((trial_id, experiment_id), io_data_id, container_id)
 );
 
 CREATE TABLE environment_data (
   environment_data_id uuid,
+  io_data_id uuid,
   container_id text,
   read_time text,
   cpu_percpu_usage list<bigint>,
@@ -53,7 +55,7 @@ CREATE TABLE environment_data (
   network_interfaces map<text, uuid>,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((trial_id, experiment_id), environment_data_id, container_id)
+  PRIMARY KEY ((trial_id, experiment_id), environment_data_id, container_id, io_data_id)
 );
 
 CREATE TABLE network_interface_data (
