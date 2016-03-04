@@ -54,7 +54,7 @@ CREATE TABLE environment_data (
   network_interfaces map<text, uuid>,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((trial_id, experiment_id), environment_data_id, container_id)
+  PRIMARY KEY ((trial_id, experiment_id), container_id, environment_data_id)
 );
 
 CREATE TABLE network_interface_data (
@@ -403,7 +403,7 @@ CREATE TABLE trial_cpu (
   experiment_id text,
   trial_id text,
   container_id text,
-  PRIMARY KEY (experiment_id, trial_id, container_id)
+  PRIMARY KEY (experiment_id, container_id, trial_id)
 );
 
 CREATE TABLE trial_ram (
@@ -426,7 +426,7 @@ CREATE TABLE trial_ram (
   experiment_id text,
   trial_id text,
   container_id text,
-  PRIMARY KEY (experiment_id, trial_id, container_id)
+  PRIMARY KEY (experiment_id, container_id, trial_id)
 );
 
 CREATE TABLE trial_throughput (
@@ -451,7 +451,7 @@ CREATE TABLE trial_byte_size (
   PRIMARY KEY (experiment_id, trial_id)
 );
 
-CREATE TABLE trial_IO (
+CREATE TABLE trial_io (
   reads bigint,
   writes bigint,
   total bigint,
@@ -459,5 +459,5 @@ CREATE TABLE trial_IO (
   trial_id text,
   container_id text,
   device text,
-  PRIMARY KEY (experiment_id, trial_id, container_id, device)
+  PRIMARY KEY (experiment_id, container_id, trial_id, device)
 );
