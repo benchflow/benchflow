@@ -184,22 +184,22 @@ CREATE TABLE host_properties (
 -- Experiment metrics
 CREATE TABLE exp_process_duration (
   process_duration_weighted_avg double,
-  process_duration_q1_min bigint,
-  process_duration_q1_max bigint,
-  process_duration_q2_min bigint,
-  process_duration_q2_max bigint,
-  process_duration_q3_min bigint,
-  process_duration_q3_max bigint,
-  process_duration_p95_min bigint,
-  process_duration_p95_max bigint,
+  process_duration_q1_min double,
+  process_duration_q1_max double,
+  process_duration_q2_min double,
+  process_duration_q2_max double,
+  process_duration_q3_min double,
+  process_duration_q3_max double,
+  process_duration_p95_min double,
+  process_duration_p95_max double,
   process_duration_ci095_min double,
   process_duration_ci095_max double,
-  process_duration_median_min bigint,
-  process_duration_median_max bigint,
-  process_duration_mode_min bigint,
-  process_duration_mode_max bigint,
-  process_duration_min bigint,
-  process_duration_max bigint,
+  process_duration_median_min double,
+  process_duration_median_max double,
+  process_duration_mode_min double,
+  process_duration_mode_max double,
+  process_duration_min double,
+  process_duration_max double,
   process_duration_sd double,
   process_duration_best list<text>,
   process_duration_average list<text>,
@@ -232,7 +232,7 @@ CREATE TABLE exp_cpu (
   cpu_worst list<text>,
   experiment_id text,
   container_id text,
-  PRIMARY KEY ((experiment_id))
+  PRIMARY KEY (experiment_id, container_id)
 );
 
 CREATE TABLE exp_ram (
@@ -259,7 +259,7 @@ CREATE TABLE exp_ram (
   ram_worst list<text>,
   experiment_id text,
   container_id text,
-  PRIMARY KEY ((experiment_id))
+  PRIMARY KEY (experiment_id, container_id)
 );
 
 CREATE TABLE exp_throughput (
@@ -357,26 +357,27 @@ CREATE TABLE exp_io (
   total_mode list<bigint>,
   total_sd double,
   experiment_id text,
+  container_id text,
   device text,
-  PRIMARY KEY (experiment_id, device)
+  PRIMARY KEY (experiment_id, container_id, device)
 );
 
 -- Trial metrics
 CREATE TABLE trial_process_duration (
-  process_duration_num_data_points bigint,
+  process_duration_num_data_points double,
   process_duration_avg double,
-  process_duration_q1 bigint,
-  process_duration_q2 bigint,
-  process_duration_q3 bigint,
-  process_duration_p95 bigint,
+  process_duration_q1 double,
+  process_duration_q2 double,
+  process_duration_q3 double,
+  process_duration_p95 double,
   process_duration_mean double,
   process_duration_ci095_min double,
   process_duration_ci095_max double,
   process_duration_me double,
-  process_duration_median bigint,
-  process_duration_mode list<bigint>,
-  process_duration_min bigint,
-  process_duration_max bigint,
+  process_duration_median double,
+  process_duration_mode list<double>,
+  process_duration_min double,
+  process_duration_max double,
   process_duration_sd double,
   experiment_id text,
   trial_id text,
