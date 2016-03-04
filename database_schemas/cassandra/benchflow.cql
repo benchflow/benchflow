@@ -413,5 +413,6 @@ CREATE TABLE trial_IO (
   experiment_id text,
   trial_id text,
   container_id text,
-  PRIMARY KEY (experiment_id, trial_id, container_id)
+  device text,
+  PRIMARY KEY (experiment_id, trial_id, container_id, device)
 );
