@@ -38,7 +38,7 @@ CREATE TABLE io_data (
   sync bigint,
   async bigint,
   total bigint,
-  PRIMARY KEY ((trial_id, experiment_id), container_id)
+  PRIMARY KEY ((trial_id, experiment_id), container_id, io_data_id)
 );
 
 CREATE TABLE environment_data (
