@@ -46,6 +46,7 @@ CREATE TABLE environment_data (
   container_id text,
   read_time text,
   cpu_percpu_usage list<bigint>,
+  cpu_percpu_percent_usage list<double>,
   cpu_total_usage bigint,
   cpu_percent_usage float,
   cpu_throttling_data map<text, bigint>,
@@ -233,6 +234,32 @@ CREATE TABLE exp_cpu (
   PRIMARY KEY (experiment_id, container_id)
 );
 
+CREATE TABLE exp_cpu_core (
+  cpu_weighted_avg double,
+  cpu_q1_min double,
+  cpu_q1_max double,
+  cpu_q2_min double,
+  cpu_q2_max double,
+  cpu_q3_min double,
+  cpu_q3_max double,
+  cpu_p95_min double,
+  cpu_p95_max double,
+  cpu_ci095_min double,
+  cpu_ci095_max double,
+  cpu_median_min double,
+  cpu_median_max double,
+  cpu_min double,
+  cpu_max double,
+  cpu_sd double,
+  cpu_best list<text>,
+  cpu_average list<text>,
+  cpu_worst list<text>,
+  experiment_id text,
+  container_id text,
+  core bigint,
+  PRIMARY KEY (experiment_id, container_id, core)
+);
+
 CREATE TABLE exp_ram (
   ram_weighted_avg double,
   ram_q1_min double,
@@ -402,6 +429,29 @@ CREATE TABLE trial_cpu (
   trial_id text,
   container_id text,
   PRIMARY KEY (experiment_id, container_id, trial_id)
+);
+
+CREATE TABLE trial_cpu_core (
+  cpu_num_data_points bigint,
+  cpu_avg double,
+  cpu_q1 double,
+  cpu_q2 double,
+  cpu_q3 double,
+  cpu_p95 double,
+  cpu_mean double,
+  cpu_ci095_min double,
+  cpu_ci095_max double,
+  cpu_me double,
+  cpu_median double,
+  cpu_min double,
+  cpu_max double,
+  cpu_sd double,
+  cpu_integral double,
+  experiment_id text,
+  trial_id text,
+  container_id text,
+  core bigint,
+  PRIMARY KEY (experiment_id, container_id, core, trial_id)
 );
 
 CREATE TABLE trial_ram (
