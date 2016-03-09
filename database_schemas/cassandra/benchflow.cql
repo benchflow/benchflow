@@ -50,6 +50,7 @@ CREATE TABLE environment_data (
   cpu_total_usage bigint,
   cpu_percent_usage double,
   cpu_throttling_data map<text, bigint>,
+  cpu_cores int,
   memory_usage double,
   memory_max_usage double,
   network_interfaces map<text, uuid>,
@@ -211,6 +212,7 @@ CREATE TABLE exp_process_duration (
 
 CREATE TABLE exp_cpu (
   cpu_weighted_avg double,
+  cpu_cores int,
   cpu_q1_min double,
   cpu_q1_max double,
   cpu_q2_min double,
@@ -248,6 +250,7 @@ CREATE TABLE exp_cpu (
 );
 
 CREATE TABLE exp_cpu_core (
+  cpu_cores int,
   cpu_weighted_avg list<double>,
   cpu_q1_min list<double>,
   cpu_q1_max list<double>,
@@ -433,6 +436,7 @@ CREATE TABLE trial_process_duration (
 
 CREATE TABLE trial_cpu (
   cpu_num_data_points bigint,
+  cpu_cores int,
   cpu_avg double,
   cpu_q1 double,
   cpu_q2 double,
@@ -455,6 +459,7 @@ CREATE TABLE trial_cpu (
 
 CREATE TABLE trial_cpu_core (
   cpu_num_data_points bigint,
+  cpu_cores int,
   cpu_avg list<double>,
   cpu_q1 list<double>,
   cpu_q2 list<double>,
