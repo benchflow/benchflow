@@ -283,6 +283,42 @@ CREATE TABLE exp_ram (
   PRIMARY KEY (experiment_id, container_id)
 );
 
+CREATE TABLE exp_ram_integral (
+  integral_avg double,
+  integral_min double,
+  integral_max double,
+  integral_q1 double,
+  integral_q2 double,
+  integral_q3 double,
+  integral_p95 double,
+  integral_ci095_min double,
+  integral_ci095_max double,
+  integral_me double,
+  integral_median double,
+  integral_mode list<double>,
+  integral_sd double,
+  experiment_id text,
+  PRIMARY KEY (experiment_id, container_id)
+);
+
+CREATE TABLE exp_cpu_integral (
+  integral_avg double,
+  integral_min double,
+  integral_max double,
+  integral_q1 double,
+  integral_q2 double,
+  integral_q3 double,
+  integral_p95 double,
+  integral_ci095_min double,
+  integral_ci095_max double,
+  integral_me double,
+  integral_median double,
+  integral_mode list<double>,
+  integral_sd double,
+  experiment_id text,
+  PRIMARY KEY (experiment_id, container_id)
+);
+
 CREATE TABLE exp_throughput (
   throughput_avg double,
   throughput_min double,
