@@ -14,6 +14,8 @@ git config --global user.email "builds@travis-ci.com"
 git config --global user.name "Travis CI"
 # configure tag (prepended v- in order to ignore the build on push)
 export GIT_TAG=v-dev
+DEFAULT_USER_NAME="benchflow"
+export "${USER_NAME:=$DEFAULT_USER_NAME}"
 # delete the release, as well as its assets, if it exists
 export id=$(curl -sS -u x-oauth-basic:$GITHUB_ACCESS_TOKEN -X GET https://api.github.com/repos/$USER_NAME/$REPO_NAME/releases/tags/$GIT_TAG | /usr/bin/jq '.id')
 if [ "$id" != "null" ]; then curl -u x-oauth-basic:$GITHUB_ACCESS_TOKEN -X DELETE https://api.github.com/repos/$USER_NAME/$REPO_NAME/releases/$id; fi
