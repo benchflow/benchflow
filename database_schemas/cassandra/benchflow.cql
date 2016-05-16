@@ -60,6 +60,8 @@ CREATE TABLE environment_data (
 
 CREATE TABLE network_interface_data (
   network_interface_data_id uuid,
+  container_id text,
+  network_interface_name text,
   network_rx_dropped bigint,
   network_rx_bytes bigint,
   network_rx_errors bigint,
@@ -68,7 +70,9 @@ CREATE TABLE network_interface_data (
   network_rx_packets bigint,
   network_tx_errors bigint,
   network_tx_bytes bigint,
-  PRIMARY KEY (network_interface_data_id)
+  experiment_id text,
+  trial_id text,
+  PRIMARY KEY ((trial_id, experiment_id), container_id, network_interface_name, network_interface_data_id)
 );
 
 CREATE TABLE process (
@@ -103,8 +107,8 @@ CREATE TABLE container_properties (
   container_id text,
   experiment_id text,
   trial_id text,
-  host_id uuid,
-  environment map<text, text>,
+  host_id text,
+  environment list<text>,
   image text,
   labels list<text>,
   links list<text>,
@@ -135,7 +139,7 @@ CREATE TABLE container_properties (
 );
 
 CREATE TABLE host_properties (
-  host_id uuid,
+  host_id text,
   cpu_cfs_period boolean,
   cpu_cfs_quota boolean,
   debug boolean,
@@ -152,7 +156,7 @@ CREATE TABLE host_properties (
   init_path text,
   init_sha1 text,
   kernel_version text,
-  labels list<text>,
+  labels text,
   mem_total bigint,
   memory_limit boolean,
   n_cpu int,
@@ -180,6 +184,109 @@ CREATE TABLE host_properties (
   hostname text, 
   purpose text,
   PRIMARY KEY(host_id)
+);
+
+-- Faban
+CREATE TABLE faban_run_info (
+  host text,
+  name text,
+  version text,
+  run_id text,
+  start_time text,
+  end_time text,
+  metric_unit text,
+  metric_value double,
+  passed boolean,
+  experiment_id text,
+  trial_id text,
+  PRIMARY KEY ((trial_id, experiment_id), host)
+);
+
+CREATE TABLE faban_driver_summary (
+  host text,
+  name text,
+  metric_unit text,
+  metric_value double,
+  start_time text,
+  end_time text,
+  total_ops_unit text,
+  total_ops_value double,
+  users bigint,
+  rtXtps double,
+  passed boolean,
+  experiment_id text,
+  trial_id text,
+  PRIMARY KEY ((trial_id, experiment_id), host)
+);
+
+CREATE TABLE faban_driver_mix (
+  host text,
+  driver_name text,
+  op_name text,
+  allowed_deviation double,
+  successes bigint,
+  failures bigint,
+  mix double,
+  required_mix double,
+  passed boolean,
+  experiment_id text,
+  trial_id text,
+  PRIMARY KEY ((trial_id, experiment_id), host, driver_name, op_name)
+);
+
+CREATE TABLE faban_driver_response_times (
+  host text,
+  driver_name text,
+  op_name text,
+  unit text,
+  r90th double,
+  avg double,
+  max double,
+  sd double,
+  p90th double,
+  p99th double,
+  passed boolean,
+  experiment_id text,
+  trial_id text,
+  PRIMARY KEY ((trial_id, experiment_id), host, driver_name, op_name)
+);
+
+CREATE TABLE faban_driver_delay_times (
+  host text,
+  driver_name text,
+  op_name text,
+  type text,
+  targeted_avg double,
+  actual_avg double,
+  min double,
+  max double,
+  passed boolean,
+  experiment_id text,
+  trial_id text,
+  PRIMARY KEY ((trial_id, experiment_id), host, driver_name, op_name)
+);
+
+CREATE TABLE faban_driver_custom_stats (
+  host text,
+  driver_name text,
+  stat_name text,
+  description text,
+  result double,
+  experiment_id text,
+  trial_id text,
+  PRIMARY KEY ((trial_id, experiment_id), host, driver_name, stat_name, description)
+);
+
+CREATE TABLE faban_details (
+  id uuid,
+  host text,
+  section text,
+  op_name text,
+  time text,
+  value double,
+  experiment_id text,
+  trial_id text,
+  PRIMARY KEY ((trial_id, experiment_id), host, id, section, op_name)
 );
 
 -- Experiment metrics
