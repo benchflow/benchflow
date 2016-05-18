@@ -1,0 +1,8 @@
+engines:
+  markdownlint:
+    enabled: true
+  shellcheck:
+    enabled: true
+
+exclude_paths:
+- "/test/**/*"
