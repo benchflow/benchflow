@@ -103,7 +103,6 @@ CREATE TABLE construct (
 
 -- Environment metadata
 CREATE TABLE container_properties (
-  container_properties_id uuid,
   container_id text,
   experiment_id text,
   trial_id text,
@@ -135,7 +134,7 @@ CREATE TABLE container_properties (
   name text,
   network text,
   restart_policy text,
-  PRIMARY KEY ((trial_id, experiment_id), container_properties_id, host_id)
+  PRIMARY KEY ((trial_id, experiment_id), container_id)
 );
 
 CREATE TABLE host_properties (
