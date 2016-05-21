@@ -197,6 +197,7 @@ CREATE TABLE faban_run_info (
   metric_unit text,
   metric_value double,
   passed boolean,
+  status text,
   experiment_id text,
   trial_id text,
   PRIMARY KEY ((trial_id, experiment_id), host)
@@ -214,6 +215,7 @@ CREATE TABLE faban_driver_summary (
   users bigint,
   rtXtps double,
   passed boolean,
+  mix_allowed_deviation double,
   experiment_id text,
   trial_id text,
   PRIMARY KEY ((trial_id, experiment_id), host)
@@ -223,12 +225,12 @@ CREATE TABLE faban_driver_mix (
   host text,
   driver_name text,
   op_name text,
-  allowed_deviation double,
   successes bigint,
   failures bigint,
   mix double,
   required_mix double,
   passed boolean,
+  response_times_unit text,
   experiment_id text,
   trial_id text,
   PRIMARY KEY ((trial_id, experiment_id), host, driver_name, op_name)
@@ -238,17 +240,12 @@ CREATE TABLE faban_driver_response_times (
   host text,
   driver_name text,
   op_name text,
-  unit text,
-  r90th double,
-  avg double,
-  max double,
-  sd double,
-  p90th double,
-  p99th double,
+  stat_name text,
+  stat_value double,
   passed boolean,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((trial_id, experiment_id), host, driver_name, op_name)
+  PRIMARY KEY ((trial_id, experiment_id), host, driver_name, op_name, stat_name)
 );
 
 CREATE TABLE faban_driver_delay_times (
@@ -278,7 +275,6 @@ CREATE TABLE faban_driver_custom_stats (
 );
 
 CREATE TABLE faban_details (
-  id uuid,
   host text,
   section text,
   op_name text,
@@ -286,7 +282,7 @@ CREATE TABLE faban_details (
   value double,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((trial_id, experiment_id), host, id, section, op_name)
+  PRIMARY KEY ((trial_id, experiment_id), host, section, op_name, time)
 );
 
 -- Experiment metrics
