@@ -32,18 +32,20 @@ CREATE TABLE io_data (
   experiment_id text,
   trial_id text,
   container_id text,
+  host_id text,
   device text,
   writes bigint,
   reads bigint,
   sync bigint,
   async bigint,
   total bigint,
-  PRIMARY KEY ((trial_id, experiment_id), container_id, io_data_id)
+  PRIMARY KEY ((trial_id, experiment_id), container_id, host_id, io_data_id)
 );
 
 CREATE TABLE environment_data (
   environment_data_id uuid,
   container_id text,
+  host_id text,
   read_time text,
   cpu_percpu_usage list<bigint>,
   cpu_percpu_percent_usage list<double>,
@@ -55,12 +57,13 @@ CREATE TABLE environment_data (
   network_interfaces map<text, uuid>,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((trial_id, experiment_id), container_id, environment_data_id)
+  PRIMARY KEY ((trial_id, experiment_id), container_id, host_id, environment_data_id)
 );
 
 CREATE TABLE network_interface_data (
   network_interface_data_id uuid,
   container_id text,
+  host_id text,
   network_interface_name text,
   network_rx_dropped bigint,
   network_rx_bytes bigint,
@@ -72,7 +75,7 @@ CREATE TABLE network_interface_data (
   network_tx_bytes bigint,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((trial_id, experiment_id), container_id, network_interface_name, network_interface_data_id)
+  PRIMARY KEY ((trial_id, experiment_id), container_id, host_id, network_interface_name, network_interface_data_id)
 );
 
 CREATE TABLE process (
@@ -134,7 +137,7 @@ CREATE TABLE container_properties (
   name text,
   network text,
   restart_policy text,
-  PRIMARY KEY ((trial_id, experiment_id), container_id)
+  PRIMARY KEY ((trial_id, experiment_id), container_id, host_id)
 );
 
 CREATE TABLE host_properties (
@@ -342,7 +345,8 @@ CREATE TABLE exp_cpu (
   cpu_worst list<text>,
   experiment_id text,
   container_id text,
-  PRIMARY KEY (experiment_id, container_id)
+  host_id text,
+  PRIMARY KEY (experiment_id, container_id, host_id)
 );
 
 CREATE TABLE exp_cpu_core (
@@ -362,7 +366,8 @@ CREATE TABLE exp_cpu_core (
   cpu_max list<double>,
   experiment_id text,
   container_id text,
-  PRIMARY KEY (experiment_id, container_id)
+  host_id text,
+  PRIMARY KEY (experiment_id, container_id, host_id)
 );
 
 CREATE TABLE exp_ram (
@@ -400,7 +405,8 @@ CREATE TABLE exp_ram (
   ram_worst list<text>,
   experiment_id text,
   container_id text,
-  PRIMARY KEY (experiment_id, container_id)
+  host_id text,
+  PRIMARY KEY (experiment_id, container_id, host_id)
 );
 
 CREATE TABLE exp_throughput (
@@ -505,8 +511,9 @@ CREATE TABLE exp_io (
   total_sd double,
   experiment_id text,
   container_id text,
+  host_id text,
   device text,
-  PRIMARY KEY (experiment_id, container_id, device)
+  PRIMARY KEY (experiment_id, container_id, host_id, device)
 );
 
 -- Trial metrics
@@ -552,7 +559,8 @@ CREATE TABLE trial_cpu (
   experiment_id text,
   trial_id text,
   container_id text,
-  PRIMARY KEY (experiment_id, container_id, trial_id)
+  host_id text,
+  PRIMARY KEY (experiment_id, container_id, host_id, trial_id)
 );
 
 CREATE TABLE trial_cpu_core (
@@ -575,7 +583,8 @@ CREATE TABLE trial_cpu_core (
   experiment_id text,
   trial_id text,
   container_id text,
-  PRIMARY KEY (experiment_id, container_id, trial_id)
+  host_id text,
+  PRIMARY KEY (experiment_id, container_id, host_id, trial_id)
 );
 
 CREATE TABLE trial_ram (
@@ -599,7 +608,8 @@ CREATE TABLE trial_ram (
   experiment_id text,
   trial_id text,
   container_id text,
-  PRIMARY KEY (experiment_id, container_id, trial_id)
+  host_id text,
+  PRIMARY KEY (experiment_id, container_id, host_id, trial_id)
 );
 
 CREATE TABLE trial_throughput (
@@ -631,6 +641,7 @@ CREATE TABLE trial_io (
   experiment_id text,
   trial_id text,
   container_id text,
+  host_id text,
   device text,
-  PRIMARY KEY (experiment_id, container_id, trial_id, device)
+  PRIMARY KEY (experiment_id, container_id, host_id, trial_id, device)
 );
