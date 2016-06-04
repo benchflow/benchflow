@@ -24,7 +24,7 @@ CREATE TABLE database_sizes (
   dbms text,
   database_name text,
   size bigint,
-  PRIMARY KEY ((trial_id, experiment_id), dbms)
+  PRIMARY KEY ((experiment_id, trial_id), dbms)
 );
 
 CREATE TABLE io_data (
@@ -39,7 +39,7 @@ CREATE TABLE io_data (
   sync bigint,
   async bigint,
   total bigint,
-  PRIMARY KEY ((trial_id, experiment_id), container_id, host_id, io_data_id)
+  PRIMARY KEY ((experiment_id, trial_id), container_id, host_id, io_data_id)
 );
 
 CREATE TABLE environment_data (
@@ -57,11 +57,10 @@ CREATE TABLE environment_data (
   network_interfaces map<text, uuid>,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((trial_id, experiment_id), container_id, host_id, environment_data_id)
+  PRIMARY KEY ((experiment_id, trial_id), container_id, host_id, environment_data_id)
 );
 
 CREATE TABLE network_interface_data (
-  network_interface_data_id uuid,
   container_id text,
   host_id text,
   network_interface_name text,
@@ -75,23 +74,24 @@ CREATE TABLE network_interface_data (
   network_tx_bytes bigint,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((trial_id, experiment_id), container_id, host_id, network_interface_name, network_interface_data_id)
+  PRIMARY KEY ((experiment_id, trial_id), container_id, host_id, network_interface_name)
 );
 
 CREATE TABLE process (
-  process_instance_id uuid,
+  process_instance_id text,
   source_process_instance_id text,
   process_definition_id text,
   start_time timestamp,
   duration bigint,
   end_time timestamp,
+  to_ignore boolean,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((trial_id, experiment_id), process_instance_id)
+  PRIMARY KEY ((experiment_id, trial_id), process_instance_id)
 );
 
 CREATE TABLE construct (
-  construct_instance_id uuid,
+  construct_id text,
   source_construct_instance_id text,
   construct_type text,
   construct_name text,
@@ -99,9 +99,10 @@ CREATE TABLE construct (
   duration bigint,
   end_time timestamp,
   process_instance_id uuid,
+  to_ignore boolean,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((trial_id, experiment_id), construct_instance_id, process_instance_id)
+  PRIMARY KEY ((experiment_id, trial_id), process_instance_id, source_construct_instance_id, construct_id)
 );
 
 -- Environment metadata
@@ -137,7 +138,7 @@ CREATE TABLE container_properties (
   name text,
   network text,
   restart_policy text,
-  PRIMARY KEY ((trial_id, experiment_id), container_id, host_id)
+  PRIMARY KEY ((experiment_id, trial_id), container_id, host_id)
 );
 
 CREATE TABLE host_properties (
@@ -202,7 +203,7 @@ CREATE TABLE faban_run_info (
   status text,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((trial_id, experiment_id), host)
+  PRIMARY KEY (experiment_id, trial_id, host)
 );
 
 CREATE TABLE faban_driver_summary (
@@ -218,9 +219,10 @@ CREATE TABLE faban_driver_summary (
   rtXtps double,
   passed boolean,
   mix_allowed_deviation double,
+  response_times_unit text,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((trial_id, experiment_id), host)
+  PRIMARY KEY (experiment_id, trial_id, host, name)
 );
 
 CREATE TABLE faban_driver_mix (
@@ -232,10 +234,9 @@ CREATE TABLE faban_driver_mix (
   mix double,
   required_mix double,
   passed boolean,
-  response_times_unit text,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((trial_id, experiment_id), host, driver_name, op_name)
+  PRIMARY KEY (experiment_id, trial_id, host, driver_name, op_name)
 );
 
 CREATE TABLE faban_driver_response_times (
@@ -247,7 +248,7 @@ CREATE TABLE faban_driver_response_times (
   passed boolean,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((trial_id, experiment_id), host, driver_name, op_name, stat_name)
+  PRIMARY KEY (experiment_id, trial_id, host, driver_name, op_name, stat_name)
 );
 
 CREATE TABLE faban_driver_delay_times (
@@ -262,7 +263,7 @@ CREATE TABLE faban_driver_delay_times (
   passed boolean,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((trial_id, experiment_id), host, driver_name, op_name)
+  PRIMARY KEY (experiment_id, trial_id, host, driver_name, op_name)
 );
 
 CREATE TABLE faban_driver_custom_stats (
@@ -270,10 +271,11 @@ CREATE TABLE faban_driver_custom_stats (
   driver_name text,
   stat_name text,
   description text,
+  target text,
   result double,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((trial_id, experiment_id), host, driver_name, stat_name, description)
+  PRIMARY KEY (experiment_id, trial_id, host, driver_name, stat_name, description)
 );
 
 CREATE TABLE faban_details (
@@ -281,14 +283,124 @@ CREATE TABLE faban_details (
   section text,
   op_name text,
   time text,
+  time_unit text,
   value double,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((trial_id, experiment_id), host, section, op_name, time)
+  PRIMARY KEY (experiment_id, trial_id, host, section, op_name, time)
 );
 
 -- Experiment metrics
+CREATE TABLE exp_faban_total_ops (
+  experiment_id text,
+  faban_driver_host text,
+  faban_driver_name text,
+  faban_total_ops_mean double,
+  PRIMARY KEY (experiment_id, faban_driver_host, faban_driver_name)
+);
+
+CREATE TABLE exp_faban_ops (
+  experiment_id text,
+  faban_driver_host text,
+  faban_driver_name text,
+  faban_op_name text,
+  faban_successes_mean double,
+  faban_successes_min double,
+  faban_successes_max double,
+  faban_successes_q1 double,
+  faban_successes_q2 double,
+  faban_successes_q3 double,
+  faban_successes_p90 double,
+  faban_successes_p95 double,
+  faban_successes_p98 double,
+  faban_successes_percentiles list<double>,
+  faban_successes_ci095_min double,
+  faban_successes_ci095_max double,
+  faban_successes_me double,
+  faban_successes_mode list<double>,
+  faban_successes_mode_freq bigint,
+  faban_successes_sd double,
+  faban_failures_mean double,
+  faban_failures_min double,
+  faban_failures_max double,
+  faban_failures_q1 double,
+  faban_failures_q2 double,
+  faban_failures_q3 double,
+  faban_failures_p90 double,
+  faban_failures_p95 double,
+  faban_failures_p98 double,
+  faban_failures_percentiles list<double>,
+  faban_failures_ci095_min double,
+  faban_failures_ci095_max double,
+  faban_failures_me double,
+  faban_failures_mode list<double>,
+  faban_failures_mode_freq bigint,
+  faban_failures_sd double,
+  faban_mix_mean double,
+  faban_mix_min double,
+  faban_mix_max double,
+  faban_mix_q1 double,
+  faban_mix_q2 double,
+  faban_mix_q3 double,
+  faban_mix_p90 double,
+  faban_mix_p95 double,
+  faban_mix_p98 double,
+  faban_mix_percentiles list<double>,
+  faban_mix_ci095_min double,
+  faban_mix_ci095_max double,
+  faban_mix_me double,
+  faban_mix_mode list<double>,
+  faban_mix_mode_freq bigint,
+  faban_mix_sd double,
+  faban_delay_times_weighted_avg double,
+  faban_delay_times_min double,
+  faban_delay_times_max double,
+  PRIMARY KEY (experiment_id, faban_driver_host, faban_driver_name, faban_op_name)
+);
+
+CREATE TABLE exp_faban_ops_response_times (
+  experiment_id text,
+  faban_driver_host text,
+  faban_driver_name text,
+  faban_op_name text,
+  faban_op_stat_name text,
+  faban_op_stat_max double,
+  faban_op_stat_min double,
+  PRIMARY KEY (experiment_id, faban_driver_host, faban_driver_name, faban_op_name, faban_op_stat_name)
+);
+
+CREATE TABLE exp_faban_ops_custom_stats (
+  experiment_id text,
+  faban_driver_host text,
+  faban_driver_name text,
+  faban_op_name text,
+  faban_op_stat_name text,
+  faban_op_stat_description text,
+  faban_op_stat_target text,
+  faban_stat_mean double,
+  faban_stat_min double,
+  faban_stat_max double,
+  faban_stat_q1 double,
+  faban_stat_q2 double,
+  faban_stat_q3 double,
+  faban_stat_p90 double,
+  faban_stat_p95 double,
+  faban_stat_p98 double,
+  faban_stat_percentiles list<double>,
+  faban_stat_ci095_min double,
+  faban_stat_ci095_max double,
+  faban_stat_me double,
+  faban_stat_mode list<double>,
+  faban_stat_mode_freq bigint,
+  faban_stat_sd double,
+  PRIMARY KEY (experiment_id, faban_driver_host, faban_driver_name, faban_op_name, faban_op_stat_name)
+);
+
 CREATE TABLE exp_process_duration (
+  process_duration_levene_test_mean double,
+  process_duration_levene_test_median double,
+  process_duration_levene_test_trimmed double,
+  process_duration_variation_coefficient double,
   process_duration_weighted_avg double,
   process_duration_q1_min double,
   process_duration_q1_max double,
@@ -298,8 +410,6 @@ CREATE TABLE exp_process_duration (
   process_duration_q3_max double,
   process_duration_p95_min double,
   process_duration_p95_max double,
-  process_duration_median_min double,
-  process_duration_median_max double,
   process_duration_mode_min double,
   process_duration_mode_min_freq bigint,
   process_duration_mode_max double,
@@ -309,11 +419,45 @@ CREATE TABLE exp_process_duration (
   process_duration_best list<text>,
   process_duration_average list<text>,
   process_duration_worst list<text>,
+  process_definition_id text,
   experiment_id text,
-  PRIMARY KEY ((experiment_id))
+  PRIMARY KEY ((experiment_id), process_definition_id)
+);
+
+CREATE TABLE exp_construct_duration (
+  construct_duration_levene_test_mean double,
+  construct_duration_levene_test_median double,
+  construct_duration_levene_test_trimmed double,
+  construct_duration_variation_coefficient double,
+  construct_duration_weighted_avg double,
+  construct_duration_q1_min double,
+  construct_duration_q1_max double,
+  construct_duration_q2_min double,
+  construct_duration_q2_max double,
+  construct_duration_q3_min double,
+  construct_duration_q3_max double,
+  construct_duration_p95_min double,
+  construct_duration_p95_max double,
+  construct_duration_mode_min double,
+  construct_duration_mode_min_freq bigint,
+  construct_duration_mode_max double,
+  construct_duration_mode_max_freq bigint,
+  construct_duration_min double,
+  construct_duration_max double,
+  construct_duration_best list<text>,
+  construct_duration_average list<text>,
+  construct_duration_worst list<text>,
+  construct_type text,
+  construct_name text,
+  experiment_id text,
+  PRIMARY KEY ((experiment_id), construct_type, construct_name)
 );
 
 CREATE TABLE exp_cpu (
+  cpu_levene_test_mean double,
+  cpu_levene_test_median double,
+  cpu_levene_test_trimmed double,
+  cpu_variation_coefficient double,
   cpu_weighted_avg double,
   cpu_cores int,
   cpu_q1_min double,
@@ -324,11 +468,8 @@ CREATE TABLE exp_cpu (
   cpu_q3_max double,
   cpu_p95_min double,
   cpu_p95_max double,
-  cpu_median_min double,
-  cpu_median_max double,
   cpu_min double,
   cpu_max double,
-  cpu_integral_avg double,
   cpu_integral_min double,
   cpu_integral_max double,
   cpu_integral_q1 double,
@@ -338,7 +479,7 @@ CREATE TABLE exp_cpu (
   cpu_integral_ci095_min double,
   cpu_integral_ci095_max double,
   cpu_integral_me double,
-  cpu_integral_median double,
+  cpu_integral_mean double,
   cpu_integral_sd double,
   cpu_best list<text>,
   cpu_average list<text>,
@@ -360,8 +501,6 @@ CREATE TABLE exp_cpu_core (
   cpu_q3_max list<double>,
   cpu_p95_min list<double>,
   cpu_p95_max list<double>,
-  cpu_median_min list<double>,
-  cpu_median_max list<double>,
   cpu_min list<double>,
   cpu_max list<double>,
   experiment_id text,
@@ -371,6 +510,10 @@ CREATE TABLE exp_cpu_core (
 );
 
 CREATE TABLE exp_ram (
+  ram_levene_test_mean double,
+  ram_levene_test_median double,
+  ram_levene_test_trimmed double,
+  ram_variation_coefficient double,
   ram_weighted_avg double,
   ram_q1_min double,
   ram_q1_max double,
@@ -380,15 +523,13 @@ CREATE TABLE exp_ram (
   ram_q3_max double,
   ram_p95_min double,
   ram_p95_max double,
-  ram_median_min double,
-  ram_median_max double,
   ram_mode_min double,
   ram_mode_min_freq bigint,
   ram_mode_max double,
   ram_mode_max_freq bigint,
   ram_min double,
   ram_max double,
-  ram_integral_avg double,
+  ram_integral_mean double,
   ram_integral_min double,
   ram_integral_max double,
   ram_integral_q1 double,
@@ -398,7 +539,6 @@ CREATE TABLE exp_ram (
   ram_integral_ci095_min double,
   ram_integral_ci095_max double,
   ram_integral_me double,
-  ram_integral_median double,
   ram_integral_sd double,
   ram_best list<text>,
   ram_average list<text>,
@@ -410,55 +550,108 @@ CREATE TABLE exp_ram (
 );
 
 CREATE TABLE exp_throughput (
-  throughput_avg double,
+  throughput_mean double,
   throughput_min double,
   throughput_max double,
   throughput_q1 double,
   throughput_q2 double,
   throughput_q3 double,
+  throughput_p90 double,
   throughput_p95 double,
+  throughput_p98 double,
+  throughput_percentiles list<double>,
   throughput_ci095_min double,
   throughput_ci095_max double,
   throughput_me double,
-  throughput_median double,
   throughput_mode list<double>,
   throughput_mode_freq bigint,
   throughput_sd double,
+  process_definition_id text,
   experiment_id text,
-  PRIMARY KEY ((experiment_id))
+  PRIMARY KEY ((experiment_id), process_definition_id)
+);
+
+CREATE TABLE exp_execution_time (
+  execution_time_mean double,
+  execution_time_min double,
+  execution_time_max double,
+  execution_time_q1 double,
+  execution_time_q2 double,
+  execution_time_q3 double,
+  execution_time_p90 double,
+  execution_time_p95 double,
+  execution_time_p98 double,
+  execution_time_percentiles list<double>,
+  execution_time_ci095_min double,
+  execution_time_ci095_max double,
+  execution_time_me double,
+  execution_time_mode list<double>,
+  execution_time_mode_freq bigint,
+  execution_time_sd double,
+  process_definition_id text,
+  experiment_id text,
+  PRIMARY KEY ((experiment_id), process_definition_id)
 );
 
 CREATE TABLE exp_number_of_process_instances (
-  number_of_process_instances_avg double,
+  number_of_process_instances_mean double,
   number_of_process_instances_min bigint,
   number_of_process_instances_max bigint,
   number_of_process_instances_q1 bigint,
   number_of_process_instances_q2 bigint,
   number_of_process_instances_q3 bigint,
+  number_of_process_instances_p90 bigint,
   number_of_process_instances_p95 bigint,
+  number_of_process_instances_p99 bigint,
+  number_of_process_instances_percentiles list<bigint>,
   number_of_process_instances_ci095_min double,
   number_of_process_instances_ci095_max double,
   number_of_process_instances_me double,
-  number_of_process_instances_median bigint,
   number_of_process_instances_mode list<bigint>,
   number_of_process_instances_mode_freq bigint,
   number_of_process_instances_sd double,
+  process_definition_id text,
   experiment_id text,
-  PRIMARY KEY ((experiment_id))
+  PRIMARY KEY ((experiment_id), process_definition_id)
+);
+
+CREATE TABLE exp_number_of_construct_instances (
+  number_of_construct_instances_mean double,
+  number_of_construct_instances_min bigint,
+  number_of_construct_instances_max bigint,
+  number_of_construct_instances_q1 bigint,
+  number_of_construct_instances_q2 bigint,
+  number_of_construct_instances_q3 bigint,
+  number_of_construct_instances_p90 bigint,
+  number_of_construct_instances_p95 bigint,
+  number_of_construct_instances_p99 bigint,
+  number_of_construct_instances_percentiles list<bigint>,
+  number_of_construct_instances_ci095_min double,
+  number_of_construct_instances_ci095_max double,
+  number_of_construct_instances_me double,
+  number_of_construct_instances_mode list<bigint>,
+  number_of_construct_instances_mode_freq bigint,
+  number_of_construct_instances_sd double,
+  construct_type text,
+  construct_name text,
+  experiment_id text,
+  PRIMARY KEY ((experiment_id), construct_type, construct_name)
 );
 
 CREATE TABLE exp_byte_size (
-  size_avg double,
   size_min bigint,
   size_max bigint,
   size_q1 bigint,
   size_q2 bigint,
   size_q3 bigint,
+  size_p90 bigint,
   size_p95 bigint,
+  size_p99 bigint,
+  size_percentiles list<bigint>,
   size_ci095_min double,
   size_ci095_max double,
   size_me double,
-  size_median bigint,
+  size_mean double,
   size_mode list<bigint>,
   size_mode_freq bigint,
   size_sd double,
@@ -467,45 +660,51 @@ CREATE TABLE exp_byte_size (
 );
 
 CREATE TABLE exp_io (
-  reads_avg double,
+  reads_mean double,
   reads_min bigint,
   reads_max bigint,
   reads_q1 bigint,
   reads_q2 bigint,
   reads_q3 bigint,
+  reads_p90 bigint,
   reads_p95 bigint,
+  reads_p99 bigint,
+  reads_percentiles list<bigint>,
   reads_ci095_min double,
   reads_ci095_max double,
   reads_me double,
-  reads_median bigint,
   reads_mode list<bigint>,
   reads_mode_freq bigint,
   reads_sd double,
-  writes_avg double,
+  writes_mean double,
   writes_min bigint,
   writes_max bigint,
   writes_q1 bigint,
   writes_q2 bigint,
   writes_q3 bigint,
+  writes_p90 bigint,
   writes_p95 bigint,
+  writes_p99 bigint,
+  writes_percentiles list<bigint>,
   writes_ci095_min double,
   writes_ci095_max double,
   writes_me double,
-  writes_median bigint,
   writes_mode list<bigint>,
   writes_mode_freq bigint,
   writes_sd double,
-  total_avg double,
+  total_mean double,
   total_min bigint,
   total_max bigint,
   total_q1 bigint,
   total_q2 bigint,
   total_q3 bigint,
+  total_p90 bigint,
   total_p95 bigint,
+  total_p99 bigint,
+  total_percentiles list<bigint>,
   total_ci095_min double,
   total_ci095_max double,
   total_me double,
-  total_median bigint,
   total_mode list<bigint>,
   total_mode_freq bigint,
   total_sd double,
@@ -517,41 +716,99 @@ CREATE TABLE exp_io (
 );
 
 -- Trial metrics
+CREATE TABLE trial_faban_details (
+  faban_details_num_data_points bigint,
+  faban_details_q1 double,
+  faban_details_q2 double,
+  faban_details_q3 double,
+  faban_details_p90 double,
+  faban_details_p95 double,
+  faban_details_p99 double,
+  faban_details_percentiles list<double>,
+  faban_details_mean double,
+  faban_details_ci095_min double,
+  faban_details_ci095_max double,
+  faban_details_me double,
+  faban_details_mode list<double>,
+  faban_details_mode_freq bigint,
+  faban_details_min double,
+  faban_details_max double,
+  faban_details_sd double,
+  faban_details_integral double,
+  faban_details_section text,
+  faban_details_op_name text,
+  faban_details_host text,
+  experiment_id text,
+  trial_id text,
+  PRIMARY KEY (experiment_id, trial_id, faban_details_host, faban_details_section, faban_details_op_name)
+);
+
+
 CREATE TABLE trial_process_duration (
   process_duration_num_data_points double,
-  process_duration_avg double,
   process_duration_q1 double,
   process_duration_q2 double,
   process_duration_q3 double,
+  process_duration_p90 double,
   process_duration_p95 double,
+  process_duration_p99 double,
+  process_duration_percentiles list<double>,
   process_duration_mean double,
   process_duration_ci095_min double,
   process_duration_ci095_max double,
   process_duration_me double,
-  process_duration_median double,
   process_duration_mode list<double>,
   process_duration_mode_freq bigint,
   process_duration_min double,
   process_duration_max double,
   process_duration_sd double,
+  process_definition_id text,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY (experiment_id, trial_id)
+  PRIMARY KEY (experiment_id, trial_id, process_definition_id)
+);
+
+CREATE TABLE trial_construct_duration (
+  construct_duration_num_data_points double,
+  construct_duration_q1 double,
+  construct_duration_q2 double,
+  construct_duration_q3 double,
+  construct_duration_percentiles list<double>,
+  construct_duration_p90 double,
+  construct_duration_p95 double,
+  construct_duration_p99 double,
+  construct_duration_mean double,
+  construct_duration_ci095_min double,
+  construct_duration_ci095_max double,
+  construct_duration_me double,
+  construct_duration_mode list<double>,
+  construct_duration_mode_freq bigint,
+  construct_duration_min double,
+  construct_duration_max double,
+  construct_duration_sd double,
+  construct_type text,
+  construct_name text,
+  experiment_id text,
+  trial_id text,
+  PRIMARY KEY (experiment_id, trial_id, construct_type, construct_name)
 );
 
 CREATE TABLE trial_cpu (
+  relative_efficency double,
+  absolute_efficency double,
   cpu_num_data_points bigint,
   cpu_cores int,
-  cpu_avg double,
   cpu_q1 double,
   cpu_q2 double,
   cpu_q3 double,
+  cpu_percentiles list<double>,
+  cpu_p90 double,
   cpu_p95 double,
+  cpu_p99 double,
   cpu_mean double,
   cpu_ci095_min double,
   cpu_ci095_max double,
   cpu_me double,
-  cpu_median double,
   cpu_min double,
   cpu_max double,
   cpu_sd double,
@@ -570,12 +827,13 @@ CREATE TABLE trial_cpu_core (
   cpu_q1 list<double>,
   cpu_q2 list<double>,
   cpu_q3 list<double>,
+  cpu_p90 list<double>,
   cpu_p95 list<double>,
+  cpu_p99 list<double>,
   cpu_mean list<double>,
   cpu_ci095_min list<double>,
   cpu_ci095_max list<double>,
   cpu_me list<double>,
-  cpu_median list<double>,
   cpu_min list<double>,
   cpu_max list<double>,
   cpu_sd list<double>,
@@ -588,17 +846,20 @@ CREATE TABLE trial_cpu_core (
 );
 
 CREATE TABLE trial_ram (
+  relative_efficency double,
+  absolute_efficency double,
   ram_num_data_points bigint,
-  ram_avg double,
   ram_q1 double,
   ram_q2 double,
   ram_q3 double,
+  ram_p90 double,
   ram_p95 double,
+  ram_p99 double,
+  ram_percentiles list<double>,
   ram_mean double,
   ram_ci095_min double,
   ram_ci095_max double,
   ram_me double,
-  ram_median double,
   ram_mode list<double>,
   ram_mode_freq bigint,
   ram_min double,
@@ -614,17 +875,35 @@ CREATE TABLE trial_ram (
 
 CREATE TABLE trial_throughput (
   throughput double,
-  execution_time bigint,
+  process_definition_id text,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY (experiment_id, trial_id)
+  PRIMARY KEY (experiment_id, trial_id, process_definition_id)
+);
+
+CREATE TABLE trial_execution_time (
+  execution_time bigint,
+  process_definition_id text,
+  experiment_id text,
+  trial_id text,
+  PRIMARY KEY (experiment_id, trial_id, process_definition_id)
 );
 
 CREATE TABLE trial_number_of_process_instances (
   number_of_process_instances bigint,
+  process_definition_id text,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY (experiment_id, trial_id)
+  PRIMARY KEY (experiment_id, trial_id, process_definition_id)
+);
+
+CREATE TABLE trial_number_of_construct_instances (
+  number_of_construct_instances bigint,
+  construct_type text,
+  construct_name text,
+  experiment_id text,
+  trial_id text,
+  PRIMARY KEY (experiment_id, trial_id, construct_type, construct_name)
 );
 
 CREATE TABLE trial_byte_size (
