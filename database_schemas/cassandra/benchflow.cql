@@ -382,8 +382,7 @@ CREATE TABLE exp_faban_ops_custom_stats (
   experiment_id text,
   faban_driver_host text,
   faban_driver_name text,
-  faban_op_name text,
-  faban_op_stat_name text,
+  faban_stat_name text,
   faban_op_stat_description text,
   faban_stat_mean double,
   faban_stat_min double,
@@ -401,7 +400,7 @@ CREATE TABLE exp_faban_ops_custom_stats (
   faban_stat_mode list<double>,
   faban_stat_mode_freq bigint,
   faban_stat_sd double,
-  PRIMARY KEY (experiment_id, faban_driver_host, faban_driver_name, faban_op_name, faban_op_stat_name)
+  PRIMARY KEY (experiment_id, faban_driver_host, faban_driver_name, faban_stat_name)
 );
 
 CREATE TABLE exp_faban_ops_custom_stats_composite (
