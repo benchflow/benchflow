@@ -353,6 +353,14 @@ CREATE TABLE exp_faban_ops (
   faban_mix_mode list<double>,
   faban_mix_mode_freq bigint,
   faban_mix_sd double,
+  PRIMARY KEY (experiment_id, faban_driver_host, faban_driver_name, faban_op_name)
+);
+
+CREATE TABLE exp_faban_delay_times (
+  experiment_id text,
+  faban_driver_host text,
+  faban_driver_name text,
+  faban_op_name text,
   faban_delay_times_weighted_avg double,
   faban_delay_times_min double,
   faban_delay_times_max double,
@@ -377,7 +385,6 @@ CREATE TABLE exp_faban_ops_custom_stats (
   faban_op_name text,
   faban_op_stat_name text,
   faban_op_stat_description text,
-  faban_op_stat_target text,
   faban_stat_mean double,
   faban_stat_min double,
   faban_stat_max double,
@@ -394,6 +401,18 @@ CREATE TABLE exp_faban_ops_custom_stats (
   faban_stat_mode list<double>,
   faban_stat_mode_freq bigint,
   faban_stat_sd double,
+  PRIMARY KEY (experiment_id, faban_driver_host, faban_driver_name, faban_op_name, faban_op_stat_name)
+);
+
+CREATE TABLE exp_faban_ops_custom_stats_composite (
+  experiment_id text,
+  faban_driver_host text,
+  faban_driver_name text,
+  faban_op_name text,
+  faban_op_stat_name text,
+  faban_op_stat_description text,
+  faban_stat_min double,
+  faban_stat_max double,
   PRIMARY KEY (experiment_id, faban_driver_host, faban_driver_name, faban_op_name, faban_op_stat_name)
 );
 
