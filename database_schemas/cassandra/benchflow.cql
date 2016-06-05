@@ -87,7 +87,7 @@ CREATE TABLE process (
   to_ignore boolean,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((experiment_id, trial_id), source_process_instance_id, process_instance_id)
+  PRIMARY KEY ((experiment_id, trial_id), process_instance_id)
 );
 
 CREATE TABLE construct (
