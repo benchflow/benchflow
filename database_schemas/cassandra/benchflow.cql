@@ -61,6 +61,7 @@ CREATE TABLE environment_data (
 );
 
 CREATE TABLE network_interface_data (
+  network_interface_data_id uuid,
   container_id text,
   host_id text,
   network_interface_name text,
@@ -74,7 +75,7 @@ CREATE TABLE network_interface_data (
   network_tx_bytes bigint,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((experiment_id, trial_id), container_id, host_id, network_interface_name)
+  PRIMARY KEY ((experiment_id, trial_id), container_id, host_id, network_interface_name, network_interface_data_id)
 );
 
 CREATE TABLE process (
