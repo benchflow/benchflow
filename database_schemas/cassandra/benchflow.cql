@@ -79,7 +79,6 @@ CREATE TABLE network_interface_data (
 );
 
 CREATE TABLE process (
-  process_instance_id text,
   source_process_instance_id text,
   process_definition_id text,
   start_time timestamp,
@@ -88,22 +87,21 @@ CREATE TABLE process (
   to_ignore boolean,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((experiment_id, trial_id), process_instance_id)
+  PRIMARY KEY ((experiment_id, trial_id), source_process_instance_id)
 );
 
 CREATE TABLE construct (
-  construct_id text,
   source_construct_instance_id text,
   construct_type text,
   construct_name text,
   start_time timestamp,
   duration bigint,
   end_time timestamp,
-  process_instance_id uuid,
+  source_process_instance_id text,
   to_ignore boolean,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY ((experiment_id, trial_id), process_instance_id, source_construct_instance_id, construct_id)
+  PRIMARY KEY ((experiment_id, trial_id), source_process_instance_id, source_construct_instance_id)
 );
 
 -- Environment metadata
