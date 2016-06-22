@@ -5,7 +5,7 @@ DROP KEYSPACE IF EXISTS benchflow;
 
 -- Create benchflow keyspace (currently we use only one node)
 CREATE KEYSPACE benchflow
-WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 2 };
 
 USE benchflow;
 
