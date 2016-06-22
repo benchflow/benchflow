@@ -286,7 +286,7 @@ CREATE TABLE faban_details (
   value double,
   experiment_id text,
   trial_id text,
-  PRIMARY KEY (experiment_id, trial_id, host, section, op_name, time)
+  PRIMARY KEY ((experiment_id, trial_id), host, section, op_name, time)
 );
 
 -- Experiment metrics
