@@ -378,7 +378,7 @@ CREATE TABLE exp_faban_ops_response_times (
   PRIMARY KEY (experiment_id, faban_driver_host, faban_driver_name, faban_op_name, faban_op_stat_name)
 );
 
-CREATE TABLE exp_faban_ops_custom_stats (
+CREATE TABLE exp_faban_ops_custom_stats_target_absolute (
   experiment_id text,
   faban_driver_host text,
   faban_driver_name text,
@@ -403,7 +403,7 @@ CREATE TABLE exp_faban_ops_custom_stats (
   PRIMARY KEY (experiment_id, faban_driver_host, faban_driver_name, faban_stat_name, faban_stat_description)
 );
 
-CREATE TABLE exp_faban_ops_custom_stats_composite (
+CREATE TABLE exp_faban_ops_custom_stats_target_statistic (
   experiment_id text,
   faban_driver_host text,
   faban_driver_name text,
