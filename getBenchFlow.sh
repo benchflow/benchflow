@@ -90,7 +90,7 @@ do_install() {
 	# cross-OS compatibility (greadlink, gsed, zcat are GNU implementations for OS X)
 	[[ `uname` == 'Darwin' ]] && {
 	  which greadlink gsed gzcat > /dev/null || {
-	    set FORCE_UNSAFE_CONFIGURE=1
+		set FORCE_UNSAFE_CONFIGURE=1
 		sudo brew install coreutils gnu-sed
 	  }
 	}
