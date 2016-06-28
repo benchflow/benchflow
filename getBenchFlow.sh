@@ -2,9 +2,9 @@
 set -e
 #
 # This script is meant for quick & easy install via:
-#   'curl -sSL https://github.com/benchflow/client/releases/download/v-dev/benchflow | sh'
+#   'curl -sSL https://github.com/benchflow/client/releases/download/<version>/benchflow | sh'
 # or:
-#   'wget -qO- https://github.com/benchflow/client/releases/download/v-dev/benchflow | sh'
+#   'wget -qO- https://github.com/benchflow/client/releases/download/<version>/benchflow | sh'
 #
 # How to use this script to install BenchFlow:
 #   1. Log into your Ubuntu or OSX terminal as a user with `sudo` privileges.
@@ -27,7 +27,7 @@ set -e
 #
 # 	4. Get the latest BenchFlow package.
 
-#		$ wget -qO- https://github.com/benchflow/benchflow/releases/download/v-dev/getBenchFlow.sh | sh
+#		$ wget -qO- https://github.com/benchflow/benchflow/releases/download/<version>/getBenchFlow.sh | sh
 
 # 	   The system prompts you for your sudo password. Then, it downloads and installs BenchFlow and its dependencies.
 
@@ -40,6 +40,10 @@ set -e
 #
 #
 # Inspired from: https://get.docker.com and https://docs.docker.com/linux/step_one/
+
+#-----BenchFlow details-----#
+VERSION="v-dev"
+#-----BenchFlow details-----#
 
 command_exists() {
 	command -v "$@" > /dev/null 2>&1
@@ -87,7 +91,7 @@ do_install() {
 		curl='wget -qO-'
 	fi
 
-	$sh_c 'curl -L https://github.com/benchflow/client/releases/download/v-dev/benchflow > /usr/local/bin/benchflow'
+	$sh_c 'curl -L https://github.com/benchflow/client/releases/download/'$VERSION'/benchflow > /usr/local/bin/benchflow'
 	$sh_c 'chmod +x /usr/local/bin/benchflow'
 	$sh_c 'chown '$user' /usr/local/bin/benchflow'
 
