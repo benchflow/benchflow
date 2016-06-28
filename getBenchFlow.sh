@@ -2,8 +2,6 @@
 set -e
 #
 # This script is meant for quick & easy install via:
-#   'curl -sSL https://github.com/benchflow/client/releases/download/<version>/benchflow | sh'
-# or:
 #   'wget -qO- https://github.com/benchflow/client/releases/download/<version>/benchflow | sh'
 #
 # How to use this script to install BenchFlow:
@@ -69,12 +67,26 @@ do_install() {
 	fi
 
 	if command_exists benchflow; then
-		cat >&2 <<-'EOF'
-			Warning: the "benchflow" command appears to already exist on this system.
 
-			You may press Ctrl+C now to abort this script.
-		EOF
-		( set -x; sleep 20 )
+		local skip_warning=false
+
+		#if we want to force the update, we don't warn the user
+		if [[ ! -z "$1" ]]
+		then
+		  if [[ "-f" == "$1" ]]
+		  then
+		     skip_warning=true
+		  fi
+		fi
+
+		if [ "$skip_warning" = false ] ; then
+		    cat >&2 <<-'EOF'
+				Warning: the "benchflow" command appears to already exist on this system.
+
+				You may press Ctrl+C now to abort this script.
+			EOF
+			( set -x; sleep 20 )
+		fi
 
 		# Removing the old version of the BenchFlow command
 		cat >&2 <<-'EOF'
@@ -84,16 +96,14 @@ do_install() {
 		$sh_c 'rm -f /usr/local/bin/benchflow'
 	fi
 
-	curl=''
-	if command_exists curl; then
-		curl='curl -sSL'
-	elif command_exists wget; then
-		curl='wget -qO-'
-	fi
-
-	$sh_c 'curl -L https://github.com/benchflow/client/releases/download/'$VERSION'/benchflow > /usr/local/bin/benchflow'
+	#TODO: handle errors
+	$sh_c 'wget -qO- https://github.com/benchflow/client/releases/download/'$VERSION'/benchflow > /usr/local/bin/benchflow' 1>&- 2>&-
 	$sh_c 'chmod +x /usr/local/bin/benchflow'
 	$sh_c 'chown '$user' /usr/local/bin/benchflow'
+
+	cat >&2 <<-'EOF'
+		Latest version of the "benchflow" command installed
+	EOF
 
 	#-----Download the correct tools used by benchflow if we are on OSX-----#
 	# DESCRIPTION OF PROBLEM: Implementations of sed, readlink, zcat, etc. are different on OS X and Linux.
@@ -111,5 +121,5 @@ do_install() {
 }
 
 # wrapped up in a function so that we have some protection against only getting
-# half the file during "curl | sh"
-do_install
+# half the file during "wget | sh"
+do_install $@
