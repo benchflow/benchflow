@@ -89,7 +89,9 @@ do_install() {
 		fi
 
 		# Removing the old version of the BenchFlow command
-		echo 'Removing old "benchflow" command'
+		cat >&2 <<-'EOF'
+			Removing old 'benchflow' command
+		EOF
 
 		$sh_c 'rm -f /usr/local/bin/benchflow'
 	fi
@@ -98,8 +100,10 @@ do_install() {
 	$sh_c 'wget -qO- https://github.com/benchflow/client/releases/download/'$VERSION'/benchflow > /usr/local/bin/benchflow' 1>&- 2>&-
 	$sh_c 'chmod +x /usr/local/bin/benchflow'
 	$sh_c 'chown '$user' /usr/local/bin/benchflow'
-
-	echo 'Latest version of the "benchflow" command installed'
+ 
+	cat >&2 <<-'EOF'
+		Latest version of the "benchflow" command installed
+	EOF
 
 	#-----Download the correct tools used by benchflow if we are on OSX-----#
 	# DESCRIPTION OF PROBLEM: Implementations of sed, readlink, zcat, etc. are different on OS X and Linux.
