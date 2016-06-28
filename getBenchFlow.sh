@@ -2,9 +2,9 @@
 set -e
 #
 # This script is meant for quick & easy install via:
-#   'curl -sSL https://github.com/benchflow/benchflow/releases/download/v-dev/benchflow | sh'
+#   'curl -sSL https://github.com/benchflow/client/releases/download/v-dev/benchflow | sh'
 # or:
-#   'wget -qO- https://github.com/benchflow/benchflow/releases/download/v-dev/benchflow | sh'
+#   'wget -qO- https://github.com/benchflow/client/releases/download/v-dev/benchflow | sh'
 #
 # How to use this script to install BenchFlow:
 #   1. Log into your Ubuntu or OSX terminal as a user with `sudo` privileges.
@@ -47,15 +47,6 @@ command_exists() {
 
 do_install() {
 
-	if command_exists benchflow; then
-		cat >&2 <<-'EOF'
-			Warning: the "benchflow" command appears to already exist on this system.
-
-			You may press Ctrl+C now to abort this script.
-		EOF
-		( set -x; sleep 20 )
-	fi
-
 	user="$(id -un 2>/dev/null || true)"
 
 	sh_c='sh -c'
@@ -73,6 +64,22 @@ do_install() {
 		fi
 	fi
 
+	if command_exists benchflow; then
+		cat >&2 <<-'EOF'
+			Warning: the "benchflow" command appears to already exist on this system.
+
+			You may press Ctrl+C now to abort this script.
+		EOF
+		( set -x; sleep 20 )
+
+		# Removing the old version of the BenchFlow command
+		cat >&2 <<-'EOF'
+			Removing old "benchflow" command
+		EOF
+
+		$sh_c 'rm -f /usr/local/bin/benchflow'
+	fi
+
 	curl=''
 	if command_exists curl; then
 		curl='curl -sSL'
@@ -80,8 +87,9 @@ do_install() {
 		curl='wget -qO-'
 	fi
 
-	$sh_c 'curl -L https://github.com/benchflow/benchflow/releases/download/v-dev/benchflow > /usr/local/bin/benchflow'
+	$sh_c 'curl -L https://github.com/benchflow/client/releases/download/v-dev/benchflow > /usr/local/bin/benchflow'
 	$sh_c 'chmod +x /usr/local/bin/benchflow'
+	$sh_c 'chown '$user' /usr/local/bin/benchflow'
 
 	#-----Download the correct tools used by benchflow if we are on OSX-----#
 	# DESCRIPTION OF PROBLEM: Implementations of sed, readlink, zcat, etc. are different on OS X and Linux.
