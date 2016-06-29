@@ -4,5 +4,9 @@ engines:
   shellcheck:
     enabled: true
 
+ratings:
+  paths:
+    - "**.sh"
+
 exclude_paths:
 - "/test/**/*"
