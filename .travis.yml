@@ -15,7 +15,7 @@ install: true
 
 before_deploy:
   # Clean the v-dev release and tag we are using to release development version in CI
-  - sudo wget https://github.com/benchflow/benchflow/raw/dev/ci/clean_v-dev_release.sh -O /usr/bin/clean_v-dev_release.sh
+  - sudo wget https://github.com/benchflow/devops/raw/dev/ci/clean_v-dev_release.sh -O /usr/bin/clean_v-dev_release.sh
   - sudo chmod +x /usr/bin/clean_v-dev_release.sh
   - export REPO_NAME=benchflow
   - /usr/bin/clean_v-dev_release.sh
