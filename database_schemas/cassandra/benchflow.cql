@@ -568,6 +568,7 @@ CREATE TABLE exp_cpu (
 CREATE TABLE exp_cpu_core (
   cpu_cores int,
   cpu_weighted_avg list<double>,
+  cpu_combined_variance list<double>,
   cpu_q1_min list<double>,
   cpu_q1_max list<double>,
   cpu_q2_min list<double>,
