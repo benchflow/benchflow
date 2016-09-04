@@ -1,0 +1,174 @@
+.catalog:
+  name: BenchFlow
+  version: dev
+  description: BenchFlow
+  minimum_rancher_version: # The minimum version of Rancher that supports the template
+  questions:
+    - variable: "EXPERIMENTS_MANAGER_PORT"
+      label: "Experiments Manager Port"
+      description: "Port for the Experiments Manager"
+      type: "int"
+      default: 8070
+      required: true
+    - variable: "EXPERIMENTS_MANAGER_DB_PASSWORD"
+      label: "Experiments Manager DB Password"
+      description: "DB Password for the Experiments Manager"
+      type: "string"
+      default: "bench!flow~"
+      required: true
+    - variable: "MINIO_ACCESS_KEY"
+      label: "Minio Access Key"
+      description: "Minio Access Key"
+      type: "string"
+      default: "CYNQML6R7V12MTT32W6P"
+      required: true
+    - variable: "MINIO_SECRET_KEY"
+      label: "Minio Secret Key"
+      description: "Minio Secret Key"
+      type: "string"
+      default: "SQ96V5pg02Z3kZ/0ViF9YY6GwWzZvoBmElpzEEjn"
+      required: true
+    - variable: "DATA_ANALYSIS_SCHEDULER_PORT"
+      label: "Data Analysis Scheduler Port"
+      description: "Port for the Data Analysis Scheduler"
+      type: "int"
+      default: 8040
+      required: true
+    - variable: "SWAM_MASTER_IP"
+      label: "Swarm Master IP"
+      description: "IP for the Swarm Master"
+      type: "string"
+      default: "192.168.41.128"
+      required: true
+    - variable: "SWAM_MASTER_PORT"
+      label: "Swarm Master Port"
+      description: "Port for the Swarm Master"
+      type: "int"
+      default: 2376
+      required: true
+    - variable: "SWAM_AGENT_NEHA_IP"
+      label: "Swarm Agent Neha IP"
+      description: "IP for the Swarm Agent Neha"
+      type: "string"
+      default: "192.168.41.55"
+      required: true
+    - variable: "SWAM_AGENT_NEHA_PORT"
+      label: "Swarm Agent Neha Port"
+      description: "Port for the Swarm Agent Neha"
+      type: "int"
+      default: 2375
+      required: true
+    - variable: "FABAN_HARNESS_PORT"
+      label: "Faban Harness Port"
+      description: "Port for the Faban Harness"
+      type: "int"
+      default: 9980
+      required: true
+    - variable: "DRIVERS_MAKER_PORT"
+      label: "Drivers Maker Port"
+      description: "Port for the Drivers Maker"
+      type: "int"
+      default: 8060
+      required: true
+    - variable: "DEPLOYMENT_MANAGER_PORT"
+      label: "Deployment Manager Port"
+      description: "Port for the Deployment Manager"
+      type: "int"
+      default: 8050
+      required: true
+    - variable: "MINIO_PORT"
+      label: "Minio Port"
+      description: "Port for Minio"
+      type: "int"
+      default: 9000
+      required: true
+    - variable: "CONSUL_MASTER_PORT"
+      label: "Consul Master Port"
+      description: "Port for the Consul Master"
+      type: "int"
+      default: 8500
+      required: true
+    - variable: "CASSANDRA_PORT"
+      label: "Cassandra Port"
+      description: "Port for Cassandra"
+      type: "int"
+      default: 9160
+      required: true
+    - variable: "KAFKA_PRODUCERS_PORT"
+      label: "Kafka Producers Port"
+      description: "Port for Kafka Producers"
+      type: "int"
+      default: 2181
+      required: true
+    - variable: "KAFKA_CONSUMERS_PORT"
+      label: "Kafka Consumers Port"
+      description: "Port for Kafka Consumers"
+      type: "int"
+      default: 9092
+      required: true
+    - variable: "KAFKA_ADVERTISED_HOST_IP"
+      label: "Kafka Advertised Host IP"
+      description: "IP for Kafka Advertised Host"
+      type: "string"
+      default: "192.168.41.128"
+      required: true
+
+experiments-manager:
+  scale: 1
+  retain_ip: true
+data-analyses-scheduler:
+  scale: 1
+  retain_ip: true
+spark-worker:
+  scale: 1
+  retain_ip: true
+swarm-master:
+  scale: 1
+  retain_ip: true
+faban-harness:
+  scale: 1
+  retain_ip: true
+swarm-agent-registry:
+  scale: 1
+  retain_ip: true
+drivers-maker:
+  scale: 1
+  retain_ip: true
+swarm-agent-bull:
+  scale: 1
+  retain_ip: true
+spark:
+  scale: 1
+  retain_ip: true
+tests-orchestrator:
+  scale: 1
+  retain_ip: true
+consul-master:
+  scale: 1
+  retain_ip: true
+experiments-manager-mysql:
+  scale: 1
+  retain_ip: true
+cassandra:
+  scale: 1
+  retain_ip: true
+data-manager:
+  scale: 1
+  retain_ip: true
+tests-orchestrator-mysql:
+  scale: 1
+  retain_ip: true
+kafka:
+  scale: 1
+  retain_ip: true
+faban-agent:
+  retain_ip: true
+deployment-manager:
+  scale: 1
+  retain_ip: true
+cassandra-side:
+  scale: 1
+  retain_ip: true
+minio:
+  scale: 1
+  retain_ip: true

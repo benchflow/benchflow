@@ -1,0 +1,8 @@
+name: BenchFlow
+description: |
+  BenchFlow
+version: dev
+category: # Category to be used for searching catalog entries
+maintainer: Vincenzo Ferme <info@vincenzoferme.it>
+license: # The license 
+projectURL: http://benchflow.inf.usi.ch
