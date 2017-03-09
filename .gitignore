@@ -1,0 +1,26 @@
+###########################################################
+# gitignore for whole benchflow repo
+# for syntax see: https://git-scm.com/docs/gitignore
+###########################################################
+
+###########################################################
+# IDE
+# ignore all IDE specific files (e.g. rely on maven to build)
+###########################################################
+
+# JetBrains IDE
+.idea/
+*.ipr
+*.iml
+*.iws
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+###########################################################
+# Build 
+###########################################################
+
+target/
