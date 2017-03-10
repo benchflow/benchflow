@@ -1,68 +1,105 @@
-sut:
-    name: camunda
-    version: 3.5.0
-    type: WfMS
-
-testName: WfMSTest
+version: v1
+name: WfMSTest
 description: A WfMS test
-trials: 2
 
-execution:
-   rampUp: 0
-   steadyState: 60
-   rampDown: 0
+###############################################################################
+# test configuration
+###############################################################################
+configuration:
+  goal:
+    type: workload
+#    observation:
 
-properties:
-    stats:
-        maxRunTime: 6
-        interval: 2
+#    parameters:
+#    - on camunda:
+#      - camundaParameter:
+#          values: [ "a", "b", "c" ]
+#
+#    explore:
+#      camunda: [ camundaParameter ]
+#
 
-drivers:
-- start:
-    properties:
-        stats:
-            interval: 30
-    operations:
-        - myModel.bpmn
-    configuration:
-        mix:
-            fixedSequence: [ myModel ]
-            deviation: 5
+  users: 10
 
-goal:
-  type: custom
+  workload_execution:
+     rampUp: 0
+     steadyState: 60
+     rampDown: 0
 
-  parameters:
-  - on camunda:
-    - camundaParameter:
-        values: [ "a", "b", "c" ]
+#  strategy:
 
-  explore:
-    camunda: [ camundaParameter ]
+  termination_criteria:
+    test:
+      type: fixed
+      number: 1
 
+    experiment:
+      type: fixed
+      number: 3
 
-sutConfiguration:
+###############################################################################
+# SUT info section
+###############################################################################
+sut:
+  name: camunda
+  version: 3.5.0
+  type: WfMS
 
-    targetService:
-        name: camunda
-        endpoint: /engine-rest
-        sutReadyLogCheck: bla
+  configuration:
+    target_service:
+      name: camunda
+      endpoint: /engine-rest
+      sut_ready_log_check: bla
 
-    deploy:
-        camunda: bull
-        db: lisa1
+    deployment:
+      camunda: bull
+      db: lisa1
 
+    # TODO
     benchflowConfig:
+      camunda:
+      - stats
 
-        camunda:
-        - stats
+      db:
+      - mysql:
+        config:
+          MYSQL_DB_NAME: process-engine
+          MYSQL_USER: camunda
+          MYSQL_USER_PASSWORD: camunda
+          TABLE_NAMES: ACT_HI_PROCINST,ACT_HI_ACTINST
+          MYSQL_PORT: 3306
+          MY_MONITOR_QUERY: complete
 
-        db:
-        - mysql:
-            config:
-                MYSQL_DB_NAME: process-engine
-                MYSQL_USER: camunda
-                MYSQL_USER_PASSWORD: camunda
-                TABLE_NAMES: ACT_HI_PROCINST,ACT_HI_ACTINST
-                MYSQL_PORT: 3306
-                MY_MONITOR_QUERY: complete
+###############################################################################
+# workload modeling section
+# this is specific to the SUT type
+###############################################################################
+workload:
+  test-load:
+    type: start
+    operations:
+      - myModel.bpmn
+
+    mix:
+      fixedSequence: [ myModel ]
+#      deviation: 5 TODO @VF
+
+
+
+###############################################################################
+# Data Collection section
+###############################################################################
+
+# TODO
+
+# properties:
+#          stats:
+#              interval: 30
+#
+#
+# properties:
+#    stats:
+#        maxRunTime: 6
+#        interval: 2
+
+
