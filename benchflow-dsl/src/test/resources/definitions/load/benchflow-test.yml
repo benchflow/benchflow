@@ -1,7 +1,7 @@
 ###############################################################################
 # BenchFlow Test Definition
 ###############################################################################
-version: v1
+version: 1
 name: WfMSTest
 description: A WfMS test
 
@@ -11,28 +11,17 @@ description: A WfMS test
 configuration:
   goal:
     type: load
-#    observation: cpu
-
-#    exploration_space:
-#      camunda:
-#        environment:
-#          camundaParameter:
-#            values: [ "a", "b", "c" ]
-
 
   users: 10
 
   workload_execution:
-     rampUp: 0
-     steadyState: 60
-     rampDown: 0
-
-#  strategy:
+     ramp_up: 0
+     steady_state: 60
+     ramp_down: 0
 
   termination_criteria:
-    exploration:
-      type: fixed
-      number: 1
+    test:
+      time: 1h
 
     experiment:
       type: fixed
@@ -44,30 +33,30 @@ configuration:
 sut:
   name: camunda
   version: 3.5.0
-  type: WfMS
+  type: wfms
 
   configuration:
     target_service:
       name: camunda
       endpoint: /engine-rest
-      sut_ready_log_check: bla
+      sut_ready_log_check: ready
 
     deployment:
-      camunda: bull
-      db: lisa1
+      camunda: serverA
+      db: serverB
 
 ###############################################################################
 # Workload Modeling Section
 # this is specific to the SUT type
 ###############################################################################
 workload:
-  test-load:
+  mymodel:
     type: start
     operations:
       - myModel.bpmn
 
     mix:
-      fixedSequence: [ myModel ]
+      fixed_sequence: [ myModel ]
 
     failure_criteria:
       max_deviation: 5%
@@ -75,13 +64,12 @@ workload:
 ###############################################################################
 # Data Collection Section
 ###############################################################################
-
 data_collection:
   client_side:
     faban:
       max_run_time: 6
       interval: 2
-      workload_name:
+      mymodel:
         interval: 30
 
   server_side:
