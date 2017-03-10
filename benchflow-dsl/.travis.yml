@@ -28,7 +28,7 @@ before_deploy:
   # Clean the v-dev release and tag we are using to release development version in CI
   - sudo wget https://github.com/benchflow/devops/raw/dev/ci/clean_v-dev_release.sh -O /usr/bin/clean_v-dev_release.sh
   - sudo chmod +x /usr/bin/clean_v-dev_release.sh
-  - export REPO_NAME=test-definition-model
+  - export REPO_NAME=benchflow-dsl
   - /usr/bin/clean_v-dev_release.sh
 
 deploy:
@@ -36,9 +36,9 @@ deploy:
   api_key:
     secure: $GITHUB_ACCESS_TOKEN
   file:
-    - target/benchflow-test-definition-model.jar
+    - target/benchflow-dsl.jar
   skip_cleanup: true
   on:
     tags: false
-    repo: benchflow/test-definition-model
+    repo: benchflow/benchflow-dsl
     branch: dev
