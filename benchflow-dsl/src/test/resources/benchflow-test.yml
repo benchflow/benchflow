@@ -1,23 +1,24 @@
+###############################################################################
+# BenchFlow Test Definition
+###############################################################################
 version: v1
 name: WfMSTest
 description: A WfMS test
 
 ###############################################################################
-# test configuration
+# Test Configuration
 ###############################################################################
 configuration:
   goal:
-    type: workload
-#    observation:
+    type: load
+#    observation: cpu
 
-#    parameters:
-#    - on camunda:
-#      - camundaParameter:
-#          values: [ "a", "b", "c" ]
-#
-#    explore:
-#      camunda: [ camundaParameter ]
-#
+#    exploration_space:
+#      camunda:
+#        environment:
+#          camundaParameter:
+#            values: [ "a", "b", "c" ]
+
 
   users: 10
 
@@ -29,7 +30,7 @@ configuration:
 #  strategy:
 
   termination_criteria:
-    test:
+    exploration:
       type: fixed
       number: 1
 
@@ -38,7 +39,7 @@ configuration:
       number: 3
 
 ###############################################################################
-# SUT info section
+# SUT Info Section
 ###############################################################################
 sut:
   name: camunda
@@ -55,23 +56,8 @@ sut:
       camunda: bull
       db: lisa1
 
-    # TODO
-    benchflowConfig:
-      camunda:
-      - stats
-
-      db:
-      - mysql:
-        config:
-          MYSQL_DB_NAME: process-engine
-          MYSQL_USER: camunda
-          MYSQL_USER_PASSWORD: camunda
-          TABLE_NAMES: ACT_HI_PROCINST,ACT_HI_ACTINST
-          MYSQL_PORT: 3306
-          MY_MONITOR_QUERY: complete
-
 ###############################################################################
-# workload modeling section
+# Workload Modeling Section
 # this is specific to the SUT type
 ###############################################################################
 workload:
@@ -82,24 +68,31 @@ workload:
 
     mix:
       fixedSequence: [ myModel ]
-#      deviation: 5 TODO @VF
 
-
+    failure_criteria:
+      max_deviation: 5%
 
 ###############################################################################
-# Data Collection section
+# Data Collection Section
 ###############################################################################
 
-# TODO
+data_collection:
+  client_side:
+    faban:
+      max_run_time: 6
+      interval: 2
+      workload_name:
+        interval: 30
 
-# properties:
-#          stats:
-#              interval: 30
-#
-#
-# properties:
-#    stats:
-#        maxRunTime: 6
-#        interval: 2
+  server_side:
+    camunda: stats
 
-
+    db:
+      mysql:
+        environment:
+          MYSQL_DB_NAME: process-engine
+          MYSQL_USER: camunda
+          MYSQL_USER_PASSWORD: camunda
+          TABLE_NAMES: ACT_HI_PROCINST,ACT_HI_ACTINST
+          MYSQL_PORT: 3306
+          MY_MONITOR_QUERY: complete
