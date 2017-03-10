@@ -1,0 +1,24 @@
+<header class="navbar navbar-light navbar-toggleable-md bd-navbar">
+  <nav class="container">
+
+    <div class="d-flex justify-content-between d-lg-none">
+      <a class="navbar-brand" href="{{ site.baseurl }}/">
+        BenchFlow
+      </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bd-main-nav" aria-controls="bd-main-nav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+
+    <div class="collapse navbar-collapse" id="bd-main-nav">
+      <ul class="nav navbar-nav">
+        <li class="nav-item active">
+          <a class="nav-item nav-link {% if page.layout == "home" %}active{% endif %}" href="{{ site.baseurl }}/">BenchFlow</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-item nav-link {% if page.layout == "docs" %}active{% endif %}" href="{{ site.baseurl }}/getting-started/introduction/"">Documentation</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+</header>
