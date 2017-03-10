@@ -2,12 +2,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cloud.benchflow</groupId>
-	<artifactId>test-definition-model</artifactId>
+	<artifactId>benchflow-dsl</artifactId>
 	<version>0.1.0</version>
-	<name>benchflow-test-definition-model</name>
+	<name>benchflow-dsl</name>
 
     <properties>
-		<project.name>benchflow-test-definition-model</project.name>
+		<project.name>benchflow-dsl</project.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
 		<scala.major>2.11.7</scala.major>

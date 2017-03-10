@@ -1,4 +1,4 @@
-REPONAME = test-definition-model
+REPONAME = benchflow-dsl
 VERSION = dev
 JAVA_VERSION_FOR_COMPILATION = (^|/)java-8-oracle($|\s)
 UNAME = $(shell uname)
