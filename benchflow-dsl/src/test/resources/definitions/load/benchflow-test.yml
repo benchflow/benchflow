@@ -15,13 +15,13 @@ configuration:
   users: 10
 
   workload_execution:
-     ramp_up: 0
-     steady_state: 60
-     ramp_down: 0
+     ramp_up: 0s
+     steady_state: 60s
+     ramp_down: 0s
 
   termination_criteria:
     test:
-      time: 1h
+      max_time: 1h
 
     experiment:
       type: fixed
@@ -67,10 +67,10 @@ workload:
 data_collection:
   client_side:
     faban:
-      max_run_time: 6
-      interval: 2
+      max_run_time: 6s
+      interval: 2s
       mymodel:
-        interval: 30
+        interval: 30s
 
   server_side:
     camunda: stats
