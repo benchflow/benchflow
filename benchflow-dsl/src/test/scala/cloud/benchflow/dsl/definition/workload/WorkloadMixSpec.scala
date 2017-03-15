@@ -1,7 +1,8 @@
 package cloud.benchflow.dsl.definition.workload
 
-import cloud.benchflow.dsl.definition.sut.ConfigurationYamlProtocol
+import cloud.benchflow.dsl.definition.sut.simone.ConfigurationYamlProtocol
 import org.scalatest.{FlatSpec, Matchers}
+import cloud.benchflow.dsl.definition.workload.WorkloadMixYamlProtocol._
 
 /**
   * @author Simone D'Avico (simonedavico@gmail.com)
