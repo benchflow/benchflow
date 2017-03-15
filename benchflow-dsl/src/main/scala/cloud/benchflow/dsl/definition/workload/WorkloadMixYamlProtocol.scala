@@ -1,14 +1,14 @@
 package cloud.benchflow.dsl.definition.workload
 
 import cloud.benchflow.dsl.definition._
-import net.jcazevedo.moultingyaml._
+import net.jcazevedo.moultingyaml.{YamlString, _}
 
 /**
   * @author Simone D'Avico (simonedavico@gmail.com)
   *
   * Created on 21/07/16.
   */
-trait WorkloadMixYamlProtocol extends DefaultYamlProtocol {
+object WorkloadMixYamlProtocol extends DefaultYamlProtocol {
 
   implicit object MatrixMixRowYamlFormat extends YamlFormat[MatrixMixRow] {
     override def write(matrixMixRow: MatrixMixRow): YamlValue = matrixMixRow.row.toYaml
@@ -152,7 +152,8 @@ trait WorkloadMixYamlProtocol extends DefaultYamlProtocol {
       }
 
       yaml.asYamlObject.getFields(
-        YamlString("fixedSequence")
+//        YamlString("fixedSequence")
+          YamlString("fixed_sequence")
       ).head match {
         case YamlArray(sequence) => FixedSequenceMix(sequence.map(_.convertTo[String]), deviation)
         case _ => throw new DeserializationException("Unexpected format for sequence mix")

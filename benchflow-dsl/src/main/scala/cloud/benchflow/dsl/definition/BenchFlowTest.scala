@@ -1,6 +1,9 @@
 package cloud.benchflow.dsl.definition
 
-import cloud.benchflow.dsl.definition.configuration.ParameterDefinition
+import cloud.benchflow.dsl.definition.configuration.Configuration
+import cloud.benchflow.dsl.definition.datacollection.DataCollection
+import cloud.benchflow.dsl.definition.sut.Sut
+import cloud.benchflow.dsl.definition.workload.Workload
 
 /**
   * @author Simone D'Avico (simonedavico@gmail.com)
@@ -8,7 +11,29 @@ import cloud.benchflow.dsl.definition.configuration.ParameterDefinition
   * Created on 18/07/16.
   */
 
+case class BenchFlowTest(version: String,
+                         name: String,
+                         description: String,
+                         configuration: Configuration,
+                         sut: Sut,
+                         workload: Map[String, Workload],
+                         dataCollection: DataCollection
+                         )
+
+//case class BenchFlowTest(name: String,
+//                         description: String,
+//                         sut: Sut,
+//                         trials: TotalTrials,
+//                         goal: Goal,
+//                         drivers: Seq[Driver[_ <: Operation]],
+//                         loadFunction: LoadFunction,
+//                         properties: Option[Properties],
+//                         sutConfiguration: SutConfiguration)
+
+
+// TODO - move/remove this
 sealed trait GoalType
+
 object GoalType {
 
   def apply(goalType: String) = goalType match {
@@ -19,21 +44,3 @@ object GoalType {
 }
 case object Config extends GoalType
 case object Custom extends GoalType
-
-//TODO: if needed, improve types for explored and observed
-//will probably need to implement a type for each observable metric
-case class Goal(goalType: GoalType,
-                params: Seq[ParameterDefinition[_]],
-                explored: Map[String, Seq[String]],
-                observed: Option[Map[String, Seq[String]]])
-
-
-case class BenchFlowTest(name: String,
-                         description: String,
-                         sut: Sut,
-                         trials: TotalTrials,
-                         goal: Goal,
-                         drivers: Seq[Driver[_ <: Operation]],
-                         loadFunction: LoadFunction,
-                         properties: Option[Properties],
-                         sutConfiguration: SutConfiguration)

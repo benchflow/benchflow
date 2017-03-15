@@ -1,6 +1,8 @@
 package cloud.benchflow.dsl.definition
 
-import cloud.benchflow.dsl.definition.sut.ConfigurationYamlProtocol
+import cloud.benchflow.dsl.definition.properties.Properties
+import cloud.benchflow.dsl.definition.properties.PropertiesYamlProtocol._
+import cloud.benchflow.dsl.definition.sut.simone.ConfigurationYamlProtocol
 import org.scalatest.{FlatSpec, Matchers}
 
 /**

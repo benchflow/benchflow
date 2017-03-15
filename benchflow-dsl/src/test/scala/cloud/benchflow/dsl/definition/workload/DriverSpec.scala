@@ -1,7 +1,8 @@
 package cloud.benchflow.dsl.definition.workload
 
-import cloud.benchflow.dsl.definition.sut.ConfigurationYamlProtocol
+import cloud.benchflow.dsl.definition.properties.Properties
 import cloud.benchflow.dsl.definition.sut.http.{Get, HttpDriver, HttpOperation, Put}
+import cloud.benchflow.dsl.definition.sut.simone.ConfigurationYamlProtocol
 import cloud.benchflow.dsl.definition.sut.wfms.WfMSOperation
 import org.scalatest.{FlatSpec, Matchers}
 
