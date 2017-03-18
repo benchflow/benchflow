@@ -7,4 +7,4 @@ import cloud.benchflow.dsl.definition.datacollection.serverside.ServerSideConfig
   * @author Jesper Findahl (jesper.findahl@usi.ch) 
   *         created on 12.03.17.
   */
-case class DataCollection(clientSide: ClientSideConfiguration, serverSideConfiguration: ServerSideConfiguration)
+case class DataCollection(clientSide: Option[ClientSideConfiguration], serverSideConfiguration: Option[ServerSideConfiguration])

@@ -1,5 +1,6 @@
 package cloud.benchflow.dsl.definition.configuration.terminationcriteria.experiment
 
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.deserializationHandler
 import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlNumber, YamlObject, YamlString, YamlValue}
 
 import scala.util.Try
@@ -10,8 +11,10 @@ import scala.util.Try
   */
 object ExperimentTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
-  val typeKey = "type"
-  val numberKey = "number"
+  val TypeKey = YamlString("type")
+  val NumberKey = YamlString("number")
+
+  private def keyString(key: YamlString) = "configuration.termination_criteria.experiment" + key.value
 
   implicit object ExperimentTerminationCriteriaYamlFormat extends YamlFormat[Try[ExperimentTerminationCriteria]] {
     override def read(yaml: YamlValue): Try[ExperimentTerminationCriteria] = {
@@ -20,21 +23,32 @@ object ExperimentTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
       for {
 
-        criteriaType <- Try(yamlObject.fields(YamlString(typeKey)).convertTo[String])
-        number <- Try(yamlObject.fields(YamlString(numberKey)).convertTo[Int])
+        criteriaType <- deserializationHandler(
+          yamlObject.fields(TypeKey).convertTo[String],
+          keyString(TypeKey)
+        )
 
-      } yield ExperimentTerminationCriteria(criteriaType = criteriaType, number =number)
+        number <- deserializationHandler(
+          yamlObject.fields(NumberKey).convertTo[Int],
+          keyString(NumberKey)
+        )
+
+      } yield ExperimentTerminationCriteria(criteriaType = criteriaType, number = number)
 
     }
 
-    override def write(experimentTerminationCriteria: Try[ExperimentTerminationCriteria]): YamlValue = YamlObject(
+    override def write(obj: Try[ExperimentTerminationCriteria]): YamlValue = {
 
-      // TODO
+      val experimentTerminationCriteria = obj.get
 
-//      YamlString(typeKey) -> YamlString(experimentTerminationCriteria.criteriaType),
-//      YamlString(numberKey) -> YamlNumber(experimentTerminationCriteria.number)
+      val map = Map[YamlValue, YamlValue](
+        TypeKey -> YamlString(experimentTerminationCriteria.criteriaType),
+        NumberKey -> YamlNumber(experimentTerminationCriteria.number)
+      )
 
-    )
+      YamlObject(map)
+
+    }
   }
 
 }

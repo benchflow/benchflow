@@ -1,6 +1,7 @@
 package cloud.benchflow.dsl.definition.sut.configuration.targetservice
 
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlString, YamlValue}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.deserializationHandler
+import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue}
 
 import scala.util.Try
 
@@ -14,21 +15,49 @@ object TargetServiceYamlProtocol extends DefaultYamlProtocol {
   val EndpointKey = YamlString("endpoint")
   val SutReadyLogCheckKey = YamlString("sut_ready_log_check")
 
+  private def keyString(key: YamlString) = "sut.configuration.target_service" + key.value
+
   implicit object TargetServiceFormat extends YamlFormat[Try[TargetService]] {
     override def read(yaml: YamlValue): Try[TargetService] = {
 
-      var yamlObject = yaml.asYamlObject
+      val yamlObject = yaml.asYamlObject
 
       for {
-        name <- Try(yamlObject.fields(NameKey).convertTo[String])
-        endpoint <- Try(yamlObject.fields(EndpointKey).convertTo[String])
-        sutReadyLogCheck <- Try(yamlObject.getFields(SutReadyLogCheckKey).headOption.map(_.convertTo[String]))
+
+        name <- deserializationHandler(
+          yamlObject.fields(NameKey).convertTo[String],
+          keyString(NameKey)
+        )
+
+        endpoint <- deserializationHandler(
+          yamlObject.fields(EndpointKey).convertTo[String],
+          keyString(EndpointKey)
+        )
+
+        sutReadyLogCheck <- deserializationHandler(
+          yamlObject.getFields(SutReadyLogCheckKey).headOption.map(_.convertTo[String]),
+          keyString(SutReadyLogCheckKey)
+        )
 
       } yield TargetService(name = name, endpoint = endpoint, sutReadyLogCheck = sutReadyLogCheck)
 
     }
 
-    override def write(obj: Try[TargetService]): YamlValue = ???
+    override def write(obj: Try[TargetService]): YamlValue = {
+
+      val targetService = obj.get
+
+      var map = Map[YamlValue, YamlValue](
+        NameKey -> YamlString(targetService.name),
+        EndpointKey -> YamlString(targetService.endpoint)
+      )
+
+      if (targetService.sutReadyLogCheck.isDefined)
+        map += SutReadyLogCheckKey -> YamlString(targetService.sutReadyLogCheck.get)
+
+      YamlObject(map)
+
+    }
   }
 
 }

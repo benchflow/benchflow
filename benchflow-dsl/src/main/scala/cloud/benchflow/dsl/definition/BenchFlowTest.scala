@@ -8,7 +8,7 @@ import cloud.benchflow.dsl.definition.workload.Workload
 /**
   * @author Simone D'Avico (simonedavico@gmail.com)
   *
-  * Created on 18/07/16.
+  *         Created on 18/07/16.
   */
 
 case class BenchFlowTest(version: String,
@@ -17,8 +17,8 @@ case class BenchFlowTest(version: String,
                          configuration: Configuration,
                          sut: Sut,
                          workload: Map[String, Workload],
-                         dataCollection: DataCollection
-                         )
+                         dataCollection: Option[DataCollection]
+                        )
 
 //case class BenchFlowTest(name: String,
 //                         description: String,
@@ -29,18 +29,3 @@ case class BenchFlowTest(version: String,
 //                         loadFunction: LoadFunction,
 //                         properties: Option[Properties],
 //                         sutConfiguration: SutConfiguration)
-
-
-// TODO - move/remove this
-sealed trait GoalType
-
-object GoalType {
-
-  def apply(goalType: String) = goalType match {
-    case "config" => Config
-    case "custom" => Custom
-  }
-
-}
-case object Config extends GoalType
-case object Custom extends GoalType

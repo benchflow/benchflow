@@ -4,6 +4,7 @@ import cloud.benchflow.dsl.definition.configuration.terminationcriteria.experime
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.experiment.ExperimentTerminationCriteriaYamlProtocol._
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.test.TestTerminationCriteria
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.test.TestTerminationCriteriaYamlProtocol._
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.deserializationHandler
 import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
 
 import scala.util.Try
@@ -14,32 +15,44 @@ import scala.util.Try
   */
 object TerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
-  // TODO - implement me
-  val TestKey = "test"
-  val ExperimentKey = "experiment"
+  val TestKey = YamlString("test")
+  val ExperimentKey = YamlString("experiment")
+
+  private def keyString(key: YamlString) = "configuration.termination_criteria" + key.value
 
   implicit object TerminationCriteriaYamlFormat extends YamlFormat[Try[TerminationCriteria]] {
-    override def read(yaml: YamlValue): Try[TerminationCriteria] =  {
+    override def read(yaml: YamlValue): Try[TerminationCriteria] = {
 
       val yamlObject = yaml.asYamlObject
 
       for {
 
-        test <- yamlObject.fields(YamlString(TestKey)).convertTo[Try[TestTerminationCriteria]]
-        experiment <- yamlObject.fields(YamlString(ExperimentKey)).convertTo[Try[ExperimentTerminationCriteria]]
+        test <- deserializationHandler(
+          yamlObject.fields(TestKey).convertTo[Try[TestTerminationCriteria]].get,
+          keyString(TestKey)
+        )
+
+        experiment <- deserializationHandler(
+          yamlObject.fields(ExperimentKey).convertTo[Try[ExperimentTerminationCriteria]].get,
+          keyString(ExperimentKey)
+        )
 
       } yield TerminationCriteria(test = test, experiment = experiment)
 
     }
 
-    override def write(terminationCriteria: Try[TerminationCriteria]): YamlValue = YamlObject(
+    override def write(terminationCriteriaTry: Try[TerminationCriteria]): YamlValue = {
 
-      // TODO
+      val terminationCriteria = terminationCriteriaTry.get
 
-//      YamlString(TestKey) -> terminationCriteria.test.toYaml,
-//      YamlString(ExperimentKey) -> terminationCriteria.experiment.toYaml
+      val map = Map[YamlValue, YamlValue](
+        TestKey -> Try(terminationCriteria.test).toYaml,
+        ExperimentKey -> Try(terminationCriteria.experiment).toYaml
+      )
 
-    )
+      YamlObject(map)
+
+    }
   }
 
 }

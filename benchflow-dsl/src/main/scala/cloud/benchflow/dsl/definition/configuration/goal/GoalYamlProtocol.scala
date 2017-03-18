@@ -1,5 +1,6 @@
 package cloud.benchflow.dsl.definition.configuration.goal
 
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
 import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue}
 
 import scala.util.Try
@@ -10,9 +11,11 @@ import scala.util.Try
   */
 object GoalYamlProtocol extends DefaultYamlProtocol {
 
-  val TypeKey = "type"
-  val ObservationKey = "observation"
-  val ExplorationSpaceKey = "exploration_space"
+  val TypeKey = YamlString("type")
+  val ObservationKey = YamlString("observation")
+  val ExplorationSpaceKey = YamlString("exploration_space")
+
+  private def keyString(key: YamlString) = "configuration.goal." + key.value
 
   implicit object GoalYamlFormat extends YamlFormat[Try[Goal]] {
     override def read(yaml: YamlValue): Try[Goal] = {
@@ -21,22 +24,35 @@ object GoalYamlProtocol extends DefaultYamlProtocol {
 
       for {
 
-        goalType          <- Try(yamlObject.fields(YamlString(TypeKey)).convertTo[String])
-        observation       <- Try(Option(None)) // TODO - define
-        explorationSpace  <- Try(Option(None)) // TODO - define
+        goalType <- deserializationHandler(
+          yamlObject.fields(TypeKey).convertTo[String],
+          keyString(TypeKey)
+        )
 
-      } yield Goal(goalType = goalType, observation = observation, explorationSpace = explorationSpace)
+        observation <- Try(Option(None)) // TODO - define
+        explorationSpace <- Try(Option(None)) // TODO - define
+
+      } yield Goal(goalType = goalType,
+        observation = observation,
+        explorationSpace = explorationSpace
+      )
 
 
     }
 
-    override def write(goal: Try[Goal]): YamlValue = YamlObject (
+    override def write(goalTry: Try[Goal]): YamlValue = {
 
-      // TODO
+      val goal = goalTry.get
 
-//      YamlString(typeKey) -> YamlString(goal.goalType)
+      val map = Map[YamlValue, YamlValue](
+        TypeKey -> YamlString(goal.goalType)
+      )
 
-    )
+      // TODO - add observation, explorationSpace
+
+      YamlObject(map)
+
+    }
   }
 
 }

@@ -1,8 +1,11 @@
 package cloud.benchflow.dsl.definition.datacollection.serverside
 
-import cloud.benchflow.dsl.definition.binding.Binding
-import cloud.benchflow.dsl.definition.binding.BindingYamlProtocol._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, DeserializationException, YamlArray, YamlFormat, YamlString, YamlValue, _}
+import cloud.benchflow.dsl.definition.datacollection.serverside.collector.Collector
+import cloud.benchflow.dsl.definition.datacollection.serverside.collector.CollectorYamlProtocol._
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler
+import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlValue, _}
+
+import scala.util.Try
 
 /**
   * @author Jesper Findahl (jesper.findahl@usi.ch) 
@@ -10,23 +13,35 @@ import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, DeserializationException
   */
 object ServerSideConfigurationYamlProtocol extends DefaultYamlProtocol {
 
-  implicit object ServerSideConfigurationFormat extends YamlFormat[ServerSideConfiguration] {
+  private def keyString() = "data_collection.server_side"
 
-    override def read(yaml: YamlValue): ServerSideConfiguration = {
-      val bfConfig = yaml.asYamlObject.fields.head
-      val bindings = bfConfig._2.asYamlObject.fields
+  implicit object ServerSideConfigurationFormat extends YamlFormat[Try[ServerSideConfiguration]] {
 
-      ServerSideConfiguration(
-        bindings.map {
-          case (YamlString(sName), YamlArray(bound)) => (sName, bound.map(binding => binding.convertTo[Binding]))
-          case _ => throw DeserializationException("Unexpected format for field benchflow-config")
-        }
-      )
+    override def read(yaml: YamlValue): Try[ServerSideConfiguration] = {
+
+      val yamlObject = yaml.asYamlObject
+
+      for {
+
+        configurationMap <- YamlErrorHandler.deserializationHandler(
+          yamlObject.convertTo[Map[String, Try[Collector]]].mapValues(_.get),
+          keyString()
+        )
+
+      } yield ServerSideConfiguration(configurationMap = configurationMap)
 
     }
 
-    override def write(bFlowConfig: ServerSideConfiguration): YamlValue = {
-      bFlowConfig.configurationMap.toYaml
+    override def write(obj: Try[ServerSideConfiguration]): YamlValue = {
+
+      val configuration = obj.get
+
+      YamlObject(
+        configuration.configurationMap.map{
+          case (k, collector) => k.toYaml -> Try(collector).toYaml
+        }
+      )
+
     }
 
   }

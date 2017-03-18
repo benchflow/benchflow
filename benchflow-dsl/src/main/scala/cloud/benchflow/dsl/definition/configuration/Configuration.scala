@@ -9,7 +9,7 @@ import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadEx
   *         created on 11.03.17.
   */
 case class Configuration(goal: Goal,
-                         users: Int,
+                         users: Option[Int],
                          workloadExecution: Option[WorkloadExecution],
                          strategy: Option[Any], // TODO - define type
                          terminationCriteria: Option[TerminationCriteria])
