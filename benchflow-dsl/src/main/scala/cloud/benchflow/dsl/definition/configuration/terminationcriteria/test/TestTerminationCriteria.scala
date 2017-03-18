@@ -1,6 +1,6 @@
 package cloud.benchflow.dsl.definition.configuration.terminationcriteria.test
 
-import cloud.benchflow.dsl.definition.time.Time
+import cloud.benchflow.dsl.definition.types.time.Time
 
 /**
   * @author Jesper Findahl (jesper.findahl@usi.ch) 

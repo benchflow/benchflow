@@ -1,10 +1,11 @@
 package cloud.benchflow.dsl.definition.workload
 
-import cloud.benchflow.dsl.definition._
-import cloud.benchflow.dsl.definition.percent.Percent
-import cloud.benchflow.dsl.definition.percent.PercentYamlProtocol._
-import cloud.benchflow.dsl.definition.workload.WorkloadMixYamlProtocol._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlString, YamlValue}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.deserializationHandler
+import cloud.benchflow.dsl.definition.types.percent.Percent
+import cloud.benchflow.dsl.definition.types.percent.PercentYamlProtocol._
+import cloud.benchflow.dsl.definition.workload.mix.Mix
+import cloud.benchflow.dsl.definition.workload.mix.MixYamlProtocol._
+import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
 
 import scala.util.Try
 
@@ -14,47 +15,76 @@ import scala.util.Try
   */
 object WorkloadYamlProtocol extends DefaultYamlProtocol {
 
-  // TODO - implement me
-
   val TypeKey = YamlString("type")
   val PopularityKey = YamlString("popularity")
   val InterOperationTimingsKey = YamlString("inter_operation_timings")
   val OperationsKey = YamlString("operations")
   val MixKey = YamlString("mix")
-  val FailureCriteriaKey = YamlString("failure_criteria")
 
-  implicit object WorkloadYamlFormat extends YamlFormat[Workload] {
-    override def read(yaml: YamlValue): Workload = ???
+  private def keyString(key: YamlString) = "workload." + key.value
 
-//    {
-//
-//      val yamlObject = yaml.asYamlObject
-//
-//      val workloadType = yamlObject.fields(TypeKey).convertTo[String]
-//      val popularity = Option(yamlObject.fields(TypeKey).convertTo[Try[Percent]])
-//      val interOperationTimings = yamlObject.fields(TypeKey).convertTo[Option[String]]
-//      val operations = yamlObject.fields(OperationsKey).convertTo[List[String]]
-//      val mix = yamlObject.fields.get(MixKey).map(generateMix)
-//
-//      Workload(workloadType = workloadType, popularity = popularity, interOperationTimings = interOperationTimings, operations = operations, mix = mix)
-//
-//    }
+  implicit object WorkloadYamlFormat extends YamlFormat[Try[Workload]] {
+    override def read(yaml: YamlValue): Try[Workload] = {
 
-    override def write(obj: Workload): YamlValue = ???
+      val yamlObject = yaml.asYamlObject
 
-  }
+      for {
 
-  def generateMix(yamlMix: YamlValue): Mix = {
+        workloadType <- deserializationHandler(
+          yamlObject.fields(TypeKey).convertTo[String],
+          keyString(TypeKey)
+        )
 
-    // TODO - validate correctness
+        popularity <- deserializationHandler(
+          yamlObject.getFields(PopularityKey).headOption.map(_.convertTo[Try[Percent]].get),
+          keyString(PopularityKey)
+        )
 
-    val mixMap = yamlMix.asYamlObject.fields
-    Seq("matrix", "flat", "fixed_sequence", "flat_sequence")
-      .map(mixType => mixMap.get(YamlString(mixType))) match {
-      case Seq(None, None, Some(seq), None) => yamlMix.convertTo[FixedSequenceMix]
-      case Seq(None, Some(flat), None, None) => yamlMix.convertTo[FlatMix]
-      case Seq(Some(matrix), None, None, None) => yamlMix.convertTo[MatrixMix]
-      case Seq(None, None, None, Some(flatSequence)) => yamlMix.convertTo[FlatSequenceMix]
+        interOperationTimings <- deserializationHandler(
+          yamlObject.getFields(InterOperationTimingsKey).headOption.map(_.convertTo[String]),
+          keyString(InterOperationTimingsKey)
+        )
+
+        operations <- deserializationHandler(
+          yamlObject.fields(OperationsKey).convertTo[List[String]],
+          keyString(OperationsKey)
+        )
+
+        mix <- deserializationHandler(
+          yamlObject.getFields(MixKey).headOption.map(_.convertTo[Try[Mix]].get),
+          keyString(MixKey)
+        )
+
+      } yield Workload(
+        workloadType = workloadType,
+        popularity = popularity,
+        interOperationTimings = interOperationTimings,
+        operations = operations,
+        mix = mix
+      )
+
+    }
+
+    override def write(obj: Try[Workload]): YamlValue = {
+
+      val workload = obj.get
+
+      var map = Map[YamlValue, YamlValue](
+        TypeKey -> workload.workloadType.toYaml,
+        OperationsKey -> workload.operations.toYaml
+      )
+
+      if (workload.popularity.isDefined)
+        map += PopularityKey -> Try(workload.popularity.get).toYaml
+
+      if (workload.interOperationTimings.isDefined)
+        map += InterOperationTimingsKey -> workload.interOperationTimings.get.toYaml
+
+      if (workload.mix.isDefined)
+        map += MixKey -> Try(workload.mix.get).toYaml
+
+      YamlObject(map)
+
     }
 
   }

@@ -14,7 +14,8 @@ object BenchFlowDSL {
 
   def testFromYaml(testDefinitionYaml: String): Try[BenchFlowTest] = {
 
-    // TODO - don't validate semantic here only syntax
+    // validates syntax
+    // TODO - document why we wrap in a Try (e.g. because of library and deserialization)
     val test:Try[BenchFlowTest] = testDefinitionYaml.parseYaml.convertTo[Try[BenchFlowTest]]
 
     // TODO - validate semantic in separate function on the object
@@ -22,11 +23,15 @@ object BenchFlowDSL {
     test
   }
 
-  def testToYaml(benchFlowTest: BenchFlowTest): Unit = {
+  def testToYaml(benchFlowTest: BenchFlowTest): String = {
 
     // TODO - validate semantic in separate function on the object
 
     // TODO - write to YAML
+    // TODO - document why we wrap in a Try (e.g. because of library and deserialization)
+    val testYaml: YamlObject = Try(benchFlowTest).toYaml.asYamlObject
+
+    testYaml.prettyPrint
 
   }
 

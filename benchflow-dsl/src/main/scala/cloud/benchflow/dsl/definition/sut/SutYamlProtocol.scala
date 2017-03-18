@@ -1,8 +1,9 @@
 package cloud.benchflow.dsl.definition.sut
 
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.deserializationHandler
 import cloud.benchflow.dsl.definition.sut.configuration.SutConfiguration
-import cloud.benchflow.dsl.definition.sut.configuration.ConfigurationYamlProtocol._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlString, YamlValue}
+import cloud.benchflow.dsl.definition.sut.configuration.SutConfigurationYamlProtocol._
+import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
 
 import scala.util.Try
 
@@ -12,11 +13,12 @@ import scala.util.Try
   */
 object SutYamlProtocol extends DefaultYamlProtocol {
 
-  // TODO - implement me
   val NameKey = YamlString("name")
   val VersionKey = YamlString("version")
   val TypeKey = YamlString("type")
   val ConfigurationKey = YamlString("configuration")
+
+  private def keyString(key: YamlString) = "sut." + key.value
 
   implicit object SutYamlFormat extends YamlFormat[Try[Sut]] {
     override def read(yaml: YamlValue): Try[Sut] = {
@@ -25,19 +27,53 @@ object SutYamlProtocol extends DefaultYamlProtocol {
 
       for {
 
-        name <- Try(yamlObject.fields(NameKey).convertTo[String])
-        version <- Try(yamlObject.fields(VersionKey).convertTo[String]) // TODO - validate version? see class Version
-        sutType <- Try(yaml.asYamlObject.fields(TypeKey).convertTo[String]) // TODO - validate SutType? see class SutType
-        configuration <- yamlObject.fields(ConfigurationKey).convertTo[Try[SutConfiguration]]
+        name <- deserializationHandler(
+          yamlObject.fields(NameKey).convertTo[String],
+          keyString(NameKey)
+        )
 
-        serviceConfiguration <- Try(Option(None)) // TODO
+        version <- deserializationHandler(
+          Version(yamlObject.fields(VersionKey).convertTo[String]),
+          keyString(VersionKey)
+        )
 
-      } yield Sut(name = name, version = version, sutType = sutType, configuration = configuration, serviceConfiguration = serviceConfiguration)
+        sutType <- deserializationHandler(
+          SutType(yamlObject.fields(TypeKey).convertTo[String]),
+          keyString(VersionKey)
+        )
+
+        configuration <- deserializationHandler(
+          yamlObject.fields(ConfigurationKey).convertTo[Try[SutConfiguration]].get,
+          keyString(ConfigurationKey)
+        )
+
+        // TODO - specify
+        serviceConfiguration <- Try(Option(None))
+
+      } yield Sut(name = name,
+        version = version,
+        sutType = sutType,
+        configuration = configuration,
+        serviceConfiguration = serviceConfiguration
+      )
 
     }
 
-    // TODO - implement me
-    override def write(obj: Try[Sut]): YamlValue = ???
+    override def write(obj: Try[Sut]): YamlValue = {
+
+      val sut = obj.get
+
+      val map = Map[YamlValue, YamlValue] (
+        NameKey -> YamlString(sut.name),
+        VersionKey -> YamlString(sut.version.toString),
+        TypeKey -> YamlString(sut.sutType.toString),
+        ConfigurationKey -> Try(sut.configuration).toYaml
+      )
+      
+      // TODO - add service configuration
+
+      YamlObject(map)
+    }
   }
 
 }

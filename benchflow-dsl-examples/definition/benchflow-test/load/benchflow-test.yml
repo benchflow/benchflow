@@ -57,8 +57,6 @@ workload:
 
     mix:
       fixed_sequence: [ myModel ]
-
-    failure_criteria:
       max_deviation: 5%
 
 ###############################################################################
@@ -69,8 +67,8 @@ data_collection:
     faban:
       max_run_time: 6s
       interval: 2s
-      mymodel:
-        interval: 30s
+      workload:
+        mymodel: 30s
 
   server_side:
     camunda: stats
@@ -82,5 +80,5 @@ data_collection:
           MYSQL_USER: camunda
           MYSQL_USER_PASSWORD: camunda
           TABLE_NAMES: ACT_HI_PROCINST,ACT_HI_ACTINST
-          MYSQL_PORT: 3306
+          MYSQL_PORT: "3306"
           MY_MONITOR_QUERY: complete

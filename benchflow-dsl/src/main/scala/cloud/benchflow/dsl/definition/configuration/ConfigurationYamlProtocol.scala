@@ -6,7 +6,8 @@ import cloud.benchflow.dsl.definition.configuration.terminationcriteria.Terminat
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.TerminationCriteriaYamlProtocol._
 import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadExecution
 import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadExecutionYamlProtocol._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
+import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
 
 import scala.util.Try
 
@@ -16,10 +17,13 @@ import scala.util.Try
   */
 object ConfigurationYamlProtocol extends DefaultYamlProtocol {
 
-  val GoalKey = "goal"
-  val UsersKey = "users"
-  val WorkloadExecutionKey = "workload_execution"
-  val TerminationCriteriaKey = "termination_criteria"
+  val GoalKey = YamlString("goal")
+  val UsersKey = YamlString("users")
+  val WorkloadExecutionKey = YamlString("workload_execution")
+  val StrategyKey = YamlString("strategy")
+  val TerminationCriteriaKey = YamlString("termination_criteria")
+
+  private def keyString(key: YamlString) = "configuration." + key.value
 
   implicit object ConfigurationFormat extends YamlFormat[Try[Configuration]] {
 
@@ -29,11 +33,31 @@ object ConfigurationYamlProtocol extends DefaultYamlProtocol {
 
       for {
 
-        goal <- yamlObject.fields(YamlString(GoalKey)).convertTo[Try[Goal]]
-        users <- Try(yamlObject.fields(YamlString(UsersKey)).convertTo[Int])
-        workloadExecution <- Try(yamlObject.getFields(YamlString(WorkloadExecutionKey)).headOption.map(_.convertTo[Try[WorkloadExecution]].get))
-        strategy <- Try(Option(None)) // TODO - define
-        terminationCriteria <- Try(yamlObject.getFields(YamlString(TerminationCriteriaKey)).headOption.map(_.convertTo[Try[TerminationCriteria]].get))
+        goal <- deserializationHandler(
+          yamlObject.fields(GoalKey).convertTo[Try[Goal]].get,
+          keyString(GoalKey)
+        )
+
+        users <- deserializationHandler(
+          yamlObject.getFields(UsersKey).headOption.map(_.convertTo[Int]),
+          keyString(UsersKey)
+        )
+
+        workloadExecution <- deserializationHandler(
+          yamlObject.getFields(WorkloadExecutionKey).headOption.map(_.convertTo[Try[WorkloadExecution]].get),
+          keyString(WorkloadExecutionKey)
+        )
+
+        // TODO - define
+        strategy <- deserializationHandler(
+          Option(None),
+          keyString(StrategyKey)
+        )
+
+        terminationCriteria <- deserializationHandler(
+          yamlObject.getFields(TerminationCriteriaKey).headOption.map(_.convertTo[Try[TerminationCriteria]].get),
+          keyString(TerminationCriteriaKey)
+        )
 
       } yield Configuration(goal = goal,
         users = users,
@@ -45,16 +69,28 @@ object ConfigurationYamlProtocol extends DefaultYamlProtocol {
     }
 
 
-    override def write(configuration: Try[Configuration]): YamlValue = YamlObject(
+    override def write(configuration: Try[Configuration]): YamlValue = {
 
-      // TODO
+      val config = configuration.get
 
-      //      YamlString(GoalKey) -> configuration.goal.toYaml,
-      //      YamlString(UsersKey) -> YamlNumber(configuration.users),
-      //      YamlString(WorkloadExecutionKey) -> configuration.workloadExecution.toYaml,
-      //      YamlString(TerminationCriteriaKey) -> configuration.terminationCriteria.toYaml
+      var map = Map[YamlValue, YamlValue](
+        GoalKey -> Try(config.goal).toYaml
+      )
 
-    )
+      if (config.users.isDefined)
+        map += UsersKey -> YamlNumber(config.users.get)
+
+      if (config.workloadExecution.isDefined)
+        map += WorkloadExecutionKey -> Try(config.workloadExecution.get).toYaml
+
+      // TODO - add Strategy when defined
+
+      if (config.terminationCriteria.isDefined)
+        map += TerminationCriteriaKey -> Try(config.terminationCriteria.get).toYaml
+
+      YamlObject(map)
+
+    }
 
   }
 

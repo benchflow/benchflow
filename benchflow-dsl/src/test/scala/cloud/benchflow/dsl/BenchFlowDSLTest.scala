@@ -2,12 +2,10 @@ package cloud.benchflow.dsl
 
 import java.nio.file.Paths
 
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _}
 import org.junit.{Assert, Test}
 import org.scalatest.junit.AssertionsForJUnit
 
 import scala.io.Source
-import scala.util.Try
 
 
 /**
@@ -15,34 +13,8 @@ import scala.util.Try
   *
   *         Created on 21/07/16.
   */
-//class BenchFlowTestSpec extends FlatSpec with Matchers with BenchFlowTestYamlProtocol {
 class BenchFlowDSLTest extends AssertionsForJUnit {
 
-  case class HelloThere(hello: String, number: Option[Int])
-
-  object TestYamlProtocol extends DefaultYamlProtocol {
-
-    implicit object HelloThereFormat extends YamlFormat[Try[HelloThere]] {
-      override def write(obj: Try[HelloThere]): YamlValue = ???
-
-      override def read(yaml: YamlValue): Try[HelloThere] = {
-
-        val yamlObject = yaml.asYamlObject
-
-        for (
-
-          hello <- Try(yamlObject.fields(YamlString("hello")).convertTo[String]);
-
-          // IF key is optional
-          number <- Try(yamlObject.getFields(YamlString("number")).headOption.map(_.convertTo[Int]))
-
-        ) yield HelloThere(hello = hello, number = number)
-
-      }
-    }
-
-
-  }
 
   @Test def loadTestDefinition(): Unit = {
 
@@ -52,21 +24,11 @@ class BenchFlowDSLTest extends AssertionsForJUnit {
 
     Assert.assertTrue(benchFlowTest.isSuccess)
 
-  }
+    val benchFlowYamlString = BenchFlowDSL.testToYaml(benchFlowTest.get)
 
-  @Test def helloTest(): Unit = {
+    Assert.assertNotNull(benchFlowYamlString)
 
-    import TestYamlProtocol._
-
-    val testYaml =
-      """
-      hello: 1%
-      number: 12
-      """
-
-    val hello = testYaml.parseYaml.convertTo[Try[HelloThere]]
-
-    Assert.assertTrue(hello.isSuccess)
+    Assert.assertEquals(BenchFlowDSL.testFromYaml(benchFlowYamlString), benchFlowTest)
 
   }
 
