@@ -1,0 +1,11 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+
+GET  /                           controllers.Application.index
+GET  /experiment/:experiment_id  controllers.Application.getExperimentData(experiment_id: String)
+GET  /backup/:experiment_id      controllers.Application.backupExperiment(experiment_id: String)
+GET  /recover-backup/:backup_id     controllers.Application.recoverBackup(backup_id: Long)
+GET  /backup-status/:backup_id     controllers.Application.backupStatus(backup_id: Long)
+
+# Map static resources from the /public folder to the /assets URL path
+GET  /assets/*file               controllers.Assets.at(path="/public", file)

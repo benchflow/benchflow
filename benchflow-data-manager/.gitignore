@@ -1,0 +1,27 @@
+#Eclipse settings
+.settings
+.classpath
+.project
+
+#Idea stuff
+.idea
+*.iml
+
+api/.settings
+api/.classpath
+application/.settings
+application/.classpath
+
+#Custom files
+application/src/test/resources/configuration.properties
+
+benchflow_make
+/bin/
+
+#sbt/play
+logs
+project/project
+project/target
+target
+/project/*-shim.sbt
+/activator-sbt-*-shim.sbt
