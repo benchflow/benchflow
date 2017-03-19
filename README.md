@@ -4,7 +4,7 @@ BenchFlow is an open-source expert system providing a complete platform for auto
 
 Quick links: [BenchFlow Documentation]() | [TODO - also link to the documentation]()
 
-TODO (try BenchFlow) 
+TODO (try BenchFlow)
 
 ## Purpose
 
