@@ -19,12 +19,12 @@ redirect_from: "/developer-guide/"
     - *[Issue](https://github.com/benchflow/benchflow/issues)*: everything about what is going to be implemented/fixed in current or next iterations
 
 - **Functionality related notes**:
-    - *[BenchFlow Temporary Documentation](https://github.com/VincenzoFerme/benchflow-temporary-documentation)*: ongoing discussion about proposed functionality that we are not sure are going to happen (always on the master branch). This avoid overloading the issue section of BenchFlow. 
+    - *[BenchFlow Temporary Documentation&#128274;](https://github.com/VincenzoFerme/benchflow-temporary-documentation)*: ongoing discussion about proposed functionality that we are not sure are going to happen (always on the master branch). This avoid overloading the issue section of BenchFlow. 
     - *[Issue](https://github.com/benchflow/benchflow/issues)*: everything about what is going to be implemented/fixed in current or next iterations
 
 - **Project management related notes**:
-    - *[BenchFlow Developers Documentation](https://github.com/benchflow/benchflow)*: everything that has to be shared in the team
-    - *[Vincenzo] Private Notability Notes*: private management stuff
+    - *[BenchFlow Developers Documentation&#128274;](https://github.com/benchflow/benchflow)*: everything that has to be shared in the team
+    - *[Vincenzo] [Management Repo](https://github.com/VincenzoFerme/management)&#128274;*: private management stuff
 
 - **Foreseen future work related notes**:
-    - *[Vincenzo] Private Notability Notes*: everything about foreseen next steps and related material
+    - *[Vincenzo] [Management Repo](https://github.com/VincenzoFerme/management)&#128274;*: everything about foreseen next steps and related material
