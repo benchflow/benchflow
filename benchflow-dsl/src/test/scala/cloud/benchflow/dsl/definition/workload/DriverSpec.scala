@@ -1,6 +1,8 @@
 package cloud.benchflow.dsl.definition.workload
 
+
 import cloud.benchflow.dsl.definition.simone.ConfigurationYamlProtocol
+
 import org.scalatest.{FlatSpec, Matchers}
 
 /**

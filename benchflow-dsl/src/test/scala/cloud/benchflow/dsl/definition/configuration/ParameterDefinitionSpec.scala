@@ -13,7 +13,6 @@ class ParameterDefinitionSpec extends FlatSpec with Matchers with ParameterDefin
 
   import net.jcazevedo.moultingyaml._
 
-
 //  "Service parameter definition" should "parse correctly" in {
 //
 //    val serviceParameterDefiniton =
@@ -59,6 +58,5 @@ class ParameterDefinitionSpec extends FlatSpec with Matchers with ParameterDefin
 //    )
 //
 //  }
-
 
 }

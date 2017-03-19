@@ -7,6 +7,7 @@ import cloud.benchflow.dsl.definition.workload.Workload
 
 /**
   * @author Simone D'Avico (simonedavico@gmail.com)
+  * @author Jesper Findahl (jesper.findahl@usi.ch)
   *
   *         Created on 18/07/16.
   */

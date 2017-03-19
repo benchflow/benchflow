@@ -1,5 +1,6 @@
 package cloud.benchflow.dsl.definition.configuration
 
+
 //import cloud.benchflow.dsl.definition.configuration.simone._
 import cloud.benchflow.dsl.definition.simone._
 import org.scalatest.{FlatSpec, Matchers}
@@ -12,7 +13,6 @@ import org.scalatest.{FlatSpec, Matchers}
 class ValueRangeSpec extends FlatSpec with Matchers with ValueRangeYamlProtocol {
 
   import net.jcazevedo.moultingyaml._
-
 
 //  "Int constant value assignment" should "parse correctly" in {
 //
@@ -173,6 +173,5 @@ class ValueRangeSpec extends FlatSpec with Matchers with ValueRangeYamlProtocol 
 //    stepFunction.increment(1) should (be (parsedStepFunction.increment(1)) and be (2))
 //
 //  }
-
 
 }

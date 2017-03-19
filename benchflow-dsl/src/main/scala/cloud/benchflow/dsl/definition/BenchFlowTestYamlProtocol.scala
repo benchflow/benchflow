@@ -115,6 +115,7 @@ object BenchFlowTestYamlProtocol extends DefaultYamlProtocol {
     override def write(obj: BenchFlowTest): YamlValue = ???
 
     override def read(yaml: YamlValue): BenchFlowTest = ???
+
   }
 
 }
