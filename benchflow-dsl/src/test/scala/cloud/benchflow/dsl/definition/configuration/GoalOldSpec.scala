@@ -1,6 +1,5 @@
 package cloud.benchflow.dsl.definition.configuration
 
-import cloud.benchflow.dsl.definition.Custom
 //import cloud.benchflow.dsl.definition.configuration.simone.{ApplicationParameterDefinition, GoalOldYamlProtocol, Step}
 import cloud.benchflow.dsl.definition.simone.{ApplicationParameterDefinition, GoalOld, GoalOldYamlProtocol, Step}
 import org.scalatest.{FlatSpec, Matchers}

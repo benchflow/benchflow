@@ -3,17 +3,15 @@ package cloud.benchflow.dsl
 import java.nio.file.Paths
 
 import org.junit.{Assert, Test}
-import org.scalatest.junit.AssertionsForJUnit
+import org.scalatest.junit.JUnitSuite
 
 import scala.io.Source
 
-
 /**
-  * @author Simone D'Avico (simonedavico@gmail.com)
-  *
-  *         Created on 21/07/16.
+  * @author Jesper Findahl (jesper.findahl@usi.ch)
+  *         created on 16.03.17.
   */
-class BenchFlowDSLTest extends AssertionsForJUnit {
+class BenchFlowDSLTest extends JUnitSuite {
 
 
   @Test def loadTestDefinition(): Unit = {
