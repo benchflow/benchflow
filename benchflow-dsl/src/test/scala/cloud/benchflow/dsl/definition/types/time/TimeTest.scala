@@ -15,7 +15,7 @@ class TimeTest extends JUnitSuite {
 
   @Test def fromStringTest(): Unit = {
 
-    Array("10h", "5m", "200s", "567ms", "90000ns").foreach(string => {
+    Array("10h", "5m", "200s", "567ms", "90000ns", "4892micros").foreach(string => {
 
       val time = Time.fromString(string)
       Assert.assertTrue(time.isSuccess)
@@ -27,7 +27,7 @@ class TimeTest extends JUnitSuite {
 
   @Test def protocolTest(): Unit = {
 
-    Array("10h", "5m", "200s", "567ms", "90000ns").foreach(string => {
+    Array("10h", "5m", "200s", "567ms", "90000ns", "4892micros").foreach(string => {
 
       val time = Time.fromString(string)
 
