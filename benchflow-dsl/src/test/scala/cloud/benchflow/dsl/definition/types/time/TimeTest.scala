@@ -1,9 +1,9 @@
 package cloud.benchflow.dsl.definition.types.time
 
-import org.junit.{Assert, Test}
-import org.scalatest.junit.AssertionsForJUnit
-import net.jcazevedo.moultingyaml._
 import cloud.benchflow.dsl.definition.types.time.TimeYamlProtocol._
+import net.jcazevedo.moultingyaml._
+import org.junit.{Assert, Test}
+import org.scalatest.junit.JUnitSuite
 
 import scala.util.Try
 
@@ -11,7 +11,7 @@ import scala.util.Try
   * @author Jesper Findahl (jesper.findahl@usi.ch) 
   *         created on 14.03.17.
   */
-class TimeTest extends AssertionsForJUnit {
+class TimeTest extends JUnitSuite {
 
   @Test def fromStringTest(): Unit = {
 

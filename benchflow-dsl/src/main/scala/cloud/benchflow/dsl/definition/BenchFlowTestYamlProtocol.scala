@@ -85,26 +85,27 @@ object BenchFlowTestYamlProtocol extends DefaultYamlProtocol {
 
     override def write(tryBenchFlowTest: Try[BenchFlowTest]): YamlValue = {
 
-      // TODO - add documentation reference with reasons why the code is like it is (Try, and .get, and not match)
+      // TODO - add documentation reference with reasons why the code is like it is
       // TODO - document design decisions (which options(exceptions, try (both), try read & normal write and why)
       // TODO - change to separate Format for write (see BenchFlowTestWriteFormat)
       val benchFlowTest = tryBenchFlowTest.get
 
-      var map = Map[YamlValue, YamlValue](
-        VersionKey -> benchFlowTest.version.toYaml,
-        NameKey -> benchFlowTest.name.toYaml,
-        DescriptionKey -> benchFlowTest.description.toYaml,
-        ConfigurationKey -> Try(benchFlowTest.configuration).toYaml,
-        SutKey -> Try(benchFlowTest.sut).toYaml,
-        WorkloadKey -> benchFlowTest.workload.mapValues(v => Try(v)).toYaml
-      )
+      // TODO - update all [*]YamlProtocol write methods with the below structure
 
-      // optional keys
-      if (benchFlowTest.dataCollection.isDefined) {
-        map += DataCollectionKey -> Try(benchFlowTest.dataCollection.get).toYaml
+      YamlObject {
+        Map[YamlValue, YamlValue](
+          VersionKey -> benchFlowTest.version.toYaml,
+          NameKey -> benchFlowTest.name.toYaml,
+          DescriptionKey -> benchFlowTest.description.toYaml,
+          ConfigurationKey -> Try(benchFlowTest.configuration).toYaml,
+          SutKey -> Try(benchFlowTest.sut).toYaml,
+          WorkloadKey -> benchFlowTest.workload.mapValues(v => Try(v)).toYaml
+        ) ++
+        // we map here because value is optional (Option)
+          benchFlowTest.dataCollection.map(key => DataCollectionKey -> Try(key).toYaml) // +
+        // this line is an example of how to mix optional and non-optional key,value pairs (incl. '+' on previous line)
+        //          (VersionKey -> benchFlowTest.version.toYaml)
       }
-
-      YamlObject(map)
 
     }
 
