@@ -22,9 +22,9 @@ import datarepository.cassandra.Cassandra
 trait Data
 
 class CassandraBackuper(
-  cassandra: Cassandra,
-  backupStorage: BackupStorage,
-  val monitor: ActorRef
+    cassandra: Cassandra,
+    backupStorage: BackupStorage,
+    val monitor: ActorRef
 )(implicit system: ActorSystem, materializer: Materializer) extends Backuper {
   val serviceName = "cassandra"
 
@@ -59,14 +59,14 @@ class CassandraBackuper(
 }
 
 trait StorageAdapter {
-  def write(id: Long, content: Seq[Data])
+  def write(id: Long, content: Seq[Data]): Unit
   def read(id: Long): Option[Seq[Data]]
 }
 
 class BackupStorageAdapter(
-  backupStorage: BackupStorage,
-  serviceName: String,
-  folderHierarchy: List[String]
+    backupStorage: BackupStorage,
+    serviceName: String,
+    folderHierarchy: List[String]
 ) extends StorageAdapter {
 
   val fileCount = new java.util.concurrent.atomic.AtomicLong(0)

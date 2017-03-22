@@ -4,13 +4,13 @@ import scala.concurrent.duration.DurationInt
 
 import com.google.inject.ImplementedBy
 
-import BackuperActor.{ Backup, Restore }
-import akka.actor.{ Actor, ActorRef, ActorSystem, Props, actorRef2Scala }
+import BackuperActor.{Backup, Restore}
+import akka.actor.{Actor, ActorRef, ActorSystem, Props, actorRef2Scala}
 import akka.stream.Materializer
 import akka.util.Timeout
 import akka.util.Timeout.durationToTimeout
-import backupstorage.{ BackupStorage, GoogleDriveFromConfig }
-import datarepository.cassandra.{ Cassandra, CassandraFromConfig }
+import backupstorage.{BackupStorage, GoogleDriveFromConfig}
+import datarepository.cassandra.{Cassandra, CassandraFromConfig}
 import datarepository.filestorage.ExperimentFileStorage
 import datarepository.objectstorage.MinioFromConfig
 import javax.inject.Inject
@@ -26,10 +26,11 @@ trait Backuper {
 }
 
 class BackupManager @Inject() (
-  val cassandra: Cassandra,
-  googleDrive: BackupStorage,
-  val minio: ExperimentFileStorage
+    val cassandra: Cassandra,
+    googleDrive: BackupStorage,
+    val minio: ExperimentFileStorage
 )(implicit system: ActorSystem, materializer: Materializer) {
+
   implicit val timeout: Timeout = 5.seconds
   val monitor = system.actorOf(Props[BackupMonitor], "monitor")
 
