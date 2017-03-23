@@ -5,7 +5,7 @@ import cloud.benchflow.dsl.definition.types.time.Time
 import cloud.benchflow.dsl.definition.types.time.TimeYamlProtocol._
 import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _}
 
-import scala.util.{Failure, Try}
+import scala.util.Try
 
 /**
   * @author Jesper Findahl (jesper.findahl@usi.ch) 
@@ -14,8 +14,6 @@ import scala.util.{Failure, Try}
 object TestTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
   val MaxTimeKey = YamlString("max_time")
-
-  def testTerminationCriteriaFailure(key: String, e: Exception) = Failure(new Exception(TestTerminationCriteriaYamlProtocol.getClass.getSimpleName + key + ": " + e))
 
   private def keyString(key: YamlString) = "configuration.termination_criteria.test" + key.value
 

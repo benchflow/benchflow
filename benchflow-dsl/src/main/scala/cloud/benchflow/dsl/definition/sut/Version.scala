@@ -16,7 +16,7 @@ object Version {
 
   case class SemanticVersionRange(low: SemanticVersion, high: SemanticVersion) extends Version { range =>
 
-    override def toString = s"$low-$high"
+    override def toString: String = s"$low-$high"
 
     override def isCompatible(other: Version): Boolean = other match {
       case semVer: SemanticVersion => semVer.isCompatible(range)
@@ -26,7 +26,7 @@ object Version {
 
   case class StringVersion(v: String) extends Version {
 
-    override def toString = v
+    override def toString: String = v
 
     override def isCompatible(other: Version): Boolean = other match {
       case StringVersion(otherV) => otherV == v
@@ -36,7 +36,7 @@ object Version {
 
   case class SemanticVersion(version: LibVersion) extends Version with Ordered[SemanticVersion] {
 
-    override def toString = version.toString
+    override def toString: String = version.toString
 
     override def isCompatible(other: Version): Boolean =
       other match {
@@ -52,7 +52,7 @@ object Version {
   private val singleVersion = "([0-9]+\\.[0-9]+\\.[0-9]+.*)".r
   private val rangedVersionPattern = s"$singleVersion-$singleVersion".r
 
-  def apply(v: String) = v match {
+  def apply(v: String): Version = v match {
 
     case rangedVersionPattern(low, high) =>
       Try(LibVersion.valueOf(low)) match {

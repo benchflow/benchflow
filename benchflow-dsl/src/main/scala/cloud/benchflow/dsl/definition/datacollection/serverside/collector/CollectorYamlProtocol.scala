@@ -27,7 +27,7 @@ object CollectorYamlProtocol extends DefaultYamlProtocol {
         case YamlArray(collectors) =>
           deserializationHandler(CollectorMultiple(collectors.map(_.convertTo[String])), keyString())
 
-        case yamlObject =>
+        case yamlObject: YamlValue =>
           deserializationHandler(yamlObject.convertTo[Try[CollectorMultipleEnvironment]].get, keyString())
 
       }

@@ -16,7 +16,7 @@ object BenchFlowDSL {
 
     // validates syntax
     // TODO - document why we wrap in a Try (e.g. because of library and deserialization)
-    val test:Try[BenchFlowTest] = testDefinitionYaml.parseYaml.convertTo[Try[BenchFlowTest]]
+    val test: Try[BenchFlowTest] = testDefinitionYaml.parseYaml.convertTo[Try[BenchFlowTest]]
 
     // TODO - validate semantic in separate function on the object
 
