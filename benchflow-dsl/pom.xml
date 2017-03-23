@@ -146,6 +146,7 @@
                     </archive>
                 </configuration>
             </plugin>
+            <!--http://www.scalatest.org/user_guide/using_the_scalatest_maven_plugin-->
             <!-- Disable surefire -->
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
