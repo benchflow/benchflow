@@ -6,7 +6,7 @@ package cloud.benchflow
   */
 package object dsl {
 
-  private val BenchFlowTestExamplesFolder = "../benchflow-dsl-examples/definition/benchflow-test/"
+  private val BenchFlowTestExamplesFolder = "../tests/data/dsl-examples/definition/benchflow-test/"
 
   val BenchFlowLoadTestExample: String = BenchFlowTestExamplesFolder + "load/benchflow-test.yml"
 
