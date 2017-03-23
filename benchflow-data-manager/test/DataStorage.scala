@@ -19,7 +19,7 @@ import backuper.Data
 import backuper.DataStorageActor.Msg
 
 class TestStorage extends StorageAdapter {
-  var store = scala.collection.mutable.Map.empty[Long, ArrayBuffer[Seq[Data]]]
+  val store = scala.collection.mutable.Map.empty[Long, ArrayBuffer[Seq[Data]]]
   def write(id: Long, content: Seq[Data]) =
     store.getOrElseUpdate(id, ArrayBuffer()) += content
   def read(id: Long): Option[Seq[Data]] = store.get(id).map(_.flatten)

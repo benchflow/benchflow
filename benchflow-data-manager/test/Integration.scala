@@ -55,8 +55,8 @@ class IntegrationTests
 
 
   object TestBackupStorage extends BackupStorage {
-    var backupIdCounter = new AtomicLong
-    var fileIdCounter = new AtomicLong
+    val backupIdCounter = new AtomicLong
+    val fileIdCounter = new AtomicLong
 
     val storage = scala.collection.mutable.Map.empty[(Long, String), ArrayBuffer[BackupFile]]
     val files = scala.collection.mutable.Map.empty[String, Array[Byte]]
