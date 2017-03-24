@@ -1,0 +1,33 @@
+###########################################################
+# DESCRIPTION
+# The main wercker configuration is meant to detect changes in the project structure in order to trig the pipelines for the changes projects
+###########################################################
+box: ubuntu:16.10
+
+# TODO: work on caching for all the steps
+
+###########################################################
+# DRAFT
+# Main pipeline to detect what has been changed 
+###########################################################
+what-to-build:
+  steps:
+    - script:
+        name: echo
+        code: |
+          # this is going to be moved and handled by a requirements file in devops / base-images for building (fast approach for the first iterationbs, improved over time)
+          apt-get update
+          apt-get install -y jq curl
+          # Actual code
+          ./devops/diffs-check.sh
+
+###########################################################
+# DRAFT
+# Pipeline used to build: benchflow-dsl
+###########################################################
+build-benchflow-dsl:
+  box: maven:3.3.9-jdk-8
+  steps:
+    - xenoterracide/maven:
+        goals: package
+        args: -f $WERCKER_SOURCE_DIR/benchflow-dsl
