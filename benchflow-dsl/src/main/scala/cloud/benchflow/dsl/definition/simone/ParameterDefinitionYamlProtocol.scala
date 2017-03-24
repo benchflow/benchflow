@@ -66,21 +66,18 @@ trait ParameterDefinitionYamlProtocol extends DefaultYamlProtocol with ValueRang
 
         case SystemParameterDefinition.memoryDefinitionKey => ServiceMemoryDefinition(
           serviceName = serviceName,
-          dimensionDefinition = valueRange
-        )
+          dimensionDefinition = valueRange)
 
         case SystemParameterDefinition.cpusDefinitionKey => ServiceCpusDefinition(
           serviceName = serviceName,
-          dimensionDefinition = valueRange
-        )
+          dimensionDefinition = valueRange)
 
         case _ =>
 
           ApplicationParameterDefinition(
             name = paramName,
             serviceName = serviceName,
-            dimensionDefinition = valueRange
-          )
+            dimensionDefinition = valueRange)
       }
 
     }

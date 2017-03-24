@@ -1,7 +1,7 @@
 package cloud.benchflow.dsl.definition.sut
 
 import cloud.benchflow.dsl.definition.simone.properties.Properties
-import cloud.benchflow.dsl.definition.simone.{Driver, DriverConfiguration, Operation}
+import cloud.benchflow.dsl.definition.simone.{ Driver, DriverConfiguration, Operation }
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch)
@@ -36,14 +36,12 @@ package object http {
     endpoint: String,
     override val data: Option[String] = None,
     method: HttpMethod,
-    headers: Map[String, String] = Map()
-  ) extends Operation(name, data)
+    headers: Map[String, String] = Map()) extends Operation(name, data)
 
   case class HttpDriver(
     override val properties: Option[Properties],
     override val operations: Seq[HttpOperation],
-    override val configuration: Option[DriverConfiguration]
-  )
+    override val configuration: Option[DriverConfiguration])
       extends Driver[HttpOperation](properties, operations, configuration)
 
 }

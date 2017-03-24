@@ -1,7 +1,7 @@
 package cloud.benchflow.dsl.definition.sut
 
 import cloud.benchflow.dsl.definition.simone.properties.Properties
-import cloud.benchflow.dsl.definition.simone.{Driver, DriverConfiguration, Operation}
+import cloud.benchflow.dsl.definition.simone.{ Driver, DriverConfiguration, Operation }
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch)
@@ -18,15 +18,13 @@ package object wfms {
   sealed abstract class WfMSDriver(
     properties: Option[Properties],
     operations: Seq[WfMSOperation],
-    configuration: Option[DriverConfiguration]
-  )
+    configuration: Option[DriverConfiguration])
       extends Driver[WfMSOperation](properties, operations, configuration)
 
   case class WfMSStartDriver(
     override val properties: Option[Properties],
     override val operations: Seq[WfMSOperation],
-    override val configuration: Option[DriverConfiguration]
-  )
+    override val configuration: Option[DriverConfiguration])
       extends WfMSDriver(properties, operations, configuration)
 
   object WfMSDriver {
@@ -34,8 +32,7 @@ package object wfms {
       t: String,
       properties: Option[Properties],
       operations: Seq[WfMSOperation],
-      configuration: Option[DriverConfiguration]
-    ): WfMSDriver = t match {
+      configuration: Option[DriverConfiguration]): WfMSDriver = t match {
       case "start" => WfMSStartDriver(properties, operations, configuration)
       case _ => throw new Exception(s"Illegal driver identifier $t; possible values: start")
     }

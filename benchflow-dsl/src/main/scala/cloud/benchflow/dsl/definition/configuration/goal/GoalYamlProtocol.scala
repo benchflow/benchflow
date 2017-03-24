@@ -1,7 +1,7 @@
 package cloud.benchflow.dsl.definition.configuration.goal
 
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
@@ -27,8 +27,7 @@ object GoalYamlProtocol extends DefaultYamlProtocol {
 
         goalType <- deserializationHandler(
           yamlObject.fields(TypeKey).convertTo[String],
-          keyString(TypeKey)
-        )
+          keyString(TypeKey))
 
         observation <- Try(Option(None)) // TODO - define
         explorationSpace <- Try(Option(None)) // TODO - define
@@ -36,8 +35,7 @@ object GoalYamlProtocol extends DefaultYamlProtocol {
       } yield Goal(
         goalType = goalType,
         observation = observation,
-        explorationSpace = explorationSpace
-      )
+        explorationSpace = explorationSpace)
 
     }
 
@@ -49,8 +47,7 @@ object GoalYamlProtocol extends DefaultYamlProtocol {
     override def write(obj: Goal): YamlValue = YamlObject {
 
       Map[YamlValue, YamlValue](
-        TypeKey -> obj.goalType.toYaml
-      )
+        TypeKey -> obj.goalType.toYaml)
 
       // TODO - add observation, explorationSpace
 

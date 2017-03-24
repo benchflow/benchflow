@@ -106,8 +106,7 @@ trait ValueRangeYamlProtocol extends DefaultYamlProtocol {
           case "+" => implicitly[Numeric[Double]].plus
           case "*" => implicitly[Numeric[Double]].times
           case "-" => implicitly[Numeric[Double]].minus
-        }
-      )
+        })
 
     }
 

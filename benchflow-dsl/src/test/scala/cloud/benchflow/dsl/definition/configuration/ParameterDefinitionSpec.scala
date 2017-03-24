@@ -2,7 +2,7 @@ package cloud.benchflow.dsl.definition.configuration
 
 //import cloud.benchflow.dsl.definition.configuration.simone._
 import cloud.benchflow.dsl.definition.simone._
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{ FlatSpec, Matchers }
 
 /**
  * @author Simone D'Avico (simonedavico@gmail.com)

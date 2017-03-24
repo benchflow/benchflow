@@ -9,5 +9,4 @@ import cloud.benchflow.dsl.definition.types.time.Time
 case class WorkloadExecution(
   rampUp: Time,
   steadyState: Time,
-  rampDown: Time
-)
+  rampDown: Time)

@@ -7,7 +7,7 @@ import cloud.benchflow.dsl.definition.configuration.terminationcriteria.Terminat
 import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadExecution
 import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadExecutionYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
@@ -35,37 +35,31 @@ object ConfigurationYamlProtocol extends DefaultYamlProtocol {
 
         goal <- deserializationHandler(
           yamlObject.fields(GoalKey).convertTo[Try[Goal]].get,
-          keyString(GoalKey)
-        )
+          keyString(GoalKey))
 
         users <- deserializationHandler(
           yamlObject.getFields(UsersKey).headOption.map(_.convertTo[Int]),
-          keyString(UsersKey)
-        )
+          keyString(UsersKey))
 
         workloadExecution <- deserializationHandler(
           yamlObject.getFields(WorkloadExecutionKey).headOption.map(_.convertTo[Try[WorkloadExecution]].get),
-          keyString(WorkloadExecutionKey)
-        )
+          keyString(WorkloadExecutionKey))
 
         // TODO - define
         strategy <- deserializationHandler(
           Option(None),
-          keyString(StrategyKey)
-        )
+          keyString(StrategyKey))
 
         terminationCriteria <- deserializationHandler(
           yamlObject.getFields(TerminationCriteriaKey).headOption.map(_.convertTo[Try[TerminationCriteria]].get),
-          keyString(TerminationCriteriaKey)
-        )
+          keyString(TerminationCriteriaKey))
 
       } yield Configuration(
         goal = goal,
         users = users,
         workloadExecution = workloadExecution,
         strategy = strategy,
-        terminationCriteria = terminationCriteria
-      )
+        terminationCriteria = terminationCriteria)
 
     }
 
@@ -78,8 +72,7 @@ object ConfigurationYamlProtocol extends DefaultYamlProtocol {
     override def write(obj: Configuration): YamlValue = YamlObject {
 
       Map[YamlValue, YamlValue](
-        GoalKey -> obj.goal.toYaml
-      ) ++
+        GoalKey -> obj.goal.toYaml) ++
         obj.users.map(key => UsersKey -> key.toYaml) ++
         obj.workloadExecution.map(key => WorkloadExecutionKey -> key.toYaml) ++
         // TODO - add Strategy when defined

@@ -1,11 +1,11 @@
 package cloud.benchflow.dsl.definition.workload
 
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
 import cloud.benchflow.dsl.definition.types.percent.Percent
 import cloud.benchflow.dsl.definition.types.percent.PercentYamlProtocol._
 import cloud.benchflow.dsl.definition.workload.mix.Mix
 import cloud.benchflow.dsl.definition.workload.mix.MixYamlProtocol._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
@@ -32,36 +32,30 @@ object WorkloadYamlProtocol extends DefaultYamlProtocol {
 
         workloadType <- deserializationHandler(
           yamlObject.fields(TypeKey).convertTo[String],
-          keyString(TypeKey)
-        )
+          keyString(TypeKey))
 
         popularity <- deserializationHandler(
           yamlObject.getFields(PopularityKey).headOption.map(_.convertTo[Try[Percent]].get),
-          keyString(PopularityKey)
-        )
+          keyString(PopularityKey))
 
         interOperationTimings <- deserializationHandler(
           yamlObject.getFields(InterOperationTimingsKey).headOption.map(_.convertTo[String]),
-          keyString(InterOperationTimingsKey)
-        )
+          keyString(InterOperationTimingsKey))
 
         operations <- deserializationHandler(
           yamlObject.fields(OperationsKey).convertTo[List[String]],
-          keyString(OperationsKey)
-        )
+          keyString(OperationsKey))
 
         mix <- deserializationHandler(
           yamlObject.getFields(MixKey).headOption.map(_.convertTo[Try[Mix]].get),
-          keyString(MixKey)
-        )
+          keyString(MixKey))
 
       } yield Workload(
         workloadType = workloadType,
         popularity = popularity,
         interOperationTimings = interOperationTimings,
         operations = operations,
-        mix = mix
-      )
+        mix = mix)
 
     }
 
@@ -74,8 +68,7 @@ object WorkloadYamlProtocol extends DefaultYamlProtocol {
     override def write(obj: Workload): YamlValue = YamlObject {
 
       Map[YamlValue, YamlValue](
-        TypeKey -> obj.workloadType.toYaml
-      ) ++
+        TypeKey -> obj.workloadType.toYaml) ++
         obj.popularity.map(key => PopularityKey -> key.toYaml) ++
         obj.interOperationTimings.map(key => InterOperationTimingsKey -> key.toYaml) +
         (OperationsKey -> obj.operations.toYaml) ++

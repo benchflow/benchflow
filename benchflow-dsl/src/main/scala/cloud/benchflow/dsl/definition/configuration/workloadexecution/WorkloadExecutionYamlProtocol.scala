@@ -3,7 +3,7 @@ package cloud.benchflow.dsl.definition.configuration.workloadexecution
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
 import cloud.benchflow.dsl.definition.types.time.Time
 import cloud.benchflow.dsl.definition.types.time.TimeYamlProtocol._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _}
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
@@ -28,18 +28,15 @@ object WorkloadExecutionYamlProtocol extends DefaultYamlProtocol {
 
         rampUp <- deserializationHandler(
           yamlObject.fields(RampUpKey).convertTo[Try[Time]].get,
-          keyString(RampUpKey)
-        )
+          keyString(RampUpKey))
 
         steadyState <- deserializationHandler(
           yamlObject.fields(SteadyStateKey).convertTo[Try[Time]].get,
-          keyString(SteadyStateKey)
-        )
+          keyString(SteadyStateKey))
 
         rampDown <- deserializationHandler(
           yamlObject.fields(RampDownKey).convertTo[Try[Time]].get,
-          keyString(RampDownKey)
-        )
+          keyString(RampDownKey))
 
       } yield WorkloadExecution(rampUp = rampUp, steadyState = steadyState, rampDown = rampDown)
 
@@ -55,8 +52,7 @@ object WorkloadExecutionYamlProtocol extends DefaultYamlProtocol {
       Map[YamlValue, YamlValue](
         RampUpKey -> obj.rampUp.toYaml,
         SteadyStateKey -> obj.steadyState.toYaml,
-        RampDownKey -> obj.rampDown.toYaml
-      )
+        RampDownKey -> obj.rampDown.toYaml)
 
     }
 

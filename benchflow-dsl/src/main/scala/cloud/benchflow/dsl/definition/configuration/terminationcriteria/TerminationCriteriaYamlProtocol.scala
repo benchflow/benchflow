@@ -4,8 +4,8 @@ import cloud.benchflow.dsl.definition.configuration.terminationcriteria.experime
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.experiment.ExperimentTerminationCriteriaYamlProtocol._
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.test.TestTerminationCriteria
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.test.TestTerminationCriteriaYamlProtocol._
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
@@ -29,13 +29,11 @@ object TerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
         test <- deserializationHandler(
           yamlObject.fields(TestKey).convertTo[Try[TestTerminationCriteria]].get,
-          keyString(TestKey)
-        )
+          keyString(TestKey))
 
         experiment <- deserializationHandler(
           yamlObject.fields(ExperimentKey).convertTo[Try[ExperimentTerminationCriteria]].get,
-          keyString(ExperimentKey)
-        )
+          keyString(ExperimentKey))
 
       } yield TerminationCriteria(test = test, experiment = experiment)
 
@@ -49,8 +47,7 @@ object TerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
       Map[YamlValue, YamlValue](
         TestKey -> obj.test.toYaml,
-        ExperimentKey -> obj.experiment.toYaml
-      )
+        ExperimentKey -> obj.experiment.toYaml)
 
     }
 

@@ -10,5 +10,4 @@ case class GoalOld(
   goalType: GoalType,
   params: Seq[ParameterDefinition[_]],
   explored: Map[String, Seq[String]],
-  observed: Option[Map[String, Seq[String]]]
-)
+  observed: Option[Map[String, Seq[String]]])

@@ -1,9 +1,9 @@
 package cloud.benchflow.dsl.definition.sut.configuration
 
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
 import cloud.benchflow.dsl.definition.sut.configuration.targetservice.TargetService
 import cloud.benchflow.dsl.definition.sut.configuration.targetservice.TargetServiceYamlProtocol._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
@@ -28,18 +28,15 @@ object SutConfigurationYamlProtocol extends DefaultYamlProtocol {
 
         targetService <- deserializationHandler(
           yamlObject.fields(TargetServiceKey).convertTo[Try[TargetService]].get,
-          keyString(TargetServiceKey)
-        )
+          keyString(TargetServiceKey))
 
         deployment <- deserializationHandler(
           yamlObject.fields(DeploymentKey).convertTo[Map[String, String]],
-          keyString(DeploymentKey)
-        )
+          keyString(DeploymentKey))
 
       } yield SutConfiguration(
         targetService = targetService,
-        deployment = deployment
-      )
+        deployment = deployment)
 
     }
 
@@ -53,8 +50,7 @@ object SutConfigurationYamlProtocol extends DefaultYamlProtocol {
 
       Map[YamlValue, YamlValue](
         TargetServiceKey -> obj.targetService.toYaml,
-        DeploymentKey -> obj.deployment.toYaml
-      )
+        DeploymentKey -> obj.deployment.toYaml)
 
     }
 

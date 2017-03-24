@@ -23,8 +23,7 @@ trait GoalOldYamlProtocol extends DefaultYamlProtocol with ParameterDefinitionYa
         case YamlArray(defs) => for {
           aDef <- defs
         } yield ServiceParameterDefinitionYamlFormat.read(
-          YamlObject(YamlString(serviceName) -> aDef)
-        )
+          YamlObject(YamlString(serviceName) -> aDef))
         case _ => throw new Exception("Unexpected format for service parameter definitions")
       }
 
@@ -50,8 +49,7 @@ trait GoalOldYamlProtocol extends DefaultYamlProtocol with ParameterDefinitionYa
         goalType = goalType,
         params = parsedDefinitions,
         explored = toExplore,
-        observed = toObserve
-      )
+        observed = toObserve)
 
     }
 

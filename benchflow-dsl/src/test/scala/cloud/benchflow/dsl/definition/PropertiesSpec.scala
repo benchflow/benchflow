@@ -3,7 +3,7 @@ package cloud.benchflow.dsl.definition
 import cloud.benchflow.dsl.definition.simone.properties.Properties
 import cloud.benchflow.dsl.definition.simone.properties.PropertiesYamlProtocol._
 import cloud.benchflow.dsl.definition.simone.ConfigurationYamlProtocol
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{ FlatSpec, Matchers }
 
 /**
  * @author Simone D'Avico (simonedavico@gmail.com)
@@ -30,9 +30,7 @@ class PropertiesSpec extends FlatSpec with Matchers with ConfigurationYamlProtoc
       properties = Map(
         "hello" -> "hello",
         "foo" -> Map("bar" -> "bar"),
-        "foo" -> List("bar")
-      )
-    )
+        "foo" -> List("bar")))
 
     properties should be(parsedProperties)
 

@@ -3,7 +3,7 @@ package cloud.benchflow.dsl.definition.simone.http
 import cloud.benchflow.dsl.definition._
 import cloud.benchflow.dsl.definition.simone.properties.Properties
 import cloud.benchflow.dsl.definition.simone.properties.PropertiesYamlProtocol._
-import cloud.benchflow.dsl.definition.simone.{CommonsYamlProtocol, WorkloadModelYamlProtocol}
+import cloud.benchflow.dsl.definition.simone.{ CommonsYamlProtocol, WorkloadModelYamlProtocol }
 import cloud.benchflow.dsl.definition.sut.http._
 import net.jcazevedo.moultingyaml._
 
@@ -23,10 +23,8 @@ trait HttpSutYamlProtocol extends DefaultYamlProtocol with WorkloadModelYamlProt
             YamlString("endpoint") -> YamlString(httpOp.endpoint),
             YamlString("method") -> YamlString(httpOp.method.toString),
             YamlString("headers") -> httpOp.headers.toYaml,
-            YamlString("data") -> httpOp.data.toYaml
-          )
-        }
-      )
+            YamlString("data") -> httpOp.data.toYaml)
+        })
     }
 
     override def read(yaml: YamlValue): HttpOperation = {
@@ -51,8 +49,7 @@ trait HttpSutYamlProtocol extends DefaultYamlProtocol with WorkloadModelYamlProt
         endpoint = endpoint,
         method = method,
         headers = headersMap,
-        data = data
-      )
+        data = data)
     }
   }
 

@@ -1,7 +1,7 @@
 package cloud.benchflow.dsl.definition.sut
 
 import cloud.benchflow.dsl.definition.simone.ConfigurationYamlProtocol
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{ FlatSpec, Matchers }
 
 /**
  * @author Simone D'Avico (simonedavico@gmail.com)

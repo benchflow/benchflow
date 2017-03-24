@@ -12,5 +12,5 @@ case class Sut(
   sutType: SutType,
   configuration: SutConfiguration,
   serviceConfiguration: Option[Any] // TODO - Map[String, ServiceConfiguration]
-)
+  )
 
