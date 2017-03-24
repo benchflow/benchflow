@@ -3,8 +3,8 @@ package cloud.benchflow.dsl.definition.simone.wfms
 import cloud.benchflow.dsl.definition._
 import cloud.benchflow.dsl.definition.simone.properties.Properties
 import cloud.benchflow.dsl.definition.simone.properties.PropertiesYamlProtocol._
-import cloud.benchflow.dsl.definition.simone.{CommonsYamlProtocol, WorkloadModelYamlProtocol}
-import cloud.benchflow.dsl.definition.sut.wfms.{WfMSDriver, WfMSOperation, WfMSStartDriver}
+import cloud.benchflow.dsl.definition.simone.{ CommonsYamlProtocol, WorkloadModelYamlProtocol }
+import cloud.benchflow.dsl.definition.sut.wfms.{ WfMSDriver, WfMSOperation, WfMSStartDriver }
 import net.jcazevedo.moultingyaml._
 
 /**
@@ -18,8 +18,7 @@ trait WfMSSutYamlProtocol extends DefaultYamlProtocol with WorkloadModelYamlProt
     override def write(wfmsOp: WfMSOperation): YamlValue = {
       wfmsOp.data match {
         case Some(data) => YamlObject(
-          YamlString(wfmsOp.name) -> YamlObject(YamlString("data") -> YamlString(data))
-        )
+          YamlString(wfmsOp.name) -> YamlObject(YamlString("data") -> YamlString(data)))
         case None => YamlString(wfmsOp.name)
       }
     }

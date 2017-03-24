@@ -4,7 +4,7 @@ import cloud.benchflow.dsl.definition.simone.http.HttpSutYamlProtocol
 import cloud.benchflow.dsl.definition.simone.wfms.WfMSSutYamlProtocol
 import cloud.benchflow.dsl.definition.sut.SutType
 import cloud.benchflow.dsl.definition.sut.configuration.targetservice.TargetService
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlString, YamlValue}
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlString, YamlValue }
 
 /**
  * @author Simone D'Avico (simonedavico@gmail.com)
@@ -26,8 +26,7 @@ trait ConfigurationYamlProtocol extends DefaultYamlProtocol
 
     override def read(yaml: YamlValue): SutType = {
       SutType(yaml.asYamlObject.getFields(
-        YamlString("suts_type")
-      ).head.convertTo[String])
+        YamlString("suts_type")).head.convertTo[String])
     }
 
   }

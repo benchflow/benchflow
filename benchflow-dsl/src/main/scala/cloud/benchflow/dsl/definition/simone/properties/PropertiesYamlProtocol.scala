@@ -1,6 +1,6 @@
 package cloud.benchflow.dsl.definition.simone.properties
 
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, DeserializationException, YamlArray, YamlBoolean, YamlDate, YamlFormat, YamlNumber, YamlObject, YamlString, YamlValue, _}
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, DeserializationException, YamlArray, YamlBoolean, YamlDate, YamlFormat, YamlNumber, YamlObject, YamlString, YamlValue, _ }
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch)

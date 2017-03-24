@@ -7,9 +7,9 @@ import net.jcazevedo.moultingyaml._
 import scala.util.Try
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch)
-  *         created on 10.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 10.03.17.
+ */
 object BenchFlowDSL {
 
   def testFromYaml(testDefinitionYaml: String): Try[BenchFlowTest] = {

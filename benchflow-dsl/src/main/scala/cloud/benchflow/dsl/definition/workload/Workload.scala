@@ -12,5 +12,4 @@ case class Workload(
   popularity: Option[Percent],
   interOperationTimings: Option[String], // TODO - define type
   operations: List[String], // TODO - adjust for http type
-  mix: Option[Mix]
-)
+  mix: Option[Mix])

@@ -2,7 +2,7 @@ package cloud.benchflow.dsl.definition.types.time
 
 import cloud.benchflow.dsl.definition.types.time.TimeYamlProtocol._
 import net.jcazevedo.moultingyaml._
-import org.junit.{Assert, Test}
+import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
 
 import scala.util.Try

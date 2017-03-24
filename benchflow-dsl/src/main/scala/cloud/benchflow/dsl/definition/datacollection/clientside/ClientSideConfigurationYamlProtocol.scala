@@ -3,8 +3,8 @@ package cloud.benchflow.dsl.definition.datacollection.clientside
 import cloud.benchflow.dsl.definition.datacollection.clientside.faban.FabanConfiguration
 import cloud.benchflow.dsl.definition.datacollection.clientside.faban.FabanConfigurationYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{unsupportedReadOperation, unsupportedWriteOperation}
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ unsupportedReadOperation, unsupportedWriteOperation }
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
@@ -27,8 +27,7 @@ object ClientSideConfigurationYamlProtocol extends DefaultYamlProtocol {
 
         faban <- YamlErrorHandler.deserializationHandler(
           yamlObject.fields(FabanKey).convertTo[Try[FabanConfiguration]].get,
-          keyString(FabanKey)
-        )
+          keyString(FabanKey))
 
       } yield ClientSideConfiguration(faban)
 
@@ -42,8 +41,7 @@ object ClientSideConfigurationYamlProtocol extends DefaultYamlProtocol {
     override def write(obj: ClientSideConfiguration): YamlValue = YamlObject {
 
       Map[YamlValue, YamlValue](
-        FabanKey -> obj.faban.toYaml
-      )
+        FabanKey -> obj.faban.toYaml)
 
     }
 

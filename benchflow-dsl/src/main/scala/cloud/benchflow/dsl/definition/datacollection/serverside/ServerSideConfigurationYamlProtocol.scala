@@ -2,8 +2,8 @@ package cloud.benchflow.dsl.definition.datacollection.serverside
 
 import cloud.benchflow.dsl.definition.datacollection.serverside.collector.Collector
 import cloud.benchflow.dsl.definition.datacollection.serverside.collector.CollectorYamlProtocol._
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlValue, _}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlValue, _ }
 
 import scala.util.Try
 
@@ -25,8 +25,7 @@ object ServerSideConfigurationYamlProtocol extends DefaultYamlProtocol {
 
         configurationMap <- deserializationHandler(
           yamlObject.convertTo[Map[String, Try[Collector]]].mapValues(_.get),
-          keyString()
-        )
+          keyString())
 
       } yield ServerSideConfiguration(configurationMap = configurationMap)
 

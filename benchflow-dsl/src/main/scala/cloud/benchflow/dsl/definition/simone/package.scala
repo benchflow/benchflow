@@ -26,8 +26,7 @@ package object simone {
   abstract class Driver[A <: Operation](
     val properties: Option[Properties],
     val operations: Seq[A],
-    val configuration: Option[DriverConfiguration]
-  )
+    val configuration: Option[DriverConfiguration])
 
   case class TotalTrials(trials: Int)
 

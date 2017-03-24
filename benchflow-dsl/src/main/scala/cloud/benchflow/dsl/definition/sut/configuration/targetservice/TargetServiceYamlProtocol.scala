@@ -1,7 +1,7 @@
 package cloud.benchflow.dsl.definition.sut.configuration.targetservice
 
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
@@ -26,18 +26,15 @@ object TargetServiceYamlProtocol extends DefaultYamlProtocol {
 
         name <- deserializationHandler(
           yamlObject.fields(NameKey).convertTo[String],
-          keyString(NameKey)
-        )
+          keyString(NameKey))
 
         endpoint <- deserializationHandler(
           yamlObject.fields(EndpointKey).convertTo[String],
-          keyString(EndpointKey)
-        )
+          keyString(EndpointKey))
 
         sutReadyLogCheck <- deserializationHandler(
           yamlObject.getFields(SutReadyLogCheckKey).headOption.map(_.convertTo[String]),
-          keyString(SutReadyLogCheckKey)
-        )
+          keyString(SutReadyLogCheckKey))
 
       } yield TargetService(name = name, endpoint = endpoint, sutReadyLogCheck = sutReadyLogCheck)
 
@@ -51,8 +48,7 @@ object TargetServiceYamlProtocol extends DefaultYamlProtocol {
     override def write(obj: TargetService): YamlValue = YamlObject {
       Map[YamlValue, YamlValue](
         NameKey -> obj.name.toYaml,
-        EndpointKey -> obj.endpoint.toYaml
-      ) ++
+        EndpointKey -> obj.endpoint.toYaml) ++
         obj.sutReadyLogCheck.map(key => SutReadyLogCheckKey -> key.toYaml)
 
     }

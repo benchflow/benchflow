@@ -1,10 +1,10 @@
 package cloud.benchflow.dsl.definition.configuration.terminationcriteria.test
 
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{unsupportedReadOperation, unsupportedWriteOperation}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ unsupportedReadOperation, unsupportedWriteOperation }
 import cloud.benchflow.dsl.definition.types.time.Time
 import cloud.benchflow.dsl.definition.types.time.TimeYamlProtocol._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _}
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
@@ -27,8 +27,7 @@ object TestTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
         maxTime <- YamlErrorHandler.deserializationHandler(
           yamlObject.fields(MaxTimeKey).convertTo[Try[Time]].get,
-          keyString(MaxTimeKey)
-        )
+          keyString(MaxTimeKey))
 
       } yield TestTerminationCriteria(maxTime = maxTime)
 
@@ -42,8 +41,7 @@ object TestTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
     override def write(obj: TestTerminationCriteria): YamlValue = YamlObject {
 
       Map[YamlValue, YamlValue](
-        MaxTimeKey -> obj.maxTime.toYaml
-      )
+        MaxTimeKey -> obj.maxTime.toYaml)
 
     }
 

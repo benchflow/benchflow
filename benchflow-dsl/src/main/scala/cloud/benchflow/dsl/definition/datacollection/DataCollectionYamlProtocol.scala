@@ -4,8 +4,8 @@ import cloud.benchflow.dsl.definition.datacollection.clientside.ClientSideConfig
 import cloud.benchflow.dsl.definition.datacollection.clientside.ClientSideConfigurationYamlProtocol._
 import cloud.benchflow.dsl.definition.datacollection.serverside.ServerSideConfiguration
 import cloud.benchflow.dsl.definition.datacollection.serverside.ServerSideConfigurationYamlProtocol._
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedWriteOperation}
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedWriteOperation }
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
@@ -29,13 +29,11 @@ object DataCollectionYamlProtocol extends DefaultYamlProtocol {
 
         clientSide <- deserializationHandler(
           yamlObject.getFields(ClientSideKey).headOption.map(_.convertTo[Try[ClientSideConfiguration]].get),
-          keyString(ClientSideKey)
-        )
+          keyString(ClientSideKey))
 
         serverSideConfiguration <- deserializationHandler(
           yamlObject.getFields(ServerSideKey).headOption.map(_.convertTo[Try[ServerSideConfiguration]].get),
-          keyString(ServerSideKey)
-        )
+          keyString(ServerSideKey))
 
       } yield DataCollection(clientSide = clientSide, serverSide = serverSideConfiguration)
 

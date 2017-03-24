@@ -13,5 +13,4 @@ case class Configuration(
   users: Option[Int],
   workloadExecution: Option[WorkloadExecution],
   strategy: Option[Any], // TODO - define type
-  terminationCriteria: Option[TerminationCriteria]
-)
+  terminationCriteria: Option[TerminationCriteria])

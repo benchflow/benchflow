@@ -1,6 +1,6 @@
 package cloud.benchflow.dsl.definition.workload.mix
 
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
 import cloud.benchflow.dsl.definition.types.percent.Percent
 import cloud.benchflow.dsl.definition.types.percent.PercentYamlProtocol._
 import net.jcazevedo.moultingyaml._
@@ -31,8 +31,7 @@ object MixYamlProtocol extends DefaultYamlProtocol {
 
         maxDeviation <- deserializationHandler(
           yamlObject.getFields(MaxDeviationKey).headOption.map(_.convertTo[Try[Percent]].get),
-          keyString(MaxDeviationKey)
-        )
+          keyString(MaxDeviationKey))
 
         // TODO - test this properly. The order is important so SequenceyKey must come before FlatKey
 
@@ -43,8 +42,7 @@ object MixYamlProtocol extends DefaultYamlProtocol {
 
             case _ if yamlObject.getFields(SequencesKey).nonEmpty => FlatSequenceMix(
               yamlObject.getFields(FlatKey).headOption.map(_.convertTo[Seq[Try[Percent]]].map(_.get)).get,
-              yamlObject.getFields(SequencesKey).headOption.map(_.convertTo[Seq[Seq[String]]]).get
-            )
+              yamlObject.getFields(SequencesKey).headOption.map(_.convertTo[Seq[Seq[String]]]).get)
 
             case _ if yamlObject.getFields(FlatKey).nonEmpty =>
               FlatMix(yamlObject.getFields(FlatKey).headOption.map(_.convertTo[Seq[Try[Percent]]].map(_.get)).get)
@@ -54,8 +52,7 @@ object MixYamlProtocol extends DefaultYamlProtocol {
 
             // TODO - handle case when a valid key is missing
           },
-          keyString(YamlString("mix"))
-        )
+          keyString(YamlString("mix")))
 
       } yield Mix(maxDeviation = maxDeviation, mix = mix)
 

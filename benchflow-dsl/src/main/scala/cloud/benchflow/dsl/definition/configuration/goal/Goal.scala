@@ -10,4 +10,4 @@ case class Goal(
   goalType: String, // TODO - define type
   observation: Option[Any], // TODO - define type
   explorationSpace: Option[Any] // TODO - define type
-)
+  )

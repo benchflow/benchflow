@@ -9,5 +9,4 @@ import cloud.benchflow.dsl.definition.types.time.Time
 case class FabanConfiguration(
   maxRunTime: Option[Time],
   interval: Option[Time],
-  workload: Option[Map[String, Time]]
-)
+  workload: Option[Map[String, Time]])

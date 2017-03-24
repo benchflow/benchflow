@@ -20,8 +20,7 @@ case class BenchFlowExperiment(
     trials: TotalTrials,
     execution: LoadFunction,
     properties: Properties,
-    sutConfiguration: SutConfiguration
-) {
+    sutConfiguration: SutConfiguration) {
   def getAliasForService(serviceName: String): Option[String] = sutConfiguration.deployment.get(serviceName)
   // TODO - move me
   //  def getBindingsForService(serviceName: String) = sutConfiguration.bfConfig.bindings(serviceName)
@@ -31,11 +30,11 @@ case class BenchFlowExperiment(
 object BenchFlowExperiment
 //{
 
-  //  def fromYaml(yaml: String): BenchFlowExperiment = {
-  //    yaml.stripMargin.parseYaml.convertTo[BenchFlowExperiment]
-  //  }
-  //
-  //  def toYaml(be: BenchFlowExperiment): String = be.toYaml.prettyPrint
+//  def fromYaml(yaml: String): BenchFlowExperiment = {
+//    yaml.stripMargin.parseYaml.convertTo[BenchFlowExperiment]
+//  }
+//
+//  def toYaml(be: BenchFlowExperiment): String = be.toYaml.prettyPrint
 
 //}
 

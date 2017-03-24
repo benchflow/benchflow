@@ -1,9 +1,9 @@
 package cloud.benchflow.dsl.definition.datacollection.clientside.faban
 
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
 import cloud.benchflow.dsl.definition.types.time.Time
 import cloud.benchflow.dsl.definition.types.time.TimeYamlProtocol._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _}
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
@@ -29,17 +29,14 @@ object FabanConfigurationYamlProtocol extends DefaultYamlProtocol {
 
         maxRunTime <- deserializationHandler(
           yamlObject.getFields(MaxRunTimeKey).headOption.map(_.convertTo[Try[Time]].get),
-          keyString(MaxRunTimeKey)
-        )
+          keyString(MaxRunTimeKey))
 
         interval <- deserializationHandler(
           yamlObject.getFields(IntervalKey).headOption.map(_.convertTo[Try[Time]].get),
-          keyString(IntervalKey)
-        )
+          keyString(IntervalKey))
         workload <- deserializationHandler(
           yamlObject.getFields(WorkloadKey).headOption.map(_.convertTo[Map[String, Try[Time]]].mapValues(_.get)),
-          keyString(WorkloadKey)
-        )
+          keyString(WorkloadKey))
 
       } yield FabanConfiguration(maxRunTime = maxRunTime, interval = interval, workload = workload)
 

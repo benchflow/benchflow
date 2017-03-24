@@ -1,7 +1,7 @@
 package cloud.benchflow.dsl.deployment.docker.service
 
 import net.jcazevedo.moultingyaml._
-import scala.collection.mutable.{Map => MutableMap}
+import scala.collection.mutable.{ Map => MutableMap }
 
 /**
  * @author Simone D'Avico (simonedavico@gmail.com)
@@ -31,15 +31,13 @@ object ServiceYamlProtocol extends DefaultYamlProtocol {
         YamlString("volumes_from") ->
           YamlArray(
             obj.volumes.map { volume =>
-            volume match {
+              volume match {
 
-              case (serviceName, None) => YamlString(serviceName)
-              case (serviceName, Some(accessRights)) => YamlString(s"$serviceName:$accessRights")
+                case (serviceName, None) => YamlString(serviceName)
+                case (serviceName, Some(accessRights)) => YamlString(s"$serviceName:$accessRights")
 
-            }
-          }.toVector
-          )
-      )
+              }
+            }.toVector))
 
     }
 
@@ -56,8 +54,7 @@ object ServiceYamlProtocol extends DefaultYamlProtocol {
               case volumesFromRegex(serviceName, accessRights) =>
                 (serviceName, Some(VolumeAccessRights(accessRights)))
             }
-          }
-        )
+          })
 
         case _ => ???
       }
@@ -83,8 +80,7 @@ object ServiceYamlProtocol extends DefaultYamlProtocol {
           env.vars.toMap.map {
             case ("constraint", alias) => s"constraint:node==$alias"
             case (name, value) => s"$name=$value"
-          }.toYaml
-      )
+          }.toYaml)
     }
   }
 
@@ -125,8 +121,7 @@ object ServiceYamlProtocol extends DefaultYamlProtocol {
 
     override def write(cpus: CpuSet): YamlValue = {
       YamlObject(
-        YamlString("cpuset") -> YamlString(s"0-${cpus.cores - 1}")
-      )
+        YamlString("cpuset") -> YamlString(s"0-${cpus.cores - 1}"))
     }
   }
 
@@ -229,10 +224,7 @@ object ServiceYamlProtocol extends DefaultYamlProtocol {
               (c.pid match {
                 case Some(_) => c.pid.toYaml.asYamlObject.fields
                 case _ => emptyMap
-              })
-
-          )
-      )
+              })))
     }
 
     override def read(value: YamlValue): Service = {
@@ -260,8 +252,7 @@ object ServiceYamlProtocol extends DefaultYamlProtocol {
             case Some(YamlArray(vars)) =>
               YamlObject(
                 YamlString("environment") ->
-                  YamlArray(vars)
-              ).convertTo[Environment]
+                  YamlArray(vars)).convertTo[Environment]
             case _ => Environment(MutableMap.empty[String, String])
           }
 
@@ -339,8 +330,7 @@ object ServiceYamlProtocol extends DefaultYamlProtocol {
             memLimit = memlimit,
             volumesFrom = volumesFrom,
             dependsOn = dependsOn,
-            pid = pid
-          )
+            pid = pid)
         case _ => throw DeserializationException("Invalid Docker compose file")
       }
     }

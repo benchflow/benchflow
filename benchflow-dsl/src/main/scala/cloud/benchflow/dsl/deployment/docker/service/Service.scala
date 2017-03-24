@@ -2,7 +2,7 @@ package cloud.benchflow.dsl.deployment.docker.service
 
 import net.jcazevedo.moultingyaml._
 
-import scala.collection.mutable.{Map => MutableMap}
+import scala.collection.mutable.{ Map => MutableMap }
 
 /**
  * @author Simone D'Avico (simonedavico@gmail.com)
@@ -60,7 +60,7 @@ case object MegaByte extends MemUnit { override def toString: String = "m" }
 case class MemLimit(limit: Int, unit: MemUnit)
 
 case class Service(
-  name: String,
+    name: String,
     image: Option[Image] = None,
     containerName: Option[ContainerName] = None,
     command: Option[Command] = None,
@@ -74,8 +74,7 @@ case class Service(
     memLimit: Option[MemLimit] = None,
     volumesFrom: Option[VolumesFrom] = None,
     dependsOn: Option[DependsOn] = None,
-    pid: Option[Pid] = None
-) {
+    pid: Option[Pid] = None) {
 
   //valid port configurations:
   //- port:port

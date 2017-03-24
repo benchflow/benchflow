@@ -1,9 +1,9 @@
 package cloud.benchflow.dsl.definition.sut
 
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
 import cloud.benchflow.dsl.definition.sut.configuration.SutConfiguration
 import cloud.benchflow.dsl.definition.sut.configuration.SutConfigurationYamlProtocol._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
@@ -29,23 +29,19 @@ object SutYamlProtocol extends DefaultYamlProtocol {
 
         name <- deserializationHandler(
           yamlObject.fields(NameKey).convertTo[String],
-          keyString(NameKey)
-        )
+          keyString(NameKey))
 
         version <- deserializationHandler(
           Version(yamlObject.fields(VersionKey).convertTo[String]),
-          keyString(VersionKey)
-        )
+          keyString(VersionKey))
 
         sutType <- deserializationHandler(
           SutType(yamlObject.fields(TypeKey).convertTo[String]),
-          keyString(VersionKey)
-        )
+          keyString(VersionKey))
 
         configuration <- deserializationHandler(
           yamlObject.fields(ConfigurationKey).convertTo[Try[SutConfiguration]].get,
-          keyString(ConfigurationKey)
-        )
+          keyString(ConfigurationKey))
 
         // TODO - specify
         serviceConfiguration <- Try(Option(None))
@@ -55,8 +51,7 @@ object SutYamlProtocol extends DefaultYamlProtocol {
         version = version,
         sutType = sutType,
         configuration = configuration,
-        serviceConfiguration = serviceConfiguration
-      )
+        serviceConfiguration = serviceConfiguration)
 
     }
 
@@ -72,8 +67,7 @@ object SutYamlProtocol extends DefaultYamlProtocol {
         NameKey -> obj.name.toYaml,
         VersionKey -> obj.version.toString.toYaml,
         TypeKey -> obj.sutType.toString.toYaml,
-        ConfigurationKey -> obj.configuration.toYaml
-      )
+        ConfigurationKey -> obj.configuration.toYaml)
 
       // TODO - add service configuration
 

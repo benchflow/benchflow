@@ -6,20 +6,19 @@ import cloud.benchflow.dsl.definition.sut.Sut
 import cloud.benchflow.dsl.definition.workload.Workload
 
 /**
-  * @author Simone D'Avico (simonedavico@gmail.com)
-  *
-  *         Created on 18/07/16.
-  */
+ * @author Simone D'Avico (simonedavico@gmail.com)
+ *
+ *         Created on 18/07/16.
+ */
 
 case class BenchFlowTest(
-                          version: String,
-                          name: String,
-                          description: String,
-                          configuration: Configuration,
-                          sut: Sut,
-                          workload: Map[String, Workload],
-                          dataCollection: Option[DataCollection]
-                        )
+  version: String,
+  name: String,
+  description: String,
+  configuration: Configuration,
+  sut: Sut,
+  workload: Map[String, Workload],
+  dataCollection: Option[DataCollection])
 
 //case class BenchFlowTest(name: String,
 //                         description: String,

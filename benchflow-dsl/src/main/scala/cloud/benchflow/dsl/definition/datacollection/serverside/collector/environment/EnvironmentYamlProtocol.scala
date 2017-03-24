@@ -1,7 +1,7 @@
 package cloud.benchflow.dsl.definition.datacollection.serverside.collector.environment
 
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
@@ -23,8 +23,7 @@ object EnvironmentYamlProtocol extends DefaultYamlProtocol {
 
         environment <- deserializationHandler(
           yaml.asYamlObject.fields(EnvironmentKey).convertTo[Map[String, String]],
-          keyString(EnvironmentKey)
-        )
+          keyString(EnvironmentKey))
 
       } yield Environment(environment = environment)
 
