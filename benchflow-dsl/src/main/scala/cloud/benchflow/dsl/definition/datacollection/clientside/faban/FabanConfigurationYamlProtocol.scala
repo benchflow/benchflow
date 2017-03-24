@@ -19,7 +19,7 @@ object FabanConfigurationYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "data_collection.client_side.faban." + key.value
 
-  implicit object FabanConfigurationFormat extends YamlFormat[Try[FabanConfiguration]] {
+  implicit object FabanConfigurationReadFormat extends YamlFormat[Try[FabanConfiguration]] {
 
     override def read(yaml: YamlValue): Try[FabanConfiguration] = {
 
@@ -45,24 +45,21 @@ object FabanConfigurationYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[FabanConfiguration]): YamlValue = {
+    override def write(obj: Try[FabanConfiguration]): YamlValue = ???
+  }
 
-      val fabanConfiguration = obj.get
+  implicit object FabanConfigurationWriteFormat extends YamlFormat[FabanConfiguration] {
 
-      var map = Map[YamlValue, YamlValue]()
+    override def write(obj: FabanConfiguration): YamlValue = YamlObject {
 
-      if (fabanConfiguration.maxRunTime.isDefined)
-        map += MaxRunTimeKey -> Try(fabanConfiguration.maxRunTime.get).toYaml
-
-      if (fabanConfiguration.interval.isDefined)
-        map += IntervalKey -> Try(fabanConfiguration.interval.get).toYaml
-
-      if (fabanConfiguration.workload.isDefined)
-        map += WorkloadKey -> fabanConfiguration.workload.get.mapValues(time => Try(time)).toYaml
-
-      YamlObject(map)
+      Map[YamlValue, YamlValue]() ++
+        obj.maxRunTime.map(key => MaxRunTimeKey -> key.toYaml) ++
+        obj.interval.map(key => IntervalKey -> key.toYaml) ++
+        obj.workload.map(key => WorkloadKey -> key.toYaml)
 
     }
+
+    override def read(yaml: YamlValue): FabanConfiguration = ???
   }
 
 }

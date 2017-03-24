@@ -20,7 +20,7 @@ object DataCollectionYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "data_collection." + key.value
 
-  implicit object DataCollectionYamlFormat extends YamlFormat[Try[DataCollection]] {
+  implicit object DataCollectionReadFormat extends YamlFormat[Try[DataCollection]] {
     override def read(yaml: YamlValue): Try[DataCollection] = {
 
       val yamlObject = yaml.asYamlObject
@@ -37,25 +37,25 @@ object DataCollectionYamlProtocol extends DefaultYamlProtocol {
           keyString(ServerSideKey)
         )
 
-      } yield DataCollection(clientSide = clientSide, serverSideConfiguration = serverSideConfiguration)
+      } yield DataCollection(clientSide = clientSide, serverSide = serverSideConfiguration)
 
     }
 
-    override def write(obj: Try[DataCollection]): YamlValue = {
+    override def write(obj: Try[DataCollection]): YamlValue = ???
 
-      val dataCollection = obj.get
+  }
 
-      var map = Map[YamlValue, YamlValue]()
+  implicit object DataCollectionWriteFormat extends YamlFormat[DataCollection] {
 
-      if (dataCollection.clientSide.isDefined)
-        map += ClientSideKey -> Try(dataCollection.clientSide.get).toYaml
+    override def write(obj: DataCollection): YamlValue = YamlObject {
 
-      if (dataCollection.serverSideConfiguration.isDefined)
-        map += ServerSideKey -> Try(dataCollection.serverSideConfiguration.get).toYaml
-
-      YamlObject(map)
+      Map[YamlValue, YamlValue]() ++
+        obj.clientSide.map(key => ClientSideKey -> key.toYaml) ++
+        obj.serverSide.map(key => ServerSideKey -> key.toYaml)
 
     }
+
+    override def read(yaml: YamlValue): DataCollection = ???
   }
 
 }

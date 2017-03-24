@@ -30,7 +30,7 @@ object BenchFlowTestYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "" + key.value
 
-  implicit object BenchFlowTestFormat extends YamlFormat[Try[BenchFlowTest]] {
+  implicit object BenchFlowTestReadFormat extends YamlFormat[Try[BenchFlowTest]] {
 
     override def read(yaml: YamlValue): Try[BenchFlowTest] = {
 
@@ -83,37 +83,27 @@ object BenchFlowTestYamlProtocol extends DefaultYamlProtocol {
       )
     }
 
-    override def write(tryBenchFlowTest: Try[BenchFlowTest]): YamlValue = {
-
-      // TODO - add documentation reference with reasons why the code is like it is
-      // TODO - document design decisions (which options(exceptions, try (both), try read & normal write and why)
-      // TODO - change to separate Format for write (see BenchFlowTestWriteFormat)
-      val benchFlowTest = tryBenchFlowTest.get
-
-      // TODO - update all [*]YamlProtocol write methods with the below structure
-
-      YamlObject {
-        Map[YamlValue, YamlValue](
-          VersionKey -> benchFlowTest.version.toYaml,
-          NameKey -> benchFlowTest.name.toYaml,
-          DescriptionKey -> benchFlowTest.description.toYaml,
-          ConfigurationKey -> Try(benchFlowTest.configuration).toYaml,
-          SutKey -> Try(benchFlowTest.sut).toYaml,
-          WorkloadKey -> benchFlowTest.workload.mapValues(v => Try(v)).toYaml
-        ) ++
-        // we map here because value is optional (Option)
-          benchFlowTest.dataCollection.map(key => DataCollectionKey -> Try(key).toYaml) // +
-        // this line is an example of how to mix optional and non-optional key,value pairs (incl. '+' on previous line)
-        //          (VersionKey -> benchFlowTest.version.toYaml)
-      }
-
-    }
+    override def write(tryBenchFlowTest: Try[BenchFlowTest]): YamlValue = ???
 
   }
 
+  // TODO - add documentation reference with reasons why we separate read and write into 2 objects
   implicit object BenchFlowTestWriteFormat extends YamlFormat[BenchFlowTest] {
 
-    override def write(obj: BenchFlowTest): YamlValue = ???
+    override def write(obj: BenchFlowTest): YamlValue = YamlObject {
+      Map[YamlValue, YamlValue](
+        VersionKey -> obj.version.toYaml,
+        NameKey -> obj.name.toYaml,
+        DescriptionKey -> obj.description.toYaml,
+        ConfigurationKey -> obj.configuration.toYaml,
+        SutKey -> obj.sut.toYaml,
+        WorkloadKey -> obj.workload.toYaml
+      ) ++
+        // we map here because value is optional (Option)
+        obj.dataCollection.map(key => DataCollectionKey -> key.toYaml) // +
+      // this line is an example of how to mix optional and non-optional key,value pairs (incl. '+' on previous line)
+      //          (VersionKey -> benchFlowTest.version.toYaml)
+    }
 
     override def read(yaml: YamlValue): BenchFlowTest = ???
   }

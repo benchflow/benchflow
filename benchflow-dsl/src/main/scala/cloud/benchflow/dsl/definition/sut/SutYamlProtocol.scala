@@ -20,7 +20,7 @@ object SutYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "sut." + key.value
 
-  implicit object SutYamlFormat extends YamlFormat[Try[Sut]] {
+  implicit object SutReadFormat extends YamlFormat[Try[Sut]] {
     override def read(yaml: YamlValue): Try[Sut] = {
 
       val yamlObject = yaml.asYamlObject
@@ -59,53 +59,27 @@ object SutYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[Sut]): YamlValue = {
+    override def write(obj: Try[Sut]): YamlValue = ???
 
-      val sut = obj.get
+  }
 
-      val map = Map[YamlValue, YamlValue] (
-        NameKey -> YamlString(sut.name),
-        VersionKey -> YamlString(sut.version.toString),
-        TypeKey -> YamlString(sut.sutType.toString),
-        ConfigurationKey -> Try(sut.configuration).toYaml
+  implicit object SutWriteFormat extends YamlFormat[Sut] {
+
+    override def write(obj: Sut): YamlValue = YamlObject {
+
+      Map[YamlValue, YamlValue] (
+        NameKey -> obj.name.toYaml,
+        VersionKey -> obj.version.toString.toYaml,
+        TypeKey -> obj.sutType.toString.toYaml,
+        ConfigurationKey -> obj.configuration.toYaml
       )
-      
+
       // TODO - add service configuration
 
-      YamlObject(map)
     }
+
+    override def read(yaml: YamlValue): Sut = ???
   }
 
 }
 
-//implicit object SutYamlFormat extends YamlFormat[Sut] {
-//  override def write(sut: Sut): YamlValue = {
-//    YamlObject(
-//      YamlString("name") -> YamlString(sut.name),
-//      YamlString("version") -> YamlString(sut.version.toString),
-//      YamlString("type") -> YamlString(sut.sutType match {
-//        case WfMS => "WfMS"
-//        case Http => "http"
-//      })
-//    )
-//  }
-//
-//  override def read(yaml: YamlValue): Sut = {
-//    val sutName = yaml.asYamlObject.fields.get(YamlString("name")) match {
-//      case Some(YamlString(name)) => name
-//      case _ => throw new DeserializationException("No name specified in sut definition")
-//    }
-//
-//    val version = yaml.asYamlObject.fields.get(YamlString("version")) match {
-//      case Some(YamlString(v)) => Version(v)
-//      case _ => throw new DeserializationException("No version specified in sut definition")
-//    }
-//
-//    val sutsType = yaml.asYamlObject.fields.get(YamlString("type")) match {
-//      case Some(YamlString(t)) => SutType(t)
-//      case _ => throw new DeserializationException("No type specified in sut definition")
-//    }
-//
-//    Sut(sutName, version, sutsType)
-//  }
-//}

@@ -15,7 +15,7 @@ object CollectorMultipleEnvironmentYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString() = "data_collection.server_side.(some collector multiple - environment)"
 
-  implicit object CollectorMultipleEnvironmentFormat extends YamlFormat[Try[CollectorMultipleEnvironment]] {
+  implicit object CollectorMultipleEnvironmentReadFormat extends YamlFormat[Try[CollectorMultipleEnvironment]] {
 
     override def read(yaml: YamlValue): Try[CollectorMultipleEnvironment] = {
 
@@ -32,18 +32,19 @@ object CollectorMultipleEnvironmentYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[CollectorMultipleEnvironment]): YamlValue = {
+    override def write(obj: Try[CollectorMultipleEnvironment]): YamlValue = ???
 
-      val collectorMultipleEnvironment = obj.get
+  }
 
-      YamlObject(
-        collectorMultipleEnvironment.collectors.map {
-          case (k, environment) => k.toYaml -> Try(environment).toYaml
-        }
-      )
+  implicit object CollectorMultipleEnvironmentWriteFormat extends YamlFormat[CollectorMultipleEnvironment] {
 
-
+    override def write(obj: CollectorMultipleEnvironment): YamlValue = YamlObject {
+      obj.collectors.map {
+        case (k, environment) => k.toYaml -> environment.toYaml
+      }
     }
+
+    override def read(yaml: YamlValue): CollectorMultipleEnvironment = ???
   }
 
 }

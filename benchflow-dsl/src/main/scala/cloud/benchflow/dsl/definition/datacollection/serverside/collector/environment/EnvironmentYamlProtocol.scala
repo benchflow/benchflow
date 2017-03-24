@@ -15,7 +15,7 @@ object EnvironmentYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(yamlString: YamlString) = "data_collection.server_side.(some collector multiple - environment)." + yamlString.value
 
-  implicit object EnvironmentFormat extends YamlFormat[Try[Environment]] {
+  implicit object EnvironmentReadFormat extends YamlFormat[Try[Environment]] {
 
     override def read(yaml: YamlValue): Try[Environment] = {
 
@@ -30,15 +30,16 @@ object EnvironmentYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[Environment]): YamlValue = {
+    override def write(obj: Try[Environment]): YamlValue = ???
+  }
 
-      val environment = obj.get
+  implicit object EnvironmentWriteFormat extends YamlFormat[Environment] {
 
-      YamlObject(
-        EnvironmentKey -> environment.environment.toYaml
-      )
-
+    override def write(obj: Environment): YamlValue = YamlObject {
+      EnvironmentKey -> obj.environment.toYaml
     }
+
+    override def read(yaml: YamlValue): Environment = ???
   }
 
 }

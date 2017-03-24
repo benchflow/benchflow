@@ -20,7 +20,7 @@ object TerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "configuration.termination_criteria" + key.value
 
-  implicit object TerminationCriteriaYamlFormat extends YamlFormat[Try[TerminationCriteria]] {
+  implicit object TerminationCriteriaReadFormat extends YamlFormat[Try[TerminationCriteria]] {
     override def read(yaml: YamlValue): Try[TerminationCriteria] = {
 
       val yamlObject = yaml.asYamlObject
@@ -41,18 +41,20 @@ object TerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(terminationCriteriaTry: Try[TerminationCriteria]): YamlValue = {
+    override def write(terminationCriteriaTry: Try[TerminationCriteria]): YamlValue = ???
+  }
 
-      val terminationCriteria = terminationCriteriaTry.get
+  implicit object TerminationCriteriaWriteFormat extends YamlFormat[TerminationCriteria] {
+    override def write(obj: TerminationCriteria): YamlValue = YamlObject {
 
-      val map = Map[YamlValue, YamlValue](
-        TestKey -> Try(terminationCriteria.test).toYaml,
-        ExperimentKey -> Try(terminationCriteria.experiment).toYaml
+      Map[YamlValue, YamlValue](
+        TestKey -> obj.test.toYaml,
+        ExperimentKey -> obj.experiment.toYaml
       )
 
-      YamlObject(map)
-
     }
+
+    override def read(yaml: YamlValue): TerminationCriteria = ???
   }
 
 }

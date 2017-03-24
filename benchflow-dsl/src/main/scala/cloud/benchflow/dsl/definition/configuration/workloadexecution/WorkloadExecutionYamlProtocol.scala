@@ -19,7 +19,7 @@ object WorkloadExecutionYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "configuration.workload_execution" + key.value
 
-  implicit object WorkloadExecutionYamlFormat extends YamlFormat[Try[WorkloadExecution]] {
+  implicit object WorkloadExecutionReadFormat extends YamlFormat[Try[WorkloadExecution]] {
     override def read(yaml: YamlValue): Try[WorkloadExecution] = {
 
       val yamlObject = yaml.asYamlObject
@@ -45,19 +45,22 @@ object WorkloadExecutionYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(workloadExecutionTry: Try[WorkloadExecution]): YamlValue = {
+    override def write(workloadExecutionTry: Try[WorkloadExecution]): YamlValue = ???
+  }
 
-      val workloadExecution = workloadExecutionTry.get
+  implicit object WorkloadExecutionWriteFormat extends YamlFormat[WorkloadExecution] {
 
-      val map = Map[YamlValue, YamlValue](
-        RampUpKey -> Try(workloadExecution.rampUp).toYaml,
-        SteadyStateKey -> Try(workloadExecution.steadyState).toYaml,
-        RampDownKey -> Try(workloadExecution.rampDown).toYaml
+    override def write(obj: WorkloadExecution): YamlValue = YamlObject {
+
+      Map[YamlValue, YamlValue](
+        RampUpKey -> obj.rampUp.toYaml,
+        SteadyStateKey -> obj.steadyState.toYaml,
+        RampDownKey -> obj.rampDown.toYaml
       )
 
-      YamlObject(map)
-
     }
+
+    override def read(yaml: YamlValue): WorkloadExecution = ???
   }
 
 }

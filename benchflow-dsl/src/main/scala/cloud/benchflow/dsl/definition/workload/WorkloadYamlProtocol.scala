@@ -23,7 +23,7 @@ object WorkloadYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "workload." + key.value
 
-  implicit object WorkloadYamlFormat extends YamlFormat[Try[Workload]] {
+  implicit object WorkloadReadFormat extends YamlFormat[Try[Workload]] {
     override def read(yaml: YamlValue): Try[Workload] = {
 
       val yamlObject = yaml.asYamlObject
@@ -65,28 +65,27 @@ object WorkloadYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[Workload]): YamlValue = {
+    override def write(obj: Try[Workload]): YamlValue = ???
 
-      val workload = obj.get
+  }
 
-      var map = Map[YamlValue, YamlValue](
-        TypeKey -> workload.workloadType.toYaml,
-        OperationsKey -> workload.operations.toYaml
-      )
+  implicit object WorkloadWriteFormat extends YamlFormat[Workload] {
 
-      if (workload.popularity.isDefined)
-        map += PopularityKey -> Try(workload.popularity.get).toYaml
+    override def write(obj: Workload): YamlValue = YamlObject {
 
-      if (workload.interOperationTimings.isDefined)
-        map += InterOperationTimingsKey -> workload.interOperationTimings.get.toYaml
-
-      if (workload.mix.isDefined)
-        map += MixKey -> Try(workload.mix.get).toYaml
-
-      YamlObject(map)
+      Map[YamlValue, YamlValue](
+        TypeKey -> obj.workloadType.toYaml
+      ) ++
+        obj.popularity.map(key => PopularityKey -> key.toYaml) ++
+        obj.interOperationTimings.map(key => InterOperationTimingsKey -> key.toYaml) +
+        (OperationsKey -> obj.operations.toYaml) ++
+        obj.mix.map(key => MixKey -> key.toYaml)
 
     }
 
+    override def read(yaml: YamlValue): Workload = ???
+
   }
+
 
 }

@@ -17,7 +17,7 @@ object ClientSideConfigurationYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "data_collection.client_side." + key.value
 
-  implicit object ClientSideConfigurationFormat extends YamlFormat[Try[ClientSideConfiguration]] {
+  implicit object ClientSideConfigurationReadFormat extends YamlFormat[Try[ClientSideConfiguration]] {
     override def read(yaml: YamlValue): Try[ClientSideConfiguration] = {
 
       val yamlObject = yaml.asYamlObject
@@ -34,17 +34,20 @@ object ClientSideConfigurationYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[ClientSideConfiguration]): YamlValue = {
+    override def write(obj: Try[ClientSideConfiguration]): YamlValue = ???
+  }
 
-      val clientSideConfiguration = obj.get
+  implicit object ClientSideConfigurationWriteFormat extends YamlFormat[ClientSideConfiguration] {
 
-      val map = Map[YamlValue, YamlValue](
-        FabanKey -> Try(clientSideConfiguration.faban).toYaml
+    override def write(obj: ClientSideConfiguration): YamlValue = YamlObject {
+
+      Map[YamlValue, YamlValue](
+        FabanKey -> obj.faban.toYaml
       )
 
-      YamlObject(map)
-
     }
+
+    override def read(yaml: YamlValue): ClientSideConfiguration = ???
   }
 
 }

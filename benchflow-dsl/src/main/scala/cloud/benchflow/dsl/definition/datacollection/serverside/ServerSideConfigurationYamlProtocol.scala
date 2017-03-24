@@ -15,7 +15,7 @@ object ServerSideConfigurationYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString() = "data_collection.server_side"
 
-  implicit object ServerSideConfigurationFormat extends YamlFormat[Try[ServerSideConfiguration]] {
+  implicit object ServerSideConfigurationReadFormat extends YamlFormat[Try[ServerSideConfiguration]] {
 
     override def read(yaml: YamlValue): Try[ServerSideConfiguration] = {
 
@@ -32,17 +32,19 @@ object ServerSideConfigurationYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[ServerSideConfiguration]): YamlValue = {
+    override def write(obj: Try[ServerSideConfiguration]): YamlValue = ???
 
-      val configuration = obj.get
+  }
 
-      YamlObject(
-        configuration.configurationMap.map{
-          case (k, collector) => k.toYaml -> Try(collector).toYaml
-        }
-      )
+  implicit object ServerSideConfigurationWriteFormat extends YamlFormat[ServerSideConfiguration] {
 
+    override def write(obj: ServerSideConfiguration): YamlValue = YamlObject {
+      obj.configurationMap.map {
+        case (k, collector) => k.toYaml -> collector.toYaml
+      }
     }
+
+    override def read(yaml: YamlValue): ServerSideConfiguration = ???
 
   }
 

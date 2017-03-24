@@ -22,7 +22,7 @@ object MixYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "workload.mix." + key.value
 
-  implicit object MixYamlFormat extends YamlFormat[Try[Mix]] {
+  implicit object MixReadFormat extends YamlFormat[Try[Mix]] {
 
     override def read(yaml: YamlValue): Try[Mix] = {
 
@@ -55,45 +55,39 @@ object MixYamlProtocol extends DefaultYamlProtocol {
 
             // TODO - handle case when a valid key is missing
           },
-          keyString(MaxDeviationKey)
+          keyString(YamlString("mix"))
         )
 
       } yield Mix(maxDeviation = maxDeviation, mix = mix)
 
     }
 
-    override def write(obj: Try[Mix]): YamlValue = {
+    override def write(obj: Try[Mix]): YamlValue = ???
+
+  }
+
+  implicit object MixWriteFormat extends YamlFormat[Mix] {
+
+    override def write(obj: Mix): YamlValue = YamlObject {
 
       // TODO - test this properly
 
-      val mix = obj.get
+      Map[YamlValue, YamlValue]() ++
+        obj.maxDeviation.map(key => MaxDeviationKey -> key.toYaml) + {
+        obj.mix match {
 
-      var map = Map[YamlValue, YamlValue]()
+          case fixed: FixedSequenceMix => FixedSequenceKey -> fixed.mix.toYaml
+          case flat: FlatMix => FlatKey -> flat.mix.toYaml
+          // TODO - fix this
+//          case flatSeq: FlatSequenceMix => (FlatKey -> flatSeq.mix.toYaml, SequencesKey -> flatSeq.sequences.toYaml)
+          case matrix: MatrixMix => MatrixKey -> matrix.mix.toYaml
 
-      if (mix.maxDeviation.isDefined)
-        map += MaxDeviationKey -> Try(mix.maxDeviation.get).toYaml
-
-      mix.mix match {
-
-        case fixed: FixedSequenceMix =>
-          map += FixedSequenceKey -> fixed.mix.toYaml
-
-        case flat: FlatMix =>
-          map += FlatKey -> flat.mix.map(v => Try(v)).toYaml
-
-        case flatSeq: FlatSequenceMix =>
-          map += FlatKey -> flatSeq.mix.map(v => Try(v)).toYaml
-          map += SequencesKey -> flatSeq.sequences.toYaml
-
-        case matrix: MatrixMix =>
-          map += MatrixKey -> matrix.mix.map(seq => seq.map(v => Try(v))).toYaml
-
+        }
       }
-
-      YamlObject(map)
 
     }
 
+    override def read(yaml: YamlValue): Mix = ???
   }
 
 }

@@ -25,7 +25,7 @@ object ConfigurationYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "configuration." + key.value
 
-  implicit object ConfigurationFormat extends YamlFormat[Try[Configuration]] {
+  implicit object ConfigurationReadFormat extends YamlFormat[Try[Configuration]] {
 
     override def read(yaml: YamlValue): Try[Configuration] = {
 
@@ -68,30 +68,24 @@ object ConfigurationYamlProtocol extends DefaultYamlProtocol {
 
     }
 
+    override def write(configuration: Try[Configuration]): YamlValue = ???
 
-    override def write(configuration: Try[Configuration]): YamlValue = {
+  }
 
-      val config = configuration.get
+  implicit object ConfigurationWriteFormat extends YamlFormat[Configuration] {
 
-      var map = Map[YamlValue, YamlValue](
-        GoalKey -> Try(config.goal).toYaml
-      )
+    override def write(obj: Configuration): YamlValue = YamlObject {
 
-      if (config.users.isDefined)
-        map += UsersKey -> YamlNumber(config.users.get)
-
-      if (config.workloadExecution.isDefined)
-        map += WorkloadExecutionKey -> Try(config.workloadExecution.get).toYaml
-
-      // TODO - add Strategy when defined
-
-      if (config.terminationCriteria.isDefined)
-        map += TerminationCriteriaKey -> Try(config.terminationCriteria.get).toYaml
-
-      YamlObject(map)
-
+      Map[YamlValue, YamlValue](
+        GoalKey -> obj.goal.toYaml
+      ) ++
+        obj.users.map(key => UsersKey -> key.toYaml) ++
+        obj.workloadExecution.map(key => WorkloadExecutionKey -> key.toYaml) ++
+        // TODO - add Strategy when defined
+        obj.terminationCriteria.map(key => TerminationCriteriaKey -> key.toYaml)
     }
 
+    override def read(yaml: YamlValue): Configuration = ???
   }
 
 }

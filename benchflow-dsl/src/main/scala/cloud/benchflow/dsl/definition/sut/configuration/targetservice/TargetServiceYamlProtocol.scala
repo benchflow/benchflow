@@ -1,7 +1,7 @@
 package cloud.benchflow.dsl.definition.sut.configuration.targetservice
 
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.deserializationHandler
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue}
+import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
 
 import scala.util.Try
 
@@ -17,7 +17,7 @@ object TargetServiceYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "sut.configuration.target_service" + key.value
 
-  implicit object TargetServiceFormat extends YamlFormat[Try[TargetService]] {
+  implicit object TargetServiceReadFormat extends YamlFormat[Try[TargetService]] {
     override def read(yaml: YamlValue): Try[TargetService] = {
 
       val yamlObject = yaml.asYamlObject
@@ -43,21 +43,21 @@ object TargetServiceYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[TargetService]): YamlValue = {
+    override def write(obj: Try[TargetService]): YamlValue = ???
+  }
 
-      val targetService = obj.get
+  implicit object TargetServiceWriteFormat extends YamlFormat[TargetService] {
 
-      var map = Map[YamlValue, YamlValue](
-        NameKey -> YamlString(targetService.name),
-        EndpointKey -> YamlString(targetService.endpoint)
-      )
-
-      if (targetService.sutReadyLogCheck.isDefined)
-        map += SutReadyLogCheckKey -> YamlString(targetService.sutReadyLogCheck.get)
-
-      YamlObject(map)
+    override def write(obj: TargetService): YamlValue = YamlObject {
+      Map[YamlValue, YamlValue](
+        NameKey -> obj.name.toYaml,
+        EndpointKey -> obj.endpoint.toYaml
+      ) ++
+        obj.sutReadyLogCheck.map(key => SutReadyLogCheckKey -> key.toYaml)
 
     }
+
+    override def read(yaml: YamlValue): TargetService = ???
   }
 
 }
