@@ -1,6 +1,6 @@
 package cloud.benchflow.dsl
 
-import cloud.benchflow.dsl.definition.BenchFlowTest
+import cloud.benchflow.dsl.definition.{BenchFlowExperiment, BenchFlowTest}
 import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol._
 import net.jcazevedo.moultingyaml._
 
@@ -43,5 +43,12 @@ object BenchFlowDSL {
   }
 
   // TODO - add methods for common operations/changes to tests/experiments
+
+  def experimentFromTestYaml(testDefinitionYaml: String): Try[BenchFlowExperiment] = {
+
+    // TODO - get
+
+
+  }
 
 }
