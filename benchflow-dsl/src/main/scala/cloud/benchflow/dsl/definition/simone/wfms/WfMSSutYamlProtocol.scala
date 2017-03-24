@@ -8,10 +8,10 @@ import cloud.benchflow.dsl.definition.sut.wfms.{WfMSDriver, WfMSOperation, WfMSS
 import net.jcazevedo.moultingyaml._
 
 /**
-  * @author Simone D'Avico (simonedavico@gmail.com)
-  *
-  * Created on 21/07/16.
-  */
+ * @author Simone D'Avico (simonedavico@gmail.com)
+ *
+ * Created on 21/07/16.
+ */
 trait WfMSSutYamlProtocol extends DefaultYamlProtocol with WorkloadModelYamlProtocol with CommonsYamlProtocol {
 
   implicit object WfMSOperationYamlFormat extends YamlFormat[WfMSOperation] {
@@ -38,52 +38,50 @@ trait WfMSSutYamlProtocol extends DefaultYamlProtocol with WorkloadModelYamlProt
     }
   }
 
-//  implicit object WfMSDriverYamlFormat extends YamlFormat[WfMSDriver] {
-//
-//    override def write(wfmsDriver: WfMSDriver): YamlValue = {
-//
-//      val driverName = wfmsDriver match {
-//        case WfMSStartDriver(_,_,_) => "start"
-//      }
-//
-//      YamlObject(
-//        YamlString(driverName) ->
-//          YamlObject(
-//            YamlString("operations") -> wfmsDriver.operations.toYaml,
-//            YamlString("configuration") -> wfmsDriver.configuration.toYaml,
-//            YamlString("properties") -> wfmsDriver.properties.toYaml
-//          )
-//      )
-//    }
-//
-//    override def read(yaml: YamlValue): WfMSDriver = {
-//
-//      val fields = yaml.asYamlObject.fields
-//      val driverName = fields.head._1.convertTo[String]
-//      val driverBody = fields.head._2.asYamlObject
-//
-//      val driverProperties = driverBody.getFields(YamlString("properties")).headOption match {
-//        case None => None
-//        case Some(properties) => Some(YamlObject(YamlString("properties") -> properties).convertTo[Properties])
-//      }
-//
-//      val driverOperations = driverBody.getFields(YamlString("operations")).head match {
-//        case YamlArray(ops) => ops.map(_.convertTo[WfMSOperation])
-//        case _ => throw new DeserializationException("invalid format; drivers section of benchflow-benchmark.yml has to be a list")
-//      }
-//
-//      val driverConfiguration = driverBody.getFields(YamlString("configuration")).headOption match {
-//        case None => None
-//        case Some(driverConfig) => Some(driverConfig.convertTo[DriverConfiguration])
-//      }
-//
-//      WfMSDriver(t = driverName,
-//        properties = driverProperties,
-//        operations = driverOperations,
-//        configuration = driverConfiguration)
-//    }
-//  }
-
-
+  //  implicit object WfMSDriverYamlFormat extends YamlFormat[WfMSDriver] {
+  //
+  //    override def write(wfmsDriver: WfMSDriver): YamlValue = {
+  //
+  //      val driverName = wfmsDriver match {
+  //        case WfMSStartDriver(_,_,_) => "start"
+  //      }
+  //
+  //      YamlObject(
+  //        YamlString(driverName) ->
+  //          YamlObject(
+  //            YamlString("operations") -> wfmsDriver.operations.toYaml,
+  //            YamlString("configuration") -> wfmsDriver.configuration.toYaml,
+  //            YamlString("properties") -> wfmsDriver.properties.toYaml
+  //          )
+  //      )
+  //    }
+  //
+  //    override def read(yaml: YamlValue): WfMSDriver = {
+  //
+  //      val fields = yaml.asYamlObject.fields
+  //      val driverName = fields.head._1.convertTo[String]
+  //      val driverBody = fields.head._2.asYamlObject
+  //
+  //      val driverProperties = driverBody.getFields(YamlString("properties")).headOption match {
+  //        case None => None
+  //        case Some(properties) => Some(YamlObject(YamlString("properties") -> properties).convertTo[Properties])
+  //      }
+  //
+  //      val driverOperations = driverBody.getFields(YamlString("operations")).head match {
+  //        case YamlArray(ops) => ops.map(_.convertTo[WfMSOperation])
+  //        case _ => throw new DeserializationException("invalid format; drivers section of benchflow-benchmark.yml has to be a list")
+  //      }
+  //
+  //      val driverConfiguration = driverBody.getFields(YamlString("configuration")).headOption match {
+  //        case None => None
+  //        case Some(driverConfig) => Some(driverConfig.convertTo[DriverConfiguration])
+  //      }
+  //
+  //      WfMSDriver(t = driverName,
+  //        properties = driverProperties,
+  //        operations = driverOperations,
+  //        configuration = driverConfiguration)
+  //    }
+  //  }
 
 }

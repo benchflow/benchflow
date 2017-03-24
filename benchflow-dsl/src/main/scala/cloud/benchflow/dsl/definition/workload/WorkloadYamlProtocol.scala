@@ -1,6 +1,6 @@
 package cloud.benchflow.dsl.definition.workload
 
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.deserializationHandler
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
 import cloud.benchflow.dsl.definition.types.percent.Percent
 import cloud.benchflow.dsl.definition.types.percent.PercentYamlProtocol._
 import cloud.benchflow.dsl.definition.workload.mix.Mix
@@ -10,9 +10,9 @@ import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, 
 import scala.util.Try
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 10.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 10.03.17.
+ */
 object WorkloadYamlProtocol extends DefaultYamlProtocol {
 
   val TypeKey = YamlString("type")
@@ -65,7 +65,7 @@ object WorkloadYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[Workload]): YamlValue = ???
+    override def write(obj: Try[Workload]): YamlValue = unsupportedWriteOperation
 
   }
 
@@ -83,9 +83,8 @@ object WorkloadYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def read(yaml: YamlValue): Workload = ???
+    override def read(yaml: YamlValue): Workload = unsupportedReadOperation
 
   }
-
 
 }

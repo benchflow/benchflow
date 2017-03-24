@@ -12,9 +12,9 @@ import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, 
 import scala.util.Try
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 10.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 10.03.17.
+ */
 object ConfigurationYamlProtocol extends DefaultYamlProtocol {
 
   val GoalKey = YamlString("goal")
@@ -59,7 +59,8 @@ object ConfigurationYamlProtocol extends DefaultYamlProtocol {
           keyString(TerminationCriteriaKey)
         )
 
-      } yield Configuration(goal = goal,
+      } yield Configuration(
+        goal = goal,
         users = users,
         workloadExecution = workloadExecution,
         strategy = strategy,
@@ -68,7 +69,7 @@ object ConfigurationYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(configuration: Try[Configuration]): YamlValue = ???
+    override def write(configuration: Try[Configuration]): YamlValue = unsupportedWriteOperation
 
   }
 
@@ -85,7 +86,7 @@ object ConfigurationYamlProtocol extends DefaultYamlProtocol {
         obj.terminationCriteria.map(key => TerminationCriteriaKey -> key.toYaml)
     }
 
-    override def read(yaml: YamlValue): Configuration = ???
+    override def read(yaml: YamlValue): Configuration = unsupportedReadOperation
   }
 
 }

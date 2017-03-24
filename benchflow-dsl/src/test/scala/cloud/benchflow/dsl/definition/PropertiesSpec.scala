@@ -6,10 +6,10 @@ import cloud.benchflow.dsl.definition.simone.ConfigurationYamlProtocol
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
-  * @author Simone D'Avico (simonedavico@gmail.com)
-  *
-  * Created on 18/07/16.
-  */
+ * @author Simone D'Avico (simonedavico@gmail.com)
+ *
+ * Created on 18/07/16.
+ */
 class PropertiesSpec extends FlatSpec with Matchers with ConfigurationYamlProtocol {
 
   import net.jcazevedo.moultingyaml._
@@ -34,7 +34,7 @@ class PropertiesSpec extends FlatSpec with Matchers with ConfigurationYamlProtoc
       )
     )
 
-    properties should be (parsedProperties)
+    properties should be(parsedProperties)
 
   }
 

@@ -3,10 +3,10 @@ package cloud.benchflow.dsl.deployment.docker.service
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
-  * @author Simone D'Avico (simonedavico@gmail.com)
-  *
-  * Created on 18/07/16.
-  */
+ * @author Simone D'Avico (simonedavico@gmail.com)
+ *
+ * Created on 18/07/16.
+ */
 class ServiceSpec extends FlatSpec with Matchers {
 
   import cloud.benchflow.dsl.deployment.docker.service.ServiceYamlProtocol._
@@ -51,10 +51,8 @@ class ServiceSpec extends FlatSpec with Matchers {
       pid = Some(Pid("host"))
     )
 
-    service should be (parsedService)
+    service should be(parsedService)
 
   }
-
-
 
 }

@@ -5,9 +5,9 @@ import net.jcazevedo.moultingyaml.DeserializationException
 import scala.util.{Failure, Try}
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 2017-03-16
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 2017-03-16
+ */
 object YamlErrorHandler {
 
   // TODO - add comments describing this class
@@ -31,5 +31,9 @@ object YamlErrorHandler {
     Try(deserialization) recoverWith {
       case e: Exception => exceptionHandler(key, e)
     }
+
+  def unsupportedReadOperation: Nothing = throw new UnsupportedOperationException("To deserialize call by wrapping in Try")
+
+  def unsupportedWriteOperation: Nothing = throw new UnsupportedOperationException("To serialize call without wrapping in Try")
 
 }

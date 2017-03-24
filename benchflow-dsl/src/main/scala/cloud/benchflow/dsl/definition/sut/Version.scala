@@ -3,12 +3,13 @@ package cloud.benchflow.dsl.definition.sut
 import scala.util.{Failure, Success, Try}
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 11.03.17.
-  */
-/***
-  * Has to be extended for each supported version format
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 11.03.17.
+ */
+/**
+ * *
+ * Has to be extended for each supported version format
+ */
 trait Version { def isCompatible(other: Version): Boolean }
 object Version {
 

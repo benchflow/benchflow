@@ -1,14 +1,14 @@
 package cloud.benchflow.dsl.definition.sut.configuration.targetservice
 
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.deserializationHandler
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
 import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
 
 import scala.util.Try
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 14.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 14.03.17.
+ */
 object TargetServiceYamlProtocol extends DefaultYamlProtocol {
 
   val NameKey = YamlString("name")
@@ -43,7 +43,7 @@ object TargetServiceYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[TargetService]): YamlValue = ???
+    override def write(obj: Try[TargetService]): YamlValue = unsupportedWriteOperation
   }
 
   implicit object TargetServiceWriteFormat extends YamlFormat[TargetService] {
@@ -57,7 +57,7 @@ object TargetServiceYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def read(yaml: YamlValue): TargetService = ???
+    override def read(yaml: YamlValue): TargetService = unsupportedReadOperation
   }
 
 }

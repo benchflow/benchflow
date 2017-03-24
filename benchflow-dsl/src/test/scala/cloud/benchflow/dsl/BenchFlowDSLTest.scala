@@ -8,13 +8,12 @@ import org.scalatest.junit.JUnitSuite
 import scala.io.Source
 
 /**
-  * based on http://www.scalatest.org/getting_started_with_junit_4_in_scala
-  *
-  * @author Jesper Findahl (jesper.findahl@usi.ch)
-  *         created on 16.03.17.
-  */
+ * based on http://www.scalatest.org/getting_started_with_junit_4_in_scala
+ *
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 16.03.17.
+ */
 class BenchFlowDSLTest extends JUnitSuite {
-
 
   @Test def loadTestDefinition(): Unit = {
 

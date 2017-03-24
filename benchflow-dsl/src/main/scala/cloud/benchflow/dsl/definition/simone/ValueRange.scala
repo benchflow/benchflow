@@ -1,10 +1,10 @@
 package cloud.benchflow.dsl.definition.simone
 
 /**
-  * @author Simone D'Avico (simonedavico@gmail.com)
-  *
-  *         Created on 19/07/16.
-  */
+ * @author Simone D'Avico (simonedavico@gmail.com)
+ *
+ *         Created on 19/07/16.
+ */
 trait ValueRange[T] { def size: Int }
 
 case class Constant[T](value: T) extends ValueRange[T] { def size = 1 }
@@ -17,7 +17,7 @@ case class Factors[T](values: Seq[T]) extends ValueRange[T] {
 }
 
 case class Step(min: Double, max: Double, step: Double,
-                             stepFunction: (Double,Double) => Double) extends ValueRange[Double] {
+    stepFunction: (Double, Double) => Double) extends ValueRange[Double] {
 
   def increment(currentValue: Double): Double =
     stepFunction(currentValue, step)
@@ -25,7 +25,7 @@ case class Step(min: Double, max: Double, step: Double,
   def size = {
 
     val numeric = implicitly[Numeric[Double]]
-    val num = numeric.minus(max,min)
+    val num = numeric.minus(max, min)
 
     (numeric match {
       case integ: Integral[Double] =>

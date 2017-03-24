@@ -5,19 +5,21 @@ import cloud.benchflow.dsl.deployment.docker.service.Service
 import net.jcazevedo.moultingyaml._
 
 /**
-  * @author Simone D'Avico (simonedavico@gmail.com)
-  *
-  * Created on 05/07/16.
-  */
+ * @author Simone D'Avico (simonedavico@gmail.com)
+ *
+ * Created on 05/07/16.
+ */
 
 case class NetworkConfig(driver: String)
 case class Networks(nets: Map[String, NetworkConfig])
 
-case class DockerCompose(services: Map[String, Service],
-                         version: String,
-                         networks: Option[Networks]) {
+case class DockerCompose(
+  services: Map[String, Service],
+    version: String,
+    networks: Option[Networks]
+) {
 
-  override def toString = this.toYaml.prettyPrint
+  override def toString: String = this.toYaml.prettyPrint
 
 }
 
