@@ -1,6 +1,7 @@
 package cloud.benchflow.dsl.definition.configuration.terminationcriteria.test
 
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{unsupportedReadOperation, unsupportedWriteOperation}
 import cloud.benchflow.dsl.definition.types.time.Time
 import cloud.benchflow.dsl.definition.types.time.TimeYamlProtocol._
 import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _}
@@ -8,9 +9,9 @@ import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlString, 
 import scala.util.Try
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 11.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 11.03.17.
+ */
 object TestTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
   val MaxTimeKey = YamlString("max_time")
@@ -33,7 +34,7 @@ object TestTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[TestTerminationCriteria]): YamlValue = ???
+    override def write(obj: Try[TestTerminationCriteria]): YamlValue = unsupportedWriteOperation
   }
 
   implicit object TestTerminationCriteriaWriteFormat extends YamlFormat[TestTerminationCriteria] {
@@ -46,7 +47,7 @@ object TestTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def read(yaml: YamlValue): TestTerminationCriteria = ???
+    override def read(yaml: YamlValue): TestTerminationCriteria = unsupportedReadOperation
   }
 
 }

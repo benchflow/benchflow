@@ -4,15 +4,15 @@ import cloud.benchflow.dsl.definition.configuration.terminationcriteria.experime
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.experiment.ExperimentTerminationCriteriaYamlProtocol._
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.test.TestTerminationCriteria
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.test.TestTerminationCriteriaYamlProtocol._
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.deserializationHandler
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
 import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
 
 import scala.util.Try
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 11.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 11.03.17.
+ */
 object TerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
   val TestKey = YamlString("test")
@@ -41,7 +41,7 @@ object TerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(terminationCriteriaTry: Try[TerminationCriteria]): YamlValue = ???
+    override def write(terminationCriteriaTry: Try[TerminationCriteria]): YamlValue = unsupportedWriteOperation
   }
 
   implicit object TerminationCriteriaWriteFormat extends YamlFormat[TerminationCriteria] {
@@ -54,7 +54,7 @@ object TerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def read(yaml: YamlValue): TerminationCriteria = ???
+    override def read(yaml: YamlValue): TerminationCriteria = unsupportedReadOperation
   }
 
 }
