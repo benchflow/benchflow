@@ -1,67 +1,121 @@
 package cloud.benchflow.dsl.definition
 
-import cloud.benchflow.dsl.definition.sut.http.{Http, HttpDriver}
-import cloud.benchflow.dsl.definition.sut.wfms.{WfMS, WfMSDriver}
-import cloud.benchflow.dsl.definition.configuration.GoalYamlProtocol
-import cloud.benchflow.dsl.definition.sut.ConfigurationYamlProtocol
-import net.jcazevedo.moultingyaml._
+import cloud.benchflow.dsl.definition.configuration.Configuration
+import cloud.benchflow.dsl.definition.configuration.ConfigurationYamlProtocol._
+import cloud.benchflow.dsl.definition.datacollection.DataCollection
+import cloud.benchflow.dsl.definition.datacollection.DataCollectionYamlProtocol._
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
+import cloud.benchflow.dsl.definition.sut.Sut
+import cloud.benchflow.dsl.definition.sut.SutYamlProtocol._
+import cloud.benchflow.dsl.definition.workload.Workload
+import cloud.benchflow.dsl.definition.workload.WorkloadYamlProtocol._
+import net.jcazevedo.moultingyaml.{YamlString, _}
+
+import scala.util.Try
+
 
 /**
-  * @author Simone D'Avico (simonedavico@gmail.com)
-  *
-  * Created on 19/07/16.
+  * @author Jesper Findahl (jesper.findahl@usi.ch)
+  *         created on 16.03.17.
   */
-trait BenchFlowTestYamlProtocol extends ConfigurationYamlProtocol with GoalYamlProtocol {
+object BenchFlowTestYamlProtocol extends DefaultYamlProtocol {
 
-  implicit object BenchFlowTestYamlFormat extends YamlFormat[BenchFlowTest] {
+  val VersionKey = YamlString("version")
+  val NameKey = YamlString("name")
+  val DescriptionKey = YamlString("description")
+  val ConfigurationKey = YamlString("configuration")
+  val SutKey = YamlString("sut")
+  val WorkloadKey = YamlString("workload")
+  val DataCollectionKey = YamlString("data_collection")
 
-    def getObject(key: String)(implicit obj: Map[YamlValue, YamlValue]) =
-      YamlObject(YamlString(key) -> obj.get(YamlString(key)).get)
+  private def keyString(key: YamlString) = "" + key.value
 
-    override def read(yaml: YamlValue): BenchFlowTest = {
+  implicit object BenchFlowTestFormat extends YamlFormat[Try[BenchFlowTest]] {
+
+    override def read(yaml: YamlValue): Try[BenchFlowTest] = {
 
       val testObject = yaml.asYamlObject
-      val testName = testObject.fields.get(YamlString("testName")).get.convertTo[String]
-      val description = testObject.fields.get(YamlString("description")).get.convertTo[String]
 
-      val sut = testObject.fields.get(YamlString("sut")).get.convertTo[Sut]
+      for {
 
-      val drivers = sut.sutsType match {
-        case WfMS => testObject.fields.get(YamlString("drivers")).get.asInstanceOf[YamlArray].elements.map(d => d.convertTo[WfMSDriver])
-        case Http => testObject.fields.get(YamlString("drivers")).get.asInstanceOf[YamlArray].elements.map(d => d.convertTo[HttpDriver])
-        case _ => throw new DeserializationException("Illegal value for type field.")
-      }
+        version <- deserializationHandler(
+          testObject.fields(VersionKey).convertTo[String],
+          keyString(VersionKey)
+        )
 
-      val properties = testObject.fields.get(YamlString("properties")).map { yamlProps =>
-        YamlObject(YamlString("properties") -> yamlProps).convertTo[Properties]
-      }
+        name <- deserializationHandler(
+          testObject.fields(NameKey).convertTo[String],
+          keyString(NameKey)
+        )
 
-      val sutConfiguration = testObject.fields.get(YamlString("sutConfiguration")).map { yamlConfig =>
-        YamlObject(YamlString("sutConfiguration") -> yamlConfig).convertTo[SutConfiguration]
-      }.get
+        description <- deserializationHandler(
+          testObject.fields(DescriptionKey).convertTo[String],
+          keyString(DescriptionKey)
+        )
 
-      val trials = testObject.fields.get(YamlString("trials")).map { yamlTrials =>
-        YamlObject(YamlString("trials") -> yamlTrials).convertTo[TotalTrials]
-      }.get
+        configuration <- deserializationHandler(
+          testObject.fields(ConfigurationKey).convertTo[Try[Configuration]].get,
+          keyString(ConfigurationKey)
+        )
 
-      val loadFunction = testObject.fields.get(YamlString("execution")).get.convertTo[LoadFunction]
+        sut <- deserializationHandler(
+          testObject.fields(SutKey).convertTo[Try[Sut]].get,
+          keyString(SutKey)
+        )
 
-      val goal = testObject.fields.get(YamlString("goal")).get.convertTo[Goal]
+        workload <- deserializationHandler(
+          testObject.fields(WorkloadKey).convertTo[Map[String, Try[Workload]]].mapValues(_.get),
+          keyString(WorkloadKey)
+        )
 
-      BenchFlowTest(
-        name = testName,
+        dataCollection <- deserializationHandler(
+          testObject.getFields(DataCollectionKey).headOption.map(_.convertTo[Try[DataCollection]].get),
+          keyString(DataCollectionKey)
+        )
+
+      } yield BenchFlowTest(version = version,
+        name = name,
         description = description,
+        configuration = configuration,
         sut = sut,
-        trials = trials,
-        drivers = drivers,
-        properties = properties,
-        loadFunction = loadFunction,
-        sutConfiguration = sutConfiguration,
-        goal = goal
+        workload = workload,
+        dataCollection = dataCollection
       )
     }
 
+    override def write(tryBenchFlowTest: Try[BenchFlowTest]): YamlValue = {
+
+      // TODO - add documentation reference with reasons why the code is like it is
+      // TODO - document design decisions (which options(exceptions, try (both), try read & normal write and why)
+      // TODO - change to separate Format for write (see BenchFlowTestWriteFormat)
+      val benchFlowTest = tryBenchFlowTest.get
+
+      // TODO - update all [*]YamlProtocol write methods with the below structure
+
+      YamlObject {
+        Map[YamlValue, YamlValue](
+          VersionKey -> benchFlowTest.version.toYaml,
+          NameKey -> benchFlowTest.name.toYaml,
+          DescriptionKey -> benchFlowTest.description.toYaml,
+          ConfigurationKey -> Try(benchFlowTest.configuration).toYaml,
+          SutKey -> Try(benchFlowTest.sut).toYaml,
+          WorkloadKey -> benchFlowTest.workload.mapValues(v => Try(v)).toYaml
+        ) ++
+        // we map here because value is optional (Option)
+          benchFlowTest.dataCollection.map(key => DataCollectionKey -> Try(key).toYaml) // +
+        // this line is an example of how to mix optional and non-optional key,value pairs (incl. '+' on previous line)
+        //          (VersionKey -> benchFlowTest.version.toYaml)
+      }
+
+    }
+
+  }
+
+  implicit object BenchFlowTestWriteFormat extends YamlFormat[BenchFlowTest] {
+
     override def write(obj: BenchFlowTest): YamlValue = ???
+
+    override def read(yaml: YamlValue): BenchFlowTest = ???
   }
 
 }

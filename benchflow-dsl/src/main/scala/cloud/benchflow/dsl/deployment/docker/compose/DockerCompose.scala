@@ -20,6 +20,7 @@ case class DockerCompose(services: Map[String, Service],
   override def toString = this.toYaml.prettyPrint
 
 }
+
 object DockerCompose {
 
   def fromYaml(yaml: String): DockerCompose = yaml.parseYaml.convertTo[DockerCompose]
