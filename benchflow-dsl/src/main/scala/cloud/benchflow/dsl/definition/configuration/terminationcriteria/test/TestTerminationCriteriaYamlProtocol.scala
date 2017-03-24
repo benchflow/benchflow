@@ -17,7 +17,7 @@ object TestTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "configuration.termination_criteria.test" + key.value
 
-  implicit object TestTerminationCriteriaYamlFormat extends YamlFormat[Try[TestTerminationCriteria]] {
+  implicit object TestTerminationCriteriaReadFormat extends YamlFormat[Try[TestTerminationCriteria]] {
     override def read(yaml: YamlValue): Try[TestTerminationCriteria] = {
 
       val yamlObject = yaml.asYamlObject
@@ -33,17 +33,20 @@ object TestTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[TestTerminationCriteria]): YamlValue = {
+    override def write(obj: Try[TestTerminationCriteria]): YamlValue = ???
+  }
 
-      val testTerminationCriteria = obj.get
+  implicit object TestTerminationCriteriaWriteFormat extends YamlFormat[TestTerminationCriteria] {
 
-      val map = Map[YamlValue, YamlValue](
-        MaxTimeKey -> Try(testTerminationCriteria.maxTime).toYaml
+    override def write(obj: TestTerminationCriteria): YamlValue = YamlObject {
+
+      Map[YamlValue, YamlValue](
+        MaxTimeKey -> obj.maxTime.toYaml
       )
 
-      YamlObject(map)
-
     }
+
+    override def read(yaml: YamlValue): TestTerminationCriteria = ???
   }
 
 }

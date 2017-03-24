@@ -27,9 +27,8 @@ object BenchFlowDSL {
 
     // TODO - validate semantic in separate function on the object
 
-    // TODO - write to YAML
-    // TODO - document why we wrap in a Try (e.g. because of library and deserialization)
-    val testYaml: YamlObject = Try(benchFlowTest).toYaml.asYamlObject
+    // write to YAML
+    val testYaml: YamlObject = benchFlowTest.toYaml.asYamlObject
 
     testYaml.prettyPrint
 

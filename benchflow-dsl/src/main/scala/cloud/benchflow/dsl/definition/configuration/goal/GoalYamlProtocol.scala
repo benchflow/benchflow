@@ -1,7 +1,7 @@
 package cloud.benchflow.dsl.definition.configuration.goal
 
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue}
+import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
 
 import scala.util.Try
 
@@ -17,7 +17,8 @@ object GoalYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "configuration.goal." + key.value
 
-  implicit object GoalYamlFormat extends YamlFormat[Try[Goal]] {
+  implicit object GoalYamlReadFormat extends YamlFormat[Try[Goal]] {
+
     override def read(yaml: YamlValue): Try[Goal] = {
 
       val yamlObject = yaml.asYamlObject
@@ -40,19 +41,23 @@ object GoalYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(goalTry: Try[Goal]): YamlValue = {
+    override def write(goalTry: Try[Goal]): YamlValue = ???
+  }
 
-      val goal = goalTry.get
+  implicit object GoalYamlWriteFormat extends YamlFormat[Goal] {
 
-      val map = Map[YamlValue, YamlValue](
-        TypeKey -> YamlString(goal.goalType)
+    override def write(obj: Goal): YamlValue = YamlObject {
+
+      Map[YamlValue, YamlValue](
+        TypeKey -> obj.goalType.toYaml
       )
 
       // TODO - add observation, explorationSpace
 
-      YamlObject(map)
-
     }
+
+    override def read(yaml: YamlValue): Goal = ???
+
   }
 
 }

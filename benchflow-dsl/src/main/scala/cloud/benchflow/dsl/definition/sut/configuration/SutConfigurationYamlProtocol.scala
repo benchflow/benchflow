@@ -18,7 +18,7 @@ object SutConfigurationYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "sut.configuration." + key.value
 
-  implicit object SutConfigurationFormat extends YamlFormat[Try[SutConfiguration]] {
+  implicit object SutConfigurationReadFormat extends YamlFormat[Try[SutConfiguration]] {
 
     override def read(yaml: YamlValue): Try[SutConfiguration] = {
 
@@ -43,19 +43,22 @@ object SutConfigurationYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[SutConfiguration]): YamlValue = {
+    override def write(obj: Try[SutConfiguration]): YamlValue = ???
 
-      val sutConfig = obj.get
+  }
 
-      val map = Map[YamlValue, YamlValue](
-        TargetServiceKey -> Try(sutConfig.targetService).toYaml,
-        DeploymentKey -> sutConfig.deployment.toYaml
+  implicit object SutConfigurationWriteFormat extends YamlFormat[SutConfiguration] {
+
+    override def write(obj: SutConfiguration): YamlValue = YamlObject {
+
+      Map[YamlValue, YamlValue](
+        TargetServiceKey -> obj.targetService.toYaml,
+        DeploymentKey -> obj.deployment.toYaml
       )
-
-      YamlObject(map)
 
     }
 
+    override def read(yaml: YamlValue): SutConfiguration = ???
   }
 
 }

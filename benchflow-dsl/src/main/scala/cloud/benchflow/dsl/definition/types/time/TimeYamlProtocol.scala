@@ -2,7 +2,7 @@ package cloud.benchflow.dsl.definition.types.time
 
 import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlValue, _}
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 /**
   * @author Jesper Findahl (jesper.findahl@usi.ch) 
@@ -10,17 +10,19 @@ import scala.util.{Failure, Success, Try}
   */
 object TimeYamlProtocol extends DefaultYamlProtocol {
 
-  implicit object TimeFormat extends YamlFormat[Try[Time]] {
+  implicit object TimeReadFormat extends YamlFormat[Try[Time]] {
 
     override def read(yaml: YamlValue): Try[Time] = Time.fromString(yaml.convertTo[String])
 
-    override def write(obj: Try[Time]): YamlValue = obj match {
+    override def write(obj: Try[Time]): YamlValue = ???
 
-      case Success(time) => time.toString.toYaml
-      case Failure(ex) => ex.toString.toYaml
+  }
 
-    }
+  implicit object TimeWriteFormat extends YamlFormat[Time] {
 
+    override def write(obj: Time): YamlValue = obj.toString.toYaml
+
+    override def read(yaml: YamlValue): Time = ???
   }
 
 }

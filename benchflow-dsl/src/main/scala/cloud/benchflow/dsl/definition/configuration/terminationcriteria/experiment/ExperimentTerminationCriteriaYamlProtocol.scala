@@ -1,7 +1,7 @@
 package cloud.benchflow.dsl.definition.configuration.terminationcriteria.experiment
 
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.deserializationHandler
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlNumber, YamlObject, YamlString, YamlValue}
+import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlNumber, YamlObject, YamlString, YamlValue, _}
 
 import scala.util.Try
 
@@ -16,7 +16,7 @@ object ExperimentTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "configuration.termination_criteria.experiment" + key.value
 
-  implicit object ExperimentTerminationCriteriaYamlFormat extends YamlFormat[Try[ExperimentTerminationCriteria]] {
+  implicit object ExperimentTerminationCriteriaReadFormat extends YamlFormat[Try[ExperimentTerminationCriteria]] {
     override def read(yaml: YamlValue): Try[ExperimentTerminationCriteria] = {
 
       val yamlObject = yaml.asYamlObject
@@ -37,18 +37,23 @@ object ExperimentTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[ExperimentTerminationCriteria]): YamlValue = {
+    override def write(obj: Try[ExperimentTerminationCriteria]): YamlValue = ???
 
-      val experimentTerminationCriteria = obj.get
+  }
 
-      val map = Map[YamlValue, YamlValue](
-        TypeKey -> YamlString(experimentTerminationCriteria.criteriaType),
-        NumberKey -> YamlNumber(experimentTerminationCriteria.number)
+
+  implicit object ExperimentTerminationCriteriaWriteFormat extends YamlFormat[ExperimentTerminationCriteria] {
+
+    override def write(obj: ExperimentTerminationCriteria): YamlValue = YamlObject {
+
+      Map[YamlValue, YamlValue](
+        TypeKey -> obj.criteriaType.toYaml,
+        NumberKey -> obj.number.toYaml
       )
 
-      YamlObject(map)
-
     }
+
+    override def read(yaml: YamlValue): ExperimentTerminationCriteria = ???
   }
 
 }

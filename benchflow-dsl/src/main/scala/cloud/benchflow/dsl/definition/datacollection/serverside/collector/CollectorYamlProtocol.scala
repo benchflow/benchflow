@@ -15,7 +15,7 @@ object CollectorYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString() = "data_collection.server_side.(some collector)"
 
-  implicit object CollectorFormat extends YamlFormat[Try[Collector]] {
+  implicit object CollectorReadFormat extends YamlFormat[Try[Collector]] {
 
     override def read(yaml: YamlValue): Try[Collector] = {
 
@@ -34,21 +34,24 @@ object CollectorYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[Collector]): YamlValue = {
+    override def write(obj: Try[Collector]): YamlValue = ???
 
-      val collector = obj.get
+  }
 
-      collector match {
+  implicit object CollectorWriteFormat extends YamlFormat[Collector] {
 
-        case CollectorSingle(c) => c.toYaml
+    override def write(obj: Collector): YamlValue = obj match {
 
-        case CollectorMultiple(c) => c.toYaml
+      case CollectorSingle(c) => c.toYaml
 
-        case cm: CollectorMultipleEnvironment => Try(cm).toYaml
+      case CollectorMultiple(c) => c.toYaml
 
-      }
+      case cm: CollectorMultipleEnvironment => cm.toYaml
 
     }
+
+    override def read(yaml: YamlValue): Collector = ???
+
   }
 
 }
