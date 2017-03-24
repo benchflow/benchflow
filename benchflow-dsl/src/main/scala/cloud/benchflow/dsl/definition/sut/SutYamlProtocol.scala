@@ -1,6 +1,6 @@
 package cloud.benchflow.dsl.definition.sut
 
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.deserializationHandler
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
 import cloud.benchflow.dsl.definition.sut.configuration.SutConfiguration
 import cloud.benchflow.dsl.definition.sut.configuration.SutConfigurationYamlProtocol._
 import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
@@ -8,9 +8,9 @@ import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, 
 import scala.util.Try
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 10.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 10.03.17.
+ */
 object SutYamlProtocol extends DefaultYamlProtocol {
 
   val NameKey = YamlString("name")
@@ -50,7 +50,8 @@ object SutYamlProtocol extends DefaultYamlProtocol {
         // TODO - specify
         serviceConfiguration <- Try(Option(None))
 
-      } yield Sut(name = name,
+      } yield Sut(
+        name = name,
         version = version,
         sutType = sutType,
         configuration = configuration,
@@ -59,7 +60,7 @@ object SutYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[Sut]): YamlValue = ???
+    override def write(obj: Try[Sut]): YamlValue = unsupportedWriteOperation
 
   }
 
@@ -67,7 +68,7 @@ object SutYamlProtocol extends DefaultYamlProtocol {
 
     override def write(obj: Sut): YamlValue = YamlObject {
 
-      Map[YamlValue, YamlValue] (
+      Map[YamlValue, YamlValue](
         NameKey -> obj.name.toYaml,
         VersionKey -> obj.version.toString.toYaml,
         TypeKey -> obj.sutType.toString.toYaml,
@@ -78,7 +79,7 @@ object SutYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def read(yaml: YamlValue): Sut = ???
+    override def read(yaml: YamlValue): Sut = unsupportedReadOperation
   }
 
 }

@@ -4,10 +4,10 @@ import cloud.benchflow.dsl.deployment.docker.service._
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
-  * @author Simone D'Avico (simonedavico@gmail.com)
-  *
-  * Created on 18/07/16.
-  */
+ * @author Simone D'Avico (simonedavico@gmail.com)
+ *
+ * Created on 18/07/16.
+ */
 class ComposeSpec extends FlatSpec with Matchers {
 
   import net.jcazevedo.moultingyaml._
@@ -60,7 +60,7 @@ class ComposeSpec extends FlatSpec with Matchers {
 
     println(parsedDockerCompose.toYaml.prettyPrint)
 
-    dockerCompose should be (parsedDockerCompose)
+    dockerCompose should be(parsedDockerCompose)
   }
 
 }

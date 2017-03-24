@@ -5,10 +5,10 @@ import net.jcazevedo.moultingyaml._
 import scala.util.Try
 
 /**
-  * @author Simone D'Avico (simonedavico@gmail.com)
-  *
-  * Created on 19/07/16.
-  */
+ * @author Simone D'Avico (simonedavico@gmail.com)
+ *
+ * Created on 19/07/16.
+ */
 trait ValueRangeYamlProtocol extends DefaultYamlProtocol {
 
   implicit object ConstantYamlFormat extends YamlFormat[Constant[_]] {
@@ -46,23 +46,21 @@ trait ValueRangeYamlProtocol extends DefaultYamlProtocol {
           val valuesType: Class[_] =
             vals.foldLeft[Class[_]](classOfYaml(vals(0)))((a: Class[_], b: YamlValue) => {
 
-              if(a == classOf[String] || classOfYaml(b) == classOf[String]) {
+              if (a == classOf[String] || classOfYaml(b) == classOf[String]) {
                 classOf[String]
               }
 
-              if(a == classOf[Double] || classOfYaml(b) == classOf[Double]) {
+              if (a == classOf[Double] || classOfYaml(b) == classOf[Double]) {
                 classOf[Double]
-              }
-
-              else a
+              } else a
 
             })
 
-          if(valuesType == classOf[Int]) {
+          if (valuesType == classOf[Int]) {
             Factors(YamlArray(vals).convertTo[Seq[Int]])
-          } else if(valuesType == classOf[Double]) {
+          } else if (valuesType == classOf[Double]) {
             Factors(YamlArray(vals).convertTo[Seq[Double]])
-          } else if(valuesType == classOf[Boolean]) {
+          } else if (valuesType == classOf[Boolean]) {
             Factors(YamlArray(vals).convertTo[Seq[Boolean]])
           } else {
             Factors(YamlArray(vals).convertTo[Seq[String]])
@@ -96,7 +94,7 @@ trait ValueRangeYamlProtocol extends DefaultYamlProtocol {
         case stepRegex(o, s) => (o, s)
       }
 
-      val parsedMin =  min.toDouble
+      val parsedMin = min.toDouble
       val parsedMax = max.toDouble
       val parsedStep = step.toDouble
 
@@ -116,7 +114,6 @@ trait ValueRangeYamlProtocol extends DefaultYamlProtocol {
     override def write(obj: Step): YamlValue = ???
 
   }
-
 
   implicit object ValueRangeYamlFormat extends YamlFormat[ValueRange[_]] {
 

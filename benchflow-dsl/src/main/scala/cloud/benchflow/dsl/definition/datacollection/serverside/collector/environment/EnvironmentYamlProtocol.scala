@@ -1,14 +1,14 @@
 package cloud.benchflow.dsl.definition.datacollection.serverside.collector.environment
 
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.deserializationHandler
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
 import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _}
 
 import scala.util.Try
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 16.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 16.03.17.
+ */
 object EnvironmentYamlProtocol extends DefaultYamlProtocol {
 
   val EnvironmentKey = YamlString("environment")
@@ -30,7 +30,7 @@ object EnvironmentYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[Environment]): YamlValue = ???
+    override def write(obj: Try[Environment]): YamlValue = unsupportedWriteOperation
   }
 
   implicit object EnvironmentWriteFormat extends YamlFormat[Environment] {
@@ -39,7 +39,7 @@ object EnvironmentYamlProtocol extends DefaultYamlProtocol {
       EnvironmentKey -> obj.environment.toYaml
     }
 
-    override def read(yaml: YamlValue): Environment = ???
+    override def read(yaml: YamlValue): Environment = unsupportedReadOperation
   }
 
 }

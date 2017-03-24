@@ -1,16 +1,15 @@
 package cloud.benchflow.dsl.definition.datacollection.serverside.collector
 
-
 import cloud.benchflow.dsl.definition.datacollection.serverside.collector.CollectorMultipleEnvironmentYamlProtocol._
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.deserializationHandler
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
 import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlArray, YamlFormat, YamlString, YamlValue, _}
 
 import scala.util.Try
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 16.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 16.03.17.
+ */
 object CollectorYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString() = "data_collection.server_side.(some collector)"
@@ -34,7 +33,7 @@ object CollectorYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[Collector]): YamlValue = ???
+    override def write(obj: Try[Collector]): YamlValue = unsupportedWriteOperation
 
   }
 
@@ -50,7 +49,7 @@ object CollectorYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def read(yaml: YamlValue): Collector = ???
+    override def read(yaml: YamlValue): Collector = unsupportedReadOperation
 
   }
 

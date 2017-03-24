@@ -1,6 +1,6 @@
 package cloud.benchflow.dsl.definition.workload.mix
 
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.deserializationHandler
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
 import cloud.benchflow.dsl.definition.types.percent.Percent
 import cloud.benchflow.dsl.definition.types.percent.PercentYamlProtocol._
 import net.jcazevedo.moultingyaml._
@@ -8,10 +8,9 @@ import net.jcazevedo.moultingyaml._
 import scala.util.Try
 
 /**
-  * @author Simone D'Avico (simonedavico@gmail.com)
-  *
-  *         Created on 21/07/16.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 14.03.17.
+ */
 object MixYamlProtocol extends DefaultYamlProtocol {
 
   val MaxDeviationKey = YamlString("max_deviation")
@@ -62,7 +61,7 @@ object MixYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[Mix]): YamlValue = ???
+    override def write(obj: Try[Mix]): YamlValue = unsupportedWriteOperation
 
   }
 
@@ -72,22 +71,21 @@ object MixYamlProtocol extends DefaultYamlProtocol {
 
       // TODO - test this properly
 
-      Map[YamlValue, YamlValue]() ++
-        obj.maxDeviation.map(key => MaxDeviationKey -> key.toYaml) + {
+      Map[YamlValue, YamlValue]() ++ {
         obj.mix match {
 
-          case fixed: FixedSequenceMix => FixedSequenceKey -> fixed.mix.toYaml
-          case flat: FlatMix => FlatKey -> flat.mix.toYaml
-          // TODO - fix this
-//          case flatSeq: FlatSequenceMix => (FlatKey -> flatSeq.mix.toYaml, SequencesKey -> flatSeq.sequences.toYaml)
-          case matrix: MatrixMix => MatrixKey -> matrix.mix.toYaml
+          case fixed: FixedSequenceMix => List(FixedSequenceKey -> fixed.mix.toYaml)
+          case flat: FlatMix => List(FlatKey -> flat.mix.toYaml)
+          case flatSeq: FlatSequenceMix => List(FlatKey -> flatSeq.mix.toYaml, SequencesKey -> flatSeq.sequences.toYaml)
+          case matrix: MatrixMix => List(MatrixKey -> matrix.mix.toYaml)
 
         }
-      }
+      } ++ obj.maxDeviation.map(key => MaxDeviationKey -> key.toYaml)
 
     }
 
-    override def read(yaml: YamlValue): Mix = ???
+    override def read(yaml: YamlValue): Mix = unsupportedReadOperation
+
   }
 
 }

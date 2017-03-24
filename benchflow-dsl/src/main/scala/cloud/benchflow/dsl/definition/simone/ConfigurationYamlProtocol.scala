@@ -7,14 +7,14 @@ import cloud.benchflow.dsl.definition.sut.configuration.targetservice.TargetServ
 import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlString, YamlValue}
 
 /**
-  * @author Simone D'Avico (simonedavico@gmail.com)
-  *
-  *         Created on 18/07/16.
-  */
+ * @author Simone D'Avico (simonedavico@gmail.com)
+ *
+ *         Created on 18/07/16.
+ */
 trait ConfigurationYamlProtocol extends DefaultYamlProtocol
-  with CommonsYamlProtocol
-  with WfMSSutYamlProtocol
-  with HttpSutYamlProtocol {
+    with CommonsYamlProtocol
+    with WfMSSutYamlProtocol
+    with HttpSutYamlProtocol {
 
   implicit val deployFormat = yamlFormat1(Deploy)
   implicit val targetServiceFormat = yamlFormat3(TargetService)

@@ -6,9 +6,9 @@ import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, 
 import scala.util.Try
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 11.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 11.03.17.
+ */
 object GoalYamlProtocol extends DefaultYamlProtocol {
 
   val TypeKey = YamlString("type")
@@ -33,15 +33,15 @@ object GoalYamlProtocol extends DefaultYamlProtocol {
         observation <- Try(Option(None)) // TODO - define
         explorationSpace <- Try(Option(None)) // TODO - define
 
-      } yield Goal(goalType = goalType,
+      } yield Goal(
+        goalType = goalType,
         observation = observation,
         explorationSpace = explorationSpace
       )
 
-
     }
 
-    override def write(goalTry: Try[Goal]): YamlValue = ???
+    override def write(goalTry: Try[Goal]): YamlValue = unsupportedWriteOperation
   }
 
   implicit object GoalYamlWriteFormat extends YamlFormat[Goal] {
@@ -56,7 +56,7 @@ object GoalYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def read(yaml: YamlValue): Goal = ???
+    override def read(yaml: YamlValue): Goal = unsupportedReadOperation
 
   }
 

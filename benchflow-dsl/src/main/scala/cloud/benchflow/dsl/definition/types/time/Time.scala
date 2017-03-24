@@ -10,11 +10,11 @@ import cloud.benchflow.dsl.definition.types.time.Time._
 import scala.util.{Failure, Success, Try}
 
 /**
-  *
-  *
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 14.03.17.
-  */
+ *
+ *
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 14.03.17.
+ */
 class Time(underlying: Duration, unit: TemporalUnit) {
 
   // TODO - document class
@@ -25,7 +25,7 @@ class Time(underlying: Duration, unit: TemporalUnit) {
   def toMinutesPart: Long = underlying.toMinutes
   def toSecondsPart: Long = underlying.getSeconds
   def toMillisPart: Long = underlying.toMillis
-  def toMicrosPart: Long = underlying.getNano/1000L
+  def toMicrosPart: Long = underlying.getNano / 1000L
   def toNanosPart: Long = underlying.getNano
 
   override def toString: String = {
@@ -34,12 +34,12 @@ class Time(underlying: Duration, unit: TemporalUnit) {
 
     unit match {
 
-      case NANOS    => toNanosPart + NanosUnit
-      case MICROS   => toMicrosPart + MicrosUnit
-      case MILLIS   => toMillisPart + MillisUnit
-      case SECONDS  => toSecondsPart + SecondsUnit
-      case MINUTES  => toMinutesPart + MinutesUnit
-      case HOURS    => toHoursPart + HoursUnit
+      case NANOS => toNanosPart + NanosUnit
+      case MICROS => toMicrosPart + MicrosUnit
+      case MILLIS => toMillisPart + MillisUnit
+      case SECONDS => toSecondsPart + SecondsUnit
+      case MINUTES => toMinutesPart + MinutesUnit
+      case HOURS => toHoursPart + HoursUnit
 
     }
   }
@@ -76,12 +76,12 @@ object Time {
         1
       } match {
 
-        case MicrosUnit   => MICROS
-        case NanosUnit    => NANOS
-        case MillisUnit   => MILLIS
-        case SecondsUnit  => SECONDS
-        case MinutesUnit  => MINUTES
-        case HoursUnit    => HOURS
+        case MicrosUnit => MICROS
+        case NanosUnit => NANOS
+        case MillisUnit => MILLIS
+        case SecondsUnit => SECONDS
+        case MinutesUnit => MINUTES
+        case HoursUnit => HOURS
 
       })
 

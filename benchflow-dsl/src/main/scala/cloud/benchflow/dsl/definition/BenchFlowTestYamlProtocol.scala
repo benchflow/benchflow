@@ -13,7 +13,6 @@ import net.jcazevedo.moultingyaml.{YamlString, _}
 
 import scala.util.Try
 
-
 /**
   * @author Jesper Findahl (jesper.findahl@usi.ch)
   *         created on 16.03.17.
@@ -73,7 +72,8 @@ object BenchFlowTestYamlProtocol extends DefaultYamlProtocol {
           keyString(DataCollectionKey)
         )
 
-      } yield BenchFlowTest(version = version,
+      } yield BenchFlowTest(
+        version = version,
         name = name,
         description = description,
         configuration = configuration,
@@ -83,7 +83,7 @@ object BenchFlowTestYamlProtocol extends DefaultYamlProtocol {
       )
     }
 
-    override def write(tryBenchFlowTest: Try[BenchFlowTest]): YamlValue = ???
+    override def write(tryBenchFlowTest: Try[BenchFlowTest]): YamlValue = unsupportedWriteOperation
 
   }
 
@@ -105,7 +105,8 @@ object BenchFlowTestYamlProtocol extends DefaultYamlProtocol {
       //          (VersionKey -> benchFlowTest.version.toYaml)
     }
 
-    override def read(yaml: YamlValue): BenchFlowTest = ???
+    override def read(yaml: YamlValue): BenchFlowTest = unsupportedReadOperation
+
   }
 
 }

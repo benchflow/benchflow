@@ -8,9 +8,9 @@ import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlString, 
 import scala.util.Try
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 11.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 11.03.17.
+ */
 object WorkloadExecutionYamlProtocol extends DefaultYamlProtocol {
 
   val RampUpKey = YamlString("ramp_up")
@@ -45,7 +45,7 @@ object WorkloadExecutionYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(workloadExecutionTry: Try[WorkloadExecution]): YamlValue = ???
+    override def write(workloadExecutionTry: Try[WorkloadExecution]): YamlValue = unsupportedWriteOperation
   }
 
   implicit object WorkloadExecutionWriteFormat extends YamlFormat[WorkloadExecution] {
@@ -60,7 +60,7 @@ object WorkloadExecutionYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def read(yaml: YamlValue): WorkloadExecution = ???
+    override def read(yaml: YamlValue): WorkloadExecution = unsupportedReadOperation
   }
 
 }

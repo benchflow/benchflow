@@ -4,15 +4,15 @@ import cloud.benchflow.dsl.definition.datacollection.clientside.ClientSideConfig
 import cloud.benchflow.dsl.definition.datacollection.clientside.ClientSideConfigurationYamlProtocol._
 import cloud.benchflow.dsl.definition.datacollection.serverside.ServerSideConfiguration
 import cloud.benchflow.dsl.definition.datacollection.serverside.ServerSideConfigurationYamlProtocol._
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.deserializationHandler
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedWriteOperation}
 import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
 
 import scala.util.Try
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 10.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 10.03.17.
+ */
 object DataCollectionYamlProtocol extends DefaultYamlProtocol {
 
   val ClientSideKey = YamlString("client_side")
@@ -41,7 +41,7 @@ object DataCollectionYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[DataCollection]): YamlValue = ???
+    override def write(obj: Try[DataCollection]): YamlValue = unsupportedWriteOperation
 
   }
 
@@ -55,7 +55,7 @@ object DataCollectionYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def read(yaml: YamlValue): DataCollection = ???
+    override def read(yaml: YamlValue): DataCollection = unsupportedWriteOperation
   }
 
 }

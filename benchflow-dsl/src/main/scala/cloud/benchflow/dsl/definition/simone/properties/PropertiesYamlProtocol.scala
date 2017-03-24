@@ -3,9 +3,9 @@ package cloud.benchflow.dsl.definition.simone.properties
 import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, DeserializationException, YamlArray, YamlBoolean, YamlDate, YamlFormat, YamlNumber, YamlObject, YamlString, YamlValue, _}
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 14.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 14.03.17.
+ */
 object PropertiesYamlProtocol extends DefaultYamlProtocol {
 
   implicit object PropertiesYamlFormat extends YamlFormat[Properties] {
@@ -43,7 +43,7 @@ object PropertiesYamlProtocol extends DefaultYamlProtocol {
         case YamlDate(date) => date
         case YamlNumber(num) => num
         case YamlObject(map) => map.seq.map(toScalaPair)
-        case YamlArray(values) => values.map(convertValue)//values.toList.map(value => value.convertTo[String])
+        case YamlArray(values) => values.map(convertValue) //values.toList.map(value => value.convertTo[String])
         case _ => throw DeserializationException("Unexpected format for field properties")
       }
 

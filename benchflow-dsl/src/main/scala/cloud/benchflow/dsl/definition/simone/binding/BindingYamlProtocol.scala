@@ -5,9 +5,9 @@ import cloud.benchflow.dsl.definition.simone.properties.PropertiesYamlProtocol._
 import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 13.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 13.03.17.
+ */
 object BindingYamlProtocol extends DefaultYamlProtocol {
 
   implicit object BindingYamlFormat extends YamlFormat[Binding] {
