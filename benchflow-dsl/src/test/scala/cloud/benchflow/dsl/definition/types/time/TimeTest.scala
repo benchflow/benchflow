@@ -29,11 +29,11 @@ class TimeTest extends JUnitSuite {
 
     Array("10h", "5m", "200s", "567ms", "90000ns", "4892micros").foreach(string => {
 
-      val time = Time.fromString(string)
+      val time = Time.fromString(string).get
 
       val timeYaml = time.toYaml
 
-      Assert.assertEquals(time.get, timeYaml.convertTo[Try[Time]].get)
+      Assert.assertEquals(time, timeYaml.convertTo[Try[Time]].get)
 
     })
 
