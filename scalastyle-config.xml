@@ -115,7 +115,7 @@
   <check level="warning" class="org.scalastyle.file.NewLineAtEofChecker" enabled="true"/>
   <check level="warning" class="org.scalastyle.file.NoNewLineAtEofChecker" enabled="false"/>
 
-  <check enabled="true" class="org.scalastyle.file.IndentationChecker" level="warning">
+  <check enabled="false" class="org.scalastyle.file.IndentationChecker" level="warning">
         <parameters>
             <parameter name="tabSize">2</parameter>
             <parameter name="methodParamIndentSize">2</parameter>
