@@ -80,6 +80,11 @@ object BenchFlowTestYamlProtocol extends DefaultYamlProtocol {
   }
 
   // TODO - add documentation reference with reasons why we separate read and write into 2 objects
+  // The reason is that we want to wrap the result of read into a Try to simplify error handling.
+  // Whereas for write we already know that the types are OK from the type system and therefore we don't
+  // need the overhead of wrapping and unwrapping Trys.
+  // The library does not allow to specify different return types for read and write, therefore
+  // we split into two objects. The library takes automatic care of calling the right method.
   implicit object BenchFlowTestWriteFormat extends YamlFormat[BenchFlowTest] {
 
     override def write(obj: BenchFlowTest): YamlValue = YamlObject {
