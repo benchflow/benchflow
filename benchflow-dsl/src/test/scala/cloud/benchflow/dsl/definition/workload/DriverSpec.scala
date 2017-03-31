@@ -1,13 +1,13 @@
 package cloud.benchflow.dsl.definition.workload
 
 import cloud.benchflow.dsl.definition.simone.ConfigurationYamlProtocol
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{ FlatSpec, Matchers }
 
 /**
-  * @author Simone D'Avico (simonedavico@gmail.com)
-  *
-  *         Created on 18/07/16.
-  */
+ * @author Simone D'Avico (simonedavico@gmail.com)
+ *
+ *         Created on 18/07/16.
+ */
 class DriverSpec extends FlatSpec with Matchers with ConfigurationYamlProtocol {
 
   //  "HttpOperation" should "parse correctly" in {

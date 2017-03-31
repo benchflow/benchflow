@@ -3,14 +3,14 @@ package cloud.benchflow.dsl.definition.configuration.workloadexecution
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
 import cloud.benchflow.dsl.definition.types.time.Time
 import cloud.benchflow.dsl.definition.types.time.TimeYamlProtocol._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _}
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 11.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 11.03.17.
+ */
 object WorkloadExecutionYamlProtocol extends DefaultYamlProtocol {
 
   val RampUpKey = YamlString("ramp_up")
@@ -19,7 +19,7 @@ object WorkloadExecutionYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "configuration.workload_execution" + key.value
 
-  implicit object WorkloadExecutionYamlFormat extends YamlFormat[Try[WorkloadExecution]] {
+  implicit object WorkloadExecutionReadFormat extends YamlFormat[Try[WorkloadExecution]] {
     override def read(yaml: YamlValue): Try[WorkloadExecution] = {
 
       val yamlObject = yaml.asYamlObject
@@ -28,36 +28,35 @@ object WorkloadExecutionYamlProtocol extends DefaultYamlProtocol {
 
         rampUp <- deserializationHandler(
           yamlObject.fields(RampUpKey).convertTo[Try[Time]].get,
-          keyString(RampUpKey)
-        )
+          keyString(RampUpKey))
 
         steadyState <- deserializationHandler(
           yamlObject.fields(SteadyStateKey).convertTo[Try[Time]].get,
-          keyString(SteadyStateKey)
-        )
+          keyString(SteadyStateKey))
 
         rampDown <- deserializationHandler(
           yamlObject.fields(RampDownKey).convertTo[Try[Time]].get,
-          keyString(RampDownKey)
-        )
+          keyString(RampDownKey))
 
       } yield WorkloadExecution(rampUp = rampUp, steadyState = steadyState, rampDown = rampDown)
 
     }
 
-    override def write(workloadExecutionTry: Try[WorkloadExecution]): YamlValue = {
+    override def write(workloadExecutionTry: Try[WorkloadExecution]): YamlValue = unsupportedWriteOperation
+  }
 
-      val workloadExecution = workloadExecutionTry.get
+  implicit object WorkloadExecutionWriteFormat extends YamlFormat[WorkloadExecution] {
 
-      val map = Map[YamlValue, YamlValue](
-        RampUpKey -> Try(workloadExecution.rampUp).toYaml,
-        SteadyStateKey -> Try(workloadExecution.steadyState).toYaml,
-        RampDownKey -> Try(workloadExecution.rampDown).toYaml
-      )
+    override def write(obj: WorkloadExecution): YamlValue = YamlObject {
 
-      YamlObject(map)
+      Map[YamlValue, YamlValue](
+        RampUpKey -> obj.rampUp.toYaml,
+        SteadyStateKey -> obj.steadyState.toYaml,
+        RampDownKey -> obj.rampDown.toYaml)
 
     }
+
+    override def read(yaml: YamlValue): WorkloadExecution = unsupportedReadOperation
   }
 
 }

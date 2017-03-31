@@ -1,18 +1,18 @@
 package cloud.benchflow.dsl.deployment.docker.compose
 
 import cloud.benchflow.dsl.deployment.docker.service._
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{ FlatSpec, Matchers }
 
 /**
-  * @author Simone D'Avico (simonedavico@gmail.com)
-  *
-  * Created on 18/07/16.
-  */
+ * @author Simone D'Avico (simonedavico@gmail.com)
+ *
+ * Created on 18/07/16.
+ */
 class ComposeSpec extends FlatSpec with Matchers {
 
   import net.jcazevedo.moultingyaml._
   import DockerComposeYamlProtocol._
-  import scala.collection.mutable.{Map => MutableMap}
+  import scala.collection.mutable.{ Map => MutableMap }
 
   "Compose File" should "parse correctly" in {
 
@@ -36,9 +36,7 @@ class ComposeSpec extends FlatSpec with Matchers {
       version = "2",
       networks = Some(
         Networks(
-          Map("foo" -> NetworkConfig("custom"))
-        )
-      ),
+          Map("foo" -> NetworkConfig("custom")))),
       services = Map(
         "camunda" -> Service(
           name = "camunda",
@@ -46,21 +44,15 @@ class ComposeSpec extends FlatSpec with Matchers {
           memLimit = Some(MemLimit(5, GigaByte)),
           environment = Environment(
             MutableMap(
-              "VAR" -> "5"
-            )
-          )
-        ),
+              "VAR" -> "5"))),
         "other.service" -> Service(
           name = "other.service",
           image = Some(Image("other.image")),
-          environment = Environment(MutableMap.empty)
-        )
-      )
-    )
+          environment = Environment(MutableMap.empty))))
 
     println(parsedDockerCompose.toYaml.prettyPrint)
 
-    dockerCompose should be (parsedDockerCompose)
+    dockerCompose should be(parsedDockerCompose)
   }
 
 }

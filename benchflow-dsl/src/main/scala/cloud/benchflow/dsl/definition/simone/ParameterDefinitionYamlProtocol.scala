@@ -4,12 +4,11 @@ import net.jcazevedo.moultingyaml._
 
 import scala.util.Try
 
-
 /**
-  * @author Simone D'Avico (simonedavico@gmail.com)
-  *
-  * Created on 20/07/16.
-  */
+ * @author Simone D'Avico (simonedavico@gmail.com)
+ *
+ * Created on 20/07/16.
+ */
 trait ParameterDefinitionYamlProtocol extends DefaultYamlProtocol with ValueRangeYamlProtocol {
 
   implicit object MemoryDefinitionYamlFormat extends YamlFormat[MemoryDefinition] {
@@ -24,7 +23,6 @@ trait ParameterDefinitionYamlProtocol extends DefaultYamlProtocol with ValueRang
 
     override def write(obj: MemoryDefinition): YamlValue = ???
   }
-
 
   implicit object CpusDefinitionYamlFormat extends YamlFormat[CpusDefinition] {
 
@@ -55,7 +53,6 @@ trait ParameterDefinitionYamlProtocol extends DefaultYamlProtocol with ValueRang
     override def write(obj: SystemParameterDefinition[_]): YamlValue = ???
   }
 
-
   implicit object ServiceParameterDefinitionYamlFormat extends YamlFormat[ServiceParameterDefinition[_]] {
 
     override def read(yaml: YamlValue): ServiceParameterDefinition[_] = {
@@ -69,21 +66,18 @@ trait ParameterDefinitionYamlProtocol extends DefaultYamlProtocol with ValueRang
 
         case SystemParameterDefinition.memoryDefinitionKey => ServiceMemoryDefinition(
           serviceName = serviceName,
-          dimensionDefinition = valueRange
-        )
+          dimensionDefinition = valueRange)
 
         case SystemParameterDefinition.cpusDefinitionKey => ServiceCpusDefinition(
           serviceName = serviceName,
-          dimensionDefinition = valueRange
-        )
+          dimensionDefinition = valueRange)
 
         case _ =>
 
           ApplicationParameterDefinition(
             name = paramName,
             serviceName = serviceName,
-            dimensionDefinition = valueRange
-          )
+            dimensionDefinition = valueRange)
       }
 
     }

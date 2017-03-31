@@ -1,14 +1,14 @@
 package cloud.benchflow.dsl.definition.sut.configuration.targetservice
 
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.deserializationHandler
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 14.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 14.03.17.
+ */
 object TargetServiceYamlProtocol extends DefaultYamlProtocol {
 
   val NameKey = YamlString("name")
@@ -17,7 +17,7 @@ object TargetServiceYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "sut.configuration.target_service" + key.value
 
-  implicit object TargetServiceFormat extends YamlFormat[Try[TargetService]] {
+  implicit object TargetServiceReadFormat extends YamlFormat[Try[TargetService]] {
     override def read(yaml: YamlValue): Try[TargetService] = {
 
       val yamlObject = yaml.asYamlObject
@@ -26,38 +26,34 @@ object TargetServiceYamlProtocol extends DefaultYamlProtocol {
 
         name <- deserializationHandler(
           yamlObject.fields(NameKey).convertTo[String],
-          keyString(NameKey)
-        )
+          keyString(NameKey))
 
         endpoint <- deserializationHandler(
           yamlObject.fields(EndpointKey).convertTo[String],
-          keyString(EndpointKey)
-        )
+          keyString(EndpointKey))
 
         sutReadyLogCheck <- deserializationHandler(
           yamlObject.getFields(SutReadyLogCheckKey).headOption.map(_.convertTo[String]),
-          keyString(SutReadyLogCheckKey)
-        )
+          keyString(SutReadyLogCheckKey))
 
       } yield TargetService(name = name, endpoint = endpoint, sutReadyLogCheck = sutReadyLogCheck)
 
     }
 
-    override def write(obj: Try[TargetService]): YamlValue = {
+    override def write(obj: Try[TargetService]): YamlValue = unsupportedWriteOperation
+  }
 
-      val targetService = obj.get
+  implicit object TargetServiceWriteFormat extends YamlFormat[TargetService] {
 
-      var map = Map[YamlValue, YamlValue](
-        NameKey -> YamlString(targetService.name),
-        EndpointKey -> YamlString(targetService.endpoint)
-      )
-
-      if (targetService.sutReadyLogCheck.isDefined)
-        map += SutReadyLogCheckKey -> YamlString(targetService.sutReadyLogCheck.get)
-
-      YamlObject(map)
+    override def write(obj: TargetService): YamlValue = YamlObject {
+      Map[YamlValue, YamlValue](
+        NameKey -> obj.name.toYaml,
+        EndpointKey -> obj.endpoint.toYaml) ++
+        obj.sutReadyLogCheck.map(key => SutReadyLogCheckKey -> key.toYaml)
 
     }
+
+    override def read(yaml: YamlValue): TargetService = unsupportedReadOperation
   }
 
 }

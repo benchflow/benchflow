@@ -7,14 +7,14 @@ import cloud.benchflow.dsl.definition.configuration.terminationcriteria.Terminat
 import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadExecution
 import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadExecutionYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 10.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 10.03.17.
+ */
 object ConfigurationYamlProtocol extends DefaultYamlProtocol {
 
   val GoalKey = YamlString("goal")
@@ -25,7 +25,7 @@ object ConfigurationYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "configuration." + key.value
 
-  implicit object ConfigurationFormat extends YamlFormat[Try[Configuration]] {
+  implicit object ConfigurationReadFormat extends YamlFormat[Try[Configuration]] {
 
     override def read(yaml: YamlValue): Try[Configuration] = {
 
@@ -35,63 +35,51 @@ object ConfigurationYamlProtocol extends DefaultYamlProtocol {
 
         goal <- deserializationHandler(
           yamlObject.fields(GoalKey).convertTo[Try[Goal]].get,
-          keyString(GoalKey)
-        )
+          keyString(GoalKey))
 
         users <- deserializationHandler(
           yamlObject.getFields(UsersKey).headOption.map(_.convertTo[Int]),
-          keyString(UsersKey)
-        )
+          keyString(UsersKey))
 
         workloadExecution <- deserializationHandler(
           yamlObject.getFields(WorkloadExecutionKey).headOption.map(_.convertTo[Try[WorkloadExecution]].get),
-          keyString(WorkloadExecutionKey)
-        )
+          keyString(WorkloadExecutionKey))
 
         // TODO - define
         strategy <- deserializationHandler(
           Option(None),
-          keyString(StrategyKey)
-        )
+          keyString(StrategyKey))
 
         terminationCriteria <- deserializationHandler(
           yamlObject.getFields(TerminationCriteriaKey).headOption.map(_.convertTo[Try[TerminationCriteria]].get),
-          keyString(TerminationCriteriaKey)
-        )
+          keyString(TerminationCriteriaKey))
 
-      } yield Configuration(goal = goal,
+      } yield Configuration(
+        goal = goal,
         users = users,
         workloadExecution = workloadExecution,
         strategy = strategy,
-        terminationCriteria = terminationCriteria
-      )
+        terminationCriteria = terminationCriteria)
 
     }
 
+    override def write(configuration: Try[Configuration]): YamlValue = unsupportedWriteOperation
 
-    override def write(configuration: Try[Configuration]): YamlValue = {
+  }
 
-      val config = configuration.get
+  implicit object ConfigurationWriteFormat extends YamlFormat[Configuration] {
 
-      var map = Map[YamlValue, YamlValue](
-        GoalKey -> Try(config.goal).toYaml
-      )
+    override def write(obj: Configuration): YamlValue = YamlObject {
 
-      if (config.users.isDefined)
-        map += UsersKey -> YamlNumber(config.users.get)
-
-      if (config.workloadExecution.isDefined)
-        map += WorkloadExecutionKey -> Try(config.workloadExecution.get).toYaml
-
-      // TODO - add Strategy when defined
-
-      if (config.terminationCriteria.isDefined)
-        map += TerminationCriteriaKey -> Try(config.terminationCriteria.get).toYaml
-
-      YamlObject(map)
-
+      Map[YamlValue, YamlValue](
+        GoalKey -> obj.goal.toYaml) ++
+        obj.users.map(key => UsersKey -> key.toYaml) ++
+        obj.workloadExecution.map(key => WorkloadExecutionKey -> key.toYaml) ++
+        // TODO - add Strategy when defined
+        obj.terminationCriteria.map(key => TerminationCriteriaKey -> key.toYaml)
     }
 
+    override def read(yaml: YamlValue): Configuration = unsupportedReadOperation
   }
 
 }

@@ -1,16 +1,17 @@
 package cloud.benchflow.dsl.definition.types.percent
 
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ unsupportedReadOperation, unsupportedWriteOperation }
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _ }
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 14.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 14.03.17.
+ */
 object PercentYamlProtocol extends DefaultYamlProtocol {
 
-  implicit object PercentFormat extends YamlFormat[Try[Percent]] {
+  implicit object PercentReadFormat extends YamlFormat[Try[Percent]] {
 
     override def read(yaml: YamlValue): Try[Percent] = {
 
@@ -23,8 +24,15 @@ object PercentYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(obj: Try[Percent]): YamlValue = obj.get.toString.toYaml
+    override def write(obj: Try[Percent]): YamlValue = unsupportedWriteOperation
 
+  }
+
+  implicit object PercentWriteFormat extends YamlFormat[Percent] {
+
+    override def write(obj: Percent): YamlValue = obj.toString.toYaml
+
+    override def read(yaml: YamlValue): Percent = unsupportedReadOperation
   }
 
 }
