@@ -2,6 +2,7 @@ package cloud.benchflow.dsl
 
 import cloud.benchflow.dsl.definition.{BenchFlowExperiment, BenchFlowTest}
 import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol._
+import cloud.benchflow.dsl.definition.BenchFlowExperimentYamlProtocol._
 import net.jcazevedo.moultingyaml._
 
 import scala.util.Try
@@ -23,7 +24,7 @@ object BenchFlowDSL {
     test
   }
 
-  def testToYaml(benchFlowTest: BenchFlowTest): String = {
+  def testToYamlString(benchFlowTest: BenchFlowTest): String = {
 
     // TODO - validate semantic in separate function on the object
 
@@ -43,11 +44,27 @@ object BenchFlowDSL {
 
   // TODO - add methods for common operations/changes to tests/experiments
 
-  def experimentFromTestYaml(testDefinitionYaml: String): Try[BenchFlowExperiment] = {
-
-    // TODO - get
-
-
-  }
+//  def experimentFromTestYaml(testDefinitionYaml: String): Try[BenchFlowExperiment] = {
+//
+//    // TODO - get
+//    // convert to experiment and validate syntax
+//    val experiment: Try[BenchFlowExperiment] = testDefinitionYaml.parseYaml.convertTo[Try[BenchFlowExperiment]]
+//
+//    // TODO - validate semantic in separate function on the object
+//
+//    experiment
+//
+//  }
+//
+//  def experimentToYamlString(benchFlowExperiment: BenchFlowExperiment): String = {
+//
+//    // TODO - validate semantic in separate function on the object
+//
+//    // write to YAML
+//    val experimentYaml: YamlObject = benchFlowExperiment.toYaml.asYamlObject
+//
+//    experimentYaml.prettyPrint
+//
+//  }
 
 }

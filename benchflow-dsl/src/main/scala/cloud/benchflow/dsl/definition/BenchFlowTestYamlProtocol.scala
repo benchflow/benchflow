@@ -9,7 +9,7 @@ import cloud.benchflow.dsl.definition.sut.Sut
 import cloud.benchflow.dsl.definition.sut.SutYamlProtocol._
 import cloud.benchflow.dsl.definition.workload.Workload
 import cloud.benchflow.dsl.definition.workload.WorkloadYamlProtocol._
-import net.jcazevedo.moultingyaml.{ YamlString, _ }
+import net.jcazevedo.moultingyaml.{YamlString, _}
 
 import scala.util.Try
 
@@ -39,31 +39,38 @@ object BenchFlowTestYamlProtocol extends DefaultYamlProtocol {
 
         version <- deserializationHandler(
           testObject.fields(VersionKey).convertTo[String],
-          keyString(VersionKey))
+          keyString(VersionKey)
+        )
 
         name <- deserializationHandler(
           testObject.fields(NameKey).convertTo[String],
-          keyString(NameKey))
+          keyString(NameKey)
+        )
 
         description <- deserializationHandler(
           testObject.fields(DescriptionKey).convertTo[String],
-          keyString(DescriptionKey))
+          keyString(DescriptionKey)
+        )
 
         configuration <- deserializationHandler(
           testObject.fields(ConfigurationKey).convertTo[Try[Configuration]].get,
-          keyString(ConfigurationKey))
+          keyString(ConfigurationKey)
+        )
 
         sut <- deserializationHandler(
           testObject.fields(SutKey).convertTo[Try[Sut]].get,
-          keyString(SutKey))
+          keyString(SutKey)
+        )
 
         workload <- deserializationHandler(
           testObject.fields(WorkloadKey).convertTo[Map[String, Try[Workload]]].mapValues(_.get),
-          keyString(WorkloadKey))
+          keyString(WorkloadKey)
+        )
 
         dataCollection <- deserializationHandler(
           testObject.getFields(DataCollectionKey).headOption.map(_.convertTo[Try[DataCollection]].get),
-          keyString(DataCollectionKey))
+          keyString(DataCollectionKey)
+        )
 
       } yield BenchFlowTest(
         version = version,
@@ -72,7 +79,8 @@ object BenchFlowTestYamlProtocol extends DefaultYamlProtocol {
         configuration = configuration,
         sut = sut,
         workload = workload,
-        dataCollection = dataCollection)
+        dataCollection = dataCollection
+      )
     }
 
     override def write(tryBenchFlowTest: Try[BenchFlowTest]): YamlValue = unsupportedWriteOperation
@@ -94,7 +102,8 @@ object BenchFlowTestYamlProtocol extends DefaultYamlProtocol {
         DescriptionKey -> obj.description.toYaml,
         ConfigurationKey -> obj.configuration.toYaml,
         SutKey -> obj.sut.toYaml,
-        WorkloadKey -> obj.workload.toYaml) ++
+        WorkloadKey -> obj.workload.toYaml
+      ) ++
         // we map here because value is optional (Option)
         obj.dataCollection.map(key => DataCollectionKey -> key.toYaml) // +
       // this line is an example of how to mix optional and non-optional key,value pairs (incl. '+' on previous line)
