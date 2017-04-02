@@ -5,10 +5,10 @@ import cloud.benchflow.dsl.deployment.docker.service.ServiceYamlProtocol._
 import net.jcazevedo.moultingyaml._
 
 /**
-  * @author Simone D'Avico (simonedavico@gmail.com)
-  *
-  * Created on 05/07/16.
-  */
+ * @author Simone D'Avico (simonedavico@gmail.com)
+ *
+ * Created on 05/07/16.
+ */
 object DockerComposeYamlProtocol extends DefaultYamlProtocol {
 
   implicit val implicitNetworkConfigFormat = yamlFormat1(NetworkConfig)
@@ -21,18 +21,16 @@ object DockerComposeYamlProtocol extends DefaultYamlProtocol {
           case (YamlString(netName), YamlObject(obj)) =>
             (netName, YamlObject(obj).convertTo[NetworkConfig])
           case _ => ???
-        }
-      )
+        })
     }
 
     override def write(nets: Networks): YamlValue = {
-        YamlObject(
-          nets.nets.map {
-            case (netName, netConfig) =>
-              netName.toYaml -> netConfig.toYaml
-            case _ => throw new SerializationException("Can't serialize networks")
-          }
-        )
+      YamlObject(
+        nets.nets.map {
+          case (netName, netConfig) =>
+            netName.toYaml -> netConfig.toYaml
+          case _ => throw new SerializationException("Can't serialize networks")
+        })
     }
 
   }
@@ -60,8 +58,7 @@ object DockerComposeYamlProtocol extends DefaultYamlProtocol {
       new DockerCompose(
         version = version,
         services = services,
-        networks = networks
-      )
+        networks = networks)
 
     }
 
@@ -80,8 +77,7 @@ object DockerComposeYamlProtocol extends DefaultYamlProtocol {
                   serviceName.toYaml -> serviceObj.toYaml.asYamlObject.fields.values.head
               })
             },
-            YamlString("version") -> dc.version.toYaml
-          )
+            YamlString("version") -> dc.version.toYaml)
 
         case _ =>
 
@@ -93,8 +89,7 @@ object DockerComposeYamlProtocol extends DefaultYamlProtocol {
               })
             },
             YamlString("networks") -> parsedNets,
-            YamlString("version") -> dc.version.toYaml
-          )
+            YamlString("version") -> dc.version.toYaml)
 
       }
 

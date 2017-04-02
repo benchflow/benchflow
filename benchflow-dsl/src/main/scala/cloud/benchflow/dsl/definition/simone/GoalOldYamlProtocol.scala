@@ -3,10 +3,10 @@ package cloud.benchflow.dsl.definition.simone
 import net.jcazevedo.moultingyaml._
 
 /**
-  * @author Simone D'Avico (simonedavico@gmail.com)
-  *
-  *         Created on 20/07/16.
-  */
+ * @author Simone D'Avico (simonedavico@gmail.com)
+ *
+ *         Created on 20/07/16.
+ */
 trait GoalOldYamlProtocol extends DefaultYamlProtocol with ParameterDefinitionYamlProtocol {
 
   implicit object GoalYamlFormat extends YamlFormat[GoalOld] {
@@ -23,8 +23,7 @@ trait GoalOldYamlProtocol extends DefaultYamlProtocol with ParameterDefinitionYa
         case YamlArray(defs) => for {
           aDef <- defs
         } yield ServiceParameterDefinitionYamlFormat.read(
-          YamlObject(YamlString(serviceName) -> aDef)
-        )
+          YamlObject(YamlString(serviceName) -> aDef))
         case _ => throw new Exception("Unexpected format for service parameter definitions")
       }
 
@@ -46,13 +45,11 @@ trait GoalOldYamlProtocol extends DefaultYamlProtocol with ParameterDefinitionYa
       val toExplore = yaml.asYamlObject.fields(YamlString("explore")).convertTo[Map[String, Seq[String]]]
       val toObserve = yaml.asYamlObject.fields.get(YamlString("observe")).map(_.convertTo[Map[String, Seq[String]]])
 
-
       GoalOld(
         goalType = goalType,
         params = parsedDefinitions,
         explored = toExplore,
-        observed = toObserve
-      )
+        observed = toObserve)
 
     }
 

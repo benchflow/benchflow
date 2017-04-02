@@ -1,13 +1,13 @@
 package cloud.benchflow.dsl.definition.sut
 
 import cloud.benchflow.dsl.definition.simone.ConfigurationYamlProtocol
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{ FlatSpec, Matchers }
 
 /**
-  * @author Simone D'Avico (simonedavico@gmail.com)
-  *
-  *         Created on 18/07/16.
-  */
+ * @author Simone D'Avico (simonedavico@gmail.com)
+ *
+ *         Created on 18/07/16.
+ */
 class SutConfigurationSpec extends FlatSpec with Matchers with ConfigurationYamlProtocol {
 
   //  "Deploy" should "parse correctly" in {
@@ -28,7 +28,6 @@ class SutConfigurationSpec extends FlatSpec with Matchers with ConfigurationYaml
   //    deploy should be (parsedDeploy)
   //
   //  }
-
 
   //  "Binding" should "parse correctly" in {
   //

@@ -1,14 +1,14 @@
 package cloud.benchflow.dsl.definition.configuration.terminationcriteria.experiment
 
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.deserializationHandler
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlNumber, YamlObject, YamlString, YamlValue}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 11.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 11.03.17.
+ */
 object ExperimentTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
   val TypeKey = YamlString("type")
@@ -16,7 +16,7 @@ object ExperimentTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "configuration.termination_criteria.experiment" + key.value
 
-  implicit object ExperimentTerminationCriteriaYamlFormat extends YamlFormat[Try[ExperimentTerminationCriteria]] {
+  implicit object ExperimentTerminationCriteriaReadFormat extends YamlFormat[Try[ExperimentTerminationCriteria]] {
     override def read(yaml: YamlValue): Try[ExperimentTerminationCriteria] = {
 
       val yamlObject = yaml.asYamlObject
@@ -25,30 +25,31 @@ object ExperimentTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
         criteriaType <- deserializationHandler(
           yamlObject.fields(TypeKey).convertTo[String],
-          keyString(TypeKey)
-        )
+          keyString(TypeKey))
 
         number <- deserializationHandler(
           yamlObject.fields(NumberKey).convertTo[Int],
-          keyString(NumberKey)
-        )
+          keyString(NumberKey))
 
       } yield ExperimentTerminationCriteria(criteriaType = criteriaType, number = number)
 
     }
 
-    override def write(obj: Try[ExperimentTerminationCriteria]): YamlValue = {
+    override def write(obj: Try[ExperimentTerminationCriteria]): YamlValue = unsupportedWriteOperation
 
-      val experimentTerminationCriteria = obj.get
+  }
 
-      val map = Map[YamlValue, YamlValue](
-        TypeKey -> YamlString(experimentTerminationCriteria.criteriaType),
-        NumberKey -> YamlNumber(experimentTerminationCriteria.number)
-      )
+  implicit object ExperimentTerminationCriteriaWriteFormat extends YamlFormat[ExperimentTerminationCriteria] {
 
-      YamlObject(map)
+    override def write(obj: ExperimentTerminationCriteria): YamlValue = YamlObject {
+
+      Map[YamlValue, YamlValue](
+        TypeKey -> obj.criteriaType.toYaml,
+        NumberKey -> obj.number.toYaml)
 
     }
+
+    override def read(yaml: YamlValue): ExperimentTerminationCriteria = unsupportedReadOperation
   }
 
 }

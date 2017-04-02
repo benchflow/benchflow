@@ -2,12 +2,12 @@ package cloud.benchflow.dsl.definition.simone.binding
 
 import cloud.benchflow.dsl.definition.simone.properties.Properties
 import cloud.benchflow.dsl.definition.simone.properties.PropertiesYamlProtocol._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 13.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 13.03.17.
+ */
 object BindingYamlProtocol extends DefaultYamlProtocol {
 
   implicit object BindingYamlFormat extends YamlFormat[Binding] {
@@ -15,8 +15,7 @@ object BindingYamlProtocol extends DefaultYamlProtocol {
 
       binding.config match {
         case Some(config) => YamlObject(
-          YamlString(binding.boundService) -> config.toYaml
-        )
+          YamlString(binding.boundService) -> config.toYaml)
         case None => YamlString(binding.boundService)
       }
 

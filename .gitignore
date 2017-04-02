@@ -93,3 +93,4 @@ typings/
 
 # dotenv environment variables file
 .env
+scalastyle-output.xml

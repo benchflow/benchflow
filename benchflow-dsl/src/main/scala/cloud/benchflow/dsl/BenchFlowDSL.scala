@@ -7,9 +7,9 @@ import net.jcazevedo.moultingyaml._
 import scala.util.Try
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 10.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 10.03.17.
+ */
 object BenchFlowDSL {
 
   def testFromYaml(testDefinitionYaml: String): Try[BenchFlowTest] = {
@@ -27,9 +27,8 @@ object BenchFlowDSL {
 
     // TODO - validate semantic in separate function on the object
 
-    // TODO - write to YAML
-    // TODO - document why we wrap in a Try (e.g. because of library and deserialization)
-    val testYaml: YamlObject = Try(benchFlowTest).toYaml.asYamlObject
+    // write to YAML
+    val testYaml: YamlObject = benchFlowTest.toYaml.asYamlObject
 
     testYaml.prettyPrint
 

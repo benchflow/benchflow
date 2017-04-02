@@ -1,16 +1,16 @@
 package cloud.benchflow.dsl.definition.sut.configuration
 
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.deserializationHandler
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
 import cloud.benchflow.dsl.definition.sut.configuration.targetservice.TargetService
 import cloud.benchflow.dsl.definition.sut.configuration.targetservice.TargetServiceYamlProtocol._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
 /**
-  * @author Jesper Findahl (jesper.findahl@usi.ch) 
-  *         created on 11.03.17.
-  */
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 11.03.17.
+ */
 object SutConfigurationYamlProtocol extends DefaultYamlProtocol {
 
   val TargetServiceKey = YamlString("target_service")
@@ -18,7 +18,7 @@ object SutConfigurationYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "sut.configuration." + key.value
 
-  implicit object SutConfigurationFormat extends YamlFormat[Try[SutConfiguration]] {
+  implicit object SutConfigurationReadFormat extends YamlFormat[Try[SutConfiguration]] {
 
     override def read(yaml: YamlValue): Try[SutConfiguration] = {
 
@@ -28,34 +28,33 @@ object SutConfigurationYamlProtocol extends DefaultYamlProtocol {
 
         targetService <- deserializationHandler(
           yamlObject.fields(TargetServiceKey).convertTo[Try[TargetService]].get,
-          keyString(TargetServiceKey)
-        )
+          keyString(TargetServiceKey))
 
         deployment <- deserializationHandler(
           yamlObject.fields(DeploymentKey).convertTo[Map[String, String]],
-          keyString(DeploymentKey)
-        )
+          keyString(DeploymentKey))
 
       } yield SutConfiguration(
         targetService = targetService,
-        deployment = deployment
-      )
+        deployment = deployment)
 
     }
 
-    override def write(obj: Try[SutConfiguration]): YamlValue = {
+    override def write(obj: Try[SutConfiguration]): YamlValue = unsupportedWriteOperation
 
-      val sutConfig = obj.get
+  }
 
-      val map = Map[YamlValue, YamlValue](
-        TargetServiceKey -> Try(sutConfig.targetService).toYaml,
-        DeploymentKey -> sutConfig.deployment.toYaml
-      )
+  implicit object SutConfigurationWriteFormat extends YamlFormat[SutConfiguration] {
 
-      YamlObject(map)
+    override def write(obj: SutConfiguration): YamlValue = YamlObject {
+
+      Map[YamlValue, YamlValue](
+        TargetServiceKey -> obj.targetService.toYaml,
+        DeploymentKey -> obj.deployment.toYaml)
 
     }
 
+    override def read(yaml: YamlValue): SutConfiguration = unsupportedReadOperation
   }
 
 }

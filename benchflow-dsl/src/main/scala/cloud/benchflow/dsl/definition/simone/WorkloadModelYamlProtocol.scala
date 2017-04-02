@@ -3,12 +3,13 @@ package cloud.benchflow.dsl.definition.simone
 import net.jcazevedo.moultingyaml._
 
 /**
-  * @author Simone D'Avico (simonedavico@gmail.com)
-  *
-  *         Created on 21/07/16.
-  */
+ * @author Simone D'Avico (simonedavico@gmail.com)
+ *
+ *         Created on 21/07/16.
+ */
 //trait WorkloadModelYamlProtocol extends DefaultYamlProtocol with WorkloadMixYamlProtocol {
-trait WorkloadModelYamlProtocol extends DefaultYamlProtocol {
+trait WorkloadModelYamlProtocol extends DefaultYamlProtocol
+//{
 
 //    implicit object DriverConfigurationYamlFormat extends YamlFormat[DriverConfiguration] {
 //      override def write(driverConfig: DriverConfiguration): YamlValue = {
@@ -46,4 +47,4 @@ trait WorkloadModelYamlProtocol extends DefaultYamlProtocol {
 //      }
 //    }
 
-}
+//}
