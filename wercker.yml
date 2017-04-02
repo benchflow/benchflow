@@ -16,7 +16,7 @@ what-to-build:
     - install-packages:
         packages: jq curl
     - script:
-        name: echo
+        name: Check diffs and trigger builds
         code: |
           # Check diffs and trigger builds
           ./devops/diffs-check-and-trigger-builds.sh
