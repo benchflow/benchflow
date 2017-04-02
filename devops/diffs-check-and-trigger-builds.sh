@@ -78,7 +78,7 @@ do
 
 	# A merge commit can be either a Pull Request merge, or a merge of another branch in the current one
 	merge_grep_matching="Merge pull request\|Merge branch"
-	lines_containing_merge=$(cat -n "commit_api_$commit.txt" | grep "$merge_grep_matching" | wc -l | xargs)
+	lines_containing_merge=$(jq '.commit.message' < "commit_api_$commit.txt" | grep "$merge_grep_matching" | wc -l | xargs)
 
 	# If we match "merge_grep_matching" then is a merge commit
 	is_merge_commit=false
