@@ -14,7 +14,7 @@
 # - Currently we do not deal with versioning, because we build against each branch and each commit and
 #   we use branch-name_commit-hash as build identifier
 #
-# - Currently we do not deal with changes to generic/shared folders, such as the test folder.
+# - Currently we do not deal with changes to generic/shared folders, such as the test folder or in the root of the repo.
 #   A stronger implementation has to determine what to build also when shared folder are updated.
 
 # Determine the last built commit on the current branch
