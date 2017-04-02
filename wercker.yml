@@ -12,14 +12,16 @@ box: ubuntu:16.10
 ###########################################################
 what-to-build:
   steps:
+    # TODO: # this is going to be moved and handled by a requirements file in devops / base-images for building (fast approach for the first iterations, improved over time)
+    - install-packages:
+        packages: jq curl
     - script:
         name: echo
         code: |
-          # this is going to be moved and handled by a requirements file in devops / base-images for building (fast approach for the first iterationbs, improved over time)
-          apt-get update
-          apt-get install -y jq curl
-          # Actual code
-          ./devops/diffs-check.sh
+          # Check diffs and trigger builds
+          ./devops/diffs-check-and-trigger-builds.sh
+
+# TODO: similar pipelines can be made generic and triggered using env variables to set the actual project to build
 
 ###########################################################
 # DRAFT
