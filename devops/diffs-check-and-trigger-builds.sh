@@ -77,7 +77,7 @@ do
 	# TODO: make the detection and the subsequent decision stronger, after applying to real development
 
 	# A merge commit can be either a Pull Request merge, or a merge of another branch in the current one
-	merge_grep_matching="Merge pull request\|Merge branch"
+	merge_grep_matching="Merge pull request\|Merge branch\|Merge remote-tracking"
 	lines_containing_merge=$(jq '.commit.message' < "commit_api_$commit.txt" | grep "$merge_grep_matching" | wc -l | xargs)
 
 	# If we match "merge_grep_matching" then is a merge commit
