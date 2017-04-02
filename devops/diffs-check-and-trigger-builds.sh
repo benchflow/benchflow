@@ -148,7 +148,7 @@ do
 	     *)
 	     echo "No build pipeline defined for the current folder"
 	     ;;
-	esac 
+	esac
 
 	if [ -n "${branch_name_pipeline_id}" ]; then
 		echo "Build API call response:"
