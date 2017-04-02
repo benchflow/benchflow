@@ -25,20 +25,15 @@ what-to-build:
 
 ###########################################################
 # DRAFT
-# Pipeline used to build: benchflow-dsl
+# Pipeline used to build and deploy on Bintray: benchflow-dsl
 ###########################################################
-build-benchflow-dsl:
+build-and-deploy-benchflow-dsl:
   box: maven:3.3.9-jdk-8
   steps:
     - xenoterracide/maven:
         goals: package
         args: -f $WERCKER_SOURCE_DIR/benchflow-dsl
-###########################################################
-# DRAFT
-# Pipeline used to deploy on Bintray: benchflow-dsl
-###########################################################
-deploy-benchflow-dsl:
-  # TODO: # this is going to be moved and handled by a requirements file in devops / base-images for building (fast approach for the first iterations, improved over time)
+     # TODO: # this is going to be moved and handled by a requirements file in devops / base-images for building (fast approach for the first iterations, improved over time)
     - install-packages:
         packages: jq curl
     - script:
@@ -58,4 +53,3 @@ deploy-benchflow-dsl:
           echo "\n"
           echo "Uploading artefact for branch..."
           curl -T benchflow-dsl.jar -u$BINTRAY_ADMIN_USERNAME:$BINTRAY_API_KEY "https://api.bintray.com/content/$BINTRAY_USERNAME/$BINTRAY_USERNAME-maven/$BINTRAY_USERNAME-dsl/$WERCKER_GIT_BRANCH/benchflow-dsl_$WERCKER_GIT_BRANCH.jar?publish=1&override=1" | jq .
-          
