@@ -3,6 +3,7 @@
 
 # TODO: modularize in functions and multiple files
 # TODO: improve the code to dynamically retrieve the needed IDs available through the APIs
+# TODO: improve string to array splitting
 
 # CURRENT LIMITATIONS, OTHER THAN THE ONE MENTIONED BY TODOs:
 # - There is currently no handling for API Rate limits
@@ -36,9 +37,22 @@ echo ""
 # Collect all the commits happened on the current branch, since the last built commit
 # NOTE: We need to actually iterate over the commits, because the GitHub APIs do not
 # support branch specific commits diff.
-last_commits_on_branch=$(curl -sS "https://api.github.com/repos/$WERCKER_GIT_OWNER/$WERCKER_GIT_REPOSITORY/compare/devel...$WERCKER_GIT_BRANCH?client_id=$GITHUB_API_CLIENT_ID&client_secret=$GITHUB_API_CLIENT_SECRET" | jq '.commits | .[].sha')
 
-last_commits_on_branch_arr=(${last_commits_on_branch//,/ })
+# We need to iterate the commits from the newest to the oldest. The API returns them in the reverse order. 
+# Source: http://unix.stackexchange.com/a/9443
+reverse ()
+{
+    local line
+    if IFS= read -r line
+    then
+        reverse
+        printf '%s\n' "$line"
+    fi
+}
+# NOTE: we currently assume the main branch is always devel
+last_commits_on_branch=$(curl -sS "https://api.github.com/repos/$WERCKER_GIT_OWNER/$WERCKER_GIT_REPOSITORY/compare/devel...$WERCKER_GIT_BRANCH?client_id=$GITHUB_API_CLIENT_ID&client_secret=$GITHUB_API_CLIENT_SECRET" | jq '.commits | .[].sha' | reverse)
+
+last_commits_on_branch_arr=(${last_commits_on_branch//$'\n'/ })
 
 last_built_commit_index=null
 
@@ -46,6 +60,7 @@ last_built_commit_index=null
 if [[ "${last_built_commit_sha//\"/}" != "null" ]]; then
 
 	index=0
+
 	for commit in "${last_commits_on_branch_arr[@]}"
 	do
 	  echo "Commit: $commit"
