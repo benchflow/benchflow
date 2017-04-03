@@ -19,4 +19,19 @@
 - title: Developer Guide
   pages:
     - title: Overview
-    - title: TODOs
+    - title: Repositories
+    - title: Architecture and Design
+    - title: Extending BenchFlow
+    - title: Documenting BenchFlow
+    - title: Setup Development Machine
+    - title: Coding Practices
+    - title: Testing Practices
+    - title: DevOps Practices
+    - title: Continuous Integration
+    - title: Development Environment
+    - title: Release Management
+    - title: Deployment Environments
+    - title: Deploying BenchFlow
+    - title: Technologies
+    - title: Versioning
+    - title: Contributing
