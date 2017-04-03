@@ -1,5 +1,5 @@
 #/bin/bash
-# Deploy branch and commit specific artifacts on Bintray
+# Deliver branch and commit specific artifacts on Bintray
 
 export CUSTOM_VERSION_TAG=${WERCKER_GIT_BRANCH}"_"${WERCKER_GIT_COMMIT:0:6}
 # Creates the version (nothing happens if already exists)
