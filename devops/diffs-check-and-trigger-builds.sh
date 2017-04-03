@@ -53,7 +53,7 @@ reverse ()
 # IF the branch is one of the following, we need to look at the history of the branch directly
 # because no direct commits can happen, and the history is exclusive to the branch with commits
 # coming from other branches
-if [[ "$WERCKER_GIT_BRANCH" = "master" || "$WERCKER_GIT_BRANCH" = "devel" || "$WERCKER_GIT_BRANCH" = "release-"*) ]]; then
+if [[ "$WERCKER_GIT_BRANCH" = "master" || "$WERCKER_GIT_BRANCH" = "devel" || "$WERCKER_GIT_BRANCH" = "release-"* ]]; then
   last_commits_on_branch=$(curl -sS "https://api.github.com/repos/$WERCKER_GIT_OWNER/$WERCKER_GIT_REPOSITORY/commits?sha=$WERCKER_GIT_BRANCH&client_id=$GITHUB_API_CLIENT_ID&client_secret=$GITHUB_API_CLIENT_SECRET" | jq '.[].sha')
 else
 	# NOTE: we currently assume the main branch is always devel   
