@@ -45,7 +45,6 @@ deploy-benchflow-dsl:
         packages: jq curl
     - script:
         name: Deliver benchflow-dsl on Bintray
-        cwd: $WERCKER_SOURCE_DIR/benchflow-dsl/target
         code: |
           # Deploy branch and commit specific artifacts on Bintray
           ./devops/deploy-on-bintray.sh
