@@ -48,7 +48,7 @@ if [[ "${last_built_commit_sha//\"/}" != "null" ]]; then
 	index=0
 	for commit in "${last_commits_on_branch_arr[@]}"
 	do
-	  # echo "Commit: $commit"
+	  echo "Commit: $commit"
 	  if [ ""${last_built_commit_sha}"" == "${commit}" ]; then
 			# echo $index
 			last_built_commit_index=$index
