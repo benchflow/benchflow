@@ -17,12 +17,13 @@
 # - Currently we do not deal with changes to generic/shared folders, such as the test folder or in the root of the repo.
 #   A stronger implementation has to determine what to build also when shared folder are updated.
 
+echo "Current commit: $WERCKER_GIT_COMMIT"
+
 # Determine the last built commit on the current branch
 last_built_commit_sha=$(curl -Ss -H "Content-Type: application/json" -H "Authorization: Bearer $WERCKER_API_AUTH" -X GET "https://app.wercker.com/api/v3/runs/?applicationId=$WERCKER_APPLICATION_ID&branch=$WERCKER_GIT_BRANCH&status=finished&result=passed&sort=creationDateDesc&limit=1" | jq '.[0].commitHash')
 # TODO rm, test code
 # last_built_commit_sha=$(curl -Ss -H "Content-Type: application/json" -H "Authorization: Bearer $WERCKER_API_AUTH" -X GET "https://app.wercker.com/api/v3/runs/?applicationId=$WERCKER_APPLICATION_ID&branch=$WERCKER_GIT_BRANCH&status=finished&result=passed&sort=creationDateDesc" | jq '.[5].commitHash')
 
-echo "Current commit: $WERCKER_GIT_COMMIT"
 echo "Last built commit in the current branch: ${last_built_commit_sha//\"/}"
 
 # If the current commit is the last with a successful build, we just exit (this situation should not happen)
@@ -35,30 +36,43 @@ echo ""
 # Collect all the commits happened on the current branch, since the last built commit
 # NOTE: We need to actually iterate over the commits, because the GitHub APIs do not
 # support branch specific commits diff.
-last_commits_on_branch=$(curl -sS "https://api.github.com/repos/$WERCKER_GIT_OWNER/$WERCKER_GIT_REPOSITORY/commits?sha=$WERCKER_GIT_BRANCH&client_id=$GITHUB_API_CLIENT_ID&client_secret=$GITHUB_API_CLIENT_SECRET" | jq '.[].sha')
+last_commits_on_branch=$(curl -sS "https://api.github.com/repos/$WERCKER_GIT_OWNER/$WERCKER_GIT_REPOSITORY/compare/devel...$WERCKER_GIT_BRANCH?client_id=$GITHUB_API_CLIENT_ID&client_secret=$GITHUB_API_CLIENT_SECRET" | jq '.commits | .[].sha')
 
 last_commits_on_branch_arr=(${last_commits_on_branch//,/ })
 
 last_built_commit_index=null
 
-index=0
-for commit in "${last_commits_on_branch_arr[@]}"
-do
-  # echo "Commit: $commit"
-  if [ ""${last_built_commit_sha}"" == "${commit}" ]; then
-		# echo $index
-		last_built_commit_index=$index
-  fi
-  index=$((index+1))
-done
+# If the last_built_commit_sha is not empty or null, there was a previous build
+if [[ "${last_built_commit_sha//\"/}" != "null" ]]; then
 
-echo "Commits to evaluate for build: $last_built_commit_index"
+	index=0
+	for commit in "${last_commits_on_branch_arr[@]}"
+	do
+	  # echo "Commit: $commit"
+	  if [ ""${last_built_commit_sha}"" == "${commit}" ]; then
+			# echo $index
+			last_built_commit_index=$index
+	  fi
+	  index=$((index+1))
+	done
 
-echo ""
+	echo "Commits to evaluate for build: $last_built_commit_index"
 
-# TODO: deal with the possibility of having last_built_commit_index=null (commit not found)
+	echo ""
 
-new_commits_to_build=("${last_commits_on_branch_arr[@]:0:$last_built_commit_index}")
+	# TODO: deal with the possibility of having last_built_commit_index=null (commit not found case)
+
+	new_commits_to_build=("${last_commits_on_branch_arr[@]:0:$last_built_commit_index}")
+
+# This is the first build for this branch
+else
+	# We need to build for all the commits
+	echo "First build for the branch. Building all commits."
+
+	echo ""
+
+	new_commits_to_build=("${last_commits_on_branch_arr[@]}")
+fi
 
 declare -a all_changed_folders
 
