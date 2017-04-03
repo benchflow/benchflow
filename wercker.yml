@@ -30,6 +30,11 @@ what-to-build:
 build-and-deploy-benchflow-dsl:
   box: maven:3.3.9-jdk-8
   steps:
+    - script:
+        name: Wait for dependent build to finish
+        code: |
+          # Keep waiting until the dependent build is successfully completed, or kills the build if the dependent build fails
+          ./devops/wait-source-run-completion.sh
     - xenoterracide/maven:
         goals: package
         args: -f $WERCKER_SOURCE_DIR/benchflow-dsl
