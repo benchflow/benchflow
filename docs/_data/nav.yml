@@ -1,10 +1,20 @@
 - title: Getting started
   pages:
     - title: Introduction
+    - title: Install and Use
 
 - title: User Guide
   pages:
     - title: Overview
+    - title: Install or Upgrade
+    - title: Anatomy of a Test
+    - title: Executing a Test
+    - title: Simple Test
+    - title: Objective Driven Test
+    - title: System Under Test Control
+    - title: Workload Specification
+    - title: Data Collection
+    - title: Complete Test Examples
 
 - title: Developer Guide
   pages:
