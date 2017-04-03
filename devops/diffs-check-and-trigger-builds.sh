@@ -30,7 +30,7 @@ if [ ""${last_built_commit_sha//\"/}"" == "${WERCKER_GIT_COMMIT}" ]; then
 	exit
 fi
 
-echo "\n"
+echo ""
 
 # Collect all the commits happened on the current branch, since the last built commit
 # NOTE: We need to actually iterate over the commits, because the GitHub APIs do not
@@ -54,7 +54,7 @@ done
 
 echo "Commits to evaluate for build: $last_built_commit_index"
 
-echo "\n"
+echo ""
 
 # TODO: deal with the possibility of having last_built_commit_index=null (commit not found)
 
@@ -115,7 +115,7 @@ do
 	    echo "Skipped: $commit"
 	fi
 
-	echo "\n"
+	echo ""
 
 	# Deletes the temporary file
 	rm "commit_api_$commit.txt"
@@ -155,5 +155,5 @@ do
 		curl -Ss -H "Content-Type: application/json" -H "Authorization: Bearer $WERCKER_API_AUTH" -X POST -d '{"pipelineId": "'"$branch_name_pipeline_id"'", "sourceRunId": "'"$WERCKER_RUN_ID"'", "branch": "'"$WERCKER_GIT_BRANCH"'", "commitHash": "'"$WERCKER_GIT_COMMIT"'"}' https://app.wercker.com/api/v3/runs/ | jq .
 	fi
 	
-	echo "\n"
+	echo ""
 done
