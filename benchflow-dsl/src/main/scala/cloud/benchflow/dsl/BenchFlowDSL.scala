@@ -1,6 +1,6 @@
 package cloud.benchflow.dsl
 
-import cloud.benchflow.dsl.definition.{BenchFlowExperiment, BenchFlowTest}
+import cloud.benchflow.dsl.definition.{ BenchFlowExperiment, BenchFlowTest }
 import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol._
 import cloud.benchflow.dsl.definition.BenchFlowExperimentYamlProtocol._
 import net.jcazevedo.moultingyaml._
