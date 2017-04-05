@@ -1,10 +1,13 @@
+# BenchFlow Documentation
+
+
 ## Tooling setup
 
-To use our Gruntfile and run our documentation locally, you'll need a copy of Bootstrap's source files, Node, and Grunt. Follow these steps and you should be ready to rock:
+To use our Gruntfile and run our documentation locally, you'll need a copy of BenchFlow's documentation source files, Node, and Grunt. Follow these steps and you should be ready to rock:
 
 1. [Download and install Node](https://nodejs.org/download/), which we use to manage our dependencies.
 2. Install the Grunt command line tools, `grunt-cli`, with `npm install -g grunt-cli`.
-3. Navigate to the root `/docs` directory and run `npm install` to install our local dependencies listed in [package.json](https://github.com/benchflow/benchflow/tree/devel/package.json).
+3. Navigate to the root `/docs` directory and run `npm install` to install our local dependencies listed in [package.json](https://github.com/benchflow/benchflow/tree/devel/docs/package.json).
 4. [Install Ruby][install-ruby], install [Bundler][gembundler] with `gem install bundler`, and finally run `bundle install`. This will install all Ruby dependencies, such as Jekyll and plugins.
   - **Windows users:** Read [this unofficial guide](http://jekyll-windows.juthilo.com/) to get Jekyll up and running without problems.
 

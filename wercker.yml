@@ -1,0 +1,51 @@
+###########################################################
+# DESCRIPTION
+# The main wercker configuration is meant to detect changes in the project structure in order to trig the pipelines for the changes projects
+###########################################################
+box: ubuntu:16.10
+
+# TODO: work on caching for all the steps
+
+###########################################################
+# DRAFT
+# Main pipeline to detect what has been changed 
+###########################################################
+what-to-build:
+  steps:
+    # TODO: # this is going to be moved and handled by a requirements file in devops / base-images for building (fast approach for the first iterations, improved over time)
+    - install-packages:
+        packages: jq curl
+    - script:
+        name: Check diffs and trigger builds
+        code: |
+          # Check diffs and trigger builds
+          ./devops/diffs-check-and-trigger-builds.sh
+
+# TODO: similar pipelines can be made generic and triggered using env variables to set the actual project to build
+
+###########################################################
+# DRAFT
+# Pipeline used to build: benchflow-dsl
+###########################################################
+build-benchflow-dsl:
+  box: maven:3.3.9-jdk-8
+  steps:
+    - xenoterracide/maven:
+        goals: package
+        args: -f $WERCKER_SOURCE_DIR/benchflow-dsl
+
+###########################################################
+# DRAFT
+# Pipeline used to deploy on Bintray: benchflow-dsl
+###########################################################
+deploy-benchflow-dsl:
+  steps:
+     # TODO: # this is going to be moved and handled by a requirements file in devops / base-images for building (fast approach for the first iterations, improved over time)
+    - install-packages:
+        packages: jq curl
+    - script:
+        name: Deliver benchflow-dsl on Bintray
+        code: |
+          # Deliver branch and commit specific artifacts on Bintray
+          export ARTIFACT_NAME=benchflow_dsl
+          ./devops/deliver-on-bintray.sh
