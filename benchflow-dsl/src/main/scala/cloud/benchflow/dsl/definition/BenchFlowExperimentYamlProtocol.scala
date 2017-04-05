@@ -4,12 +4,12 @@ import cloud.benchflow.dsl.definition.configuration.ExperimentConfiguration
 import cloud.benchflow.dsl.definition.configuration.ExperimentConfigurationYamlProtocol._
 import cloud.benchflow.dsl.definition.datacollection.DataCollection
 import cloud.benchflow.dsl.definition.datacollection.DataCollectionYamlProtocol._
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
 import cloud.benchflow.dsl.definition.sut.Sut
 import cloud.benchflow.dsl.definition.sut.SutYamlProtocol._
 import cloud.benchflow.dsl.definition.workload.Workload
 import cloud.benchflow.dsl.definition.workload.WorkloadYamlProtocol._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
@@ -39,38 +39,31 @@ object BenchFlowExperimentYamlProtocol extends DefaultYamlProtocol {
 
         version <- deserializationHandler(
           yamlObject.fields(VersionKey).convertTo[String],
-          keyString(VersionKey)
-        )
+          keyString(VersionKey))
 
         name <- deserializationHandler(
           yamlObject.fields(NameKey).convertTo[String],
-          keyString(NameKey)
-        )
+          keyString(NameKey))
 
         description <- deserializationHandler(
           yamlObject.fields(DescriptionKey).convertTo[String],
-          keyString(DescriptionKey)
-        )
+          keyString(DescriptionKey))
 
         configuration <- deserializationHandler(
           yamlObject.fields(ConfigurationKey).convertTo[Try[ExperimentConfiguration]].get,
-          keyString(ConfigurationKey)
-        )
+          keyString(ConfigurationKey))
 
         sut <- deserializationHandler(
           yamlObject.fields(SutKey).convertTo[Try[Sut]].get,
-          keyString(SutKey)
-        )
+          keyString(SutKey))
 
         workload <- deserializationHandler(
           yamlObject.fields(WorkloadKey).convertTo[Map[String, Try[Workload]]].mapValues(_.get),
-          keyString(WorkloadKey)
-        )
+          keyString(WorkloadKey))
 
         dataCollection <- deserializationHandler(
           yamlObject.getFields(DataCollectionKey).headOption.map(_.convertTo[Try[DataCollection]].get),
-          keyString(DataCollectionKey)
-        )
+          keyString(DataCollectionKey))
 
       } yield BenchFlowExperiment(
         version = version,
@@ -79,8 +72,7 @@ object BenchFlowExperimentYamlProtocol extends DefaultYamlProtocol {
         configuration = configuration,
         sut = sut,
         workload = workload,
-        dataCollection = dataCollection
-      )
+        dataCollection = dataCollection)
     }
 
     override def write(obj: Try[BenchFlowExperiment]): YamlValue = unsupportedWriteOperation
@@ -95,8 +87,7 @@ object BenchFlowExperimentYamlProtocol extends DefaultYamlProtocol {
         DescriptionKey -> obj.description.toYaml,
         ConfigurationKey -> obj.configuration.toYaml,
         SutKey -> obj.sut.toYaml,
-        WorkloadKey -> obj.workload.toYaml
-      ) ++
+        WorkloadKey -> obj.workload.toYaml) ++
         obj.dataCollection.map(key => DataCollectionKey -> key.toYaml)
     }
 

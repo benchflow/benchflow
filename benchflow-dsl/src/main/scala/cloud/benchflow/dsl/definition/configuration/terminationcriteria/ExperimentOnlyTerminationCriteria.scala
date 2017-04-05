@@ -7,5 +7,4 @@ import cloud.benchflow.dsl.definition.configuration.terminationcriteria.experime
  *         created on 11.03.17.
  */
 case class ExperimentOnlyTerminationCriteria(
-  experiment: ExperimentTerminationCriteria
-)
+  experiment: ExperimentTerminationCriteria)

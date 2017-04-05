@@ -10,5 +10,4 @@ import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadEx
 case class ExperimentConfiguration(
   users: Option[Int],
   workloadExecution: Option[WorkloadExecution],
-  terminationCriteria: Option[ExperimentOnlyTerminationCriteria]
-)
+  terminationCriteria: Option[ExperimentOnlyTerminationCriteria])

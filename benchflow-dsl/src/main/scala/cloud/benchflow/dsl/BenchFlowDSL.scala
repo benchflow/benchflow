@@ -44,27 +44,36 @@ object BenchFlowDSL {
 
   // TODO - add methods for common operations/changes to tests/experiments
 
-//  def experimentFromTestYaml(testDefinitionYaml: String): Try[BenchFlowExperiment] = {
-//
-//    // TODO - get
-//    // convert to experiment and validate syntax
-//    val experiment: Try[BenchFlowExperiment] = testDefinitionYaml.parseYaml.convertTo[Try[BenchFlowExperiment]]
-//
-//    // TODO - validate semantic in separate function on the object
-//
-//    experiment
-//
-//  }
-//
-//  def experimentToYamlString(benchFlowExperiment: BenchFlowExperiment): String = {
-//
-//    // TODO - validate semantic in separate function on the object
-//
-//    // write to YAML
-//    val experimentYaml: YamlObject = benchFlowExperiment.toYaml.asYamlObject
-//
-//    experimentYaml.prettyPrint
-//
-//  }
+  def experimentFromTestYaml(testDefinitionYaml: String): Try[BenchFlowExperiment] = {
+
+    // convert to experiment and validate syntax
+    val experiment: Try[BenchFlowExperiment] = testDefinitionYaml.parseYaml.convertTo[Try[BenchFlowExperiment]]
+
+    // TODO - validate semantic in separate function on the object
+
+    experiment
+
+  }
+
+  def experimentFromExperimentYaml(experimentDefinitionYaml: String): Try[BenchFlowExperiment] = {
+
+    val experiment: Try[BenchFlowExperiment] = experimentDefinitionYaml.parseYaml.convertTo[Try[BenchFlowExperiment]]
+
+    // TODO - validate semantic in separate function on the object
+
+    experiment
+
+  }
+
+  def experimentToYamlString(benchFlowExperiment: BenchFlowExperiment): String = {
+
+    // TODO - validate semantic in separate function on the object
+
+    // write to YAML
+    val experimentYaml: YamlObject = benchFlowExperiment.toYaml.asYamlObject
+
+    experimentYaml.prettyPrint
+
+  }
 
 }

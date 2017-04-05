@@ -2,7 +2,7 @@ package cloud.benchflow.dsl
 
 import java.nio.file.Paths
 
-import org.junit.{ Assert, Test }
+import org.junit.{Assert, Test}
 import org.scalatest.junit.JUnitSuite
 
 import scala.io.Source
@@ -23,11 +23,11 @@ class BenchFlowDSLTest extends JUnitSuite {
 
     Assert.assertTrue(benchFlowTest.isSuccess)
 
-    val benchFlowYamlString = BenchFlowDSL.testToYamlString(benchFlowTest.get)
+    val benchFlowTestYamlString = BenchFlowDSL.testToYamlString(benchFlowTest.get)
 
-    Assert.assertNotNull(benchFlowYamlString)
+    Assert.assertNotNull(benchFlowTestYamlString)
 
-    Assert.assertEquals(BenchFlowDSL.testFromYaml(benchFlowYamlString), benchFlowTest)
+    Assert.assertEquals(BenchFlowDSL.testFromYaml(benchFlowTestYamlString), benchFlowTest)
 
   }
 
@@ -35,10 +35,15 @@ class BenchFlowDSLTest extends JUnitSuite {
 
     val testYaml = Source.fromFile(Paths.get(BenchFlowLoadTestExample).toFile).mkString
 
-//    val benchFlowExperiment = BenchFlowDSL.experimentFromTestYaml(testYaml);
-//
-//    Assert.assertTrue(benchFlowExperiment.isSuccess)
+    val benchFlowExperiment = BenchFlowDSL.experimentFromTestYaml(testYaml)
 
+    Assert.assertTrue(benchFlowExperiment.isSuccess)
+
+    val benchFlowExperimentYamlString = BenchFlowDSL.experimentToYamlString(benchFlowExperiment.get)
+
+    Assert.assertNotNull(benchFlowExperimentYamlString)
+
+    Assert.assertEquals(BenchFlowDSL.experimentFromExperimentYaml(benchFlowExperimentYamlString), benchFlowExperiment)
 
   }
 

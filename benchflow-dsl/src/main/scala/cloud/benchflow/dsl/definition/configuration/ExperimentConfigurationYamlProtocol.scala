@@ -5,7 +5,7 @@ import cloud.benchflow.dsl.definition.configuration.terminationcriteria.Experime
 import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadExecution
 import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadExecutionYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
@@ -32,24 +32,20 @@ object ExperimentConfigurationYamlProtocol extends DefaultYamlProtocol {
 
         users <- deserializationHandler(
           yamlObject.getFields(UsersKey).headOption.map(_.convertTo[Int]),
-          keyString(UsersKey)
-        )
+          keyString(UsersKey))
 
         workloadExecution <- deserializationHandler(
           yamlObject.getFields(WorkloadExecutionKey).headOption.map(_.convertTo[Try[WorkloadExecution]].get),
-          keyString(WorkloadExecutionKey)
-        )
+          keyString(WorkloadExecutionKey))
 
         terminationCriteria <- deserializationHandler(
           yamlObject.getFields(TerminationCriteriaKey).headOption.map(_.convertTo[Try[ExperimentOnlyTerminationCriteria]].get),
-          keyString(TerminationCriteriaKey)
-        )
+          keyString(TerminationCriteriaKey))
 
       } yield ExperimentConfiguration(
         users = users,
         workloadExecution = workloadExecution,
-        terminationCriteria = terminationCriteria
-      )
+        terminationCriteria = terminationCriteria)
 
     }
 
