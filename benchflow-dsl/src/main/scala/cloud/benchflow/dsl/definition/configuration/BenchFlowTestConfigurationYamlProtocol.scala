@@ -2,8 +2,8 @@ package cloud.benchflow.dsl.definition.configuration
 
 import cloud.benchflow.dsl.definition.configuration.goal.Goal
 import cloud.benchflow.dsl.definition.configuration.goal.GoalYamlProtocol._
-import cloud.benchflow.dsl.definition.configuration.terminationcriteria.TerminationCriteria
-import cloud.benchflow.dsl.definition.configuration.terminationcriteria.TerminationCriteriaYamlProtocol._
+import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowTestTerminationCriteria
+import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowTestTerminationCriteriaYamlProtocol._
 import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadExecution
 import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadExecutionYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
@@ -15,7 +15,7 @@ import scala.util.Try
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 10.03.17.
  */
-object ConfigurationYamlProtocol extends DefaultYamlProtocol {
+object BenchFlowTestConfigurationYamlProtocol extends DefaultYamlProtocol {
 
   val GoalKey = YamlString("goal")
   val UsersKey = YamlString("users")
@@ -25,9 +25,9 @@ object ConfigurationYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = "configuration." + key.value
 
-  implicit object ConfigurationReadFormat extends YamlFormat[Try[Configuration]] {
+  implicit object ConfigurationReadFormat extends YamlFormat[Try[BenchFlowTestConfiguration]] {
 
-    override def read(yaml: YamlValue): Try[Configuration] = {
+    override def read(yaml: YamlValue): Try[BenchFlowTestConfiguration] = {
 
       val yamlObject = yaml.asYamlObject
 
@@ -51,10 +51,10 @@ object ConfigurationYamlProtocol extends DefaultYamlProtocol {
           keyString(StrategyKey))
 
         terminationCriteria <- deserializationHandler(
-          yamlObject.getFields(TerminationCriteriaKey).headOption.map(_.convertTo[Try[TerminationCriteria]].get),
+          yamlObject.getFields(TerminationCriteriaKey).headOption.map(_.convertTo[Try[BenchFlowTestTerminationCriteria]].get),
           keyString(TerminationCriteriaKey))
 
-      } yield Configuration(
+      } yield BenchFlowTestConfiguration(
         goal = goal,
         users = users,
         workloadExecution = workloadExecution,
@@ -63,13 +63,13 @@ object ConfigurationYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def write(configuration: Try[Configuration]): YamlValue = unsupportedWriteOperation
+    override def write(configuration: Try[BenchFlowTestConfiguration]): YamlValue = unsupportedWriteOperation
 
   }
 
-  implicit object ConfigurationWriteFormat extends YamlFormat[Configuration] {
+  implicit object ConfigurationWriteFormat extends YamlFormat[BenchFlowTestConfiguration] {
 
-    override def write(obj: Configuration): YamlValue = YamlObject {
+    override def write(obj: BenchFlowTestConfiguration): YamlValue = YamlObject {
 
       Map[YamlValue, YamlValue](
         GoalKey -> obj.goal.toYaml) ++
@@ -79,7 +79,7 @@ object ConfigurationYamlProtocol extends DefaultYamlProtocol {
         obj.terminationCriteria.map(key => TerminationCriteriaKey -> key.toYaml)
     }
 
-    override def read(yaml: YamlValue): Configuration = unsupportedReadOperation
+    override def read(yaml: YamlValue): BenchFlowTestConfiguration = unsupportedReadOperation
   }
 
 }

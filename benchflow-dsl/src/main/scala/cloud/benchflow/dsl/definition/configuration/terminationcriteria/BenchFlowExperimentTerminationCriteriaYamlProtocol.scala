@@ -11,14 +11,14 @@ import scala.util.Try
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 11.03.17.
  */
-object ExperimentOnlyTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
+object BenchFlowExperimentTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
   val ExperimentKey = YamlString("experiment")
 
   private def keyString(key: YamlString) = "configuration.termination_criteria" + key.value
 
-  implicit object ExperimentOnlyTerminationCriteriaReadFormat extends YamlFormat[Try[ExperimentOnlyTerminationCriteria]] {
-    override def read(yaml: YamlValue): Try[ExperimentOnlyTerminationCriteria] = {
+  implicit object ExperimentOnlyTerminationCriteriaReadFormat extends YamlFormat[Try[BenchFlowExperimentTerminationCriteria]] {
+    override def read(yaml: YamlValue): Try[BenchFlowExperimentTerminationCriteria] = {
 
       val yamlObject = yaml.asYamlObject
 
@@ -28,21 +28,21 @@ object ExperimentOnlyTerminationCriteriaYamlProtocol extends DefaultYamlProtocol
           yamlObject.fields(ExperimentKey).convertTo[Try[ExperimentTerminationCriteria]].get,
           keyString(ExperimentKey))
 
-      } yield ExperimentOnlyTerminationCriteria(experiment = experiment)
+      } yield BenchFlowExperimentTerminationCriteria(experiment = experiment)
 
     }
 
-    override def write(terminationCriteriaTry: Try[ExperimentOnlyTerminationCriteria]): YamlValue = unsupportedWriteOperation
+    override def write(terminationCriteriaTry: Try[BenchFlowExperimentTerminationCriteria]): YamlValue = unsupportedWriteOperation
   }
 
-  implicit object ExperimentOnlyTerminationCriteriaWriteFormat extends YamlFormat[ExperimentOnlyTerminationCriteria] {
-    override def write(obj: ExperimentOnlyTerminationCriteria): YamlValue = YamlObject {
+  implicit object ExperimentOnlyTerminationCriteriaWriteFormat extends YamlFormat[BenchFlowExperimentTerminationCriteria] {
+    override def write(obj: BenchFlowExperimentTerminationCriteria): YamlValue = YamlObject {
 
       Map[YamlValue, YamlValue](
         ExperimentKey -> obj.experiment.toYaml)
     }
 
-    override def read(yaml: YamlValue): ExperimentOnlyTerminationCriteria = unsupportedReadOperation
+    override def read(yaml: YamlValue): BenchFlowExperimentTerminationCriteria = unsupportedReadOperation
   }
 
 }

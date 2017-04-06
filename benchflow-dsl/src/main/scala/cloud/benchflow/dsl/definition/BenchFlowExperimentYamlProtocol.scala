@@ -1,7 +1,7 @@
 package cloud.benchflow.dsl.definition
 
-import cloud.benchflow.dsl.definition.configuration.ExperimentConfiguration
-import cloud.benchflow.dsl.definition.configuration.ExperimentConfigurationYamlProtocol._
+import cloud.benchflow.dsl.definition.configuration.BenchFlowExperimentConfiguration
+import cloud.benchflow.dsl.definition.configuration.BenchFlowExperimentConfigurationYamlProtocol._
 import cloud.benchflow.dsl.definition.datacollection.DataCollection
 import cloud.benchflow.dsl.definition.datacollection.DataCollectionYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
@@ -50,7 +50,7 @@ object BenchFlowExperimentYamlProtocol extends DefaultYamlProtocol {
           keyString(DescriptionKey))
 
         configuration <- deserializationHandler(
-          yamlObject.fields(ConfigurationKey).convertTo[Try[ExperimentConfiguration]].get,
+          yamlObject.fields(ConfigurationKey).convertTo[Try[BenchFlowExperimentConfiguration]].get,
           keyString(ConfigurationKey))
 
         sut <- deserializationHandler(
