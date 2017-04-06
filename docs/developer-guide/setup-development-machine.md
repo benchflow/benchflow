@@ -1,7 +1,7 @@
 ---
 layout: docs
-title: Setup Development Machine
-description: Setup BenchFlow Development Machine
+title: Development Machine Setup
+description: BenchFlow Development Machine Setup
 group: developer-guide
 ---
 
