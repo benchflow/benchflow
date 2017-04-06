@@ -78,6 +78,7 @@ if [[ "${last_built_commit_sha//\"/}" != "null" ]]; then
 	  if [ ""${last_built_commit_sha}"" == "${commit}" ]; then
 			# echo $index
 			last_built_commit_index=$index
+			break
 	  fi
 	  index=$((index+1))
 	done
