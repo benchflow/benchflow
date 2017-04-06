@@ -93,9 +93,9 @@ if [[ "${last_built_commit_sha//\"/}" != "null" ]]; then
 
 	# IF we do not find the delta in the commit history.
 	# NOTE: Sometimes it might happen that the history of a branch changes (e.g, because of a pull request or
-	# more people working on the same branch doing merges instead of rebases). It happened to us that User A was
-	# working on a branch, and did not push all commits, meanwhile User B worked on the same branch pushing all
-	# commits, then User A did a merge instead of a rebase. This is mainly because we try to avoid rebases due to
+	# more people working on the same branch doing merges instead of rebases, or rebases of a branch on top of another branch).
+	# It happened to us that User A was working on a branch, and did not push all commits, meanwhile User B worked on the same branch by first rebasing it
+	# on top of another one and then pushing all commits, then User A did a merge instead of a rebase. This is mainly because we try to avoid rebases due to
 	# https://www.atlassian.com/git/articles/git-team-workflows-merge-or-rebase, https://www.derekgourlay.com/blog/git-when-to-merge-vs-when-to-rebase/
 	else
 
