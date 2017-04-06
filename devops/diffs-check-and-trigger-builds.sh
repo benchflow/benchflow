@@ -18,6 +18,9 @@
 # - Currently we do not deal with changes to generic/shared folders, such as the test folder or in the root of the repo.
 #   A stronger implementation has to determine what to build also when shared folder are updated.
 
+# TODO: remove, when the code become stable
+set -xv	
+
 echo "Current commit: $WERCKER_GIT_COMMIT"
 
 # Determine the last built commit on the current branch
@@ -75,17 +78,36 @@ if [[ "${last_built_commit_sha//\"/}" != "null" ]]; then
 	  if [ ""${last_built_commit_sha}"" == "${commit}" ]; then
 			# echo $index
 			last_built_commit_index=$index
+			break
 	  fi
 	  index=$((index+1))
 	done
 
-	echo "Commits to evaluate for build: $last_built_commit_index"
+	# IF we find the delta in the commits history
+	if [[ "$last_built_commit_index" != "null" ]]; then
 
-	echo ""
+		echo "Commits to evaluate for build: $last_built_commit_index"
 
-	# TODO: deal with the possibility of having last_built_commit_index=null (commit not found case)
+		echo ""
 
-	new_commits_to_build=("${last_commits_on_branch_arr[@]:0:$last_built_commit_index}")
+		new_commits_to_build=("${last_commits_on_branch_arr[@]:0:$last_built_commit_index}")
+
+	# IF we do not find the delta in the commit history.
+	# NOTE: Sometimes it might happen that the history of a branch changes (e.g, because of a pull request or
+	# more people working on the same branch doing merges instead of rebases, or rebases of a branch on top of another branch).
+	# It happened to us that User A was working on a branch, and did not push all commits, meanwhile User B worked on the same branch by first rebasing it
+	# on top of another one and then pushing all commits, then User A did a merge instead of a rebase. This is mainly because we try to avoid rebases due to
+	# https://www.atlassian.com/git/articles/git-team-workflows-merge-or-rebase, https://www.derekgourlay.com/blog/git-when-to-merge-vs-when-to-rebase/
+	else
+
+		# We consider the list of all the commits to the current branch as all commits to build,
+		# The assumption is that is better to build more than less.
+		echo "The last built commit was not found. Building all commits."
+
+		echo ""
+		new_commits_to_build=("${last_commits_on_branch_arr[@]}")
+
+	fi
 
 # This is the first build for this branch
 else
