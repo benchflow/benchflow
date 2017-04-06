@@ -1,12 +1,37 @@
 - title: Getting started
   pages:
     - title: Introduction
+    - title: Install and Use
 
 - title: User Guide
   pages:
     - title: Overview
+    - title: Install or Upgrade
+    - title: Anatomy of a Test
+    - title: Executing a Test
+    - title: Simple Test
+    - title: Objective Driven Test
+    - title: System Under Test Control
+    - title: Workload Specification
+    - title: Data Collection
+    - title: Complete Test Examples
 
 - title: Developer Guide
   pages:
     - title: Overview
-    - title: TODOs
+    - title: Repositories
+    - title: Architecture and Design
+    - title: Extending BenchFlow
+    - title: Documenting BenchFlow
+    - title: Development Machine Setup
+    - title: Coding Practices
+    - title: Testing Practices
+    - title: DevOps Practices
+    - title: Continuous Integration
+    - title: Development Environment
+    - title: Release Management
+    - title: Deployment Environments
+    - title: Deploying BenchFlow
+    - title: Technologies
+    - title: Versioning
+    - title: Contributing
