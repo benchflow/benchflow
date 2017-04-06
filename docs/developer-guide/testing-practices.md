@@ -1,16 +1,13 @@
 ---
 layout: docs
-title: Testing
-description: Details about how to test benchflow
+title: Testing Practices
+description: BenchFlow Testing Practices
 group: developer-guide
 ---
 
-# How to Test BenchFlow
-
-
 ## Testing Artefacts
 
-TODO - why some are shared, and the use (test + docs) we do of them
+<!-- TODO - why some are shared, and the use (test + docs) we do of them -->
 
 ### Project Specific Artefacts
 
@@ -21,4 +18,4 @@ We place these artefacts in a `tests` folder in the [root of the BenchFlow proje
 
 The subfolders we use are:
 
-- `data`: containing test data organised in folders according to the type of data. 
+- `data`: containing test data organized in folders according to the type of data. 
