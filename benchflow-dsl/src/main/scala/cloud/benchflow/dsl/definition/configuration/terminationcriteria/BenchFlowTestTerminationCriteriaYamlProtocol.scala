@@ -13,15 +13,15 @@ import scala.util.Try
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 11.03.17.
  */
-object TerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
+object BenchFlowTestTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
   val TestKey = YamlString("test")
   val ExperimentKey = YamlString("experiment")
 
   private def keyString(key: YamlString) = "configuration.termination_criteria" + key.value
 
-  implicit object TerminationCriteriaReadFormat extends YamlFormat[Try[TerminationCriteria]] {
-    override def read(yaml: YamlValue): Try[TerminationCriteria] = {
+  implicit object TerminationCriteriaReadFormat extends YamlFormat[Try[BenchFlowTestTerminationCriteria]] {
+    override def read(yaml: YamlValue): Try[BenchFlowTestTerminationCriteria] = {
 
       val yamlObject = yaml.asYamlObject
 
@@ -35,15 +35,15 @@ object TerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
           yamlObject.fields(ExperimentKey).convertTo[Try[ExperimentTerminationCriteria]].get,
           keyString(ExperimentKey))
 
-      } yield TerminationCriteria(test = test, experiment = experiment)
+      } yield BenchFlowTestTerminationCriteria(test = test, experiment = experiment)
 
     }
 
-    override def write(terminationCriteriaTry: Try[TerminationCriteria]): YamlValue = unsupportedWriteOperation
+    override def write(terminationCriteriaTry: Try[BenchFlowTestTerminationCriteria]): YamlValue = unsupportedWriteOperation
   }
 
-  implicit object TerminationCriteriaWriteFormat extends YamlFormat[TerminationCriteria] {
-    override def write(obj: TerminationCriteria): YamlValue = YamlObject {
+  implicit object TerminationCriteriaWriteFormat extends YamlFormat[BenchFlowTestTerminationCriteria] {
+    override def write(obj: BenchFlowTestTerminationCriteria): YamlValue = YamlObject {
 
       Map[YamlValue, YamlValue](
         TestKey -> obj.test.toYaml,
@@ -51,7 +51,7 @@ object TerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
     }
 
-    override def read(yaml: YamlValue): TerminationCriteria = unsupportedReadOperation
+    override def read(yaml: YamlValue): BenchFlowTestTerminationCriteria = unsupportedReadOperation
   }
 
 }
