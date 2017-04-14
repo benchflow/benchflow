@@ -58,6 +58,7 @@ reverse ()
 # coming from other branches
 if [[ "$WERCKER_GIT_BRANCH" = "master" || "$WERCKER_GIT_BRANCH" = "devel" || "$WERCKER_GIT_BRANCH" = "release-"* ]]; then
   last_commits_on_branch=$(curl -sS "https://api.github.com/repos/$WERCKER_GIT_OWNER/$WERCKER_GIT_REPOSITORY/commits?sha=$WERCKER_GIT_BRANCH&client_id=$GITHUB_API_CLIENT_ID&client_secret=$GITHUB_API_CLIENT_SECRET" | jq '.[].sha')
+# IF we are in a feature branch, we need to look at the diff of the feature branch and devel
 else
 	# NOTE: we currently assume the main branch is always devel   
 	last_commits_on_branch=$(curl -sS "https://api.github.com/repos/$WERCKER_GIT_OWNER/$WERCKER_GIT_REPOSITORY/compare/devel...$WERCKER_GIT_BRANCH?client_id=$GITHUB_API_CLIENT_ID&client_secret=$GITHUB_API_CLIENT_SECRET" | jq '.commits | .[].sha' | reverse)
@@ -137,6 +138,7 @@ do
 	# A merge commit can be either a Pull Request merge, or a merge of another branch in the current one
 	merge_grep_matching="Merge pull request\|Merge branch\|Merge remote-tracking"
 	lines_containing_merge=$(jq '.commit.message' < "commit_api_$commit.txt" | grep "$merge_grep_matching" | wc -l | xargs)
+	# committer=$(jq '.committer | .login'  < "commit_api_$commit.txt")
 
 	# If we match "merge_grep_matching" then is a merge commit
 	is_merge_commit=false
@@ -149,9 +151,10 @@ do
 
 	# IF we are in devel, master or release-* branch:
 		# WE build the merge commit, because it merges code from other branches and the releases have to be updated.
-	# IF we are in other branches, we do not build the merge commits because the merge commit has already
-	# been tested in other branches, and it is meant to integrate code from other branches on which to build the 
-	# functionality of the current branch
+	# IF we are in other branches, we evaluate the build history of the branch  to evaluate what to build 
+	# again due to the merge commits. We do not currently selectively re-build based on the folders that have been
+	# actually changed in the merge commits, but just re-build once all the previous builds. This is more safe for now
+	# in case some code changes in "shared folders", and also so that we get the status updated on GitHub.
 
 	if [[ "$is_merge_commit" = false ]] ||
 		 [[ "$is_merge_commit" = true && ("$WERCKER_GIT_BRANCH" = "master" || "$WERCKER_GIT_BRANCH" = "devel" || "$WERCKER_GIT_BRANCH" = "release-"*) ]]; then
@@ -169,49 +172,50 @@ do
 			  echo "$folder"
 			done
 
+			# Determine the folder in which content has been changed since the last build of this branch
+			# TODO: fine tune, by removing the folders changed in merge commits, because they might be dependencies (need to be evaluate with actual usage)
+
+			echo "Trigger builds for ALL Changed Folders of interest"
+
+			# Determine the source pipeline id
+			# TODO: monitor Wercker and check if they add this ID as part of the available Envs
+			#       since it is the current run ID.
+			# NOTE: currently we assume the url structure does not change
+			WERCKER_RUN_ID=$(echo "$WERCKER_RUN_URL" | sed -e 's/.*what-to-build\/\(.*\).*/\1/')
+
+
+			all_changed_folders=($(for v in "${all_changed_folders[@]}"; do echo "$v";done| sort -u))
+
+			# TODO: improve the way we handle the triggers, as well as the retrieval of the pipeline id to be more dynamic
+			for folder in "${all_changed_folders[@]}"
+			do
+				folder="${folder//\"/}"
+				branch_name_pipeline_id=""
+			  echo "Triggering build for: $folder"
+			  case $folder in
+				     "benchflow-dsl")
+				     branch_name_pipeline_id=$WERCKER_BENCHFLOW_DSL_PIPELINE_ID
+				     ;;
+				     *)
+				     echo "No build pipeline defined for the current folder"
+				     ;;
+				esac
+
+				if [ -n "${branch_name_pipeline_id}" ]; then
+					echo "Build API call response:"
+					curl -Ss -H "Content-Type: application/json" -H "Authorization: Bearer $WERCKER_API_AUTH" -X POST -d '{"pipelineId": "'"$branch_name_pipeline_id"'", "branch": "'"$WERCKER_GIT_BRANCH"'", "commitHash": "'"$WERCKER_GIT_COMMIT"'"}' https://app.wercker.com/api/v3/runs/ | jq .
+				fi
+				
+				echo ""
+			done
+			
 	else
-	    echo "Skipped: $commit"
+	    echo "Determine what to build, using the build history of the branch, and build, for: $commit"
+	    ./rerun-builds-on-the-branch.sh
 	fi
 
 	echo ""
 
 	# Deletes the temporary file
 	rm "commit_api_$commit.txt"
-done
-
-# Determine the folder in which content has been changed since the last build of this branch
-# TODO: fine tune, by removing the folders changed in merge commits, because they might be dependencies (need to be evaluate with actual usage)
-
-echo "Trigger builds for ALL Changed Folders of interest"
-
-# Determine the source pipeline id
-# TODO: monitor Wercker and check if they add this ID as part of the available Envs
-#       since it is the current run ID.
-# NOTE: currently we assume the url structure does not change
-WERCKER_RUN_ID=$(echo "$WERCKER_RUN_URL" | sed -e 's/.*what-to-build\/\(.*\).*/\1/')
-
-
-all_changed_folders=($(for v in "${all_changed_folders[@]}"; do echo "$v";done| sort -u))
-
-# TODO: improve the way we handle the triggers, as well as the retrieval of the pipeline id to be more dynamic
-for folder in "${all_changed_folders[@]}"
-do
-	folder="${folder//\"/}"
-	branch_name_pipeline_id=""
-  echo "Triggering build for: $folder"
-  case $folder in
-	     "benchflow-dsl")
-	     branch_name_pipeline_id=$WERCKER_BENCHFLOW_DSL_PIPELINE_ID
-	     ;;
-	     *)
-	     echo "No build pipeline defined for the current folder"
-	     ;;
-	esac
-
-	if [ -n "${branch_name_pipeline_id}" ]; then
-		echo "Build API call response:"
-		curl -Ss -H "Content-Type: application/json" -H "Authorization: Bearer $WERCKER_API_AUTH" -X POST -d '{"pipelineId": "'"$branch_name_pipeline_id"'", "branch": "'"$WERCKER_GIT_BRANCH"'", "commitHash": "'"$WERCKER_GIT_COMMIT"'"}' https://app.wercker.com/api/v3/runs/ | jq .
-	fi
-	
-	echo ""
 done
