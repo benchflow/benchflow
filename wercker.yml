@@ -47,5 +47,5 @@ deploy-benchflow-dsl:
         name: Deliver benchflow-dsl on Bintray
         code: |
           # Deliver branch and commit specific artifacts on Bintray
-          export ARTIFACT_NAME=benchflow_dsl
+          export ARTIFACT_NAME=benchflow-dsl
           ./devops/deliver-on-bintray.sh
