@@ -212,7 +212,7 @@ do
 			
 	else
 	    echo "Determine what to build, using the build history of the branch, and build, for: $commit"
-	    ./rerun-builds-on-the-branch.sh
+	    source ./rerun-builds-on-the-branch.sh
 	fi
 
 	echo ""
