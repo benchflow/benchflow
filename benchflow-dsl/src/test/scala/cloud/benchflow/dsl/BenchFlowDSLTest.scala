@@ -23,11 +23,27 @@ class BenchFlowDSLTest extends JUnitSuite {
 
     Assert.assertTrue(benchFlowTest.isSuccess)
 
-    val benchFlowYamlString = BenchFlowDSL.testToYaml(benchFlowTest.get)
+    val benchFlowTestYamlString = BenchFlowDSL.testToYamlString(benchFlowTest.get)
 
-    Assert.assertNotNull(benchFlowYamlString)
+    Assert.assertNotNull(benchFlowTestYamlString)
 
-    Assert.assertEquals(BenchFlowDSL.testFromYaml(benchFlowYamlString), benchFlowTest)
+    Assert.assertEquals(BenchFlowDSL.testFromYaml(benchFlowTestYamlString), benchFlowTest)
+
+  }
+
+  @Test def loadExperimentDefinitionFromTestDefinition(): Unit = {
+
+    val testYaml = Source.fromFile(Paths.get(BenchFlowLoadTestExample).toFile).mkString
+
+    val benchFlowExperiment = BenchFlowDSL.experimentFromTestYaml(testYaml)
+
+    Assert.assertTrue(benchFlowExperiment.isSuccess)
+
+    val benchFlowExperimentYamlString = BenchFlowDSL.experimentToYamlString(benchFlowExperiment.get)
+
+    Assert.assertNotNull(benchFlowExperimentYamlString)
+
+    Assert.assertEquals(BenchFlowDSL.experimentFromExperimentYaml(benchFlowExperimentYamlString), benchFlowExperiment)
 
   }
 
