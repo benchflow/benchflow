@@ -107,7 +107,7 @@
                     pulls scala 2.11.6; see also
                     http://www.daodecode.com/blog/2014/10/27/scala-maven-plugin-and-multiple-versions-of-scala-libraries-detected/
                     -->
-                    <scalaCompatVersion>2.11</scalaCompatVersion>
+                    <scalaCompatVersion>2.12</scalaCompatVersion>
                     <!--<compileOrder>ScalaThenJava</compileOrder>-->
                     <args>
                         <arg>-feature</arg>
