@@ -251,6 +251,48 @@
                 </execution>
               </executions>
             </plugin>
+            <!-- Enable scalastyle -->
+            <plugin>
+              <groupId>org.scalastyle</groupId>
+              <artifactId>scalastyle-maven-plugin</artifactId>
+              <version>0.8.0</version>
+              <configuration>
+                <verbose>false</verbose>
+                <failOnViolation>true</failOnViolation>
+                <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                <failOnWarning>false</failOnWarning>
+                <sourceDirectory>${basedir}/src/main/scala</sourceDirectory>
+                <testSourceDirectory>${basedir}/src/test/scala</testSourceDirectory>
+                <configLocation>${basedir}/../scalastyle-config.xml</configLocation>
+                <outputFile>${project.basedir}/scalastyle-output.xml</outputFile>
+                <outputEncoding>UTF-8</outputEncoding>
+              </configuration>
+              <executions>
+                <execution>
+                  <phase>test</phase>
+                  <goals>
+                    <goal>check</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+            <!-- Enable scalariform -->
+            <plugin>
+              <groupId>org.scalariform</groupId>
+              <artifactId>scalariform-maven-plugin</artifactId>
+              <version>0.1.4</version>
+              <executions>
+                <execution>
+                  <phase>process-sources</phase>
+                  <goals>
+                    <goal>format</goal>
+                  </goals>
+                  <configuration>
+                    <doubleIndentClassDeclaration>true</doubleIndentClassDeclaration>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
         </plugins>
     </build>
 

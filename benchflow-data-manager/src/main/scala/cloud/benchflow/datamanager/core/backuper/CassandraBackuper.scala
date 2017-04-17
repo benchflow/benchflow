@@ -24,7 +24,7 @@ trait Data {
 }
 
 case class JsonData(json: JsValue) extends Data {
-  override def toString = json.toString
+  override def toString: String = json.toString
 }
 
 class CassandraBackuper(
@@ -72,7 +72,7 @@ class CassandraBackuper(
 }
 
 trait StorageAdapter {
-  def write(id: Long, content: Seq[Data])
+  def write(id: Long, content: Seq[Data]): Unit
   def read(id: Long): Option[Seq[Data]]
 }
 

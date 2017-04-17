@@ -22,7 +22,10 @@ trait CassandraTest
   implicit val system = ActorSystem()
   implicit val mat = ActorMaterializer()
 
-  val cluster = Cluster.builder.addContactPoint("127.0.0.1").withPort(9042).build
+  val cassandraAddress = "127.0.0.1"
+  val cassandraPort = 9042
+
+  val cluster = Cluster.builder.addContactPoint(cassandraAddress).withPort(cassandraPort).build
   implicit val session = cluster.connect()
 
   override def beforeEach(): Unit = {
@@ -49,7 +52,7 @@ trait CassandraTest
   override def afterAll(): Unit =
     Await.result(system.terminate(), 5.seconds)
 
-  def populate() =
+  def populate: IndexedSeq[Int] =
     (1 until 103).map { i =>
       session.execute(s"INSERT INTO test.test(experiment_id) VALUES ('$i')")
       i
@@ -64,18 +67,17 @@ class LowerCassandra extends FlatSpec
   "Lower Cassandra" should "insert and retrieve data as json" in {
     val data = List(
       """{"experiment_id": "my_id1"}""",
-      """{"experiment_id": "my_id2"}""" // """{"experiment_id": "my_id1", "source_process_instance_id": "3ff77405-ed01-11e5-beb9-7a98732174cb", "duration": 1, "end_time": "1970-01-01 00:00:00.000Z", "process_definition_id": "invoice-collaboration:1:771d26cd-ed00-11e5-beb9-7a98732174cb", "process_name": "invoice-collaboration", "start_time": "1970-01-01 00:00:00.000Z", "to_ignore": false, "trial_id": "camundaZZZZZZMV_ZZZZZZOX"}""",
-      // """{"experiment_id": "my_id2", "source_process_instance_id": "3ff77405-ed01-11e5-beb9-7a98732174cb", "duration": 1, "end_time": "1970-01-01 00:00:00.000Z", "process_definition_id": "invoice-collaboration:1:771d26cd-ed00-11e5-beb9-7a98732174cb", "process_name": "invoice-collaboration", "start_time": "1970-01-01 00:00:00.000Z", "to_ignore": false, "trial_id": "camundaZZZZZZMV_ZZZZZZOX"}"""
-      )
+      """{"experiment_id": "my_id2"}""")
     val source = Source(data)
     val preparedStatement = session.prepare("INSERT INTO test.test JSON ?")
     val statementBinder = (json: String, statement: PreparedStatement) => statement.bind(json)
     val sink = CassandraSink[String](parallelism = 2, preparedStatement, statementBinder)
     val future = source.runWith(sink)
     val result = Await.result(future, 3.seconds)
+    val fetchSize = 20
     val stmt =
       new SimpleStatement(s"SELECT JSON * FROM test.test")
-        .setFetchSize(20)
+        .setFetchSize(fetchSize)
     // val stmt = session
     // .prepare(s"SELECT JSON * FROM test.test WHERE experiment_id = ?")
     // .bind("1")

@@ -16,8 +16,8 @@ import play.api.libs.json.Json
 import play.api.libs.json.JsValue
 
 class TestStorage extends StorageAdapter {
-  var store = scala.collection.mutable.Map.empty[Long, ArrayBuffer[Seq[Data]]]
-  def write(id: Long, content: Seq[Data]) =
+  val store = scala.collection.mutable.Map.empty[Long, ArrayBuffer[Seq[Data]]]
+  def write(id: Long, content: Seq[Data]): Unit =
     store.getOrElseUpdate(id, ArrayBuffer()) += content
   def read(id: Long): Option[Seq[Data]] = store.get(id).map(_.flatten)
   def nextId: Long = store.size
@@ -31,7 +31,7 @@ class DataStorageTests extends TestKit(ActorSystem("QuickStart"))
 
   implicit val materializer = ActorMaterializer()
 
-  override def afterAll {
+  override def afterAll: Unit = {
     TestKit.shutdownActorSystem(system)
   }
 

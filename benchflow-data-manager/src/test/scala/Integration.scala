@@ -24,29 +24,21 @@ class IntegrationTests
     with Matchers
     with CassandraTest {
 
-  implicit val materializer = ActorMaterializer()
-
-  override def afterAll {
+  override def afterAll: Unit = {
     super.afterAll()
     TestKit.shutdownActorSystem(system)
   }
 
   object dbProvider extends Cassandra {
-    val cluster = Cluster.builder.addContactPoint("127.0.0.1").withPort(9042).build
+    val cluster = IntegrationTests.this.cluster
     val keyspace = "test"
-    lazy val mat = materializer
+    lazy val mat = IntegrationTests.this.mat
     lazy val system = IntegrationTests.this.system
   }
-  // object database extends Cassandra {
-  //   val cluster = Cluster.builder.addContactPoint("127.0.0.1").withPort(9042).build
-  //   val keyspace = "test"
-  //   val system: ActorSystem = system
-  //   val mat: Materializer = mat
-  // }
 
   object TestBackupStorage extends BackupStorage {
-    var backupIdCounter = new AtomicLong
-    var fileIdCounter = new AtomicLong
+    val backupIdCounter = new AtomicLong
+    val fileIdCounter = new AtomicLong
 
     val storage = scala.collection.mutable.Map.empty[(Long, String), ArrayBuffer[BackupFile]]
     val files = scala.collection.mutable.Map.empty[String, Array[Byte]]
@@ -59,7 +51,14 @@ class IntegrationTests
       Unit
     }
 
-    def uploadFile(backupId: Long, serviceName: String, folderHierarchy: List[String], input: InputStream, length: Long, fileName: String, contentType: String): Unit = {
+    def uploadFile(
+      backupId: Long,
+      serviceName: String,
+      folderHierarchy: List[String],
+      input: InputStream,
+      length: Long,
+      fileName: String,
+      contentType: String): Unit = {
       val id = fileIdCounter.getAndIncrement
       val file = BackupFile(id.toString, fileName, contentType)
       storage.getOrElseUpdate((backupId, serviceName), ArrayBuffer()) += file
