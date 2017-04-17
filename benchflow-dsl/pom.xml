@@ -10,11 +10,13 @@
 		<project.name>benchflow-dsl</project.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
-		<scala.major>2.11.7</scala.major>
-        <scala.xml.version>1.0.5</scala.xml.version>
-        <scala.parser.combinators.version>1.0.4</scala.parser.combinators.version>
+		<scala.major>2.12.1</scala.major>
+        <scala.xml.version>1.0.6</scala.xml.version>
+        <scala.parser.combinators.version>1.0.5</scala.parser.combinators.version>
         <java.semver.version>0.9.0</java.semver.version>
-        <moultingyaml.version>v0.2</moultingyaml.version>
+        <moultingyaml.version>v0.3.1</moultingyaml.version>
+        <scalatest.version>3.0.1</scalatest.version>
+        <junit.version>4.12</junit.version>
 	</properties>
 
      
@@ -36,13 +38,13 @@
 
         <dependency>
             <groupId>org.scala-lang.modules</groupId>
-            <artifactId>scala-xml_2.11</artifactId>
+            <artifactId>scala-xml_2.12</artifactId>
             <version>${scala.xml.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.scala-lang.modules</groupId>
-            <artifactId>scala-parser-combinators_2.11</artifactId>
+            <artifactId>scala-parser-combinators_2.12</artifactId>
             <version>${scala.parser.combinators.version}</version>
         </dependency>
 
@@ -60,15 +62,15 @@
 
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.11</artifactId>
-            <version>2.2.6</version>
+            <artifactId>scalatest_2.12</artifactId>
+            <version>${scalatest.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.7</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         
