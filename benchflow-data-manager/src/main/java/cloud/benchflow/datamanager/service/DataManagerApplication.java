@@ -15,40 +15,36 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
-public class DataManagerApplication extends
-        Application<DataManagerConfiguration> {
+public class DataManagerApplication extends Application<DataManagerConfiguration> {
 
-    public static void main(final String[] args) throws Exception {
-        new DataManagerApplication().run(args);
-    }
+  public static void main(final String[] args) throws Exception {
+    new DataManagerApplication().run(args);
+  }
 
-    @Override
-    public String getName() {
-        return "DataManager";
-    }
+  @Override
+  public String getName() {
+    return "DataManager";
+  }
 
-    @Override
-    public void initialize(final Bootstrap<DataManagerConfiguration> bootstrap) {
-        // TODO: application initialization
-    }
+  @Override
+  public void initialize(final Bootstrap<DataManagerConfiguration> bootstrap) {
+    // TODO: application initialization
+  }
 
-    @Override
-    public void run(final DataManagerConfiguration configuration,
-            final Environment environment) {
+  @Override
+  public void run(final DataManagerConfiguration configuration, final Environment environment) {
 
-        ActorSystem system = ActorSystem.create();
-        Materializer materializer = ActorMaterializer.create(system);
+    ActorSystem system = ActorSystem.create();
+    Materializer materializer = ActorMaterializer.create(system);
 
-        Cassandra cassandra = new CassandraFromConfig(system, materializer);
-        BackupStorage googleDrive = new GoogleDriveFromConfig();
-        ExperimentFileStorage minio = new MinioFromConfig();
+    Cassandra cassandra = new CassandraFromConfig(system, materializer);
+    BackupStorage googleDrive = new GoogleDriveFromConfig();
+    ExperimentFileStorage minio = new MinioFromConfig();
 
-        BackupManager backupManager = new BackupManager(cassandra, googleDrive,
-                minio, system, materializer);
+    BackupManager backupManager =
+        new BackupManager(cassandra, googleDrive, minio, system, materializer);
 
-        final RootResource resource = new RootResource(
-                backupManager);
-        environment.jersey().register(resource);
-    }
-
+    final RootResource resource = new RootResource(backupManager);
+    environment.jersey().register(resource);
+  }
 }

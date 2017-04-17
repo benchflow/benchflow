@@ -14,25 +14,25 @@ import javax.ws.rs.core.MediaType;
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 public class RootResource {
-    private final BackupManager backupManager;
+  private final BackupManager backupManager;
 
-    public RootResource(BackupManager backupManager) {
-       this.backupManager = backupManager;
-    }
+  public RootResource(BackupManager backupManager) {
+    this.backupManager = backupManager;
+  }
 
-    @Path("/backup/{experiment-id}")
-    @GET
-    @Timed
-    public Backup backup(@PathParam("experiment-id") String experimentId) {
-        long backupId = backupManager.backupExperiment(experimentId);
-        return new Backup(backupId);
-    }
+  @Path("/backup/{experiment-id}")
+  @GET
+  @Timed
+  public Backup backup(@PathParam("experiment-id") String experimentId) {
+    long backupId = backupManager.backupExperiment(experimentId);
+    return new Backup(backupId);
+  }
 
-    @Path("/restore/{backup-id}")
-    @GET
-    @Timed
-    public Backup restore(@PathParam("backup-id") long backupId) {
-        backupManager.recoverBackup(backupId);
-        return new Backup(backupId);
-    }
+  @Path("/restore/{backup-id}")
+  @GET
+  @Timed
+  public Backup restore(@PathParam("backup-id") long backupId) {
+    backupManager.recoverBackup(backupId);
+    return new Backup(backupId);
+  }
 }
