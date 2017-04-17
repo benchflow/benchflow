@@ -15,9 +15,9 @@ import akka.stream.scaladsl.{ Sink, Source }
  * All the tests must be run with a local Cassandra running on default port 9042.
  */
 trait CassandraTest
-  extends Suite
-  with BeforeAndAfterEach
-  with BeforeAndAfterAll {
+    extends Suite
+    with BeforeAndAfterEach
+    with BeforeAndAfterAll {
 
   implicit val system = ActorSystem()
   implicit val mat = ActorMaterializer()
@@ -32,15 +32,13 @@ trait CassandraTest
         |  'class': 'SimpleStrategy',
         |  'replication_factor': '1'
         |};
-      """.stripMargin
-    )
+      """.stripMargin)
     session.execute(
       """
         |CREATE TABLE IF NOT EXISTS test.test (
         |    experiment_id text PRIMARY KEY
         |);
-      """.stripMargin
-    )
+      """.stripMargin)
   }
 
   override def afterEach(): Unit = {
@@ -60,16 +58,15 @@ trait CassandraTest
 }
 
 class LowerCassandra extends FlatSpec
-  with Matchers
-  with CassandraTest {
+    with Matchers
+    with CassandraTest {
 
   "Lower Cassandra" should "insert and retrieve data as json" in {
     val data = List(
       """{"experiment_id": "my_id1"}""",
-      """{"experiment_id": "my_id2"}"""
-    // """{"experiment_id": "my_id1", "source_process_instance_id": "3ff77405-ed01-11e5-beb9-7a98732174cb", "duration": 1, "end_time": "1970-01-01 00:00:00.000Z", "process_definition_id": "invoice-collaboration:1:771d26cd-ed00-11e5-beb9-7a98732174cb", "process_name": "invoice-collaboration", "start_time": "1970-01-01 00:00:00.000Z", "to_ignore": false, "trial_id": "camundaZZZZZZMV_ZZZZZZOX"}""",
-    // """{"experiment_id": "my_id2", "source_process_instance_id": "3ff77405-ed01-11e5-beb9-7a98732174cb", "duration": 1, "end_time": "1970-01-01 00:00:00.000Z", "process_definition_id": "invoice-collaboration:1:771d26cd-ed00-11e5-beb9-7a98732174cb", "process_name": "invoice-collaboration", "start_time": "1970-01-01 00:00:00.000Z", "to_ignore": false, "trial_id": "camundaZZZZZZMV_ZZZZZZOX"}"""
-    )
+      """{"experiment_id": "my_id2"}""" // """{"experiment_id": "my_id1", "source_process_instance_id": "3ff77405-ed01-11e5-beb9-7a98732174cb", "duration": 1, "end_time": "1970-01-01 00:00:00.000Z", "process_definition_id": "invoice-collaboration:1:771d26cd-ed00-11e5-beb9-7a98732174cb", "process_name": "invoice-collaboration", "start_time": "1970-01-01 00:00:00.000Z", "to_ignore": false, "trial_id": "camundaZZZZZZMV_ZZZZZZOX"}""",
+      // """{"experiment_id": "my_id2", "source_process_instance_id": "3ff77405-ed01-11e5-beb9-7a98732174cb", "duration": 1, "end_time": "1970-01-01 00:00:00.000Z", "process_definition_id": "invoice-collaboration:1:771d26cd-ed00-11e5-beb9-7a98732174cb", "process_name": "invoice-collaboration", "start_time": "1970-01-01 00:00:00.000Z", "to_ignore": false, "trial_id": "camundaZZZZZZMV_ZZZZZZOX"}"""
+      )
     val source = Source(data)
     val preparedStatement = session.prepare("INSERT INTO test.test JSON ?")
     val statementBinder = (json: String, statement: PreparedStatement) => statement.bind(json)

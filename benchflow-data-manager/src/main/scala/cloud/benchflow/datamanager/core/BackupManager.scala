@@ -28,21 +28,18 @@ trait Backuper {
 }
 
 class BackupManager @Inject() (
-  val cassandra: Cassandra,
-  googleDrive: BackupStorage,
-  val minio: ExperimentFileStorage
-)(implicit system: ActorSystem, materializer: Materializer) {
+    val cassandra: Cassandra,
+    googleDrive: BackupStorage,
+    val minio: ExperimentFileStorage)(implicit system: ActorSystem, materializer: Materializer) {
   implicit val timeout: Timeout = 5.seconds
   val monitor = system.actorOf(Props[BackupMonitor], "monitor")
 
   lazy val cassandraGoogleDriveConnector = system.actorOf(
     BackuperActor.props(new CassandraBackuper(cassandra, googleDrive, monitor)),
-    "cassandra-connector"
-  )
+    "cassandra-connector")
   lazy val minioGoogleDriveConnector = system.actorOf(
     BackuperActor.props(new MinioBackuper(minio, googleDrive, monitor)),
-    "minio-connector"
-  )
+    "minio-connector")
 
   def backupExperiment(experimentId: String): Long = {
     val backupId = googleDrive.nextId

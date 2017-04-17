@@ -39,8 +39,7 @@ trait Cassandra {
     val query = s"SELECT JSON * FROM $table WHERE experiment_id = ?"
     val preparedQuery = queryStore.getOrElseUpdate(
       table,
-      Try(session.prepare(query))
-    )
+      Try(session.prepare(query)))
     val result = preparedQuery match {
       case Success(preparedQuery) =>
         val stmt = preparedQuery

@@ -30,7 +30,7 @@ trait Minio extends ObjectStorage {
       result <- minioClient.listObjects(bucketName, prefix, recursive).toList
       item <- Try(result.get).toOption
     } yield {
-        ObjectStat(bucketName, item.objectName, item.lastModified, item.size)
+      ObjectStat(bucketName, item.objectName, item.lastModified, item.size)
     }
 
   def convertObjectStat(minioObject: io.minio.ObjectStat): ObjectStat =

@@ -20,9 +20,9 @@ import cloud.benchflow.datamanager.service.resources.RootResource
 import javax.inject.Inject
 
 class IntegrationTests
-  extends WordSpecLike
-  with Matchers
-  with CassandraTest {
+    extends WordSpecLike
+    with Matchers
+    with CassandraTest {
 
   implicit val materializer = ActorMaterializer()
 
@@ -37,13 +37,12 @@ class IntegrationTests
     lazy val mat = materializer
     lazy val system = IntegrationTests.this.system
   }
-      // object database extends Cassandra {
-      //   val cluster = Cluster.builder.addContactPoint("127.0.0.1").withPort(9042).build
-      //   val keyspace = "test"
-      //   val system: ActorSystem = system
-      //   val mat: Materializer = mat
-      // }
-
+  // object database extends Cassandra {
+  //   val cluster = Cluster.builder.addContactPoint("127.0.0.1").withPort(9042).build
+  //   val keyspace = "test"
+  //   val system: ActorSystem = system
+  //   val mat: Materializer = mat
+  // }
 
   object TestBackupStorage extends BackupStorage {
     var backupIdCounter = new AtomicLong

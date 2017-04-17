@@ -49,8 +49,7 @@ trait GoogleDriveBackupStorage extends BackupStorage {
     BackupFile(
       googleFile.getId,
       googleFile.getName,
-      googleFile.getMimeType
-    )
+      googleFile.getMimeType)
 
   def downloadFile(fileId: String, out: OutputStream): Unit =
     googleDrive.downloadStream(fileId, out, false)
@@ -62,8 +61,7 @@ trait GoogleDriveBackupStorage extends BackupStorage {
     input: InputStream,
     length: Long,
     fileName: String,
-    contentType: String
-  ): Unit = {
+    contentType: String): Unit = {
     val completeHierarchy = backupId.toString :: serviceName :: folderHierarchy
     val folder =
       completeHierarchy.foldLeft(baseFolder) { (folder, folderName) =>

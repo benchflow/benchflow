@@ -12,13 +12,11 @@ trait BackupStorage {
   def listFiles(
     backupId: Long,
     serviceName: String,
-    folderHierarchy: List[String] = Nil
-  ): Option[List[BackupFile]]
+    folderHierarchy: List[String] = Nil): Option[List[BackupFile]]
 
   def downloadFile(
     fileId: String,
-    out: OutputStream
-  ): Unit
+    out: OutputStream): Unit
 
   def uploadFile(
     backupId: Long,
@@ -27,8 +25,7 @@ trait BackupStorage {
     input: InputStream,
     length: Long,
     fileName: String,
-    contentType: String
-  ): Unit
+    contentType: String): Unit
 
   def nextId: Long
 }

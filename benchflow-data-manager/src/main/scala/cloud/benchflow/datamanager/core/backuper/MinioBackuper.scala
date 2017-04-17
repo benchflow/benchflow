@@ -24,8 +24,7 @@ class MinioBackuper(experimentFileStorage: ExperimentFileStorage, backupStorage:
           content,
           length,
           name,
-          contentType
-        )
+          contentType)
         name
     }
     ()
@@ -42,8 +41,7 @@ class MinioBackuper(experimentFileStorage: ExperimentFileStorage, backupStorage:
           file.name,
           inputStream,
           buffer.length,
-          file.fileType
-        ))
+          file.fileType))
       })
     ()
   }
