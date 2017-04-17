@@ -19,27 +19,25 @@ endif
 all: build_release
 
 clean: find_java
-	sbt clean
+	mvn clean
 
 package: find_java
-	sbt package
+	mvn package
 
-build: find_java
-	sbt universal:packageZipTarball
+build: package
 
-build_release: find_java
-	sbt publish-local
+build_release: package
 
-install: build_release
+install: package
 
 test: find_java
-	sbt test
+	mvn test
 
 build_container:
 	docker build -t $(DOCKERIMAGENAME):$(VERSION) -f Dockerfile .
 
 build_container_local: find_java
-	sbt universal:packageZipTarball
+	mvn package
 	docker build -t $(DOCKERIMAGENAME):$(VERSION) -f Dockerfile.test .
 
 test_container_local:

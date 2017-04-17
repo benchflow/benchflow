@@ -1,0 +1,8 @@
+logging:
+  level: Info
+  loggers:
+    cloud.benchflow.datamanager: DEBUG
+    com.google.api.client.http: All
+
+template: Hello, %s!
+defaultName: Stranger
