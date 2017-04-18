@@ -62,18 +62,18 @@ benchFlowEnvironment:
   config.yml: /app/config.yml
 
 mongoDB:
-  hostname: ${env.MONGO_DB_ADDRESS!"localhost"}
-  port: ${env.MONGO_DB_PORT!"27017"}
+  hostname: ${env.MONGO_DB_ADDRESS!"SET_ME"}
+  port: ${env.MONGO_DB_PORT!"SET_ME"}
   # TODO - we want to authenticate?
 
 minio:
-  address: ${env.MINIO_ADDRESS!"http://127.0.0.1:9000"}
-  accessKey: ${env.MINIO_ACCESS_KEY!"minio"}
-  secretKey: ${env.MINIO_SECRET_KEY!"minio123"}
+  address: ${env.MINIO_ADDRESS!"SET_ME"}
+  accessKey: ${env.MINIO_ACCESS_KEY!"SET_ME"}
+  secretKey: ${env.MINIO_SECRET_KEY!"SET_ME"}
 
 faban:
-  user: ${env.FABAN_USER!""}
-  password: ${env.FABAN_PASSWORD!""}
+  user: ${env.FABAN_USER!"SET_ME"}
+  password: ${env.FABAN_PASSWORD!"SET_ME"}
   address: ${env.FABAN_ADDRESS!"SET_ME"}
   submitRetries: ${env.FABAN_SUBMIT_RETRIES!3}
 
@@ -81,7 +81,7 @@ driversMaker:
   address: ${env.DRIVERS_MAKER_ADDRESS!"SET_ME"}
 
 testManager:
-  address: ${env.TEST_MANAGER_ADDRESS!"localhost:8080"}
+  address: ${env.TEST_MANAGER_ADDRESS!"SET_ME"}
 
 # TODO - @VF shall we remove this or keep for future?
 # currently not used, instead default with poolSize == 1
