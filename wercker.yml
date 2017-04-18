@@ -22,7 +22,7 @@ what-to-build:
           # Check diffs and trigger builds
           ./diffs-check-and-trigger-builds.sh
     - script:
-        name: Adds a file to WERCKER_OUTPUT_DIR, to speed up the not needed store step
+        name: Add a file to WERCKER_OUTPUT_DIR, to speed up the not needed store step
         code: touch $WERCKER_OUTPUT_DIR/.skip
 
 # TODO: similar pipelines can be made generic and triggered using env variables to set the actual project to build
