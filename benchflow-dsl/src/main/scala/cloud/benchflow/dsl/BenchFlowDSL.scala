@@ -2,10 +2,10 @@ package cloud.benchflow.dsl
 
 import cloud.benchflow.dsl.definition.BenchFlowExperimentYamlProtocol._
 import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol._
-import cloud.benchflow.dsl.definition.{ BenchFlowExperiment, BenchFlowTest }
+import cloud.benchflow.dsl.definition.{BenchFlowExperiment, BenchFlowTest}
 import net.jcazevedo.moultingyaml._
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch)
@@ -44,6 +44,24 @@ object BenchFlowDSL {
     // TODO - validate semantic in separate function on the object
 
     false
+  }
+
+  def experimentFromTestYamlNumUsers(testDefinitionYaml: String, numUsers: Int): String = {
+
+    // TODO - implement me and test
+
+    // TODO - change to separate file and use builder pattern
+
+    val triedExperiment: Try[BenchFlowExperiment] = testDefinitionYaml.parseYaml.convertTo[Try[BenchFlowExperiment]]
+
+    triedExperiment match {
+      case Success(experiment) => {
+        experiment.configuration.users -> numUsers
+        experiment.toYaml.asYamlObject.prettyPrint
+      }
+      case Failure(ex) => throw ex
+    }
+
   }
 
   // TODO - add methods for common operations/changes to tests/experiments

@@ -47,20 +47,10 @@ class BenchFlowDSLTest extends JUnitSuite {
 
   }
 
-  //  import net.jcazevedo.moultingyaml._
-  //
-  //  import scala.io.Source.fromFile
-  //
-  //  "BenchFlow test" should "parse correctly" in {
-  //
-  //    val benchFlowTest =
-  //      fromFile(Paths.get("./src/test/resources/benchflow-test.yml").toFile).mkString
-  //        .parseYaml.convertTo[BenchFlowTest]
-  //
-  //    benchFlowTest should have(
-  //      'name ("WfMSTest")
-  //    )
-  //
-  //  }
+  @Test def  experimentFromTestYamlNumUsers(): Unit = {
+
+
+
+  }
 
 }
