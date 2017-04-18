@@ -47,9 +47,24 @@ class BenchFlowDSLTest extends JUnitSuite {
 
   }
 
-  @Test def  experimentFromTestYamlNumUsers(): Unit = {
+  @Test def experimentFromTestYamlNumUsers(): Unit = {
 
+    val testYaml = Source.fromFile(Paths.get(BenchFlowExplorationUsersExample).toFile).mkString
 
+    val triedBenchFlowTest = BenchFlowDSL.testFromYaml(testYaml)
+
+    Assert.assertTrue(triedBenchFlowTest.isSuccess)
+
+    val benchFlowTest = triedBenchFlowTest.get
+
+    benchFlowTest.configuration.goal.explorationSpace.get.workload.get.users.get.values.foreach(numUsers => {
+
+      val builder = BenchFlowDSL.experimentYamlBuilderFromTestYaml(testYaml)
+      val experimentYaml = builder.numUsers(numUsers).build()
+
+      Assert.assertTrue(experimentYaml.contains("users: " + numUsers))
+
+    })
 
   }
 
