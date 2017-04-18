@@ -1,0 +1,5 @@
+# Mongo data files
+application/src/test/resources/mongo-data
+
+# Demo files
+BenchFlowTestManagerApplicationDemo.java
