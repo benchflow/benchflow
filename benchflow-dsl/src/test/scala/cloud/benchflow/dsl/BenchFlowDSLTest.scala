@@ -2,6 +2,7 @@ package cloud.benchflow.dsl
 
 import java.nio.file.Paths
 
+import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
 import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
 
@@ -15,19 +16,33 @@ import scala.io.Source
  */
 class BenchFlowDSLTest extends JUnitSuite {
 
+  // TODO - add tests that handles exceptions thrown
+
   @Test def loadTestDefinition(): Unit = {
 
     val testYaml = Source.fromFile(Paths.get(BenchFlowLoadTestExample).toFile).mkString
 
     val benchFlowTest = BenchFlowDSL.testFromYaml(testYaml)
 
-    Assert.assertTrue(benchFlowTest.isSuccess)
-
-    val benchFlowTestYamlString = BenchFlowDSL.testToYamlString(benchFlowTest.get)
+    val benchFlowTestYamlString = BenchFlowDSL.testToYamlString(benchFlowTest)
 
     Assert.assertNotNull(benchFlowTestYamlString)
 
     Assert.assertEquals(BenchFlowDSL.testFromYaml(benchFlowTestYamlString), benchFlowTest)
+
+  }
+
+  @Test(expected = classOf[BenchFlowDeserializationException])
+  def loadInvalidTestDefinition(): Unit = {
+
+    val testYaml =
+      """
+        |version: '1'
+        |name: WfMSTest
+        |description: A WfMS test
+      """.stripMargin
+
+    val benchFlowTest = BenchFlowDSL.testFromYaml(testYaml)
 
   }
 
@@ -37,9 +52,7 @@ class BenchFlowDSLTest extends JUnitSuite {
 
     val benchFlowExperiment = BenchFlowDSL.experimentFromTestYaml(testYaml)
 
-    Assert.assertTrue(benchFlowExperiment.isSuccess)
-
-    val benchFlowExperimentYamlString = BenchFlowDSL.experimentToYamlString(benchFlowExperiment.get)
+    val benchFlowExperimentYamlString = BenchFlowDSL.experimentToYamlString(benchFlowExperiment)
 
     Assert.assertNotNull(benchFlowExperimentYamlString)
 
@@ -51,11 +64,7 @@ class BenchFlowDSLTest extends JUnitSuite {
 
     val testYaml = Source.fromFile(Paths.get(BenchFlowExplorationUsersExample).toFile).mkString
 
-    val triedBenchFlowTest = BenchFlowDSL.testFromYaml(testYaml)
-
-    Assert.assertTrue(triedBenchFlowTest.isSuccess)
-
-    val benchFlowTest = triedBenchFlowTest.get
+    val benchFlowTest = BenchFlowDSL.testFromYaml(testYaml)
 
     benchFlowTest.configuration.goal.explorationSpace.get.workload.get.users.get.values.foreach(numUsers => {
 

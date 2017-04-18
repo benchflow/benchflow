@@ -13,13 +13,15 @@ object YamlErrorHandler {
   // TODO - add comments describing this class
 
   private def missingKeyFailure(key: String, e: Exception) =
-    Failure(new Exception("Expected key not found: " + key, e))
+    Failure(new BenchFlowDeserializationException("Expected key not found: " + key, e))
 
   private def unexpectedTypeFailure(key: String, e: Exception) =
-    Failure(new Exception("Unexpected type: " + key + " -> " + e.getMessage.substring(0, 1).toLowerCase() + e.getMessage.substring(1), e))
+    Failure(new BenchFlowDeserializationException(
+      "Unexpected type: " + key + " -> " + e.getMessage.substring(0, 1).toLowerCase() + e.getMessage.substring(1),
+      e))
 
   private def unexpectedException(e: Exception) =
-    Failure(new Exception("Unexpected exception found: " + e.getMessage, e))
+    Failure(new BenchFlowDeserializationException("Unexpected exception found: " + e.getMessage, e))
 
   private def exceptionHandler(key: String, e: Exception): Failure[Nothing] = e match {
     case e: NoSuchElementException => missingKeyFailure(key, e)

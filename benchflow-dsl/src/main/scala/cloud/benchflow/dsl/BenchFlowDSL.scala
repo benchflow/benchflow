@@ -18,15 +18,26 @@ object BenchFlowDSL {
    * To serialize/deserialize YAML this library uses https://github.com/jcazevedo/moultingyaml.
    */
 
-  def testFromYaml(testDefinitionYaml: String): Try[BenchFlowTest] = {
+  /**
+   *
+   * @param testDefinitionYaml
+   * @throws cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
+   * @return
+   */
+  @throws(classOf[BenchFlowDeserializationException])
+  def testFromYaml(testDefinitionYaml: String): BenchFlowTest = {
 
     // validates syntax
     // TODO - document why we wrap in a Try (e.g. because of library and deserialization)
-    val test: Try[BenchFlowTest] = testDefinitionYaml.parseYaml.convertTo[Try[BenchFlowTest]]
+    val triedTest: Try[BenchFlowTest] = testDefinitionYaml.parseYaml.convertTo[Try[BenchFlowTest]]
 
     // TODO - validate semantic in separate function on the object
 
-    test
+    triedTest match {
+      case Success(test) => test
+      case Failure(ex) => throw ex
+    }
+
   }
 
   def testToYamlString(benchFlowTest: BenchFlowTest): String = {
@@ -47,8 +58,6 @@ object BenchFlowDSL {
     false
   }
 
-  // TODO - add methods for common operations/changes to tests/experiments
-
   /**
    * Generates a BenchFlowExperiment from a BenchFlow Test Definition YAML string with
    * values equal to those in the YAML string.
@@ -56,20 +65,26 @@ object BenchFlowDSL {
    * Will return a failure if the Test Definition is invalid.
    *
    * @param testDefinitionYaml
+   * @throws cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
    * @return
    */
-  def experimentFromTestYaml(testDefinitionYaml: String): Try[BenchFlowExperiment] = {
+  @throws(classOf[BenchFlowDeserializationException])
+  def experimentFromTestYaml(testDefinitionYaml: String): BenchFlowExperiment = {
 
     // convert to experiment and validate syntax
     // NOTE: Since the key-value pairs in an experiment definition is a subset of those
     // found in a test, we can use the same YAML protocol code to parse from a test definition
     // to an experiment, as from an experiment definition to an experiment. Key-value pairs that
     // should not be in an experiment will simply be ignored.
-    val experiment: Try[BenchFlowExperiment] = testDefinitionYaml.parseYaml.convertTo[Try[BenchFlowExperiment]]
+
+    val triedExperiment: Try[BenchFlowExperiment] = testDefinitionYaml.parseYaml.convertTo[Try[BenchFlowExperiment]]
 
     // TODO - validate semantic in separate function on the object
 
-    experiment
+    triedExperiment match {
+      case Success(experiment) => experiment
+      case Failure(ex) => throw ex
+    }
 
   }
 
@@ -79,15 +94,20 @@ object BenchFlowDSL {
    * Will return a failure if the Experiment Definition is invalid.
    *
    * @param experimentDefinitionYaml
+   * @throws cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
    * @return
    */
-  def experimentFromExperimentYaml(experimentDefinitionYaml: String): Try[BenchFlowExperiment] = {
+  @throws(classOf[BenchFlowDeserializationException])
+  def experimentFromExperimentYaml(experimentDefinitionYaml: String): BenchFlowExperiment = {
 
-    val experiment: Try[BenchFlowExperiment] = experimentDefinitionYaml.parseYaml.convertTo[Try[BenchFlowExperiment]]
+    val triedExperiment: Try[BenchFlowExperiment] = experimentDefinitionYaml.parseYaml.convertTo[Try[BenchFlowExperiment]]
 
     // TODO - validate semantic in separate function on the object
 
-    experiment
+    triedExperiment match {
+      case Success(experiment) => experiment
+      case Failure(ex) => throw ex
+    }
 
   }
 
@@ -118,12 +138,9 @@ object BenchFlowDSL {
   @throws(classOf[BenchFlowDeserializationException])
   def experimentYamlBuilderFromTestYaml(testDefinitionYaml: String): BenchFlowExperimentYamlBuilder = {
 
-    val triedExperiment = experimentFromTestYaml(testDefinitionYaml)
+    val experiment = experimentFromTestYaml(testDefinitionYaml)
 
-    triedExperiment match {
-      case Success(experiment) => new BenchFlowExperimentYamlBuilder(experiment)
-      case Failure(ex) => throw ex
-    }
+    new BenchFlowExperimentYamlBuilder(experiment)
 
   }
 
