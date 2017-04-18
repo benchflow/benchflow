@@ -62,17 +62,17 @@ benchFlowEnvironment:
   config.yml: /app/config.yml
 
 mongoDB:
-  hostname: ${env.MONGO_DB_ADDRESS!"localhost"}
-  port: ${env.MONGO_DB_PORT!"27017"}
+  hostname: ${env.MONGO_DB_ADDRESS!"SET_ME"}
+  port: ${env.MONGO_DB_PORT!"SET_ME"}
   # TODO - we want to authenticate?
 
 benchFlowExperimentManager:
-  address: ${env.PEM_ADDRESS!"localhost:8090"}
+  address: ${env.PEM_ADDRESS!"SET_ME"}
 
 minio:
-  address: ${env.MINIO_ADDRESS!"http://127.0.0.1:9000"}
-  accessKey: ${env.MINIO_ACCESS_KEY!"minio"}
-  secretKey: ${env.MINIO_SECRET_KEY!"minio123"}
+  address: ${env.MINIO_ADDRESS!"SET_ME"}
+  accessKey: ${env.MINIO_ACCESS_KEY!"SET_ME"}
+  secretKey: ${env.MINIO_SECRET_KEY!"SET_ME"}
 
 taskExecutor:
   minThreads: 5
