@@ -17,9 +17,10 @@ what-to-build:
         packages: jq curl
     - script:
         name: Check diffs and trigger builds
+        cwd: ./devops
         code: |
           # Check diffs and trigger builds
-          ./devops/diffs-check-and-trigger-builds.sh
+          ./diffs-check-and-trigger-builds.sh
 
 # TODO: similar pipelines can be made generic and triggered using env variables to set the actual project to build
 
@@ -45,7 +46,8 @@ deploy-benchflow-dsl:
         packages: jq curl
     - script:
         name: Deliver benchflow-dsl on Bintray
+        cwd: ./devops
         code: |
           # Deliver branch and commit specific artifacts on Bintray
-          export ARTIFACT_NAME=benchflow_dsl
-          ./devops/deliver-on-bintray.sh
+          export ARTIFACT_NAME=benchflow-dsl
+          ./deliver-on-bintray.sh
