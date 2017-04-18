@@ -34,6 +34,9 @@ build-benchflow-dsl:
     - xenoterracide/maven:
         goals: package
         args: -f $WERCKER_SOURCE_DIR/benchflow-dsl
+    - script:
+        name: Copy benchflow-dsl to WERCKER_OUTPUT_DIR
+        code: cp $WERCKER_SOURCE_DIR/benchflow-dsl/target/benchflow-dsl.jar $WERCKER_OUTPUT_DIR
 
 ###########################################################
 # DRAFT
