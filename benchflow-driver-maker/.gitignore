@@ -1,0 +1,13 @@
+/drivers-maker.iml
+/.idea
+/target/
+.settings/
+
+/application/application.iml
+/application/target
+/application/src/test/resources/generated
+/configuration-personal.yml
+/api/api.iml
+
+/application/src/test/scala/cloud/benchflow/benchmark/config/benchflowbenchmark/TestLibrariesWorksheet.sc
+benchflow_make

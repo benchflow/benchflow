@@ -1,0 +1,17 @@
+logs:
+  image: benchflow/collectors:logs_dev
+  environment:
+  - BENCHFLOW_DATA_NAME=logs
+  - KAFKA_TOPIC=logs
+  - CONTAINERS=${BENCHFLOW_BENCHMARK_BOUNDSERVICE_CONTAINER_NAME}
+
+  network_mode: bridge
+  volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+  expose:
+      - 8080
+  ports:
+      - '8080'
+
+endpoints:
+  stop: /store

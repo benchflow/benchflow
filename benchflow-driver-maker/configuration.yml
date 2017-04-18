@@ -1,0 +1,36 @@
+benchflowEnv:
+  config.yml: /app/config.yml
+  benchflowServices: /app/benchflow-services
+  privatePort: 8080
+  generationResources: /app/drivers
+
+
+minio:
+  address: ${env.MINIO_ADDRESS}
+
+server:
+  type: default
+  applicationConnectors:
+    - type: http
+      port: 8080
+#      bindHost: 127.0.0.1 # only bind to loopback
+  adminConnectors:
+    - type: http
+      port: 8081
+#      bindHost: 127.0.0.1 # only bind to loopback
+
+logging:
+  level: INFO
+  loggers:
+    io.dropwizard: INFO
+    cloud.benchflow.driversmaker.resources.FabanBenchmarkGeneratorResource: ALL
+  appenders:
+    - type: console
+      threshold: ALL
+      timeZone: UTC
+      target: stdout
+
+
+
+
+
