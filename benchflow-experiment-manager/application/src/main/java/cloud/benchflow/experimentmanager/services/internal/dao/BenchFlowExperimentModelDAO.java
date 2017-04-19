@@ -102,7 +102,8 @@ public class BenchFlowExperimentModelDAO {
         BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
 
         if (experimentModel != null) {
-            experimentModel.setState(BenchFlowExperimentState.ABORTED);
+            experimentModel.setState(BenchFlowExperimentState.TERMINATED);
+            experimentModel.setStatus(BenchFlowExperimentModel.BenchFlowExperimentStatus.ABORTED);
             datastore.save(experimentModel);
         }
 

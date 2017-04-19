@@ -47,6 +47,8 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
 
         // make sure experiment has been saved to minio
         minioService.saveExperimentDefinition(experimentID, MinioTestData.getExperimentDefinition());
+        minioService.saveExperimentDeploymentDescriptor(experimentID, MinioTestData.getDeploymentDescriptor());
+        minioService.saveExperimentBPMNModel(experimentID, MinioTestData.BPM_MODEL_11_PARALLEL_NAME, MinioTestData.get11ParallelStructuredModel());
 
         Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
 

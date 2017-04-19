@@ -1,0 +1,167 @@
+package cloud.benchflow.experimentmanager.tasks.experiment;
+
+import cloud.benchflow.dsl.BenchFlowDSL;
+import cloud.benchflow.dsl.definition.BenchFlowExperiment;
+import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
+import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
+import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
+import cloud.benchflow.experimentmanager.exceptions.TrialIDDoesNotExistException;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
+import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
+import cloud.benchflow.experimentmanager.services.external.MinioService;
+import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
+import cloud.benchflow.experimentmanager.tasks.CancellableTask;
+import cloud.benchflow.faban.client.FabanClient;
+import cloud.benchflow.faban.client.exceptions.ConfigFileNotFoundException;
+import cloud.benchflow.faban.client.exceptions.FabanClientException;
+import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
+import cloud.benchflow.faban.client.responses.RunId;
+import cloud.benchflow.faban.client.responses.RunStatus;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
+
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+import static cloud.benchflow.faban.client.responses.RunStatus.Code.*;
+
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch)
+ *         created on 2017-04-19
+ */
+public class ExperimentRunningTask extends CancellableTask {
+
+    private static final String TEMP_DIR = "./tmp";
+    private static final String FABAN_CONFIGURATION_FILENAME = "run.xml";
+    private static Logger logger = LoggerFactory.getLogger(ExperimentRunningTask.class.getSimpleName());
+
+    private String experimentID;
+    private int submitRetries = 3;
+
+    private BenchFlowTestManagerService testManagerService;
+    private MinioService minioService;
+    private FabanClient fabanClient;
+
+    private BenchFlowExperimentModelDAO experimentModelDAO;
+
+    public ExperimentRunningTask(String experimentID, BenchFlowTestManagerService testManagerService, MinioService minioService, FabanClient fabanClient, BenchFlowExperimentModelDAO experimentModelDAO, int submitRetries) {
+        this.experimentID = experimentID;
+        this.testManagerService = testManagerService;
+        this.minioService = minioService;
+        this.fabanClient = fabanClient;
+        this.experimentModelDAO = experimentModelDAO;
+        this.submitRetries = submitRetries;
+    }
+
+    @Override
+    public void run() {
+
+        logger.info("running experiment: " + experimentID);
+
+        // inform test manager that experiment is running
+        testManagerService.setExperimentAsRunning(experimentID);
+
+        try {
+
+            // get the BenchFlowExperimentDefinition from minioService
+            String experimentYamlString = IOUtils.toString(minioService.getExperimentDefinition(experimentID), StandardCharsets.UTF_8);
+
+            BenchFlowExperiment experiment = BenchFlowDSL.experimentFromExperimentYaml(experimentYamlString).get();
+
+            int nTrials = experiment.configuration().terminationCriteria().get().experiment().number();
+
+            String fabanExperimentId = experimentID.replace(MODEL_ID_DELIMITER, BenchFlowConstants.FABAN_ID_DELIMITER);
+
+            // convert to old version and save to minio, and also a new experimentID to send to DriversMaker
+            // generate DriversMaker compatible files on minio
+            DriversMakerCompatibleID driversMakerCompatibleID = new DriversMakerCompatibleID(experimentID);
+            String driversMakerExperimentID = driversMakerCompatibleID.getDriversMakerExperimentID();
+            long experimentNumber = driversMakerCompatibleID.getExperimentNumber();
+
+            for (int trialNumber = 1; trialNumber <= nTrials; trialNumber++) {
+
+                if (isCanceled.booleanValue()) {
+                    break;
+                }
+
+                // add trial to experiment
+                String trialID = experimentModelDAO.addTrial(experimentID, trialNumber);
+
+                // A) submit to fabanClient
+                int retries = submitRetries;
+
+                java.nio.file.Path fabanConfigPath = Paths.get(TEMP_DIR)
+                        .resolve(experimentID)
+                        .resolve(String.valueOf(trialNumber))
+                        .resolve(FABAN_CONFIGURATION_FILENAME);
+
+                InputStream configInputStream = minioService.getDriversMakerGeneratedFabanConfiguration(driversMakerExperimentID, experimentNumber, trialNumber);
+                String config = IOUtils.toString(configInputStream, StandardCharsets.UTF_8);
+
+                FileUtils.writeStringToFile(fabanConfigPath.toFile(), config, StandardCharsets.UTF_8);
+
+                RunId runId = null;
+                while (runId == null) {
+                    try {
+
+                        // TODO - should this be a method (part of Faban Client?)
+                        String fabanTrialId = trialID.replace(MODEL_ID_DELIMITER, BenchFlowConstants.FABAN_ID_DELIMITER);
+
+                        runId = fabanClient.submit(fabanExperimentId, fabanTrialId,
+                                fabanConfigPath.toFile());
+
+                    } catch (FabanClientException e) {
+                        if (retries > 0) retries--;
+                        else {
+                            throw e;
+                        }
+                    } catch (ConfigFileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                experimentModelDAO.setFabanTrialID(experimentID, trialNumber, runId.toString());
+                experimentModelDAO.setTrialModelAsStarted(experimentID, trialNumber);
+
+                // B) wait/poll for trial to complete and store the trial result in the DB
+                RunStatus status = fabanClient.status(runId); // TODO - is this the status we want to use? No it is a subset, should also include metrics computation status
+
+                while (status.getStatus().equals(QUEUED) || status.getStatus().equals(RECEIVED) || status.getStatus().equals(STARTED)) {
+                    Thread.sleep(1000);
+                    status = fabanClient.status(runId);
+                }
+
+                experimentModelDAO.setTrialStatus(experimentID, trialNumber, status.getStatus());
+                testManagerService.submitTrialStatus(trialID, status.getStatus());
+
+            }
+
+            experimentModelDAO.setExperimentModelState(experimentID, BenchFlowExperimentModel.BenchFlowExperimentState.TERMINATED);
+
+            if (isCanceled.booleanValue()) {
+                testManagerService.setExperimentAsTerminated(experimentID, BenchFlowExperimentModel.BenchFlowExperimentStatus.ABORTED);
+            } else {
+                testManagerService.setExperimentAsTerminated(experimentID, BenchFlowExperimentModel.BenchFlowExperimentStatus.COMPLETED);
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (TrialIDDoesNotExistException e) {
+            e.printStackTrace();
+        } catch (BenchFlowExperimentIDDoesNotExistException e) {
+            e.printStackTrace();
+        } catch (RunIdNotFoundException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+}
