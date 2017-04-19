@@ -29,6 +29,11 @@ what-to-build:
 
 ###########################################################
 # DRAFT
+# BUILD PIPELINES
+###########################################################
+
+###########################################################
+# DRAFT
 # Pipeline used to build: benchflow-dsl
 ###########################################################
 build-benchflow-dsl:
@@ -43,6 +48,11 @@ build-benchflow-dsl:
 
 ###########################################################
 # DRAFT
+# DEPLOY PIPELINES
+###########################################################
+
+###########################################################
+# DRAFT
 # Pipeline used to deploy on Bintray: benchflow-dsl
 ###########################################################
 deploy-benchflow-dsl:
@@ -50,6 +60,10 @@ deploy-benchflow-dsl:
      # TODO: # this is going to be moved and handled by a requirements file in devops / base-images for building (fast approach for the first iterations, improved over time)
     - install-packages:
         packages: jq curl
+   - script:
+        name: Generate the Image Tag
+        cwd: ./devops
+        code: ./generate-commit-specific-tag.sh
     - script:
         name: Deliver benchflow-dsl on Bintray
         cwd: ./devops
@@ -57,3 +71,39 @@ deploy-benchflow-dsl:
           # Deliver branch and commit specific artifacts on Bintray
           export ARTIFACT_NAME=benchflow-dsl
           ./deliver-on-bintray.sh
+
+###########################################################
+# DRAFT
+# BUILD AND DEPLOY PIPELINES
+###########################################################
+
+###########################################################
+# DRAFT
+# Pipeline used to build and deploy on Docker Hub: docker-images/base-images/base
+###########################################################
+build-and-deploy-base-images-base:
+  box: chapdev/chaperone-alpinebase:1.0.16-U14
+  steps:
+    - script:
+        name: Build the Image
+        cwd: ./docker-images/base-images/base
+        code: ./build-image.sh
+    - script:
+        name: Cleanup the Image
+        cwd: ./devops
+        code: ./cleanup-wercker-build.sh
+    - script:
+        name: Generate the Image Tag
+        cwd: ./devops
+        code: ./generate-commit-specific-tag.sh
+    # push container as-is
+    - internal/docker-push:
+        author: Vincenzo FERME <info@vincenzoferme.it>
+        disable-sync: false
+        repository: benchflow/base-images
+        email: $DOCKER_HUB_EMAIL
+        username: $DOCKER_HUB_USERNAME
+        password: $DOCKER_HUB_PASSWORD
+        # NOTE: first we push the commit specific image, then the image for the branch
+        tag: $CUSTOM_VERSION_TAG,$WERCKER_GIT_BRANCH
+        entrypoint: "/usr/local/bin/chaperone"
