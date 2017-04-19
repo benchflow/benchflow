@@ -20,26 +20,24 @@ import java.security.NoSuchAlgorithmException;
 abstract public class BenchFlowMinioClient {
 
     // TODO - is this correct with only one bucket and it is called tests? Maybe better then just 'benchflow'?
-    protected static final String TESTS_BUCKET = "tests";
+    static final String TESTS_BUCKET = "tests";
 
     private static final String DEPLOYMENT_DESCRIPTOR_NAME = "docker-compose";
     private static final String PT_PE_DEFINITION_NAME = "benchflow-test";
     private static final String YAML_EXTENSION = ".yml";
-    protected static final String PT_PE_DEFINITION_FILE_NAME = PT_PE_DEFINITION_NAME + YAML_EXTENSION;
-    protected static final String DEPLOYMENT_DESCRIPTOR_FILE_NAME = DEPLOYMENT_DESCRIPTOR_NAME + YAML_EXTENSION;
+    static final String PT_PE_DEFINITION_FILE_NAME = PT_PE_DEFINITION_NAME + YAML_EXTENSION;
+    static final String DEPLOYMENT_DESCRIPTOR_FILE_NAME = DEPLOYMENT_DESCRIPTOR_NAME + YAML_EXTENSION;
 
-    protected static final String BPMN_MODELS_FOLDER_NAME = "models";
-    protected static final String GENERATED_BENCHMARK_FILENAME = "benchflow-benchmark.jar";
-    protected static final String FABAN_CONFIG_FILENAME = "run.xml";
+    static final String BPMN_MODELS_FOLDER_NAME = "models";
+    static final String GENERATED_BENCHMARK_FILENAME = "benchflow-benchmark.jar";
+    static final String FABAN_CONFIG_FILENAME = "run.xml";
 
-    protected static final String MINIO_ID_DELIMITER = "/";
-    protected static final String MODEL_ID_DELIMITER = ".";
+    static final String MINIO_ID_DELIMITER = "/";
+    public static final String MODEL_ID_DELIMITER = ".";
     private static final String MODEL_ID_DELIMITER_REGEX = "\\.";
 
     // http://www.iana.org/assignments/media-types/application/octet-stream
     private static final String CONTENT_TYPE = "application/octet-stream";
-
-
 
     private static Logger logger = LoggerFactory.getLogger(BenchFlowMinioClient.class.getSimpleName());
 
@@ -113,7 +111,23 @@ abstract public class BenchFlowMinioClient {
         }
     }
 
-    private void copyObject(String fromObjectName, String toObjectName) {
+    void removeObject(String objectName) {
+
+        logger.info("removeObject: " + objectName);
+
+        try {
+            minioClient.removeObject(TESTS_BUCKET, objectName);
+        } catch (InvalidBucketNameException | NoSuchAlgorithmException | InsufficientDataException | IOException | InvalidKeyException | NoResponseException | XmlPullParserException | InternalException e) {
+            // TODO - handle exception
+            logger.error("Exception in removeObject: " + objectName, e);
+        } catch (ErrorResponseException e) {
+            /* happens if the object to remove doesn't exist, do nothing */
+        }
+
+
+    }
+
+    void copyObject(String fromObjectName, String toObjectName) {
 
         logger.info("copyObject: from:" + fromObjectName + " to:" + toObjectName);
 

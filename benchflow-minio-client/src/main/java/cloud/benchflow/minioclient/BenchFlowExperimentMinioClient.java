@@ -65,6 +65,15 @@ public class BenchFlowExperimentMinioClient extends BenchFlowMinioClient {
         return getInputStreamObject(objectName);
     }
 
+    public void removeExperimentDefinition(String experimentID) {
+
+        logger.info("removeExperimentDefinition: " + experimentID);
+
+        String objectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + PT_PE_DEFINITION_FILE_NAME;
+
+        removeObject(objectName);
+    }
+
 
     public InputStream getExperimentDeploymentDescriptor(String experimentID) {
 
