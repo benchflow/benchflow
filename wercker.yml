@@ -83,7 +83,7 @@ deploy-benchflow-dsl:
 # Pipeline used to build and deploy on Docker Hub: docker-images/base-images/base
 ###########################################################
 build-and-deploy-base-images-base:
-  box: chapdev/chaperone-alpinebase:1.0.16-U14
+  box: chapdev/chaperone-baseimage:1.0.16-U14
   steps:
     - script:
         name: Build the Image
