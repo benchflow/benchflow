@@ -184,7 +184,6 @@ do
 			# NOTE: currently we assume the url structure does not change
 			WERCKER_RUN_ID=$(echo "$WERCKER_RUN_URL" | sed -e 's/.*what-to-build\/\(.*\).*/\1/')
 
-
 			all_changed_folders=($(for v in "${all_changed_folders[@]}"; do echo "$v";done| sort -u))
 
 			# TODO: improve the way we handle the triggers, as well as the retrieval of the pipeline id to be more dynamic
@@ -198,7 +197,40 @@ do
 				     branch_name_pipeline_id=$WERCKER_BENCHFLOW_DSL_PIPELINE_ID
 				     ;;
 				     "docker-images")
-				     branch_name_pipeline_id=$WERCKER_DOCKER_IMAGES_BASE_PIPELINE_ID
+						 # TODO: refactor to trigger the build out of the switch
+						 # Determine which folders has been changed and trigger the build
+						 # Now the assumption is that we only have subfolder interest for the docker-images folder
+
+						 changed_sub_folders=$(cat "commit_api_$commit.txt" | jq '.files[] | select(.filename | split ("/") | length > 1 ) | .filename | split ("/") | .[1]' | uniq)
+
+						 changed_sub_folders_arr=(${changed_sub_folders// / })
+
+						 all_changed_sub_folders=("${all_changed_sub_folders[@]}" "${changed_sub_folders_arr[@]}")
+
+						 echo "Trigger builds for ALL Changed Sub Folders of interest"
+
+						 all_changed_sub_folders=($(for v in "${all_changed_sub_folders[@]}"; do echo "$v";done| sort -u))
+
+						 for sub_folder in "${all_changed_sub_folders[@]}"
+						 do
+						 	 sub_folder="${sub_folder//\"/}"
+						 	 branch_name_pipeline_id_sub_folder=""
+			   			 echo "Triggering build for: $sub_folder"
+						   echo "$sub_folder"
+						   case $sub_folder in
+							      "base-images")
+							      branch_name_pipeline_id_sub_folder=$WERCKER_DOCKER_IMAGES_BASE_PIPELINE_ID
+							      ;;
+							      *)
+							      echo "No build pipeline defined for the current sub folder"
+							      ;;
+							 esac
+
+							 if [ -n "${branch_name_pipeline_id_sub_folder}" ]; then
+								 echo "Build API call response:"
+								 curl -Ss -H "Content-Type: application/json" -H "Authorization: Bearer $WERCKER_API_AUTH" -X POST -d '{"pipelineId": "'"$branch_name_pipeline_id_sub_folder"'", "branch": "'"$WERCKER_GIT_BRANCH"'", "commitHash": "'"$WERCKER_GIT_COMMIT"'"}' https://app.wercker.com/api/v3/runs/ | jq .
+							 fi
+						 done
 				     ;;
 				     *)
 				     echo "No build pipeline defined for the current folder"
