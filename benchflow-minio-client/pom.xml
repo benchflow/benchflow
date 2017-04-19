@@ -9,6 +9,7 @@
     <properties>
         <project.name>benchflow-minio-client</project.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <minio.version>3.0.4</minio.version>
         <commons-io.version>2.5</commons-io.version>
