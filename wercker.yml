@@ -39,8 +39,9 @@ what-to-build:
 build-benchflow-dsl:
   box: maven:3.3.9-jdk-8
   steps:
+    # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
     - xenoterracide/maven:
-        goals: package
+        goals: verify
         args: -f $WERCKER_SOURCE_DIR/benchflow-dsl
     - script:
         name: Copy benchflow-dsl to WERCKER_OUTPUT_DIR
