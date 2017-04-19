@@ -1,11 +1,5 @@
 package cloud.benchflow.datamanager.core.backupstorage
 
-import java.text.NumberFormat
-
-import com.google.api.client.googleapis.media.MediaHttpUploader
-import com.google.api.client.googleapis.media.MediaHttpUploader.UploadState._
-import com.google.api.client.googleapis.media.MediaHttpUploaderProgressListener
-
 import com.typesafe.config.ConfigFactory
 
 class GoogleDriveFromConfig extends GoogleDriveBackupStorage {

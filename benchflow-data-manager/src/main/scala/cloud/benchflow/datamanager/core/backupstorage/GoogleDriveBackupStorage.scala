@@ -1,11 +1,11 @@
 package cloud.benchflow.datamanager.core.backupstorage
 
-import java.io.InputStream
-import java.io.OutputStream
+import java.io.{ InputStream, OutputStream }
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConversions.asScalaBuffer
 
 import com.google.api.services.drive.model.File
+import com.google.inject.ImplementedBy
 
 trait GoogleDriveBackupStorage extends BackupStorage {
   val googleDrive: GoogleDrive

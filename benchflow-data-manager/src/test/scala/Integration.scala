@@ -76,7 +76,7 @@ class IntegrationTests
     val storage = scala.collection.mutable.Map.empty[String, (ObjectStat, InputStream)]
 
     def getObjectStat(bucketName: String, objectName: String): Option[ObjectStat] =
-      storage.get(objectName).map(_._1)
+      storage.get(objectName).map { case (stat, _) => stat }
 
     def getObject(bucketName: String, objectName: String): Option[(ObjectStat, InputStream)] =
       storage.get(objectName)
@@ -86,8 +86,11 @@ class IntegrationTests
       Some(Unit)
     }
 
-    def listObjects(bucketName: String, prefix: String, recursive: Boolean): List[ObjectStat] =
-      (storage filterKeys (_.startsWith(prefix))).values.map(_._1).toList
+    def listObjects(bucketName: String, prefix: String, recursive: Boolean): List[ObjectStat] = {
+      val startingWithPrefix = storage filterKeys (_.startsWith(prefix))
+      val stats = startingWithPrefix.values.map { case (stat, _) => stat }
+      stats.toList
+    }
   }
 
   val backupManager = new BackupManager(dbProvider, TestBackupStorage, TestObjectStorage)

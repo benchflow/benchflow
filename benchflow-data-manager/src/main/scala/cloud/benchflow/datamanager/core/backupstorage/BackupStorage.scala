@@ -1,7 +1,6 @@
 package cloud.benchflow.datamanager.core.backupstorage
 
-import java.io.InputStream
-import java.io.OutputStream
+import java.io.{ InputStream, OutputStream }
 
 import com.google.inject.ImplementedBy
 
