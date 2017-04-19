@@ -14,10 +14,20 @@
         <commons-io.version>2.5</commons-io.version>
         <dropwizard-logging.version>1.1.0</dropwizard-logging.version>
         <junit.version>4.12</junit.version>
+        <docker-compose-rule-junit4.version>0.31.1</docker-compose-rule-junit4.version>
         <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
         <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
         <maven-surefire-plugin.version>2.20</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>2.20</maven-failsafe-plugin.version>
     </properties>
+
+    <!-- for docker-compose-rule -->
+    <repositories>
+        <repository>
+            <id>palantir</id>
+            <url>https://dl.bintray.com/palantir/releases</url>
+        </repository>
+    </repositories>
 
     <dependencies>
 
@@ -45,6 +55,14 @@
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <!--https://github.com/palantir/docker-compose-rule-->
+        <!--This is a library for executing JUnit tests that interact with Docker Compose managed containers-->
+        <dependency>
+            <groupId>com.palantir.docker.compose</groupId>
+            <artifactId>docker-compose-rule-junit4</artifactId>
+            <version>${docker-compose-rule-junit4.version}</version>
         </dependency>
 
     </dependencies>
@@ -122,6 +140,20 @@
                 <configuration>
                     <skipTests>false</skipTests>
                 </configuration>
+            </plugin>
+            <!--to run integration tests-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven-failsafe-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
