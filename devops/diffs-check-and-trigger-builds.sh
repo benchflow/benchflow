@@ -197,6 +197,9 @@ do
 				     "benchflow-dsl")
 				     branch_name_pipeline_id=$WERCKER_BENCHFLOW_DSL_PIPELINE_ID
 				     ;;
+				     "docker-images")
+				     branch_name_pipeline_id=$WERCKER_DOCKER_IMAGES_BASE_PIPELINE_ID
+				     ;;
 				     *)
 				     echo "No build pipeline defined for the current folder"
 				     ;;
