@@ -10,15 +10,40 @@
         <project.name>benchflow-minio-client</project.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <junit.version>4.7</junit.version>
+        <minio.version>3.0.4</minio.version>
+        <commons-io.version>2.5</commons-io.version>
+        <dropwizard-logging.version>1.1.0</dropwizard-logging.version>
+        <junit.version>4.12</junit.version>
+        <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
+        <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
+        <maven-surefire-plugin.version>2.20</maven-surefire-plugin.version>
     </properties>
 
     <dependencies>
 
         <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>${minio.version}</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-logging</artifactId>
+            <version>${dropwizard-logging.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.7</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -30,7 +55,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.3</version>
+                    <version>${maven-compiler-plugin.version}</version>
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
@@ -80,7 +105,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.6</version>
+                <version>${maven-jar-plugin.version}</version>
                 <configuration>
                     <finalName>${project.name}</finalName>
                     <archive>
@@ -93,7 +118,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.7</version>
+                <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <skipTests>false</skipTests>
                 </configuration>
