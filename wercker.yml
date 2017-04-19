@@ -60,7 +60,7 @@ deploy-benchflow-dsl:
      # TODO: # this is going to be moved and handled by a requirements file in devops / base-images for building (fast approach for the first iterations, improved over time)
     - install-packages:
         packages: jq curl
-   - script:
+    - script:
         name: Generate the Image Tag
         cwd: ./devops
         code: ./generate-commit-specific-tag.sh
