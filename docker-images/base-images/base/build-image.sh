@@ -1,4 +1,5 @@
 #/bin/bash
+# This is the base base image of all the images used in benchflow
 
 # TODO: remove, when the code become stable
 set -xv	
