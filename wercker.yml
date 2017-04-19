@@ -17,9 +17,13 @@ what-to-build:
         packages: jq curl
     - script:
         name: Check diffs and trigger builds
+        cwd: ./devops
         code: |
           # Check diffs and trigger builds
-          ./devops/diffs-check-and-trigger-builds.sh
+          ./diffs-check-and-trigger-builds.sh
+    - script:
+        name: Add a file to WERCKER_OUTPUT_DIR, to speed up the not needed store step
+        code: touch $WERCKER_OUTPUT_DIR/.skip
 
 # TODO: similar pipelines can be made generic and triggered using env variables to set the actual project to build
 
@@ -33,6 +37,9 @@ build-benchflow-dsl:
     - xenoterracide/maven:
         goals: package
         args: -f $WERCKER_SOURCE_DIR/benchflow-dsl
+    - script:
+        name: Copy benchflow-dsl to WERCKER_OUTPUT_DIR
+        code: cp $WERCKER_SOURCE_DIR/benchflow-dsl/target/benchflow-dsl.jar $WERCKER_OUTPUT_DIR
 
 ###########################################################
 # DRAFT
@@ -45,7 +52,8 @@ deploy-benchflow-dsl:
         packages: jq curl
     - script:
         name: Deliver benchflow-dsl on Bintray
+        cwd: ./devops
         code: |
           # Deliver branch and commit specific artifacts on Bintray
-          export ARTIFACT_NAME=benchflow_dsl
-          ./devops/deliver-on-bintray.sh
+          export ARTIFACT_NAME=benchflow-dsl
+          ./deliver-on-bintray.sh
