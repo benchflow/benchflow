@@ -62,6 +62,9 @@ build-benchflow-dsl:
   # Now we version code in folders reporting the version number, and we always update version 0.1.0
   # paying attention that it does not influence the behavior of dependent images. Since we do that
   # for now we really use just the root folder.
+  # ATTENTION: When editing base images, we always have to work in a feature branch and we have to
+  #            be sure the layers build before merging into devel, to which other services are referencing
+  #            for the code to be used when building the layers they need
 # NOTE: Base images have version defined manually and dictated by the version set to chaperone,
 #       because currently no matter what we update we start the build from the chaperone images
 #       by updating the version in docker-images/base-images/chaperone/setup/version.inc, that 
@@ -204,7 +207,7 @@ test-build-base-images-base-java8:
           # Binaries folder ($WERCKER_OUTPUT_DIR)
           export BINARIES_FOLDER=$WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup/lib
           source install.sh
-
+          
           # Add the Base Image Base Layer
           cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base
           source build-image.sh
