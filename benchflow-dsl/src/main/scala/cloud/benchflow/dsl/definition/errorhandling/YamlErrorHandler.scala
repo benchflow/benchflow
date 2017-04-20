@@ -17,7 +17,7 @@ object YamlErrorHandler {
 
   private def unexpectedTypeFailure(key: String, e: Exception) =
     Failure(new BenchFlowDeserializationException(
-      s"Unexpected type: $key -> ${e.getMessage.head.toLower + e.getMessage.tail}",
+      s"Unexpected type: $key -> ${e.getMessage.take(1).toLowerCase + e.getMessage.drop(1)}",
       e))
 
   private def unexpectedException(e: Exception) =
