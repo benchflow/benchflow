@@ -104,10 +104,11 @@ build-base-images-chaperone-binaries:
         # NOTE: Due to the need of the cmd: /bin/sh command above
         #       We need to use source here, so we get the code executed in the current shell
         code: source create-binaries.sh
+    # This speeds up the build, because we just copy what we need
     - script:
         name: Copy the Binaries to the WERCKER_OUTPUT_DIR
-        cwd: $WERCKER_SOURCE_DIR/docker-images/base-images/chaperone/setup/lib
-        code: cp setproctitle-install.tar.gz $WERCKER_OUTPUT_DIR
+        cwd: $WERCKER_SOURCE_DIR/docker-images/base-images
+        code: cp -a chaperone $WERCKER_OUTPUT_DIR
 
 # Starting with package-, instead of build-, because it is chained in a workflow with 
 # build-base-images-chaperone-binaries and CI scripts search for pipelines starting with build-
@@ -139,10 +140,10 @@ package-and-deploy-base-images-chaperone:
         packages: musl python3 bash sudo
     - script:
         name: Configure container
-        cwd: $WERCKER_SOURCE_DIR/docker-images/base-images/chaperone/setup
+        cwd: $WERCKER_OUTPUT_DIR/chaperone/setup
         code: |
           # Binaries folder ($WERCKER_OUTPUT_DIR)
-          export BINARIES_FOLDER=$WERCKER_OUTPUT_DIR
+          export BINARIES_FOLDER=$WERCKER_OUTPUT_DIR/chaperone/setup/lib
           source install.sh
     - script:
         name: Cleanup the Image
