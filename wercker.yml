@@ -104,6 +104,10 @@ build-base-images-chaperone-binaries:
         # NOTE: Due to the need of the cmd: /bin/sh command above
         #       We need to use source here, so we get the code executed in the current shell
         code: source create-binaries.sh
+    # TODO: for now it is comment out because it somehow causes error in step
+    # Configure container of package-and-deploy-base-images-chaperone
+    # Then anyway we have to fine grain control what has to pass to the next pipelines,
+    # according to how they are piped, because they need code to build
     # # This speeds up the build, because we just copy what we need
     # - script:
     #     name: Copy the Binaries to the WERCKER_OUTPUT_DIR
@@ -149,9 +153,9 @@ package-and-deploy-base-images-chaperone:
         name: Cleanup the Image
         cwd: ./devops
         code: ./cleanup-wercker-build.sh
-    - script:
-        name: Manually Set the Image Tag
-        code: export CUSTOM_VERSION_TAG=chaperone_0.1.0
+    # - script:
+    #     name: Manually Set the Image Tag
+    #     code: export CUSTOM_VERSION_TAG=chaperone_0.1.0
     # push container as-is
     - internal/docker-push:
         author: Vincenzo FERME <info@vincenzoferme.it>
@@ -160,10 +164,14 @@ package-and-deploy-base-images-chaperone:
         email: $DOCKER_HUB_EMAIL
         username: $DOCKER_HUB_USERNAME
         password: $DOCKER_HUB_PASSWORD
-        tag: chaperone_$CUSTOM_VERSION_TAG
+        # TODO: understand how to let the previous commented step work
+        tag: chaperone_0.1.0
         # _CHAP_OPTIONS - Used instead entrypoint args so that any default can be overridden by CMD
         env: "_CHAP_OPTIONS=--config apps/chaperone.d --default-home / --user runapps"
         entrypoint: "/usr/local/bin/chaperone"
+    # - script:
+    #     name: Add a file to WERCKER_OUTPUT_DIR, to speed up the not needed store step
+    #     code: touch $WERCKER_OUTPUT_DIR/.skip
 
 ###########################################################
 # DRAFT
@@ -180,9 +188,9 @@ build-and-deploy-base-images-base:
         name: Cleanup the Image
         cwd: ./devops
         code: ./cleanup-wercker-build.sh
-    - script:
-        name: Manually Set the Image Tag
-        code: export CUSTOM_VERSION_TAG=base_0.1.0
+    # - script:
+    #     name: Manually Set the Image Tag
+    #     code: export CUSTOM_VERSION_TAG=base_0.1.0
     # push container as-is
     - internal/docker-push:
         author: Vincenzo FERME <info@vincenzoferme.it>
@@ -192,5 +200,6 @@ build-and-deploy-base-images-base:
         username: $DOCKER_HUB_USERNAME
         password: $DOCKER_HUB_PASSWORD
         # NOTE: first we push the commit specific image, then the image for the branch
-        tag: $CUSTOM_VERSION_TAG,$WERCKER_GIT_BRANCH
+        # TODO: understand how to let the previous commented step work
+        tag: base_0.1.0
         entrypoint: "/usr/local/bin/chaperone"
