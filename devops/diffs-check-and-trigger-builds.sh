@@ -185,6 +185,8 @@ do
 						 # Determine which folders has been changed and trigger the build
 						 # Now the assumption is that we only have subfolder interest for the docker-images folder
 
+						 # TODO: collect only sub folder of docker-images, and not all of them, by selecting more fain grained
+
 						 changed_sub_folders=$(cat "commit_api_$commit.txt" | jq '.files[] | select(.filename | split ("/") | length > 1 ) | .filename | split ("/") | .[1]' | uniq)
 
 						 changed_sub_folders_arr=(${changed_sub_folders// / })
