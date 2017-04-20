@@ -178,7 +178,9 @@ package-and-deploy-base-images-chaperone:
 # Pipeline used to build and deploy on Docker Hub: docker-images/base-images/base
 ###########################################################
 build-and-deploy-base-images-base:
-  box: benchflow/base-images:chaperone_0.1.0
+  box: 
+    id: benchflow/base-images:chaperone_0.1.0
+    cmd: /bin/sh
   steps:
     - script:
         name: Build the Image
