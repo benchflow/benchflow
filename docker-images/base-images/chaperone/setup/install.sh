@@ -16,6 +16,9 @@ echo "ALL ALL=NOPASSWD: ALL" >>/etc/sudoers
 # Install prebuilt binaries
 (cd /; tar vxzf $BINARIES_FOLDER/setproctitle-install.tar.gz)
 
+# Install chaperone dependencies
+apk add --update  musl python3 bash sudo
+
 # Build chaperone
 $BUILD_CHAPERONE_INSTALL # normally 'pip3 install chaperone' located in buildenv.inc
 
