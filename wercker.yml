@@ -5,6 +5,7 @@
 box: ubuntu:16.10
 
 # TODO: work on caching for all the steps
+# TODO: version pin steps
 
 ###########################################################
 # DRAFT
@@ -80,12 +81,90 @@ deploy-benchflow-dsl:
 
 ###########################################################
 # DRAFT
+# Pipeline used to build and deploy on Docker Hub: docker-images/base-images/chaperone
+# See: docker-images/base-images/chaperone/README.md
+###########################################################
+build-base-images-chaperone-binaries:
+  # See: https://github.com/wercker/wercker/issues/262
+  box: 
+    id: alpine:3.5
+    cmd: /bin/sh
+  steps:
+    # Install all development tools...
+    # See: https://github.com/ytet5uy4/step-apk-add
+    - ytet5uy4/apk-add@0.1.2:
+        name: Install all development tools
+        update: "true"
+        cache: "true"
+        packages: python3-dev gcc bash git musl-dev
+    - script:
+        name: Build the Binaries
+        # Set the working folder, so we can refer to files in that context
+        cwd:  $WERCKER_SOURCE_DIR/docker-images/base-images/chaperone/setup
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: source create-binaries.sh
+    - script:
+        name: Copy the Binaries to the WERCKER_OUTPUT_DIR
+        cwd: $WERCKER_SOURCE_DIR/docker-images/base-images/chaperone/setup/lib
+        code: cp setproctitle-install.tar.gz $WERCKER_OUTPUT_DIR
+
+# Starting with package-, instead of build-, because it is chained in a workflow with 
+# build-base-images-chaperone-binaries and CI scripts search for pipelines starting with build-
+# when it is time to build something, so we use build- only if it is the first pipeline in a workflow
+# Last Version on: https://github.com/garywiz/chaperone-docker
+# 1.0.16-U14
+# TODO: Monitor https://github.com/garywiz/chaperone-docker/issues/5
+# DECIDE: If migrate to the following image at some point: https://github.com/phusion/baseimage-docker
+package-and-deploy-base-images-chaperone:
+  # See: https://github.com/wercker/wercker/issues/262
+  box: 
+    id: alpine:3.5
+    cmd: /bin/sh
+  steps:
+    # See: https://github.com/ytet5uy4/step-apk-add
+    - ytet5uy4/apk-add@0.1.2:
+        name: Install chaperone and dependencies
+        update: "true"
+        cache: "true"
+        packages: musl python3 bash sudo
+    - script:
+        name: Configure container
+        cwd: $WERCKER_SOURCE_DIR/docker-images/base-images/chaperone/setup
+        code: |
+          # Binaries folder ($WERCKER_OUTPUT_DIR)
+          export BINARIES_FOLDER=$WERCKER_OUTPUT_DIR
+          source install.sh
+    - script:
+        name: Cleanup the Image
+        cwd: ./devops
+        code: ./cleanup-wercker-build.sh
+    - script:
+        name: Generate the Image Tag
+        cwd: ./devops
+        code: ./generate-commit-specific-tag.sh
+    # push container as-is
+    - internal/docker-push:
+        author: Vincenzo FERME <info@vincenzoferme.it>
+        disable-sync: false
+        repository: benchflow/base-images
+        email: $DOCKER_HUB_EMAIL
+        username: $DOCKER_HUB_USERNAME
+        password: $DOCKER_HUB_PASSWORD
+        # NOTE: first we push the commit specific image, then the image for the branch
+        tag: chaperone_$CUSTOM_VERSION_TAG,chaperone_$WERCKER_GIT_BRANCH
+        # _CHAP_OPTIONS - Used instead entrypoint args so that any default can be overridden by CMD
+        env: "_CHAP_OPTIONS=--config apps/chaperone.d --default-home / --user runapps"
+        entrypoint: "/usr/local/bin/chaperone"
+
+###########################################################
+# DRAFT
 # Pipeline used to build and deploy on Docker Hub: docker-images/base-images/base
 ###########################################################
 build-and-deploy-base-images-base:
   box: 
-    id: chapdev/chaperone-alpinebase:1.0.16-U14
-    cmd: /bin/sh
+    id: benchflow/base-images
+    cmd: /bin/bash
   steps:
     - script:
         name: Build the Image
