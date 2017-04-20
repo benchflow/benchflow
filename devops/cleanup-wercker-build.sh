@@ -5,8 +5,8 @@
 # TODO: remove, when the code become stable
 set -xv	
 
-# Determine if we are in a CI environment (e.g., the Wercker Cloud) or not
-if [ "$CI" = true ]; then
+# Determine if we are in a CI environment (for now the Wercker Cloud) or not
+if [ "$WERCKER" = true ]; then
 	# Reference for the - before rm: https://superuser.com/a/523510
 	-rm -Rf /report /pipeline
 else
