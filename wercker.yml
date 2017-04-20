@@ -114,6 +114,15 @@ build-base-images-chaperone-binaries:
 # when it is time to build something, so we use build- only if it is the first pipeline in a workflow
 # Last Version on: https://github.com/garywiz/chaperone-docker
 # 1.0.16-U14
+# Current Custom Version on: https://github.com/garywiz/chaperone-docker
+# 1.0.17-U14
+# Base Images Versioning:
+  # Current Version: 0.1.0 (see: docker-images/base-images/chaperone/setup/version.inc)
+# NOTE: Base images have version defined manually and dictated by the version set to chaperone,
+#       because currently no matter what we update we start the build from the chaperone images
+#       by updating the version in docker-images/base-images/chaperone/setup/version.inc, that 
+#       triggers a rebuild of the image, so that we can reference to the new version in dependent images
+#       given that now they are always build in a pipelines starting with build-base-images-chaperone-binaries
 # TODO: Monitor https://github.com/garywiz/chaperone-docker/issues/5
 # DECIDE: If migrate to the following image at some point: https://github.com/phusion/baseimage-docker
 package-and-deploy-base-images-chaperone:
@@ -140,9 +149,8 @@ package-and-deploy-base-images-chaperone:
         cwd: ./devops
         code: ./cleanup-wercker-build.sh
     - script:
-        name: Generate the Image Tag
-        cwd: ./devops
-        code: ./generate-commit-specific-tag.sh
+        name: Manually Set the Image Tag
+        code: export CUSTOM_VERSION_TAG=chaperone_0.1.0
     # push container as-is
     - internal/docker-push:
         author: Vincenzo FERME <info@vincenzoferme.it>
@@ -151,8 +159,7 @@ package-and-deploy-base-images-chaperone:
         email: $DOCKER_HUB_EMAIL
         username: $DOCKER_HUB_USERNAME
         password: $DOCKER_HUB_PASSWORD
-        # NOTE: first we push the commit specific image, then the image for the branch
-        tag: chaperone_$CUSTOM_VERSION_TAG,chaperone_$WERCKER_GIT_BRANCH
+        tag: chaperone_$CUSTOM_VERSION_TAG
         # _CHAP_OPTIONS - Used instead entrypoint args so that any default can be overridden by CMD
         env: "_CHAP_OPTIONS=--config apps/chaperone.d --default-home / --user runapps"
         entrypoint: "/usr/local/bin/chaperone"
@@ -162,9 +169,7 @@ package-and-deploy-base-images-chaperone:
 # Pipeline used to build and deploy on Docker Hub: docker-images/base-images/base
 ###########################################################
 build-and-deploy-base-images-base:
-  box: 
-    id: benchflow/base-images
-    cmd: /bin/bash
+  box: benchflow/base-images:chaperone_0.1.0
   steps:
     - script:
         name: Build the Image
@@ -175,9 +180,8 @@ build-and-deploy-base-images-base:
         cwd: ./devops
         code: ./cleanup-wercker-build.sh
     - script:
-        name: Generate the Image Tag
-        cwd: ./devops
-        code: ./generate-commit-specific-tag.sh
+        name: Manually Set the Image Tag
+        code: export CUSTOM_VERSION_TAG=base_0.1.0
     # push container as-is
     - internal/docker-push:
         author: Vincenzo FERME <info@vincenzoferme.it>
