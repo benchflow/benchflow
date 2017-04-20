@@ -8,7 +8,7 @@ set -xv
 # Determine if we are in a CI environment (for now the Wercker Cloud) or not
 # Although Wercker suggests to use the CI or WERCKER variables (http://devcenter.wercker.com/docs/environment-variables/available-env-vars)
 # , those are true also locally, somehow. WERCKER_STARTED_BY is only set in the Wercker Cloud
-if [ -z ${WERCKER_STARTED_BY+x} ]; then
+if [ -z "$WERCKER_STARTED_BY" ]; then
 	# Reference for the - before rm: https://superuser.com/a/523510 (It does not work)
 	rm -Rf /report /pipeline
 else
