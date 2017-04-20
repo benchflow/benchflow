@@ -7,8 +7,17 @@
 # uid=`ls -l / | awk '/setup$/{print $3}'`
 # adduser -D -u $uid -s /bin/sh usetup
 
-# echo Install all development tools...
-# apk add --update python3-dev gcc bash git musl-dev
+
+# When integrated in Wercker, we can use the following instead:
+# Install all development tools...
+    # See: https://github.com/ytet5uy4/step-apk-add
+    # - ytet5uy4/apk-add@0.1.2:
+    #     name: Install all development tools
+    #     update: "true"
+    #     cache: "true"
+    #     packages: python3-dev gcc bash git musl-dev
+echo Install all development tools...
+apk add --update python3-dev gcc bash git musl-dev
 
 # Output directory root (it is the directory where we cwd on the Wercker step calling this script)
 output=$(pwd)
