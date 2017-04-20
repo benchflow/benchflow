@@ -36,11 +36,16 @@ apk add --update wget ca-certificates
 cd $TMP
 wget --no-check-certificate --progress=dot:mega \
  "https://github.com/andyshinn/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk" \
- "https://github.com/andyshinn/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk"
+ "https://github.com/andyshinn/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk" 
+ # \
+ # "https://github.com/andyshinn/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-i18n-${GLIBC_VERSION}.apk"
 
-apk add --allow-untrusted glibc-${GLIBC_VERSION}.apk glibc-bin-${GLIBC_VERSION}.apk
+apk add --allow-untrusted glibc-${GLIBC_VERSION}.apk glibc-bin-${GLIBC_VERSION}.apk 
+# glibc-i18n-${GLIBC_VERSION}.apk
 
-/usr/glibc/usr/bin/ldconfig /lib /usr/glibc/usr/lib
+# TODO: enable again, if needed and when we figure out why
+# /usr/glibc/usr/bin/ldconfig causes: /usr/glibc/usr/bin/ldconfig: not found
+# /usr/glibc/usr/bin/ldconfig /lib /usr/glibc/usr/lib
 
 echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
 
