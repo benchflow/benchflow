@@ -9,7 +9,7 @@
     <fa:scale>10</fa:scale>
     <fh:timeSync>false</fh:timeSync>
     <fa:hostConfig>
-      <fa:host>10.42.15.193</fa:host>
+      <fa:host>127.0.0.1</fa:host>
       <fh:tools>NONE</fh:tools>
     </fa:hostConfig>
     <stats>
@@ -17,7 +17,7 @@
       <maxRunTime>6</maxRunTime>
     </stats>
     <driverConfig name="WfMSStartDriver">
-      <agents>10.42.15.193:1</agents>
+      <agents>127.0.0.1</agents>
     </driverConfig>
     <fa:runControl unit="time">
       <fa:rampUp>30</fa:rampUp>
@@ -33,11 +33,11 @@
   <sutConfiguration>
     <serviceName>activiti</serviceName>
     <endpoint>/activiti-rest</endpoint>
-    <address>192.168.41.45:8080</address>
+    <address>127.0.0.1:8080</address>
   </sutConfiguration>
   <benchFlowServices>
     <privatePort>8080</privatePort>
-    <deploymentManager>10.40.1.128:8050</deploymentManager>
+    <deploymentManager>127.0.0.1:8050</deploymentManager>
     <servicesConfiguration>
       <service name="activiti">
         <collectors></collectors>
