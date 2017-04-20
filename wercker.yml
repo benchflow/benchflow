@@ -50,7 +50,7 @@ build-benchflow-dsl:
 
 ###########################################################
 # DRAFT
-# Pipeline used to build for testing the layer: docker-images/base-images-layers/chaperone
+# Pipeline used to build for testing the layer: docker-images/base-images-layers/*
 # See: docker-images/base-images-layers/chaperone/README.md
 ###########################################################
 # Last Version on: https://github.com/garywiz/chaperone-docker
@@ -69,7 +69,7 @@ build-benchflow-dsl:
 #       given that now they are always build in a pipelines starting with build-base-images-chaperone-binaries
 # TODO: Monitor https://github.com/garywiz/chaperone-docker/issues/5
 # DECIDE: If migrate to the following image at some point: https://github.com/phusion/baseimage-docker
-build-base-images-chaperone:
+build-test-base-images-chaperone:
   # See: https://github.com/wercker/wercker/issues/262
   box: 
     id: alpine:3.5
@@ -91,7 +91,13 @@ build-base-images-chaperone:
           export BINARIES_FOLDER=$WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup/lib
           source install.sh
 
-build-base-images-base:
+# FOR: the following pipelines
+# Starting with test-build-, instead of build-, because it is chained in a workflow with 
+# build-base-images-chaperone and CI scripts search for pipelines starting with build-
+# when it is time to build something, so we use build- only if it is the first pipeline in a workflow
+# We do this to simplify the build scripts, even though we reduce flexibility, for now
+
+test-build-base-images-base:
   # See: https://github.com/wercker/wercker/issues/262
   box: 
     id: alpine:3.5
@@ -117,7 +123,7 @@ build-base-images-base:
           cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base
           source build-image.sh
 
-build-base-images-base-dns:
+test-build-base-images-base-dns:
   # See: https://github.com/wercker/wercker/issues/262
   box: 
     id: alpine:3.5
@@ -143,7 +149,7 @@ build-base-images-base-dns:
           cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-dns
           source build-image.sh
 
-build-base-images-base-envconsul:
+test-build-base-images-base-envconsul:
   # See: https://github.com/wercker/wercker/issues/262
   box: 
     id: alpine:3.5
@@ -169,7 +175,7 @@ build-base-images-base-envconsul:
           cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-envconsul
           source build-image.sh
 
-build-base-images-base-java8:
+test-build-base-images-base-java8:
   # See: https://github.com/wercker/wercker/issues/262
   box: 
     id: alpine:3.5
@@ -247,10 +253,6 @@ deploy-benchflow-dsl:
 # See: docker-images/base-images/chaperone/README.md
 ###########################################################
 
-
-# Starting with package-, instead of build-, because it is chained in a workflow with 
-# build-base-images-chaperone-binaries and CI scripts search for pipelines starting with build-
-# when it is time to build something, so we use build- only if it is the first pipeline in a workflow
 # package-and-deploy-base-images-chaperone:
 #   # See: https://github.com/wercker/wercker/issues/262
 #   box: 
