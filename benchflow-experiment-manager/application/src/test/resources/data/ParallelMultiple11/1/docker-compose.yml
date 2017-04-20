@@ -2,29 +2,29 @@ services:
   activiti:
     image: vincenzoferme/wfms:activiti_5.21.0_conf
     ports:
-    - 192.168.41.45:8080:8080
+    - 127.0.0.1:8080:8080
     command: bash -c "sleep 60 && sed -i s/create.demo.models=true/create.demo.models=false/g /opt/tomcat/webapps/activiti-explorer/WEB-INF/classes/engine.properties && sed -i s/create.demo.reports=true/create.demo.reports=false/g /opt/tomcat/webapps/activiti-explorer/WEB-INF/classes/engine.properties && sed -i s/create.demo.definitions=true/create.demo.definitions=false/g /opt/tomcat/webapps/activiti-explorer/WEB-INF/classes/engine.properties && /assets/init"
     container_name: activiti_BenchFlow.ParallelMultiple11Activiti5210.12.1
     network_mode: host
     environment:
     - DB_NAME=activiti_production
     - DB_TYPE=mysql
-    - DB_HOST=192.168.41.45
-    - DB_PASS=kermit
+    - DB_HOST=127.0.0.1
+    - DB_PASS=password
     - constraint:node==grid
-    - DB_USER=kermit
+    - DB_USER=user
     - DB_PORT=3306
   benchflow.monitor.mysql.db.querymysql:
     image: benchflow/monitors:querymysql_dev
     ports:
-    - 195.176.181.45::8080
+    - 127.0.0.1::8080
     container_name: benchflow.monitor.mysql.db.querymysql_BenchFlow.ParallelMultiple11Activiti5210.12.1
     network_mode: bridge
     environment:
-    - MYSQL_USER_PASSWORD=kermit
+    - MYSQL_USER_PASSWORD=password
     - BENCHFLOW_MONITOR_NAME=querymysql
-    - MYSQL_HOST=192.168.41.45
-    - MYSQL_USER=kermit
+    - MYSQL_HOST=127.0.0.1
+    - MYSQL_USER=user
     - BENCHFLOW_CONTAINER_NAME=benchflow.monitor.mysql.db.querymysql_BenchFlow.ParallelMultiple11Activiti5210.12.1
     - constraint:node==grid
     - MYSQL_PORT=3306
@@ -35,26 +35,26 @@ services:
   db:
     image: mysql:5.7.17
     ports:
-    - 192.168.41.45:3306:3306
+    - 127.0.0.1:3306:3306
     container_name: db_BenchFlow.ParallelMultiple11Activiti5210.12.1
     network_mode: host
     environment:
     - MYSQL_DATABASE=activiti_production
-    - MYSQL_PASSWORD=kermit
-    - MYSQL_USER=kermit
-    - MYSQL_ROOT_PASSWORD=kermit
+    - MYSQL_PASSWORD=password
+    - MYSQL_USER=user
+    - MYSQL_ROOT_PASSWORD=root_password
     - constraint:node==grid
   benchflow.monitor.mysql.db.cpu:
     image: benchflow/monitors:cpu_dev
     ports:
-    - 195.176.181.45::8080
+    - 127.0.0.1::8080
     container_name: benchflow.monitor.mysql.db.cpu_BenchFlow.ParallelMultiple11Activiti5210.12.1
     network_mode: bridge
     environment:
-    - MYSQL_USER_PASSWORD=kermit
+    - MYSQL_USER_PASSWORD=password
     - BENCHFLOW_MONITOR_NAME=cpu
-    - MYSQL_HOST=192.168.41.45
-    - MYSQL_USER=kermit
+    - MYSQL_HOST=127.0.0.1
+    - MYSQL_USER=user
     - BENCHFLOW_CONTAINER_NAME=benchflow.monitor.mysql.db.cpu_BenchFlow.ParallelMultiple11Activiti5210.12.1
     - constraint:node==grid
     - MYSQL_PORT=3306
@@ -65,18 +65,18 @@ services:
   benchflow.collector.mysql.db:
     image: benchflow/collectors:mysql_dev
     ports:
-    - 195.176.181.45::8080
+    - 127.0.0.1::8080
     container_name: benchflow.collector.mysql.db_BenchFlow.ParallelMultiple11Activiti5210.12.1
     network_mode: bridge
     environment:
     - SUT_NAME=activiti
     - SUT_VERSION=5.21.0
     - BENCHFLOW_EXPERIMENT_ID=BenchFlow.ParallelMultiple11Activiti5210.12
-    - MYSQL_USER_PASSWORD=kermit
-    - MINIO_SECRETACCESSKEY=SQ96V5pg02Z3kZ/0ViF9YY6GwWzZvoBmElpzEEjn
+    - MYSQL_USER_PASSWORD=user
+    - MINIO_SECRETACCESSKEY=secret_key
     - KAFKA_PORT=9092
-    - MYSQL_HOST=192.168.41.45
-    - MYSQL_USER=kermit
+    - MYSQL_HOST=127.0.0.1
+    - MYSQL_USER=user
     - BENCHFLOW_CONTAINER_NAME=benchflow.collector.mysql.db_BenchFlow.ParallelMultiple11Activiti5210.12.1
     - BENCHFLOW_COLLECTOR_NAME=mysql
     - MINIO_PORT=9000
@@ -84,12 +84,12 @@ services:
     - MYSQL_PORT=3306
     - BENCHFLOW_TRIAL_ID=BenchFlow.ParallelMultiple11Activiti5210.12.1
     - KAFKA_TOPIC=mysql
-    - MINIO_HOST=10.40.1.128
+    - MINIO_HOST=127.0.0.1
     - TABLE_NAMES=ACT_HI_PROCINST,ACT_HI_ACTINST
     - BENCHFLOW_DATA_NAME=mysql
     - MYSQL_DB_NAME=activiti_production
-    - KAFKA_HOST=10.40.1.128
-    - MINIO_ACCESSKEYID=CYNQML6R7V12MTT32W6P
+    - KAFKA_HOST=127.0.0.1
+    - MINIO_ACCESSKEYID=access_id
     expose:
     - 8080
 version: '2'
