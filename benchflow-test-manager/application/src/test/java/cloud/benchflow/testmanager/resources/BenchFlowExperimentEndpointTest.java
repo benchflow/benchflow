@@ -1,5 +1,6 @@
 package cloud.benchflow.testmanager.resources;
 
+import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.api.request.BenchFlowExperimentStateRequest;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.helpers.TestConstants;
@@ -7,8 +8,10 @@ import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
+import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -24,10 +27,11 @@ import javax.ws.rs.core.Response;
 public class BenchFlowExperimentEndpointTest {
 
     private static BenchFlowExperimentModelDAO experimentModelDAOMock = Mockito.mock(BenchFlowExperimentModelDAO.class);
+    private static BenchFlowTestTaskController testTaskControllerMock = Mockito.mock(BenchFlowTestTaskController.class);
 
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
-            .addResource(new BenchFlowExperimentResource(experimentModelDAOMock))
+            .addResource(new BenchFlowExperimentResource(experimentModelDAOMock, testTaskControllerMock))
             .build();
 
 

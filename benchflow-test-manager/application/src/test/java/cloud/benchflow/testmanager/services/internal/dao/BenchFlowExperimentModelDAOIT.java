@@ -75,7 +75,7 @@ public class BenchFlowExperimentModelDAOIT extends DockerComposeIT {
         Assert.assertNotNull(trialStatus);
         assertEquals(RunStatus.Code.STARTED, trialStatus);
 
-        // COMPLETED
+        // TERMINATED
         experimentModelDAO.addTrialStatus(experimentID, trialNumber, RunStatus.Code.COMPLETED);
         trialStatus = experimentModelDAO.getTrialStatus(experimentID, trialNumber);
 

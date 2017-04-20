@@ -5,6 +5,7 @@ import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
+import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,6 +26,7 @@ public class BenchFlowExperimentResourceTest {
 
     // mocks
     private BenchFlowExperimentModelDAO experimentModelDAOMock = Mockito.mock(BenchFlowExperimentModelDAO.class);
+    private BenchFlowTestTaskController testTaskControllerMock = Mockito.mock(BenchFlowTestTaskController.class);
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -32,7 +34,7 @@ public class BenchFlowExperimentResourceTest {
     @Before
     public void setUp() throws Exception {
 
-        resource = new BenchFlowExperimentResource(experimentModelDAOMock);
+        resource = new BenchFlowExperimentResource(experimentModelDAOMock, testTaskControllerMock);
         request = new BenchFlowExperimentStateRequest();
 
     }

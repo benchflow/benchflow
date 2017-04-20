@@ -15,7 +15,7 @@ import org.junit.rules.ExpectedException;
 import java.util.List;
 
 import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_BENCHFLOW_TEST_NAME;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.COMPLETED;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -134,11 +134,11 @@ public class BenchFlowITModelDAOIT extends DockerComposeIT {
 
         assertEquals(BenchFlowTestModel.BenchFlowTestState.READY, state);
 
-        testModelDAO.setTestState(testID, COMPLETED);
+        testModelDAO.setTestState(testID, TERMINATED);
 
         state = testModelDAO.getTestState(testID);
 
-        assertEquals(COMPLETED, state);
+        assertEquals(TERMINATED, state);
 
         testModelDAO.removeTestModel(testID);
 

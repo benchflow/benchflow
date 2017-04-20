@@ -2,6 +2,7 @@ package cloud.benchflow.testmanager.resources;
 
 import cloud.benchflow.dsl.BenchFlowDSL;
 import cloud.benchflow.dsl.definition.BenchFlowTest;
+import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.api.request.ChangeBenchFlowTestStateRequest;
 import cloud.benchflow.testmanager.api.response.ChangeBenchFlowTestStateResponse;
 import cloud.benchflow.testmanager.api.response.RunBenchFlowTestResponse;
@@ -19,6 +20,7 @@ import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
+import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import cloud.benchflow.testmanager.tasks.RunBenchFlowTestTask;
 import io.swagger.annotations.Api;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -51,20 +53,22 @@ public class BenchFlowTestResource {
 
     private Logger logger = LoggerFactory.getLogger(BenchFlowTestResource.class.getSimpleName());
 
-    private final ExecutorService taskExecutorService;
-    private final MinioService minioService;
     private final BenchFlowTestModelDAO testModelDAO;
-    private final BenchFlowExperimentModelDAO experimentModelDAO;
     private final UserDAO userDAO;
-    private final BenchFlowExperimentManagerService experimentManagerService;
 
-    public BenchFlowTestResource(ExecutorService taskExecutorService, MinioService minioService, BenchFlowTestModelDAO testModelDAO, BenchFlowExperimentModelDAO experimentModelDAO, UserDAO userDAO, BenchFlowExperimentManagerService experimentManagerService) {
-        this.taskExecutorService = taskExecutorService;
-        this.minioService = minioService;
+    private final BenchFlowTestTaskController testTaskController;
+
+    public BenchFlowTestResource() {
+        this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
+        this.userDAO = BenchFlowTestManagerApplication.getUserDAO();
+        this.testTaskController = BenchFlowTestManagerApplication.getTestTaskController();
+    }
+
+    /* used for tests */
+    public BenchFlowTestResource(BenchFlowTestModelDAO testModelDAO, UserDAO userDAO, BenchFlowTestTaskController testTaskController) {
         this.testModelDAO = testModelDAO;
-        this.experimentModelDAO = experimentModelDAO;
         this.userDAO = userDAO;
-        this.experimentManagerService = experimentManagerService;
+        this.testTaskController = testTaskController;
     }
 
     @POST
@@ -117,22 +121,11 @@ public class BenchFlowTestResource {
                 throw new InvalidTestArchiveException();
             }
 
-            // save new experiment
+            // save new test
             String testID = testModelDAO.addTestModel(benchFlowTest.name(), BenchFlowConstants.BENCHFLOW_USER);
 
-            // create new task and run it
-            RunBenchFlowTestTask task = new RunBenchFlowTestTask(
-                    testID,
-                    minioService,
-                    experimentManagerService,
-                    experimentModelDAO,
-                    testDefinitionString,
-                    deploymentDescriptorInputStream,
-                    bpmnModelsInputStream
-            );
-
-            // TODO - should go into a stateless queue (so that we can recover)
-            taskExecutorService.submit(task);
+            // submit the new test
+            testTaskController.submitTest(testID, testDefinitionString, deploymentDescriptorInputStream, bpmnModelsInputStream);
 
             return new RunBenchFlowTestResponse(testID);
 

@@ -15,6 +15,7 @@ import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
+import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,7 +32,7 @@ import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
 import static cloud.benchflow.testmanager.helpers.TestConstants.*;
 import static cloud.benchflow.testmanager.helpers.TestConstants.TEST_USER_NAME;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.COMPLETED;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.RUNNING;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
@@ -44,12 +45,9 @@ import static org.mockito.Mockito.verify;
 public class BenchFlowTestResourceTest {
 
     // mocks
-    private static final ExecutorService executorServiceMock = mock(ExecutorService.class);
-    private MinioService minioServiceMock = mock(MinioService.class);
     private BenchFlowTestModelDAO testModelDAOMock = mock(BenchFlowTestModelDAO.class);
-    private BenchFlowExperimentModelDAO experimentModelDAOMock = mock(BenchFlowExperimentModelDAO.class);
     private UserDAO userDAOMock = mock(UserDAO.class);
-    private BenchFlowExperimentManagerService experimentManagerServiceMock = mock(BenchFlowExperimentManagerService.class);
+    private BenchFlowTestTaskController testTaskController = mock(BenchFlowTestTaskController.class);
 
     private BenchFlowTestResource resource;
     private ChangeBenchFlowTestStateRequest request;
@@ -61,7 +59,7 @@ public class BenchFlowTestResourceTest {
     @Before
     public void setUp() throws Exception {
 
-        resource = new BenchFlowTestResource(executorServiceMock, minioServiceMock, testModelDAOMock, experimentModelDAOMock, userDAOMock, experimentManagerServiceMock);
+        resource = new BenchFlowTestResource(testModelDAOMock, userDAOMock, testTaskController);
         request = new ChangeBenchFlowTestStateRequest();
     }
 
@@ -88,7 +86,12 @@ public class BenchFlowTestResourceTest {
 
         Assert.assertTrue(response.getTestID().contains(VALID_BENCHFLOW_TEST_NAME));
 
-        verify(executorServiceMock, times(1)).submit(Mockito.any(Runnable.class));
+        verify(testTaskController, times(1)).submitTest(
+                Mockito.matches(expectedTestID),
+                Mockito.any(String.class),
+                Mockito.any(InputStream.class),
+                Mockito.anyMap()
+        );
 
     }
 
@@ -107,7 +110,7 @@ public class BenchFlowTestResourceTest {
     public void changeBenchFlowTestState() throws Exception {
 
         Mockito.doReturn(RUNNING).when(testModelDAOMock).setTestState(VALID_BENCHFLOW_TEST_ID, RUNNING);
-        Mockito.doReturn(COMPLETED).when(testModelDAOMock).setTestState(VALID_BENCHFLOW_TEST_ID, COMPLETED);
+        Mockito.doReturn(TERMINATED).when(testModelDAOMock).setTestState(VALID_BENCHFLOW_TEST_ID, TERMINATED);
 
         request.setState(RUNNING);
 
@@ -123,12 +126,12 @@ public class BenchFlowTestResourceTest {
         Assert.assertEquals(RUNNING, response.getState());
 
 
-        request.setState(COMPLETED);
+        request.setState(TERMINATED);
 
         response = resource.changeBenchFlowTestState(username, testName, testNumber, request);
 
         Assert.assertNotNull(response);
-        Assert.assertEquals(COMPLETED, response.getState());
+        Assert.assertEquals(TERMINATED, response.getState());
 
     }
 

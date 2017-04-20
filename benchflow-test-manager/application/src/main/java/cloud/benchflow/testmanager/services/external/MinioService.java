@@ -1,7 +1,9 @@
 package cloud.benchflow.testmanager.services.external;
 
 import io.minio.MinioClient;
+import io.minio.Result;
 import io.minio.errors.*;
+import io.minio.messages.Item;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +14,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.*;
 
@@ -144,6 +148,29 @@ public class MinioService {
 
         return getInputStreamObject(objectName);
 
+    }
+
+    public List<String> getAllTestBPMNModels(final String testID) {
+
+        List<String> modelNames = new ArrayList<>();
+
+        String objectName = null;
+
+        try {
+
+            objectName = testID + MINIO_ID_DELIMITER + BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER;
+
+            for (Result<Item> item : minioClient.listObjects(TESTS_BUCKET, objectName)) {
+                modelNames.add(item.get().objectName().replace(objectName, ""));
+            }
+
+        } catch (MinioException | XmlPullParserException | NoSuchAlgorithmException | InvalidKeyException | IOException e) {
+
+            // TODO - handle exception
+            logger.error("Exception in getAllTestBPMNModels: " + objectName, e);
+        }
+
+        return modelNames;
     }
 
     public void removeTestBPMNModel(String testID, String modelName) {

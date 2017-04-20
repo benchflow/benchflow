@@ -15,6 +15,7 @@ import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
+import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -35,19 +36,14 @@ import java.util.concurrent.ExecutorService;
  */
 public class BenchFlowTestEndpointTest {
 
-    private static ExecutorService executorServiceMock = Mockito.mock(ExecutorService.class);
-    private static MinioService minioServiceMock = Mockito.mock(MinioService.class);
     private static BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
-    private static BenchFlowExperimentModelDAO experimentModelDAOMock = Mockito.mock(
-            BenchFlowExperimentModelDAO.class);
     private static UserDAO userDAOMock = Mockito.mock(UserDAO.class);
-    private static BenchFlowExperimentManagerService experimentManagerServiceMock = Mockito.mock(
-            BenchFlowExperimentManagerService.class);
+    private static BenchFlowTestTaskController testTaskControllerMock = Mockito.mock(BenchFlowTestTaskController.class);
 
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
             .addProvider(MultiPartFeature.class)
-            .addResource(new BenchFlowTestResource(executorServiceMock, minioServiceMock, testModelDAOMock, experimentModelDAOMock, userDAOMock, experimentManagerServiceMock))
+            .addResource(new BenchFlowTestResource(testModelDAOMock, userDAOMock, testTaskControllerMock))
             .build();
 
     @Test
@@ -95,7 +91,7 @@ public class BenchFlowTestEndpointTest {
     @Test
     public void changeBenchFlowTestState() throws Exception {
 
-        BenchFlowTestModel.BenchFlowTestState state = BenchFlowTestModel.BenchFlowTestState.COMPLETED;
+        BenchFlowTestModel.BenchFlowTestState state = BenchFlowTestModel.BenchFlowTestState.TERMINATED;
         String testID = TestConstants.VALID_TEST_ID;
 
         Mockito.doReturn(state).when(testModelDAOMock).setTestState(testID, state);

@@ -1,5 +1,6 @@
 package cloud.benchflow.testmanager.resources;
 
+import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.api.request.SubmitTrialStatusRequest;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
@@ -31,6 +32,11 @@ public class BenchFlowTrialResource {
 
     private BenchFlowExperimentModelDAO experimentModelDAO;
 
+    public BenchFlowTrialResource() {
+        this.experimentModelDAO = BenchFlowTestManagerApplication.getExperimentModelDAO();
+    }
+
+    /* used for testing */
     public BenchFlowTrialResource(BenchFlowExperimentModelDAO experimentModelDAO) {
         this.experimentModelDAO = experimentModelDAO;
     }

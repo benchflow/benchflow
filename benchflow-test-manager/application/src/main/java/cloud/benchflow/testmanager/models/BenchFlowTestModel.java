@@ -127,6 +127,6 @@ public class BenchFlowTestModel {
 
     }
 
-    public enum BenchFlowTestState {READY, RUNNING, COMPLETED}
+    public enum BenchFlowTestState {READY, WAITING, RUNNING, TERMINATED}
 
 }

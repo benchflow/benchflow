@@ -92,7 +92,7 @@ public class BenchFlowITManagerApplicationIT extends DockerComposeIT {
 
         Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
 
-        BenchFlowTestModel.BenchFlowTestState state = BenchFlowTestModel.BenchFlowTestState.COMPLETED;
+        BenchFlowTestModel.BenchFlowTestState state = BenchFlowTestModel.BenchFlowTestState.TERMINATED;
         String testID = TestConstants.VALID_TEST_ID;
 
         ChangeBenchFlowTestStateRequest stateRequest = new ChangeBenchFlowTestStateRequest(state);

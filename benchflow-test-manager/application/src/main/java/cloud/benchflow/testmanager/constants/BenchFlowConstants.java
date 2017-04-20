@@ -42,6 +42,10 @@ public class BenchFlowConstants {
         return username + MODEL_ID_DELIMITER + testName + MODEL_ID_DELIMITER + testNumber;
     }
 
+    public static String getTestIDFromExperimentID(String experimentID) {
+        return experimentID.substring(0, experimentID.lastIndexOf(MODEL_ID_DELIMITER));
+    }
+
     public static String getExperimentID(String username, String testName, int testNumber, int experimentNumber) {
         return getTestID(username, testName, testNumber) + MODEL_ID_DELIMITER + experimentNumber;
     }

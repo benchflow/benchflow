@@ -10,6 +10,7 @@ import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
+import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
 import io.dropwizard.Application;
@@ -29,6 +30,37 @@ public class BenchFlowTestManagerApplication extends Application<BenchFlowTestMa
 
     public static void main(String[] args) throws Exception {
         new BenchFlowTestManagerApplication().run(args);
+    }
+
+    private static BenchFlowTestModelDAO testModelDAO;
+    private static BenchFlowExperimentModelDAO experimentModelDAO;
+    private static UserDAO userDAO;
+    private static MinioService minioService;
+    private static BenchFlowExperimentManagerService experimentManagerService;
+    private static BenchFlowTestTaskController testTaskController;
+
+    public static BenchFlowTestModelDAO getTestModelDAO() {
+        return testModelDAO;
+    }
+
+    public static BenchFlowExperimentModelDAO getExperimentModelDAO() {
+        return experimentModelDAO;
+    }
+
+    public static UserDAO getUserDAO() {
+        return userDAO;
+    }
+
+    public static MinioService getMinioService() {
+        return minioService;
+    }
+
+    public static BenchFlowExperimentManagerService getExperimentManagerService() {
+        return experimentManagerService;
+    }
+
+    public static BenchFlowTestTaskController getTestTaskController() {
+        return testTaskController;
     }
 
     @Override
@@ -61,11 +93,14 @@ public class BenchFlowTestManagerApplication extends Application<BenchFlowTestMa
 
         // services
         ExecutorService taskExecutor = configuration.getTaskExecutorFactory().build(environment);
-        BenchFlowTestModelDAO testModelDAO = new BenchFlowTestModelDAO(configuration.getMongoDBFactory().build());
-        BenchFlowExperimentModelDAO experimentModelDAO = new BenchFlowExperimentModelDAO(configuration.getMongoDBFactory().build(), testModelDAO);
-        UserDAO userDAO = new UserDAO(configuration.getMongoDBFactory().build(), testModelDAO);
-        MinioService minioService = configuration.getMinioServiceFactory().build();
-        BenchFlowExperimentManagerService experimentManagerService = configuration.getBenchFlowExperimentManagerServiceFactory().build(
+
+        // set the services used by multiple classes
+        testTaskController = new BenchFlowTestTaskController(taskExecutor);
+        testModelDAO = new BenchFlowTestModelDAO(configuration.getMongoDBFactory().build());
+        experimentModelDAO = new BenchFlowExperimentModelDAO(configuration.getMongoDBFactory().build(), testModelDAO);
+        userDAO = new UserDAO(configuration.getMongoDBFactory().build(), testModelDAO);
+        minioService = configuration.getMinioServiceFactory().build();
+        experimentManagerService = configuration.getBenchFlowExperimentManagerServiceFactory().build(
                 configuration, environment);
 
         // make sure a bucket exists
@@ -75,9 +110,9 @@ public class BenchFlowTestManagerApplication extends Application<BenchFlowTestMa
         // resources
 //        final BenchFlowUserResource userResource = new BenchFlowUserResource();
 
-        final BenchFlowTestResource testResource = new BenchFlowTestResource(taskExecutor, minioService, testModelDAO, experimentModelDAO, userDAO, experimentManagerService);
-        final BenchFlowExperimentResource experimentResource = new BenchFlowExperimentResource(experimentModelDAO);
-        final BenchFlowTrialResource trialResource = new BenchFlowTrialResource(experimentModelDAO);
+        final BenchFlowTestResource testResource = new BenchFlowTestResource();
+        final BenchFlowExperimentResource experimentResource = new BenchFlowExperimentResource();
+        final BenchFlowTrialResource trialResource = new BenchFlowTrialResource();
 
         // TODO - health checks for all services
 //        final TemplateHealthCheck healthCheck =
