@@ -27,7 +27,7 @@ public class BenchFlowExperimentManagerService {
 
     // TODO - move this to common library?
     private static String RUN_PATH = "/run";
-    private static String STATE_PE_PATH = "/state";
+    private static String ABORT_PATH = "/abort";
 
     private Logger logger = LoggerFactory.getLogger(BenchFlowExperimentManagerService.class.getSimpleName());
 
@@ -59,47 +59,25 @@ public class BenchFlowExperimentManagerService {
 
     }
 
-    public BenchFlowExperimentModel.BenchFlowExperimentState abortBenchFlowExperiment(String experimentID) {
+    public void abortBenchFlowExperiment(String experimentID) {
 
         logger.info("abortBenchFlowExperiment: " + experimentID);
 
-        BenchFlowExperimentStateEntity stateEntity = new BenchFlowExperimentStateEntity(
-                BenchFlowExperimentModel.BenchFlowExperimentState.ABORTED);
-
         Response abortPEResponse = experimentManagerTarget
                 .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
-                .path(STATE_PE_PATH)
-                .request().post(Entity.entity(stateEntity, MediaType.APPLICATION_JSON));
+                .path(ABORT_PATH)
+                .request().post(null);
 
-        if (abortPEResponse.getStatus() != Response.Status.OK.getStatusCode()) {
+        if (abortPEResponse.getStatus() != Response.Status.NO_CONTENT.getStatusCode()) {
 
             // TODO - handle possible errors and throw exceptions accordingly
 
             logger.error("abortBenchFlowExperiment: error connecting - " + abortPEResponse.getStatus());
+
+        }else {
+            logger.info("abortBenchFlowExperiment: connected successfully");
         }
 
-        BenchFlowExperimentStateEntity responseStateEntity = abortPEResponse.readEntity(BenchFlowExperimentStateEntity.class);
-
-        return responseStateEntity.getState();
     }
-
-    // TODO - move this to common library?
-    private class BenchFlowExperimentStateEntity {
-
-        private BenchFlowExperimentModel.BenchFlowExperimentState state;
-
-        public BenchFlowExperimentStateEntity(BenchFlowExperimentModel.BenchFlowExperimentState state) {
-            this.state = state;
-        }
-
-        public BenchFlowExperimentModel.BenchFlowExperimentState getState() {
-            return state;
-        }
-
-        public void setState(BenchFlowExperimentModel.BenchFlowExperimentState state) {
-            this.state = state;
-        }
-    }
-
 
 }

@@ -4,6 +4,8 @@ import cloud.benchflow.faban.client.responses.RunStatus;
 import cloud.benchflow.testmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
+import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
+import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import com.mongodb.MongoClient;
@@ -103,7 +105,7 @@ public class BenchFlowExperimentModelDAO {
      * @param state
      * @throws BenchFlowExperimentIDDoesNotExistException
      */
-    public synchronized void setExperimentState(String experimentID, BenchFlowExperimentModel.BenchFlowExperimentState state) throws BenchFlowExperimentIDDoesNotExistException {
+    public synchronized void setExperimentState(String experimentID, BenchFlowExperimentState state, BenchFlowExperimentStatus status) throws BenchFlowExperimentIDDoesNotExistException {
 
         logger.info("setExperimentState: " + experimentID + " : " + state.name());
 
@@ -112,6 +114,7 @@ public class BenchFlowExperimentModelDAO {
         experimentModel = getExperiment(experimentID);
 
         experimentModel.setState(state);
+        experimentModel.setStatus(status);
 
         datastore.save(experimentModel);
 

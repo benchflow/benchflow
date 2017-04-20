@@ -33,6 +33,7 @@ public class BenchFlowExperimentModel {
     private Date start = new Date();
     private Date lastModified = new Date();
     private BenchFlowExperimentState state;
+    private BenchFlowExperimentStatus status;
     private Map<Long, RunStatus.Code> trials = new HashMap<>();
 
     BenchFlowExperimentModel() {
@@ -48,6 +49,7 @@ public class BenchFlowExperimentModel {
 
         this.hashedID = this.id;
         this.state = BenchFlowExperimentState.READY;
+        this.status = BenchFlowExperimentStatus.READY;
 
     }
 
@@ -76,6 +78,14 @@ public class BenchFlowExperimentModel {
         this.state = state;
     }
 
+    public BenchFlowExperimentStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(BenchFlowExperimentStatus status) {
+        this.status = status;
+    }
+
     public Map<Long, RunStatus.Code> getTrials() {
         return trials;
     }
@@ -92,6 +102,8 @@ public class BenchFlowExperimentModel {
 
     }
 
-    public enum BenchFlowExperimentState {READY, RUNNING, ABORTED, COMPLETED}
+    public enum BenchFlowExperimentState {READY, RUNNING, TERMINATED}
+
+    public enum BenchFlowExperimentStatus {READY, NEW_TRIAL, HANDLE_RESULT, CHECK_CRITERIA, RE_EXECUTE_TRIAL, COMPLETED, FAILURE, ABORTED, ERROR}
 
 }

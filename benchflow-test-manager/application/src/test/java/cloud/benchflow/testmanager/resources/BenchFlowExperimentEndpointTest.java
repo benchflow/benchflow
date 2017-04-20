@@ -4,6 +4,8 @@ import cloud.benchflow.testmanager.api.request.BenchFlowExperimentStateRequest;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
+import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
+import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Assert;
@@ -34,7 +36,7 @@ public class BenchFlowExperimentEndpointTest {
 
         String experimentID = TestConstants.VALID_EXPERIMENT_ID;
 
-        BenchFlowExperimentStateRequest request = new BenchFlowExperimentStateRequest(BenchFlowExperimentModel.BenchFlowExperimentState.COMPLETED);
+        BenchFlowExperimentStateRequest request = new BenchFlowExperimentStateRequest(BenchFlowExperimentState.TERMINATED, BenchFlowExperimentStatus.COMPLETED);
 
         Response response = resources.client()
                 .target(BenchFlowConstants.getPathFromExperimentID(experimentID))

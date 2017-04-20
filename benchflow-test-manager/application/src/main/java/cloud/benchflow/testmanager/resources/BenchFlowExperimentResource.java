@@ -35,11 +35,11 @@ public class BenchFlowExperimentResource {
     @PUT
     @Path("/{experimentNumber}/state")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void submitExperimentStatus(@PathParam("username") String username,
-                                       @PathParam("testName") String testName,
-                                       @PathParam("testNumber") int testNumber,
-                                       @PathParam("experimentNumber") int experimentNumber,
-                                       @NotNull @Valid final BenchFlowExperimentStateRequest stateRequest) {
+    public void setExperimentState(@PathParam("username") String username,
+                                   @PathParam("testName") String testName,
+                                   @PathParam("testNumber") int testNumber,
+                                   @PathParam("experimentNumber") int experimentNumber,
+                                   @NotNull @Valid final BenchFlowExperimentStateRequest stateRequest) {
 
         String experimentID = BenchFlowConstants.getExperimentID(username, testName, testNumber, experimentNumber);
 
@@ -47,7 +47,7 @@ public class BenchFlowExperimentResource {
                 + " : " + stateRequest.getState().name());
 
         try {
-            experimentModelDAO.setExperimentState(experimentID, stateRequest.getState());
+            experimentModelDAO.setExperimentState(experimentID, stateRequest.getState(), stateRequest.getStatus());
         } catch (BenchFlowExperimentIDDoesNotExistException e) {
             throw new InvalidTrialIDWebException();
         }
