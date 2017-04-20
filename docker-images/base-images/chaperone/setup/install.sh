@@ -54,8 +54,7 @@ cp -a /usr/bin/chaperone /usr/bin/telchap /usr/bin/envcp /usr/bin/sdnotify \
 # Set up runapps user
 
 addgroup -g 901 runapps
-adduser -G runapps -u 90 -D runapps
-#1 -H -h /
+adduser -G runapps -u 901 -H -h / -D runapps
 chown -R runapps: /apps
 
 # Do final cleanups

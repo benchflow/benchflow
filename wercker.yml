@@ -117,6 +117,49 @@ build-base-images-chaperone-binaries:
 # Starting with package-, instead of build-, because it is chained in a workflow with 
 # build-base-images-chaperone-binaries and CI scripts search for pipelines starting with build-
 # when it is time to build something, so we use build- only if it is the first pipeline in a workflow
+# package-and-deploy-base-images-chaperone:
+#   # See: https://github.com/wercker/wercker/issues/262
+#   box: 
+#     id: alpine:3.5
+#     cmd: /bin/sh
+#   steps:
+#     # See: https://github.com/ytet5uy4/step-apk-add
+#     - ytet5uy4/apk-add@0.1.2:
+#         name: Install chaperone and dependencies
+#         update: "true"
+#         cache: "true"
+#         packages: musl python3 bash sudo
+#     - script:
+#         name: Configure container
+#         cwd: $WERCKER_SOURCE_DIR/docker-images/base-images/chaperone/setup
+#         code: |
+#           # Binaries folder ($WERCKER_OUTPUT_DIR)
+#           export BINARIES_FOLDER=$WERCKER_SOURCE_DIR/docker-images/base-images/chaperone/setup/lib
+#           source install.sh
+#     - script:
+#         name: Cleanup the Image
+#         cwd: ./devops
+#         code: ./cleanup-wercker-build.sh
+    # - script:
+    #     name: Manually Set the Image Tag
+    #     code: export CUSTOM_VERSION_TAG=chaperone_0.1.0
+    # push container as-is
+    # - internal/docker-push:
+    #     author: Vincenzo FERME <info@vincenzoferme.it>
+    #     disable-sync: false
+    #     repository: benchflow/base-images
+    #     email: $DOCKER_HUB_EMAIL
+    #     username: $DOCKER_HUB_USERNAME
+    #     password: $DOCKER_HUB_PASSWORD
+    #     # TODO: understand how to let the previous commented step work
+    #     tag: chaperone_0.1.0
+    #     # _CHAP_OPTIONS - Used instead entrypoint args so that any default can be overridden by CMD
+    #     env: "_CHAP_OPTIONS='--config apps/chaperone.d --default-home / --user runapps'"
+    #     entrypoint: "/usr/local/bin/chaperone"
+    # - script:
+    #     name: Add a file to WERCKER_OUTPUT_DIR, to speed up the not needed store step
+    #     code: touch $WERCKER_OUTPUT_DIR/.skip
+
 # Last Version on: https://github.com/garywiz/chaperone-docker
 # 1.0.16-U14
 # Current Custom Version on: https://github.com/garywiz/chaperone-docker
@@ -130,8 +173,18 @@ build-base-images-chaperone-binaries:
 #       given that now they are always build in a pipelines starting with build-base-images-chaperone-binaries
 # TODO: Monitor https://github.com/garywiz/chaperone-docker/issues/5
 # DECIDE: If migrate to the following image at some point: https://github.com/phusion/baseimage-docker
-package-and-deploy-base-images-chaperone:
-  # See: https://github.com/wercker/wercker/issues/262
+
+###########################################################
+# DRAFT
+# Pipeline used to build and deploy on Docker Hub: docker-images/base-images/base
+###########################################################
+# NOTE: it merges the code to build chaperone image, because of:
+# https://github.com/garywiz/chaperone-docker/issues/5 AND
+# building the image by ourself (see package-and-deploy-base-images-chaperone) 
+# also does not solve the issue unless we change the settings of the same, 
+# that we would avoid for now
+# TODO: Monitor https://github.com/garywiz/chaperone-docker/issues/5
+build-and-deploy-base-images-base:
   box: 
     id: alpine:3.5
     cmd: /bin/sh
@@ -144,7 +197,7 @@ package-and-deploy-base-images-chaperone:
         packages: musl python3 bash sudo
     - script:
         name: Configure container
-        cwd: $WERCKER_SOURCE_DIR/docker-images/base-images/chaperone/setup
+        cwd: ./docker-images/base-images/chaperone/setup
         code: |
           # Binaries folder ($WERCKER_OUTPUT_DIR)
           export BINARIES_FOLDER=$WERCKER_SOURCE_DIR/docker-images/base-images/chaperone/setup/lib
@@ -153,37 +206,8 @@ package-and-deploy-base-images-chaperone:
         name: Cleanup the Image
         cwd: ./devops
         code: ./cleanup-wercker-build.sh
-    # - script:
-    #     name: Manually Set the Image Tag
-    #     code: export CUSTOM_VERSION_TAG=chaperone_0.1.0
-    # push container as-is
-    - internal/docker-push:
-        author: Vincenzo FERME <info@vincenzoferme.it>
-        disable-sync: false
-        repository: benchflow/base-images
-        email: $DOCKER_HUB_EMAIL
-        username: $DOCKER_HUB_USERNAME
-        password: $DOCKER_HUB_PASSWORD
-        # TODO: understand how to let the previous commented step work
-        tag: chaperone_0.1.0
-        # _CHAP_OPTIONS - Used instead entrypoint args so that any default can be overridden by CMD
-        env: "_CHAP_OPTIONS=--config apps/chaperone.d --default-home / --user runapps"
-        entrypoint: "/usr/local/bin/chaperone"
-    # - script:
-    #     name: Add a file to WERCKER_OUTPUT_DIR, to speed up the not needed store step
-    #     code: touch $WERCKER_OUTPUT_DIR/.skip
-
-###########################################################
-# DRAFT
-# Pipeline used to build and deploy on Docker Hub: docker-images/base-images/base
-###########################################################
-build-and-deploy-base-images-base:
-  box: 
-    id: benchflow/base-images:chaperone_0.1.0
-    cmd: /bin/sh
-  steps:
     - script:
-        name: Build the Image
+        name: Build the Base Image
         cwd: ./docker-images/base-images/base
         code: ./build-image.sh
     - script:
@@ -204,4 +228,6 @@ build-and-deploy-base-images-base:
         # NOTE: first we push the commit specific image, then the image for the branch
         # TODO: understand how to let the previous commented step work
         tag: base_0.1.0
+        # _CHAP_OPTIONS - Used instead entrypoint args so that any default can be overridden by CMD
+        env: "_CHAP_OPTIONS='--config apps/chaperone.d --default-home / --user runapps'"
         entrypoint: "/usr/local/bin/chaperone"
