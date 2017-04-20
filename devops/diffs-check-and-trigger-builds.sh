@@ -196,7 +196,7 @@ do
 				     "benchflow-dsl")
 				     branch_name_pipeline_id=$WERCKER_BENCHFLOW_DSL_PIPELINE_ID
 				     ;;
-				     "docker-images")
+				     "docker-images-layers")
 						 # TODO: refactor to trigger the build out of the switch
 						 # Determine which folders has been changed and trigger the build
 						 # Now the assumption is that we only have subfolder interest for the docker-images folder
