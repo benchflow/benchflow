@@ -7,6 +7,8 @@ import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.exceptions.TrialIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
@@ -63,9 +65,6 @@ public class ExperimentRunningTask extends CancellableTask {
 
         logger.info("running experiment: " + experimentID);
 
-        // inform test manager that experiment is running
-        testManagerService.setExperimentAsRunning(experimentID);
-
         try {
 
             // get the BenchFlowExperimentDefinition from minioService
@@ -88,6 +87,10 @@ public class ExperimentRunningTask extends CancellableTask {
                 if (isCanceled.booleanValue()) {
                     break;
                 }
+
+                // set the state = RUNNING and status = NEW_TRIAL for the experiment
+                experimentModelDAO.setExperimentModelStatus(experimentID, BenchFlowExperimentState.RUNNING, BenchFlowExperimentStatus.NEW_TRIAL);
+                testManagerService.setExperimentState(experimentID, BenchFlowExperimentState.RUNNING, BenchFlowExperimentStatus.NEW_TRIAL);
 
                 // add trial to experiment
                 String trialID = experimentModelDAO.addTrial(experimentID, trialNumber);
@@ -115,8 +118,21 @@ public class ExperimentRunningTask extends CancellableTask {
                         runId = fabanClient.submit(fabanExperimentId, fabanTrialId,
                                 fabanConfigPath.toFile());
 
+                        // TODO - handle RESULT
+
+                        // TODO - handle FATAL FAILURE (SUT, load, execution)
+
                     } catch (FabanClientException e) {
-                        if (retries > 0) retries--;
+
+                        if (retries > 0) {
+
+                            // if there was a FAILURE and we have not finished all retries
+                            experimentModelDAO.setExperimentModelStatus(experimentID, BenchFlowExperimentState.RUNNING, BenchFlowExperimentStatus.RE_EXECUTE_TRIAL);
+                            testManagerService.setExperimentState(experimentID, BenchFlowExperimentState.RUNNING, BenchFlowExperimentStatus.RE_EXECUTE_TRIAL);
+
+                            retries--;
+
+                        }
                         else {
                             throw e;
                         }
@@ -139,14 +155,16 @@ public class ExperimentRunningTask extends CancellableTask {
                 experimentModelDAO.setTrialStatus(experimentID, trialNumber, status.getStatus());
                 testManagerService.submitTrialStatus(trialID, status.getStatus());
 
+                // TODO - check criteria and decide next steps
+
             }
 
-            experimentModelDAO.setExperimentModelState(experimentID, BenchFlowExperimentModel.BenchFlowExperimentState.TERMINATED);
-
             if (isCanceled.booleanValue()) {
-                testManagerService.setExperimentAsTerminated(experimentID, BenchFlowExperimentModel.BenchFlowExperimentStatus.ABORTED);
+                experimentModelDAO.setExperimentModelStatus(experimentID, BenchFlowExperimentState.TERMINATED, BenchFlowExperimentStatus.ABORTED);
+                testManagerService.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED, BenchFlowExperimentStatus.ABORTED);
             } else {
-                testManagerService.setExperimentAsTerminated(experimentID, BenchFlowExperimentModel.BenchFlowExperimentStatus.COMPLETED);
+                experimentModelDAO.setExperimentModelStatus(experimentID, BenchFlowExperimentState.TERMINATED, BenchFlowExperimentStatus.COMPLETED);
+                testManagerService.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED, BenchFlowExperimentStatus.COMPLETED);
             }
 
 

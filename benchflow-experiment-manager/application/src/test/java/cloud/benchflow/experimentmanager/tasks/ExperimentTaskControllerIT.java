@@ -167,11 +167,6 @@ public class ExperimentTaskControllerIT extends DockerComposeIT {
                 )
         );
 
-        // Test Manager Experiment Running Stub
-        stubFor(post(urlEqualTo(BenchFlowConstants.getPathFromExperimentID(experimentID) + BenchFlowTestManagerService.EXPERIMENT_RUNNING_PATH))
-                .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())
-                )
-        );
 
         Mockito.doReturn(runId)
                 .when(fabanClientMock)

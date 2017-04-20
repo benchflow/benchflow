@@ -16,11 +16,16 @@ public class BenchFlowExperimentStateRequest {
     @JsonProperty
     private BenchFlowExperimentModel.BenchFlowExperimentState state;
 
+    @NotNull
+    @JsonProperty
+    private BenchFlowExperimentModel.BenchFlowExperimentStatus status;
+
     public BenchFlowExperimentStateRequest() {
     }
 
-    public BenchFlowExperimentStateRequest(BenchFlowExperimentModel.BenchFlowExperimentState state) {
+    public BenchFlowExperimentStateRequest(BenchFlowExperimentModel.BenchFlowExperimentState state, BenchFlowExperimentModel.BenchFlowExperimentStatus status) {
         this.state = state;
+        this.status = status;
     }
 
     public BenchFlowExperimentModel.BenchFlowExperimentState getState() {
@@ -29,5 +34,13 @@ public class BenchFlowExperimentStateRequest {
 
     public void setState(BenchFlowExperimentModel.BenchFlowExperimentState state) {
         this.state = state;
+    }
+
+    public BenchFlowExperimentModel.BenchFlowExperimentStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(BenchFlowExperimentModel.BenchFlowExperimentStatus status) {
+        this.status = status;
     }
 }

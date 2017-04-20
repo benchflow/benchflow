@@ -4,6 +4,7 @@ import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.exceptions.TrialIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus;
 import cloud.benchflow.experimentmanager.models.TrialModel;
 import cloud.benchflow.faban.client.responses.RunStatus;
 import com.mongodb.MongoClient;
@@ -95,17 +96,38 @@ public class BenchFlowExperimentModelDAO {
 
     }
 
-    public synchronized void setExperimentModelAsAborted(String experimentID) {
+    public synchronized BenchFlowExperimentStatus getExperimentModelStatus(String experimentID) throws BenchFlowExperimentIDDoesNotExistException {
 
-        logger.info("setExperimentModelAsAborted: " + experimentID);
+        logger.info("getExperimentModelState: " + experimentID);
 
         BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
 
-        if (experimentModel != null) {
-            experimentModel.setState(BenchFlowExperimentState.TERMINATED);
-            experimentModel.setStatus(BenchFlowExperimentModel.BenchFlowExperimentStatus.ABORTED);
-            datastore.save(experimentModel);
+        if (experimentModel == null) {
+            throw new BenchFlowExperimentIDDoesNotExistException();
         }
+
+        return experimentModel.getStatus();
+
+    }
+
+    public synchronized BenchFlowExperimentState setExperimentModelStatus(String experimentID, BenchFlowExperimentState state, BenchFlowExperimentStatus status) {
+
+        // a status is always associated with a state
+
+        logger.info("setExperimentModelStatus: " + experimentID + " state: " + state.name() + " status: " + status.name());
+
+        BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
+
+        if (experimentModel == null) {
+            return null;
+        }
+
+        experimentModel.setState(state);
+        experimentModel.setStatus(status);
+
+        datastore.save(experimentModel);
+
+        return experimentModel.getState();
 
     }
 

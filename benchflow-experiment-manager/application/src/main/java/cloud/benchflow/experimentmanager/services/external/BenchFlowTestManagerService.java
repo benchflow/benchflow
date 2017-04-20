@@ -1,14 +1,14 @@
 package cloud.benchflow.experimentmanager.services.external;
 
 import cloud.benchflow.experimentmanager.api.request.BenchFlowExperimentStateRequest;
-import cloud.benchflow.experimentmanager.api.request.BenchFlowExperimentStatusRequest;
 import cloud.benchflow.experimentmanager.api.request.SubmitTrialStatusRequest;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus;
 import cloud.benchflow.faban.client.responses.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -24,7 +24,6 @@ public class BenchFlowTestManagerService {
 
     public static final String TRIAL_STATUS_PATH = "/status";
     public static final String EXPERIMENT_STATE_PATH = "/state";
-    public static final String EXPERIMENT_RUNNING_PATH = "/running";
 
     private Logger logger = LoggerFactory.getLogger(BenchFlowTestManagerService.class.getSimpleName());
 
@@ -59,13 +58,11 @@ public class BenchFlowTestManagerService {
 
     }
 
-    public void setExperimentAsTerminated(String experimentID, BenchFlowExperimentModel.BenchFlowExperimentStatus status) {
+    public void setExperimentState(String experimentID, BenchFlowExperimentState state, BenchFlowExperimentStatus status) {
 
-        logger.info("setExperimentAsTerminated for " + experimentID + " with status " + status.name());
+        logger.info("setExperimentState for " + experimentID + " state: " + state.name() + " status: " + status.name());
 
-        BenchFlowExperimentStatusRequest terminatedRequest = new BenchFlowExperimentStatusRequest(status);
-
-        // TODO - adjust path accordingly
+        BenchFlowExperimentStateRequest terminatedRequest = new BenchFlowExperimentStateRequest(state, status);
 
         Response response = testManagerTarget
                 .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
@@ -74,33 +71,9 @@ public class BenchFlowTestManagerService {
                 .put(Entity.entity(terminatedRequest, MediaType.APPLICATION_JSON));
 
         if (response.getStatus() != Response.Status.NO_CONTENT.getStatusCode()) {
-
-            logger.error("setExperimentAsTerminated: error connecting - " + response.getStatus());
-
+            logger.error("setExperimentState: error connecting - " + response.getStatus());
         } else {
-            logger.info("setExperimentAsTerminated: successfully connected");
-        }
-
-    }
-
-    public void setExperimentAsRunning(String experimentID) {
-
-        logger.info("setExperimentAsRunning for " + experimentID);
-
-
-        // TODO - seems it is not possible to have a put with null
-        Response response = testManagerTarget
-                .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
-                .path(EXPERIMENT_RUNNING_PATH)
-                .request()
-                .post(null);
-
-        if (response.getStatus() != Response.Status.NO_CONTENT.getStatusCode()) {
-
-            logger.error("setExperimentAsRunning: error connecting - " + response.getStatus());
-
-        } else {
-            logger.info("setExperimentAsRunning: successfully connected");
+            logger.info("setExperimentState: successfully connected");
         }
 
     }

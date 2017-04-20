@@ -7,6 +7,7 @@ import cloud.benchflow.dsl.definition.workload.Workload;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
@@ -125,14 +126,14 @@ public class ExperimentReadyTask extends CancellableTask {
 
             logger.error("could not read experiment definition for " + experimentID + " : " + e.getMessage());
 
-            testManagerService.setExperimentAsTerminated(experimentID, BenchFlowExperimentModel.BenchFlowExperimentStatus.ERROR);
+            testManagerService.setExperimentState(experimentID, BenchFlowExperimentModel.BenchFlowExperimentState.TERMINATED, BenchFlowExperimentStatus.ERROR);
             e.printStackTrace();
 
         } catch (JarFileNotFoundException e) {
 
             logger.error("could not find jar for " + experimentID + " : " + e.getMessage());
 
-            testManagerService.setExperimentAsTerminated(experimentID, BenchFlowExperimentModel.BenchFlowExperimentStatus.ERROR);
+            testManagerService.setExperimentState(experimentID, BenchFlowExperimentModel.BenchFlowExperimentState.TERMINATED, BenchFlowExperimentStatus.ERROR);
             e.printStackTrace();
         }
 
