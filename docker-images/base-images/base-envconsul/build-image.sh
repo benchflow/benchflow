@@ -20,8 +20,8 @@ rm -rf /var/cache/apk/* /tmp/* /usr/bin/envconsul_${ENVCONSUL_VERSION_NUMBER}_li
 ENVCONSUL_FOLDER=/envconsul
 ENVCP_FOLDER=/envcp
 
-[ -d $ENVCONSUL_FOLDER ] && rm -Rf $ENVCONSUL_FOLDER
-[ -d $ENVCONSUL_FOLDER ] && rm -Rf $ENVCONSUL_FOLDER
+mkdir -p ${ENVCONSUL_FOLDER}
+mkdir -p ${ENVCP_FOLDER}
   
 cp ./services/envconsul/config/envconsul-config.hcl ${ENVCONSUL_FOLDER}/envconsul-config.hcl
 cp ./services/envconsul/configure.sh ${ENVCONSUL_FOLDER}/configure.sh
