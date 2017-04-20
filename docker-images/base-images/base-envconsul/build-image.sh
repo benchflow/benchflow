@@ -17,15 +17,19 @@ unzip -d /usr/bin/ /tmp/consul.zip
 apk del --purge wget unzip
 rm -rf /var/cache/apk/* /tmp/* /usr/bin/envconsul_${ENVCONSUL_VERSION_NUMBER}_linux_amd64/ /var/tmp/* *.zip 
   
-ENVCONSUL_CONFIG=/envconsul
+ENVCONSUL_FOLDER=/envconsul
+ENVCP_FOLDER=/envcp
+
+[ -d $ENVCONSUL_FOLDER ] && rm -Rf $ENVCONSUL_FOLDER
+[ -d $ENVCONSUL_FOLDER ] && rm -Rf $ENVCONSUL_FOLDER
   
-cp ./services/envconsul/config/envconsul-config.hcl ${ENVCONSUL_CONFIG}/envconsul-config.hcl
-cp ./services/envconsul/configure.sh /envconsul/configure.sh
-chmod +x /envconsul/configure.sh
-cp ./services/envconsul/start.sh /envconsul/start.sh
-chmod +x /envconsul/start.sh
-cp ./services/envcp/update.sh /envcp/update.sh
-chmod +x /envcp/update.sh
+cp ./services/envconsul/config/envconsul-config.hcl ${ENVCONSUL_FOLDER}/envconsul-config.hcl
+cp ./services/envconsul/configure.sh ${ENVCONSUL_FOLDER}/configure.sh
+chmod +x ${ENVCONSUL_FOLDER}/configure.sh
+cp ./services/envconsul/start.sh ${ENVCONSUL_FOLDER}/start.sh
+chmod +x ${ENVCONSUL_FOLDER}/start.sh
+cp ./services/envcp/update.sh ${ENVCP_FOLDER}/update.sh
+chmod +x ${ENVCP_FOLDER}/update.sh
 
 cp ./services/100-envconsul-configure.conf /apps/chaperone.d/100-envconsul-configure.conf
 cp ./services/200-envconsul-envcp.conf /apps/chaperone.d/200-envconsul-envcp.conf
