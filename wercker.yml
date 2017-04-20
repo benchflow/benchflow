@@ -143,6 +143,8 @@ package-and-deploy-base-images-chaperone:
         cwd: $WERCKER_OUTPUT_DIR/chaperone/setup
         code: |
           # Binaries folder ($WERCKER_OUTPUT_DIR)
+          pwd
+          ls -la
           export BINARIES_FOLDER=$WERCKER_OUTPUT_DIR/chaperone/setup/lib
           source install.sh
     - script:
