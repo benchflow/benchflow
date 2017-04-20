@@ -1,0 +1,239 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>cloud.benchflow</groupId>
+    <artifactId>benchflow-test-manager</artifactId>
+    <version>0.1.0</version>
+    <name>benchflow-test-manager</name>
+
+    <packaging>pom</packaging>
+    <modules>
+        <module>api</module>
+        <module>application</module>
+    </modules>
+
+    <properties>
+        <project.name>benchflow-test-manager</project.name>
+        <project.mainclass>cloud.benchflow.testmanager.BenchFlowTestManagerApplication</project.mainclass>
+        <project.configurationfile>configuration.yml</project.configurationfile>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+        <dropwizard.version>1.0.6</dropwizard.version>
+        <dropwizard.template.config.version>1.4.0</dropwizard.template.config.version>
+        <morphia.version>1.3.2</morphia.version>
+        <minio.version>3.0.3</minio.version>
+        <commons-io.version>2.5</commons-io.version>
+        <docker-compose-rule-junit4.version>0.31.1</docker-compose-rule-junit4.version>
+        <wiremock.version>2.5.1</wiremock.version>
+        <dropwizard-swagger.version>1.0.6-1</dropwizard-swagger.version>
+        <benchflow-dsl.version>0.1.0</benchflow-dsl.version>
+        <fabanClient-client.version>dev-SNAPSHOT</fabanClient-client.version>
+    </properties>
+
+    <!-- for docker-compose-rule -->
+    <repositories>
+        <repository>
+            <id>palantir</id>
+            <url>https://dl.bintray.com/palantir/releases</url>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.dropwizard</groupId>
+                <artifactId>dropwizard-core</artifactId>
+                <version>${dropwizard.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard</groupId>
+                <artifactId>dropwizard-testing</artifactId>
+                <version>${dropwizard.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard</groupId>
+                <artifactId>dropwizard-client</artifactId>
+                <version>${dropwizard.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard</groupId>
+                <artifactId>dropwizard-forms</artifactId>
+                <version>${dropwizard.version}</version>
+            </dependency>
+
+            <!-- https://github.com/tkrille/dropwizard-template-config -->
+            <!--A Dropwizard Bundle that allows you to write your config.yaml as a Freemarker template.-->
+            <!--This is especially useful when you need to access environment variables or system properties.-->
+            <!--In fact, this project is the successor to the fabulous dropwizard-environment-config plugin.-->
+            <dependency>
+                <groupId>de.thomaskrille</groupId>
+                <artifactId>dropwizard-template-config</artifactId>
+                <version>${dropwizard.template.config.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mongodb.morphia</groupId>
+                <artifactId>morphia</artifactId>
+                <version>${morphia.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.minio</groupId>
+                <artifactId>minio</artifactId>
+                <version>${minio.version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
+            </dependency>
+
+            <!--https://github.com/palantir/docker-compose-rule-->
+            <!--This is a library for executing JUnit tests that interact with Docker Compose managed containers-->
+            <dependency>
+                <groupId>com.palantir.docker.compose</groupId>
+                <artifactId>docker-compose-rule-junit4</artifactId>
+                <version>${docker-compose-rule-junit4.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.tomakehurst</groupId>
+                <artifactId>wiremock</artifactId>
+                <version>${wiremock.version}</version>
+            </dependency>
+
+            <!--https://github.com/smoketurner/dropwizard-swagger-->
+            <dependency>
+                <groupId>com.smoketurner</groupId>
+                <artifactId>dropwizard-swagger</artifactId>
+                <version>${dropwizard-swagger.version}</version>
+                <exclusions>
+                    <!--need this exclusion because of conflict with dropwizard-core-->
+                    <!--https://github.com/smoketurner/dropwizard-swagger/issues/72-->
+                    <exclusion>
+                        <groupId>org.glassfish.jersey.containers</groupId>
+                        <artifactId>jersey-container-servlet-core</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>cloud.benchflow</groupId>
+                <artifactId>benchflow-dsl</artifactId>
+                <version>${benchflow-dsl.version}</version>
+            </dependency>
+
+            <!--needed to get trial status-->
+            <!--TODO - move to common library-->
+            <dependency>
+                <groupId>com.github.benchflow</groupId>
+                <artifactId>fabanClient-client</artifactId>
+                <version>${fabanClient-client.version}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.4.0</version>
+                <configuration>
+                    <mainClass>${project.mainclass}</mainClass>
+                    <arguments>
+                        <argument>server</argument>
+                        <argument>${project.configurationfile}</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.1</version>
+                <configuration>
+                    <createDependencyReducedPom>true</createDependencyReducedPom>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                    <outputDirectory>${session.executionRootDirectory}/target</outputDirectory>
+                    <finalName>${project.name}</finalName>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>${project.mainclass}</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.20</version>
+                <configuration>
+                    <skipTests>false</skipTests>
+                </configuration>
+            </plugin>
+            <!--to run integration tests-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.20</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
