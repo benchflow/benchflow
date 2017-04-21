@@ -18,6 +18,7 @@
         <project.configurationfile>configuration.yml</project.configurationfile>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <main.basedir>${project.basedir}</main.basedir>
         <java.version>1.8</java.version>
         <dropwizard.version>1.0.6</dropwizard.version>
         <dropwizard.template.config.version>1.4.0</dropwizard.template.config.version>
@@ -102,7 +103,7 @@
                 <artifactId>benchflow-dsl</artifactId>
                 <version>feature-devops-single-rep</version>
                 <scope>system</scope>
-                <systemPath>${basedir}/target/${benchflow-dsl.project.name}_${benchflow-dsl.version}.jar</systemPath>
+                <systemPath>${main.basedir}/target/${benchflow-dsl.project.name}_${benchflow-dsl.version}.jar</systemPath>
             </dependency>
 
             <dependency>
@@ -178,39 +179,40 @@
                         </execution>
                     </executions>
                 </plugin>
-                <!-- Initial attemp from: http://www.eclipse.org/m2e/documentation/m2e-execution-not-covered.html -->
-                <plugin>
-                    <groupId>org.eclipse.m2e</groupId>
-                    <artifactId>lifecycle-mapping</artifactId>
-                    <version>1.0.0</version>
-                    <configuration>
-                        <lifecycleMappingMetadata>
-                            <pluginExecutions>
-                                <pluginExecution>
-                                    <pluginExecutionFilter>
-                                        <groupId>com.googlecode.maven-download-plugin</groupId>
-                                        <artifactId>download-maven-plugin</artifactId>
-                                        <versionRange>${download-maven-plugin.version}</versionRange>
-                                        <goals>
-                                            <goal>wget</goal>
-                                        </goals>
-                                    </pluginExecutionFilter>
-                                    <action>
-                                        <execute>
-                                            <runOnIncremental>false</runOnIncremental>
-                                        </execute>
-                                    </action>
-                                </pluginExecution>
-                            </pluginExecutions>
-                        </lifecycleMappingMetadata>
-                    </configuration>
-                </plugin>
+                <!--&lt;!&ndash; Initial attemp from: http://www.eclipse.org/m2e/documentation/m2e-execution-not-covered.html &ndash;&gt;-->
+                <!--<plugin>-->
+                    <!--<groupId>org.eclipse.m2e</groupId>-->
+                    <!--<artifactId>lifecycle-mapping</artifactId>-->
+                    <!--<version>1.0.0</version>-->
+                    <!--<configuration>-->
+                        <!--<lifecycleMappingMetadata>-->
+                            <!--<pluginExecutions>-->
+                                <!--<pluginExecution>-->
+                                    <!--<pluginExecutionFilter>-->
+                                        <!--<groupId>com.googlecode.maven-download-plugin</groupId>-->
+                                        <!--<artifactId>download-maven-plugin</artifactId>-->
+                                        <!--<versionRange>${download-maven-plugin.version}</versionRange>-->
+                                        <!--<goals>-->
+                                            <!--<goal>wget</goal>-->
+                                        <!--</goals>-->
+                                    <!--</pluginExecutionFilter>-->
+                                    <!--<action>-->
+                                        <!--<execute>-->
+                                            <!--<runOnIncremental>false</runOnIncremental>-->
+                                        <!--</execute>-->
+                                    <!--</action>-->
+                                <!--</pluginExecution>-->
+                            <!--</pluginExecutions>-->
+                        <!--</lifecycleMappingMetadata>-->
+                    <!--</configuration>-->
+                <!--</plugin>-->
             </plugins>
         </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>com.googlecode.maven-download-plugin</groupId>
                 <artifactId>download-maven-plugin</artifactId>
+                <version>${download-maven-plugin.version}</version>
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
