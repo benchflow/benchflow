@@ -231,10 +231,6 @@ deploy-benchflow-dsl:
     - install-packages:
         packages: jq curl
     - script:
-        name: Generate the Image Tag
-        cwd: ./devops
-        code: ./generate-commit-specific-tag.sh
-    - script:
         name: Deliver benchflow-dsl on Bintray
         cwd: ./devops
         code: |
