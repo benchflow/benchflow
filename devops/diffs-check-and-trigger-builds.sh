@@ -58,6 +58,7 @@ reverse ()
 # coming from other branches
 if [[ "$WERCKER_GIT_BRANCH" = "master" || "$WERCKER_GIT_BRANCH" = "devel" || "$WERCKER_GIT_BRANCH" = "release-"* ]]; then
   last_commits_on_branch=$(curl -sS "https://api.github.com/repos/$WERCKER_GIT_OWNER/$WERCKER_GIT_REPOSITORY/commits?sha=$WERCKER_GIT_BRANCH&client_id=$GITHUB_API_CLIENT_ID&client_secret=$GITHUB_API_CLIENT_SECRET" | jq '.[].sha')
+# IF we are in a feature branch, we need to look at the diff of the feature branch and devel
 else
 	# NOTE: we currently assume the main branch is always devel   
 	last_commits_on_branch=$(curl -sS "https://api.github.com/repos/$WERCKER_GIT_OWNER/$WERCKER_GIT_REPOSITORY/compare/devel...$WERCKER_GIT_BRANCH?client_id=$GITHUB_API_CLIENT_ID&client_secret=$GITHUB_API_CLIENT_SECRET" | jq '.commits | .[].sha' | reverse)
@@ -120,6 +121,8 @@ else
 fi
 
 declare -a all_changed_folders
+# TODO: for now we handle in this variable, the docker-images subfolder to build
+declare -a all_changed_sub_folders
 
 for commit in "${new_commits_to_build[@]}"
 do
@@ -138,6 +141,7 @@ do
 	# A merge commit can be either a Pull Request merge, or a merge of another branch in the current one
 	merge_grep_matching="Merge pull request\|Merge branch\|Merge remote-tracking"
 	lines_containing_merge=$(jq '.commit.message' < "commit_api_$commit.txt" | grep "$merge_grep_matching" | wc -l | xargs)
+	# committer=$(jq '.committer | .login'  < "commit_api_$commit.txt")
 
 	# If we match "merge_grep_matching" then is a merge commit
 	is_merge_commit=false
@@ -150,9 +154,10 @@ do
 
 	# IF we are in devel, master or release-* branch:
 		# WE build the merge commit, because it merges code from other branches and the releases have to be updated.
-	# IF we are in other branches, we do not build the merge commits because the merge commit has already
-	# been tested in other branches, and it is meant to integrate code from other branches on which to build the 
-	# functionality of the current branch
+	# IF we are in other branches, we evaluate the build history of the branch  to evaluate what to build 
+	# again due to the merge commits. We do not currently selectively re-build based on the folders that have been
+	# actually changed in the merge commits, but just re-build once all the previous builds. This is more safe for now
+	# in case some code changes in "shared folders", and also so that we get the status updated on GitHub.
 
 	if [[ "$is_merge_commit" = false ]] ||
 		 [[ "$is_merge_commit" = true && ("$WERCKER_GIT_BRANCH" = "master" || "$WERCKER_GIT_BRANCH" = "devel" || "$WERCKER_GIT_BRANCH" = "release-"*) ]]; then
@@ -170,8 +175,38 @@ do
 			  echo "$folder"
 			done
 
+			# TODO: Current handling of docker images build
+			for folder in "${changed_folders_arr[@]}"
+			do
+				folder="${folder//\"/}"
+			  case $folder in
+				     "docker-images")
+						 # TODO: refactor to trigger the build out of the switch
+						 # Determine which folders has been changed and trigger the build
+						 # Now the assumption is that we only have subfolder interest for the docker-images folder
+
+						 # TODO: collect only sub folder of docker-images, and not all of them, by selecting more fain grained
+
+						 changed_sub_folders=$(cat "commit_api_$commit.txt" | jq '.files[] | select(.filename | split ("/") | length > 1 ) | .filename | split ("/") | .[1]' | uniq)
+
+						 changed_sub_folders_arr=(${changed_sub_folders// / })
+
+						 all_changed_sub_folders=("${all_changed_sub_folders[@]}" "${changed_sub_folders_arr[@]}")
+
+						 echo "Changed Sub Folders:"
+
+						 for sub_folder in "${changed_sub_folders_arr[@]}"
+						 do
+						   echo "$sub_folder"
+					   done
+
+				esac
+
+			done
+			
 	else
-	    echo "Skipped: $commit"
+	    echo "Determine what to build, using the build history of the branch, and build, for: $commit"
+	    ./rerun-builds-on-the-branch.sh
 	fi
 
 	echo ""
@@ -191,7 +226,6 @@ echo "Trigger builds for ALL Changed Folders of interest"
 # NOTE: currently we assume the url structure does not change
 WERCKER_RUN_ID=$(echo "$WERCKER_RUN_URL" | sed -e 's/.*what-to-build\/\(.*\).*/\1/')
 
-
 all_changed_folders=($(for v in "${all_changed_folders[@]}"; do echo "$v";done| sort -u))
 
 # TODO: improve the way we handle the triggers, as well as the retrieval of the pipeline id to be more dynamic
@@ -204,15 +238,51 @@ do
 	     "benchflow-dsl")
 	     branch_name_pipeline_id=$WERCKER_BENCHFLOW_DSL_PIPELINE_ID
 	     ;;
-	     *)
+			 *)
 	     echo "No build pipeline defined for the current folder"
-	     ;;
+			 ;;
 	esac
 
 	if [ -n "${branch_name_pipeline_id}" ]; then
 		echo "Build API call response:"
 		curl -Ss -H "Content-Type: application/json" -H "Authorization: Bearer $WERCKER_API_AUTH" -X POST -d '{"pipelineId": "'"$branch_name_pipeline_id"'", "branch": "'"$WERCKER_GIT_BRANCH"'", "commitHash": "'"$WERCKER_GIT_COMMIT"'"}' https://app.wercker.com/api/v3/runs/ | jq .
 	fi
-	
+				
+	echo ""
+done
+
+# Determine the folder in which content has been changed since the last build of this branch
+# TODO: fine tune, by removing the folders changed in merge commits, because they might be dependencies (need to be evaluate with actual usage)
+
+echo "Trigger builds for ALL Changed Sub Folders of interest"
+
+# Determine the source pipeline id
+# TODO: monitor Wercker and check if they add this ID as part of the available Envs
+#       since it is the current run ID.
+# NOTE: currently we assume the url structure does not change
+WERCKER_RUN_ID=$(echo "$WERCKER_RUN_URL" | sed -e 's/.*what-to-build\/\(.*\).*/\1/')
+
+all_changed_sub_folders=($(for v in "${all_changed_sub_folders[@]}"; do echo "$v";done| sort -u))
+
+# TODO: improve the way we handle the triggers, as well as the retrieval of the pipeline id to be more dynamic
+for sub_folder in "${all_changed_sub_folders[@]}"
+do
+	sub_folder="${sub_folder//\"/}"
+	branch_name_pipeline_id_sub_folder=""
+  echo "Triggering build for: $sub_folder"
+  case $sub_folder in
+			 "base-images-layers")
+				branch_name_pipeline_id_sub_folder=$WERCKER_DOCKER_IMAGES_BASE_PIPELINE_ID
+				;;
+				*)
+				echo "No build pipeline defined for the current sub folder"
+				;;
+	esac
+
+	if [ -n "${branch_name_pipeline_id_sub_folder}" ]; then
+		echo "Build API call response:"
+		curl -Ss -H "Content-Type: application/json" -H "Authorization: Bearer $WERCKER_API_AUTH" -X POST -d '{"pipelineId": "'"$branch_name_pipeline_id_sub_folder"'", "branch": "'"$WERCKER_GIT_BRANCH"'", "commitHash": "'"$WERCKER_GIT_COMMIT"'"}' https://app.wercker.com/api/v3/runs/ | jq .
+	fi
+				
 	echo ""
 done

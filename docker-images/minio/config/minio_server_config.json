@@ -1,0 +1,11 @@
+{
+        "version": "8",
+        "hosts": {
+                "benchflow": {
+                        "url": "http://127.0.0.1:9000",
+                        "accessKey": "$MINIO_ACCESS_KEY",
+                        "secretKey": "$MINIO_SECRET_KEY" ,
+                        "api": "S3v4"
+                }
+        }
+}
