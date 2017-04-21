@@ -1,10 +1,9 @@
-package cloud.benchflow.dsl.definition.goal
+package cloud.benchflow.dsl.definition.configuration.goal
 
-import cloud.benchflow.dsl.definition.configuration.goal.Goal
 import cloud.benchflow.dsl.definition.configuration.goal.GoalYamlProtocol._
+import net.jcazevedo.moultingyaml._
 import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
-import net.jcazevedo.moultingyaml._
 
 import scala.util.Try
 
@@ -21,6 +20,7 @@ class GoalTest extends JUnitSuite {
       | workload:
       |   users:
       |     values: [1,2,10,32]
+      |
     """.stripMargin
 
   @Test def completeGoal(): Unit = {
@@ -33,7 +33,7 @@ class GoalTest extends JUnitSuite {
 
     Assert.assertTrue(goalYaml.prettyPrint.contains("exploration_space:"))
 
-    Assert.assertTrue(goalYaml.prettyPrint.contains("type:"))
+    Assert.assertTrue(goalYaml.prettyPrint.contains("type: load"))
 
   }
 

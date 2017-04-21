@@ -1,7 +1,10 @@
 package cloud.benchflow.dsl.definition.configuration
 
+import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol.ConfigurationKey
 import cloud.benchflow.dsl.definition.configuration.goal.Goal
 import cloud.benchflow.dsl.definition.configuration.goal.GoalYamlProtocol._
+import cloud.benchflow.dsl.definition.configuration.strategy.ExplorationStrategy
+import cloud.benchflow.dsl.definition.configuration.strategy.ExplorationStrategyYamlProtocol._
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowTestTerminationCriteria
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowTestTerminationCriteriaYamlProtocol._
 import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadExecution
@@ -23,7 +26,7 @@ object BenchFlowTestConfigurationYamlProtocol extends DefaultYamlProtocol {
   val StrategyKey = YamlString("strategy")
   val TerminationCriteriaKey = YamlString("termination_criteria")
 
-  private def keyString(key: YamlString) = "configuration." + key.value
+  private def keyString(key: YamlString) = s"${ConfigurationKey.value}.${key.value}"
 
   implicit object ConfigurationReadFormat extends YamlFormat[Try[BenchFlowTestConfiguration]] {
 
@@ -45,9 +48,8 @@ object BenchFlowTestConfigurationYamlProtocol extends DefaultYamlProtocol {
           yamlObject.getFields(WorkloadExecutionKey).headOption.map(_.convertTo[Try[WorkloadExecution]].get),
           keyString(WorkloadExecutionKey))
 
-        // TODO - define
         strategy <- deserializationHandler(
-          Option(None),
+          yamlObject.getFields(StrategyKey).headOption.map(_.convertTo[Try[ExplorationStrategy]].get),
           keyString(StrategyKey))
 
         terminationCriteria <- deserializationHandler(
@@ -75,7 +77,7 @@ object BenchFlowTestConfigurationYamlProtocol extends DefaultYamlProtocol {
         GoalKey -> obj.goal.toYaml) ++
         obj.users.map(key => UsersKey -> key.toYaml) ++
         obj.workloadExecution.map(key => WorkloadExecutionKey -> key.toYaml) ++
-        // TODO - add Strategy when defined
+        obj.strategy.map(key => StrategyKey -> key.toYaml) ++
         obj.terminationCriteria.map(key => TerminationCriteriaKey -> key.toYaml)
     }
 
