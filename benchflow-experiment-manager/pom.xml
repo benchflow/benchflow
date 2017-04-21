@@ -23,7 +23,7 @@
         <dropwizard.template.config.version>1.4.0</dropwizard.template.config.version>
         <fabanClient-client.version>dev-temp</fabanClient-client.version>
         <benchflow-dsl.project.name>benchflow-dsl</benchflow-dsl.project.name>
-        <benchflow-dsl.version>feature-dsl-demo-conversion_27eb67</benchflow-dsl.version>
+        <benchflow-dsl.version>feature-dsl-demo-conversion_590970</benchflow-dsl.version>
         <morphia.version>1.3.2</morphia.version>
         <minio.version>3.0.3</minio.version>
         <commons-io.version>2.5</commons-io.version>
