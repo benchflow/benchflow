@@ -1,0 +1,24 @@
+{
+	"version": "4",
+	"credential": {
+		"accessKey": "$MINIO_ACCESS_KEY",
+		"secretKey": "$MINIO_SECRET_KEY"
+	},
+	"region": "",
+	"logger": {
+		"console": {
+			"enable": false,
+			"level": ""
+		},
+		"file": {
+			"enable": false,
+			"fileName": "",
+			"level": ""
+		},
+		"syslog": {
+			"enable": false,
+			"address": "",
+			"level": ""
+		}
+	}
+}
