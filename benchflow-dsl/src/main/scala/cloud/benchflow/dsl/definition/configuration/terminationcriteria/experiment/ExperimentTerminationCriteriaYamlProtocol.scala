@@ -14,7 +14,7 @@ object ExperimentTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
   val TypeKey = YamlString("type")
   val NumberKey = YamlString("number")
 
-  private def keyString(key: YamlString) = "configuration.termination_criteria.experiment" + key.value
+  private def keyString(key: YamlString) = "configuration.termination_criteria.experiment." + key.value
 
   implicit object ExperimentTerminationCriteriaReadFormat extends YamlFormat[Try[ExperimentTerminationCriteria]] {
     override def read(yaml: YamlValue): Try[ExperimentTerminationCriteria] = {

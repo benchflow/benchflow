@@ -1,5 +1,7 @@
 package cloud.benchflow.dsl.definition.configuration.goal
 
+import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.ExplorationSpace
+import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.ExplorationSpaceYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
 import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
@@ -30,7 +32,9 @@ object GoalYamlProtocol extends DefaultYamlProtocol {
           keyString(TypeKey))
 
         observation <- Try(Option(None)) // TODO - define
-        explorationSpace <- Try(Option(None)) // TODO - define
+        explorationSpace <- deserializationHandler(
+          yamlObject.getFields(ExplorationSpaceKey).headOption.map(_.convertTo[Try[ExplorationSpace]].get),
+          keyString(ExplorationSpaceKey))
 
       } yield Goal(
         goalType = goalType,
@@ -47,9 +51,10 @@ object GoalYamlProtocol extends DefaultYamlProtocol {
     override def write(obj: Goal): YamlValue = YamlObject {
 
       Map[YamlValue, YamlValue](
-        TypeKey -> obj.goalType.toYaml)
+        TypeKey -> obj.goalType.toYaml) ++
+        obj.explorationSpace.map(key => ExplorationSpaceKey -> key.toYaml)
 
-      // TODO - add observation, explorationSpace
+      // TODO - add observation
 
     }
 
