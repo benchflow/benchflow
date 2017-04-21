@@ -5,6 +5,7 @@
 box: ubuntu:16.10
 
 # TODO: work on caching for all the steps
+# TODO: version pin steps
 
 ###########################################################
 # DRAFT
@@ -21,8 +22,16 @@ what-to-build:
         code: |
           # Check diffs and trigger builds
           ./diffs-check-and-trigger-builds.sh
+    - script:
+        name: Add a file to WERCKER_OUTPUT_DIR, to speed up the not needed store step
+        code: touch $WERCKER_OUTPUT_DIR/.skip
 
 # TODO: similar pipelines can be made generic and triggered using env variables to set the actual project to build
+
+###########################################################
+# DRAFT
+# BUILD PIPELINES
+###########################################################
 
 ###########################################################
 # DRAFT
@@ -31,9 +40,186 @@ what-to-build:
 build-benchflow-dsl:
   box: maven:3.3.9-jdk-8
   steps:
+    # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
     - xenoterracide/maven:
-        goals: package
+        goals: verify
         args: -f $WERCKER_SOURCE_DIR/benchflow-dsl
+    - script:
+        name: Copy benchflow-dsl to WERCKER_OUTPUT_DIR
+        code: cp $WERCKER_SOURCE_DIR/benchflow-dsl/target/benchflow-dsl.jar $WERCKER_OUTPUT_DIR
+
+###########################################################
+# DRAFT
+# Pipeline used to build for testing the layer: docker-images/base-images-layers/*
+# See: docker-images/base-images-layers/chaperone/README.md
+###########################################################
+# Last Version on: https://github.com/garywiz/chaperone-docker
+# 1.0.16-U14
+# Current Custom Version on: https://github.com/garywiz/chaperone-docker
+# 1.0.17-U14
+# Base Images Versioning:
+  # Current Version: 0.1.0 (see: docker-images/base-images/chaperone/setup/version.inc)
+  # Now we version code in folders reporting the version number, and we always update version 0.1.0
+  # paying attention that it does not influence the behavior of dependent images. Since we do that
+  # for now we really use just the root folder.
+  # ATTENTION: When editing base images, we always have to work in a feature branch and we have to
+  #            be sure the layers build before merging into devel, to which other services are referencing
+  #            for the code to be used when building the layers they need
+# NOTE: Base images have version defined manually and dictated by the version set to chaperone,
+#       because currently no matter what we update we start the build from the chaperone images
+#       by updating the version in docker-images/base-images/chaperone/setup/version.inc, that 
+#       triggers a rebuild of the image, so that we can reference to the new version in dependent images
+#       given that now they are always build in a pipelines starting with build-base-images-chaperone-binaries
+# TODO: Monitor https://github.com/garywiz/chaperone-docker/issues/5
+# DECIDE: If migrate to the following image at some point: https://github.com/phusion/baseimage-docker
+build-test-base-images-chaperone:
+  # See: https://github.com/wercker/wercker/issues/262
+  box: 
+    id: alpine:3.5
+    cmd: /bin/sh
+  steps:
+    - script:
+        name: Build the Chaperone Binaries and Install Chaperone and dependencies
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Set the working folder, so we can refer to files in that context (here so that we can quicky copy the code in other pipelines)
+          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup
+          # Build the Chaperone Binaries
+          source create-binaries.sh
+          
+          # Add the Base Image Chaperone Layer
+          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup
+          # Binaries folder ($WERCKER_OUTPUT_DIR)
+          export BINARIES_FOLDER=$WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup/lib
+          source install.sh
+
+# FOR: the following pipelines
+# Starting with test-build-, instead of build-, because it is chained in a workflow with 
+# build-base-images-chaperone and CI scripts search for pipelines starting with build-
+# when it is time to build something, so we use build- only if it is the first pipeline in a workflow
+# We do this to simplify the build scripts, even though we reduce flexibility, for now
+
+test-build-base-images-base:
+  # See: https://github.com/wercker/wercker/issues/262
+  box: 
+    id: alpine:3.5
+    cmd: /bin/sh
+  steps:
+    - script:
+        name: Build Base Image Layer - Base
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Set the working folder, so we can refer to files in that context (here so that we can quicky copy the code in other pipelines)
+          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup
+          # Build the Chaperone Binaries
+          source create-binaries.sh
+
+          # Add the Base Image Chaperone Layer
+          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup
+          # Binaries folder ($WERCKER_OUTPUT_DIR)
+          export BINARIES_FOLDER=$WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup/lib
+          source install.sh
+
+          # Add the Base Image Base Layer
+          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base
+          source build-image.sh
+
+test-build-base-images-base-dns:
+  # See: https://github.com/wercker/wercker/issues/262
+  box: 
+    id: alpine:3.5
+    cmd: /bin/sh
+  steps:
+    - script:
+        name: Build Base Image Layer - Base DNS
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Set the working folder, so we can refer to files in that context (here so that we can quicky copy the code in other pipelines)
+          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup
+          # Build the Chaperone Binaries
+          source create-binaries.sh
+
+          # Add the Base Image Chaperone Layer
+          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup
+          # Binaries folder ($WERCKER_OUTPUT_DIR)
+          export BINARIES_FOLDER=$WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup/lib
+          source install.sh
+
+          # Add the Base Image Base Layer
+          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base
+          source build-image.sh
+
+          # Add the Base Image Base DNS Layer
+          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-dns
+          source build-image.sh
+
+test-build-base-images-base-envconsul:
+  # See: https://github.com/wercker/wercker/issues/262
+  box: 
+    id: alpine:3.5
+    cmd: /bin/sh
+  steps:
+    - script:
+        name: Build Base Image Layer - Base Envconsul
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Set the working folder, so we can refer to files in that context (here so that we can quicky copy the code in other pipelines)
+          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup
+          # Build the Chaperone Binaries
+          source create-binaries.sh
+
+          # Add the Base Image Chaperone Layer
+          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup
+          # Binaries folder ($WERCKER_OUTPUT_DIR)
+          export BINARIES_FOLDER=$WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup/lib
+          source install.sh
+
+          # Add the Base Image Base Layer
+          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base
+          source build-image.sh
+
+          # Add the Base Image Base Envconsul Layer
+          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-envconsul
+          source build-image.sh
+
+test-build-base-images-base-java8:
+  # See: https://github.com/wercker/wercker/issues/262
+  box: 
+    id: alpine:3.5
+    cmd: /bin/sh
+  steps:
+    - script:
+        name: Build Base Image Layer - Base Java8
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Set the working folder, so we can refer to files in that context (here so that we can quicky copy the code in other pipelines)
+          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup
+          # Build the Chaperone Binaries
+          source create-binaries.sh
+
+          # Add the Base Image Chaperone Layer
+          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup
+          # Binaries folder ($WERCKER_OUTPUT_DIR)
+          export BINARIES_FOLDER=$WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup/lib
+          source install.sh
+          
+          # Add the Base Image Base Layer
+          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base
+          source build-image.sh
+
+          # Add the Base Image Base Java8 Layer
+          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-java8
+          source build-image.sh
+
+###########################################################
+# DRAFT
+# DEPLOY PIPELINES
+###########################################################
 
 ###########################################################
 # DRAFT
@@ -51,3 +237,84 @@ deploy-benchflow-dsl:
           # Deliver branch and commit specific artifacts on Bintray
           export ARTIFACT_NAME=benchflow-dsl
           ./deliver-on-bintray.sh
+
+###########################################################
+# ATTEMPS
+# Attemps of building base images, here for future reference when we can iterate to improve the building process
+###########################################################
+# build-base-images-chaperone-binaries:
+    # TODO: for now it is comment out because it somehow causes error in step
+    # Configure container of package-and-deploy-base-images-chaperone
+    # Then anyway we have to fine grain control what has to pass to the next pipelines,
+    # according to how they are piped, because they need code to build
+    # # This speeds up the build, because we just copy what we need
+    # - script:
+    #     name: Copy the Binaries to the WERCKER_OUTPUT_DIR
+    #     cwd: $WERCKER_SOURCE_DIR/docker-images/base-images/chaperone/setup/lib
+    #     code: cp setproctitle-install.tar.gz $WERCKER_OUTPUT_DIR
+
+###########################################################
+# DRAFT
+# BUILD AND DEPLOY PIPELINES
+###########################################################
+
+###########################################################
+# DRAFT
+# Pipeline used to build and deploy on Docker Hub: docker-images/base-images/chaperone
+# See: docker-images/base-images/chaperone/README.md
+###########################################################
+
+# package-and-deploy-base-images-chaperone:
+#   # See: https://github.com/wercker/wercker/issues/262
+#   box: 
+#     id: alpine:3.5
+#     cmd: /bin/sh
+#   steps:
+#     # See: https://github.com/ytet5uy4/step-apk-add
+#     - ytet5uy4/apk-add@0.1.2:
+#         name: Install chaperone and dependencies
+#         update: "true"
+#         cache: "true"
+#         packages: musl python3 bash sudo
+#     - script:
+#         name: Configure container
+#         cwd: $WERCKER_SOURCE_DIR/docker-images/base-images/chaperone/setup
+#         code: |
+#           # Binaries folder ($WERCKER_OUTPUT_DIR)
+#           export BINARIES_FOLDER=$WERCKER_SOURCE_DIR/docker-images/base-images/chaperone/setup/lib
+#           source install.sh
+#     - script:
+#         name: Cleanup the Image
+#         cwd: ./devops
+#         code: ./cleanup-wercker-build.sh
+    # - script:
+    #     name: Manually Set the Image Tag
+    #     code: export CUSTOM_VERSION_TAG=chaperone_0.1.0
+    # push container as-is
+    # - internal/docker-push:
+    #     author: Vincenzo FERME <info@vincenzoferme.it>
+    #     disable-sync: false
+    #     repository: benchflow/base-images
+    #     email: $DOCKER_HUB_EMAIL
+    #     username: $DOCKER_HUB_USERNAME
+    #     password: $DOCKER_HUB_PASSWORD
+    #     # TODO: understand how to let the previous commented step work
+    #     tag: chaperone_0.1.0
+    #     # _CHAP_OPTIONS - Used instead entrypoint args so that any default can be overridden by CMD
+    #     env: "_CHAP_OPTIONS='--config apps/chaperone.d --default-home / --user runapps'"
+    #     entrypoint: "/usr/local/bin/chaperone"
+    # - script:
+    #     name: Add a file to WERCKER_OUTPUT_DIR, to speed up the not needed store step
+    #     code: touch $WERCKER_OUTPUT_DIR/.skip
+
+# NOTE: it merges the code to build chaperone image, because of:
+# https://github.com/garywiz/chaperone-docker/issues/5 AND
+# building the image by ourself (see package-and-deploy-base-images-chaperone) 
+# also does not solve the issue unless we change the settings of the same, 
+# that we would avoid for now
+# NOTE: Since for now we have to add chaperone every time, the builds are started in
+#       parallel after the build of the chaperone binaries that control the build and version
+# TODO: Monitor https://github.com/garywiz/chaperone-docker/issues/5
+# Starting with package-, instead of build-, because it is chained in a workflow with 
+# build-base-images-chaperone-binaries and CI scripts search for pipelines starting with build-
+# when it is time to build something, so we use build- only if it is the first pipeline in a workflow
