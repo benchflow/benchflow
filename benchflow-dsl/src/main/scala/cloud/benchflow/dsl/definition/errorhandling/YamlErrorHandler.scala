@@ -34,8 +34,8 @@ object YamlErrorHandler {
       case e: Exception => exceptionHandler(key, e)
     }
 
-  def unsupportedReadOperation: Nothing = throw new UnsupportedOperationException("To deserialize call by wrapping in Try")
+  def unsupportedReadOperation: Nothing = throw new UnsupportedOperationException("To deserialize: call by wrapping in Try")
 
-  def unsupportedWriteOperation: Nothing = throw new UnsupportedOperationException("To serialize call without wrapping in Try")
+  def unsupportedWriteOperation: Nothing = throw new UnsupportedOperationException("To serialize: call without wrapping in Try")
 
 }
