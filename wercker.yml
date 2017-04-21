@@ -6,6 +6,8 @@ box: ubuntu:16.10
 
 # TODO: work on caching for all the steps
 # TODO: version pin steps
+# TODO: fine grain select what ate the artefacts that have to pass between pipelines
+#       relying on WERCKER_OUTPUT_DIR
 
 ###########################################################
 # DRAFT
@@ -45,8 +47,11 @@ build-benchflow-dsl:
         goals: verify
         args: -f $WERCKER_SOURCE_DIR/benchflow-dsl
     - script:
-        name: Copy benchflow-dsl to WERCKER_OUTPUT_DIR
-        code: cp $WERCKER_SOURCE_DIR/benchflow-dsl/target/benchflow-dsl.jar $WERCKER_OUTPUT_DIR
+        # NOTE: we also copy devops files, because they are needed in subsequent steps
+        name: Copy benchflow-dsl and devops to WERCKER_OUTPUT_DIR
+        code: |
+          cp $WERCKER_SOURCE_DIR/benchflow-dsl/target/benchflow-dsl.jar $WERCKER_OUTPUT_DIR
+          cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR
 
 ###########################################################
 # DRAFT
@@ -230,10 +235,6 @@ deploy-benchflow-dsl:
      # TODO: # this is going to be moved and handled by a requirements file in devops / base-images for building (fast approach for the first iterations, improved over time)
     - install-packages:
         packages: jq curl
-    - script:
-        name: Generate the Image Tag
-        cwd: ./devops
-        code: ./generate-commit-specific-tag.sh
     - script:
         name: Deliver benchflow-dsl on Bintray
         cwd: ./devops
