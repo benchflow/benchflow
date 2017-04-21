@@ -10,4 +10,6 @@ package object dsl {
 
   val BenchFlowLoadTestExample: String = BenchFlowTestExamplesFolder + "load/benchflow-test.yml"
 
+  val BenchFlowExplorationUsersExample: String = "src/test/resources/tests/exploration/users/benchflow-test.yml"
+
 }

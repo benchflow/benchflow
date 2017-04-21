@@ -1,4 +1,4 @@
-package cloud.benchflow.dsl.definition
+package cloud.benchflow.dsl.simone
 
 import cloud.benchflow.dsl.definition.simone.properties.Properties
 import cloud.benchflow.dsl.definition.simone.properties.PropertiesYamlProtocol._
