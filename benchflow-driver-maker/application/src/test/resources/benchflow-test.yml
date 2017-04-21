@@ -1,0 +1,74 @@
+sut:
+    name: camunda
+    version: 7.4.0-7.5.0
+    type: http
+#    type: WfMS
+
+testName: WfMSTest
+description: A WfMS test
+trials: 2
+
+users: 10
+execution:
+   rampUp: 0
+   steadyState: 60
+   rampDown: 0
+
+properties:
+    stats:
+        maxRunTime: 6
+        interval: 2
+
+
+drivers:
+- http:
+    properties:
+      stats:
+        interval: 30
+    operations:
+    - getProfile:
+        endpoint: /get-profile
+        method: GET
+        headers:
+          Content-Type: foobar
+#- start:
+#    properties:
+#        stats:
+#            interval: 30
+#    operations:
+#    - myModel.bpmn
+#    configuration:
+#        mix:
+#            fixedSequence: [ myModel ]
+#            deviation: 5
+
+
+sutConfiguration:
+
+    targetService:
+        name: camunda
+        endpoint: /engine-rest
+        sutReadyLogCheck: ...
+
+    deploy:
+        camunda: bull
+        db: bull
+
+    benchflowConfig:
+
+        camunda:
+        - stats
+        - logs
+        - properties
+        - zip:
+            config:
+              TO_ZIP: /
+
+        db:
+        - mysql:
+            config:
+                MYSQL_DB_NAME: process-engine
+                MYSQL_USER: camunda
+                MYSQL_USER_PASSWORD: camunda
+                TABLE_NAMES: ACT_HI_PROCINST,ACT_HI_ACTINST
+                MYSQL_PORT: 3306
