@@ -45,8 +45,11 @@ build-benchflow-dsl:
         goals: verify
         args: -f $WERCKER_SOURCE_DIR/benchflow-dsl
     - script:
-        name: Copy benchflow-dsl to WERCKER_OUTPUT_DIR
-        code: cp $WERCKER_SOURCE_DIR/benchflow-dsl/target/benchflow-dsl.jar $WERCKER_OUTPUT_DIR
+        # NOTE: we also copy devops files, because they are needed in subsequent steps
+        name: Copy benchflow-dsl and devops to WERCKER_OUTPUT_DIR
+        code: |
+          cp $WERCKER_SOURCE_DIR/benchflow-dsl/target/benchflow-dsl.jar $WERCKER_OUTPUT_DIR
+          cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR
 
 ###########################################################
 # DRAFT
