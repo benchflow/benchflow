@@ -13,6 +13,8 @@ set -xv
     #     cwd: ./devops
     #     code: ./generate-commit-specific-tag.sh
 
+echo "Delivering on Bintray"
+
 # Generate the tag used to deploy commit specific version
 CUSTOM_VERSION_TAG=${WERCKER_GIT_BRANCH}"_"${WERCKER_GIT_COMMIT:0:6}
 
