@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>cloud.benchflow</groupId>
+        <artifactId>drivers-maker</artifactId>
+        <version>0.1.0</version>
+    </parent>
+
+    <groupId>cloud.benchflow.drivers-maker</groupId>
+    <artifactId>application</artifactId>
+
+    <properties>
+        <scala.major>2.11.7</scala.major>
+        <scala.xml.version>1.0.5</scala.xml.version>
+        <scala.parser.combinators.version>1.0.4</scala.parser.combinators.version>
+        <simonedavico.moultingyaml.version>v0.3</simonedavico.moultingyaml.version>
+        <moultingyaml.version>0.2</moultingyaml.version>
+        <snakeyaml.version>1.16</snakeyaml.version>
+        <jersey.multipart.version>2.19</jersey.multipart.version>
+        <zt-zip.version>1.9</zt-zip.version>
+        <commons-io.version>2.4</commons-io.version>
+        <minio-java.version>2.0.1</minio-java.version>
+        <ant.version>1.9.6</ant.version>
+        <spoon.core.version>5.2.0</spoon.core.version>
+        <java.semver.version>0.9.0</java.semver.version>
+        <jgrapht.core.version>0.9.2</jgrapht.core.version>
+        <apache.httpclient.version>3.1</apache.httpclient.version>
+    </properties>
+
+    <repositories>
+        <!--<repository>-->
+        <!--<id>localRepository</id>-->
+        <!--<url>file://${project.basedir}/lib</url>-->
+        <!--</repository>-->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-jersey</artifactId>
+            <version>${dropwizard.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-forms</artifactId>
+            <version>${dropwizard.version}</version>
+            <type>pom</type>
+        </dependency>
+
+        <dependency>
+            <groupId>cloud.benchflow.drivers-maker</groupId>
+            <artifactId>api</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+        
+        <dependency>
+	      <groupId>org.scala-lang</groupId>
+	      <artifactId>scala-library</artifactId>
+	      <version>${scala.major}</version>
+	    </dependency>
+
+        <dependency>
+            <groupId>org.scala-lang.modules</groupId>
+            <artifactId>scala-xml_2.11</artifactId>
+            <version>${scala.xml.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.scala-lang.modules</groupId>
+            <artifactId>scala-parser-combinators_2.11</artifactId>
+            <version>${scala.parser.combinators.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.zeroturnaround</groupId>
+            <artifactId>zt-zip</artifactId>
+            <version>${zt-zip.version}</version>
+            <type>jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>${minio-java.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant</artifactId>
+            <version>${ant.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.simonedavico</groupId>
+            <artifactId>moultingyaml</artifactId>
+            <version>${simonedavico.moultingyaml.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>fr.inria.gforge.spoon</groupId>
+            <artifactId>spoon-core</artifactId>
+            <version>${spoon.core.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${apache.httpclient.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-core</artifactId>
+            <version>${jgrapht.core.version}</version>
+        </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>com.github.simonedavico</groupId>-->
+            <!--<artifactId>test-definition-model</artifactId>-->
+            <!--<version>v-dev</version>-->
+        <!--</dependency>-->
+
+        <dependency>
+            <groupId>com.github.simonedavico</groupId>
+            <artifactId>test-definition-model</artifactId>
+            <version>30d5011</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cloud.benchflow</groupId>
+            <artifactId>faban-driver</artifactId>
+            <version>0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cloud.benchflow</groupId>
+            <artifactId>faban-agents</artifactId>
+            <version>0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.simonedavico</groupId>
+            <artifactId>monitors</artifactId>
+            <version>v-dev</version>
+        </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>com.github.benchflow</groupId>-->
+            <!--<artifactId>commons</artifactId>-->
+            <!--<version>v-dev</version>-->
+        <!--</dependency>-->
+
+        <!--<dependency>-->
+            <!--<groupId>com.github.simonedavico</groupId>-->
+            <!--<artifactId>commons</artifactId>-->
+            <!--<version>v-dev</version>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>com.github.simonedavico</groupId>
+            <artifactId>commons</artifactId>
+            <version>21d8f9d</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>net.alchim31.maven</groupId>
+                    <artifactId>scala-maven-plugin</artifactId>
+                    <version>3.2.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.3</version>
+                </plugin>
+                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+                <plugin>
+                	<groupId>org.eclipse.m2e</groupId>
+                	<artifactId>lifecycle-mapping</artifactId>
+                	<version>1.0.0</version>
+                	<configuration>
+                		<lifecycleMappingMetadata>
+                			<pluginExecutions>
+                				<pluginExecution>
+                					<pluginExecutionFilter>
+                						<groupId>
+                							org.apache.maven.plugins
+                						</groupId>
+                						<artifactId>
+                							maven-install-plugin
+                						</artifactId>
+                						<versionRange>
+                							[2.5.2,)
+                						</versionRange>
+                						<goals>
+                							<goal>install-file</goal>
+                						</goals>
+                					</pluginExecutionFilter>
+                					<action>
+                						<ignore></ignore>
+                					</action>
+                				</pluginExecution>
+                			</pluginExecutions>
+                		</lifecycleMappingMetadata>
+                	</configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <configuration>
+                    <recompileMode>incremental</recompileMode>
+                    <!--
+                    required to avoid pulling multiple scala versions
+                    since the current version of combinators library
+                    pulls scala 2.11.6; see also
+                    http://www.daodecode.com/blog/2014/10/27/scala-maven-plugin-and-multiple-versions-of-scala-libraries-detected/
+                    -->
+                    <scalaCompatVersion>2.11</scalaCompatVersion>
+                    <!--<compileOrder>ScalaThenJava</compileOrder>-->
+                    <args>
+                        <arg>-feature</arg>
+                        <arg>-deprecation</arg>
+                        <arg>-explaintypes</arg>
+                        <arg>-target:jvm-1.8</arg>
+                        <arg>-language:postfixOps</arg>
+                    </args>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>scala-compile-first</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>scala-test-compile</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.5.2</version>
+                <executions>
+                    <execution>
+                        <id>install-faban-agents</id>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <phase>validate</phase>
+                        <configuration>
+                            <groupId>cloud.benchflow</groupId>
+                            <artifactId>faban-agents</artifactId>
+                            <version>0.1</version>
+                            <packaging>jar</packaging>
+                            <file>${project.basedir}/lib/fabanagents.jar</file>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>install-faban-driver</id>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <phase>validate</phase>
+                        <configuration>
+                            <groupId>cloud.benchflow</groupId>
+                            <artifactId>faban-driver</artifactId>
+                            <version>0.1</version>
+                            <packaging>jar</packaging>
+                            <file>${project.basedir}/lib/fabandriver.jar</file>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>install-apache-httpclient</id>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <phase>validate</phase>
+                        <configuration>
+                            <groupId>org.apache</groupId>
+                            <artifactId>httpclient</artifactId>
+                            <version>3.1</version>
+                            <packaging>jar</packaging>
+                            <file>${project.basedir}/lib/commons-httpclient-3.1.jar</file>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

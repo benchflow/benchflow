@@ -1,0 +1,84 @@
+<project name="Basic WfMS Workload" default="build" basedir=".">
+
+    <property file="build.properties"/>
+    <property name="src.dir" value="src"/>
+    <property name="build.dir" value="build"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="buildlib.dir" value="${build.dir}/lib"/>
+    <property name="faban.libs" value="${faban.home}/lib"/>
+    <property name="faban.classes" value="${faban.home}/master/webapps/faban/WEB-INF/classes"/>
+
+    <path id="taskclasspath">
+        <fileset dir="${faban.home}/ant/lib" includes="*.jar"/>
+        <fileset dir="${faban.libs}" includes="*.jar"/>
+    </path>
+
+    <path id="classpath" location="${faban.libs}" >
+        <pathelement location="${classes.dir}"/>
+        <fileset dir="${lib.dir}" includes="*.jar" erroronmissingdir="false"/>
+        <fileset dir="${faban.libs}" includes="*.jar"/>
+        <pathelement location="${faban.classes}"/>
+    </path>
+
+    <!--<taskdef name="deploy" classname="com.sun.faban.harness.util.DeployTask">-->
+        <!--<classpath refid="taskclasspath" />-->
+    <!--</taskdef>-->
+
+    <target name="init">
+        <mkdir dir="${classes.dir}"/>
+    </target>
+
+    <target name="compile" depends="init" description="Compiling all source files">
+        <javac includeantruntime="false" srcdir="${src.dir}"
+            deprecation="on" source="${compiler.source.version}" target="${compiler.target.version}"
+            destdir="${classes.dir}" debug="on" fork="true">
+            <include name="**/*.java" />
+            <classpath refid="classpath"/>
+        </javac>
+    </target>
+
+    <target name="clean" description="cleanup module">
+      <delete>
+        <fileset dir="${build.dir}" includes="**/*"/>
+      </delete>
+    </target>
+
+    <target name="build_driver" depends="compile" description="Assembles library jar with benchmark classes">
+        <mkdir dir="${buildlib.dir}"/>
+        <jar jarfile="${buildlib.dir}/${bench.shortname}.jar">
+            <fileset dir="${classes.dir}" includes="**/*.class"/>
+        </jar>
+    </target>
+
+    <target name="build" depends="build_driver"
+        description="Assembles deployment jar image for Faban harness">
+        <jar jarfile="${build.dir}/${bench.shortname}.jar">
+            <metainf dir="deploy" includes="*"/>
+            <!-- The next is commented out because for some reason it doesn't copy the files from the . folder
+                 to the /build folder. Now we have everything copied manually, of course when it works we should clean out things that get copied by the build process -->
+            <!-- <fileset dir="." includes="bin/**/*, lib/**/*, resources/**/*, public_html/**/*, plugins/**/*, models/**/*, data/**/*, config/**/*, sut/**/*" erroronmissingdir="false"/> -->
+            <!-- Original  -->
+            <!-- <fileset dir="${build.dir}" includes="lib/**/*"/> -->
+            <!-- Hack because of the problem stated above -->
+            <fileset dir="${build.dir}" includes="lib/**/*, plugins/**/*, models/**/*, data/**/*, config/**/*, sut/**/*" erroronmissingdir="false"/>
+        </jar>
+    </target>
+
+    <!-- Reference: http://faban.org/1.3/docs/guide/driver/running.html -->
+    <target name="run" depends="build_driver"
+        description="Test runs the benchmark outside the Faban Harness">
+        <java classname="com.sun.faban.driver.engine.MasterImpl"
+              classpathref="classpath"
+              fork="true"
+              failonerror="true"
+              dir="config">
+              <jvmarg value="-XX:+DisableExplicitGC"/>
+              <jvmarg value="-Djava.security.policy=security/driver.policy"/>
+              <jvmarg value="-Djava.util.logging.config.file=logging.properties"/>
+              <jvmarg value="-Dfaban.driver.base=.."/>
+              <jvmarg value="-Dbenchmark.config=../test/conf/run_test.xml"/>
+        </java>
+    </target>
+
+</project>
