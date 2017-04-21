@@ -233,10 +233,7 @@ deploy-benchflow-dsl:
     - script:
         name: Deliver benchflow-dsl on Bintray
         cwd: ./devops
-        code: |
-          # Deliver branch and commit specific artifacts on Bintray
-          export ARTIFACT_NAME=benchflow-dsl
-          ./deliver-on-bintray.sh
+        code: ./deliver-on-bintray.sh
 
 ###########################################################
 # ATTEMPS
