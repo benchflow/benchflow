@@ -3,6 +3,7 @@ package cloud.benchflow.experimentmanager;
 import com.palantir.docker.compose.DockerComposeRule;
 import com.palantir.docker.compose.connection.DockerMachine;
 import com.palantir.docker.compose.connection.DockerPort;
+import com.palantir.docker.compose.connection.waiting.HealthChecks;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -35,10 +36,14 @@ public class DockerComposeIT {
             .withAdditionalEnvironmentVariable("MINIO_SECRET_KEY", MINIO_SECRET_KEY)
             .build();
 
+    // to wait for a service to be available see https://github.com/palantir/docker-compose-rule#waiting-for-a-service-to-be-available
+    // can also be specified in docker compose as a health check
     @ClassRule
     public static DockerComposeRule dockerComposeRule = DockerComposeRule.builder()
             .file("src/test/resources/docker-compose/docker-compose.yml")
             .machine(dockerMachine)
+            .waitingForService(MONGO_NAME, HealthChecks.toHaveAllPortsOpen())
+            .waitingForService(MINIO_NAME, HealthChecks.toHaveAllPortsOpen())
             .build();
 
     public static DockerPort MONGO_CONTAINER;
