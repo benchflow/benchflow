@@ -1,0 +1,6 @@
+#TODO:
+#Set the command to run (currently with dummy Consul):
+#Currently we need net host in order to correcly pass the IPs of the machines. We will work on a workaround to also let it work
+#on bridge networking
+# docker run -d --name faban_harness --net="host" -v /etc/localtime:/etc/localtime:ro -v /etc/timezone:/etc/timezone:ro -e "ENVCONSUL_CONSUL=demo.consul.io:80" -p 9980:9980 -p 9981:9981 -p 9984:9984 -p 9985:9985 -p 9998:9998 -p 9999:9999 benchflow/faban:harness_dev
+# docker run -d --name faban_agent --net="host" -v /etc/localtime:/etc/localtime:ro -v /etc/timezone:/etc/timezone:ro -e "ENVCONSUL_CONSUL=demo.consul.io:80" -p 9980:9980 -p 9981:9981 -p 9984:9984 -p 9985:9985 -p 9998:9998 -p 9999:9999 benchflow/faban:agent_dev
