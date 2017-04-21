@@ -1,0 +1,58 @@
+#!/bin/sh
+
+export JAVA_HOME
+
+BINDIR=`dirname $0`
+
+if [ -n "$BINDIR" ]
+then
+    FABAN_HOME=`cd $BINDIR/.. > /dev/null 2>&1 && pwd`
+    export FABAN_HOME
+fi
+
+if [ -n "$JAVA_HOME" -a -x "$JAVA_HOME/bin/java" ] ; then
+    JAVA="$JAVA_HOME/bin/java"
+fi
+
+# If JAVA is not defined, we try our best to locate it.
+if [ -z "$JAVA" ] ; then
+
+    # Check that Java is reachable at all.
+    JAVA_BIN=`which java`
+    if [ -z "$JAVA_BIN" ] ; then
+        echo "Could not find java. Please make sure the JDK is installed \
+and set JAVA_HOME or PATH accordingly." >&2
+        exit 1
+    fi
+    JAVA=$JAVA_BIN
+fi
+
+CLASSPATH=""
+for JAR in $FABAN_HOME/lib/*
+do
+    if [ -z "$CLASSPATH" ] ; then
+        CLASSPATH="$JAR"
+    else
+        CLASSPATH="$CLASSPATH:$JAR"
+    fi
+done
+export CLASSPATH
+
+PATH=$JAVA_HOME/bin:/bin:/usr/bin:/usr/local/bin:/usr/ucb:/usr/sbin:$FABAN_HOME/bin
+export PATH
+
+HOSTNAME=`uname -n`
+
+# Check whether the java -client option is supported on this JVM. If so, use
+# the client JVM.  It is much lighter weight, less threads, less memory
+# and we do not need much performance for the agent.
+$JAVA -client -version >/dev/null 2>&1
+if [ "$?" = "0" ] ; then
+    JAVA="$JAVA -client"
+fi
+
+$JAVA -classpath $CLASSPATH \
+-Djava.rmi.server.RMIClassLoaderSpi=com.sun.faban.harness.agent.RMIClassLoaderProvider \
+-Dfaban.cli.command=$0 -Dfaban.home=$FABAN_HOME \
+-Djava.security.policy=$FABAN_HOME"/config/faban.policy" \
+com.sun.faban.harness.agent.AgentBootstrap $* 2>&1 #>> agent.${HOSTNAME}.log

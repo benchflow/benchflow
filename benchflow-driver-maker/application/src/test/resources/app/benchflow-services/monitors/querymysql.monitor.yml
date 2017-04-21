@@ -1,0 +1,23 @@
+querymysql:
+  image: benchflow/monitors:querymysql_dev
+  environment:
+  - BENCHFLOW_DATA_NAME=querymysql
+
+  - MYSQL_DB_NAME=${BENCHFLOW_BENCHMARK_CONFIG_MYSQL_DB_NAME}
+  - MYSQL_HOST=${BENCHFLOW_BENCHMARK_BOUNDSERVICE_IP}
+  - MYSQL_PORT=${BENCHFLOW_BENCHMARK_CONFIG_MYSQL_PORT}
+  - MYSQL_USER=${BENCHFLOW_BENCHMARK_CONFIG_MYSQL_USER}
+  - MYSQL_USER_PASSWORD=${BENCHFLOW_BENCHMARK_CONFIG_MYSQL_USER_PASSWORD}
+
+  network_mode: bridge
+  expose:
+    - 8080
+  ports:
+    - '8080'
+
+endpoints:
+  start: /start
+  monitor: /data
+  stop: /stop
+
+phase: end

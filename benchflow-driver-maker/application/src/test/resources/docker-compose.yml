@@ -1,0 +1,30 @@
+version: '2'
+services:
+  camunda:
+    image: camunda/camunda-bpm-platform:tomcat-7.4.7.4.0-7.5.0
+    command: bash -c "sleep 20 && /usr/local/bin/configure-and-run.sh"
+    environment:
+    - DB_DRIVER=com.mysql.jdbc.Driver
+    - DB_PASSWORD=camunda
+    - DB_USERNAME=camunda
+#    - MY_VAR_TO_SOLVE=${BENCHFLOW_db_IP}:${BENCHFLOW_db_PORT}
+#    - ANOTHER_VAR=${BENCHFLOW_db_IP}
+
+    volumes:
+    - /home/vferme/webapps:/camunda/webapps/camunda-invoice/
+    - /home/vferme/webapps:/camunda/webapps/examples/
+    network_mode: host
+    ports:
+    - 8080:8080
+
+  db:
+    image: mysql:latest
+    environment:
+    - MYSQL_DATABASE=process-engine
+    - MYSQL_PASSWORD=camunda
+    - MYSQL_ROOT_PASSWORD=camunda
+    - MYSQL_USER=camunda
+#    - BREAK_IT=${BENCHFLOW_camunda_ANOTHER_VAR}
+    network_mode: host
+    ports:
+    - 3306:3306
