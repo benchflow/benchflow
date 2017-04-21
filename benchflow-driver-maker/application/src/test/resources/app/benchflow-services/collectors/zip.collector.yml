@@ -1,0 +1,14 @@
+zip:
+  image: benchflow/collectors:zip_dev
+  environment:
+  - BENCHFLOW_DATA_NAME=zip
+  - KAFKA_TOPIC=zip
+  - TO_ZIP=${BENCHFLOW_BENCHMARK_CONFIG_TO_ZIP}
+  network_mode: bridge
+  expose:
+      - 8080
+  ports:
+      - '8080'
+
+endpoints:
+   stop: /store
