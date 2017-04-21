@@ -135,6 +135,8 @@ build-benchflow-driver-maker:
 #       by updating the version in docker-images/base-images/chaperone/setup/version.inc, that 
 #       triggers a rebuild of the image, so that we can reference to the new version in dependent images
 #       given that now they are always build in a pipelines starting with build-base-images-chaperone-binaries
+# ADDITIONAL PERSONAL NOTE: They have to happen in folders, so we can actually control updates (or not, if we care
+# fully check that before going into devel, things correclty build)
 # TODO: Monitor https://github.com/garywiz/chaperone-docker/issues/5
 # DECIDE: If migrate to the following image at some point: https://github.com/phusion/baseimage-docker
 build-test-base-images-chaperone:
@@ -228,6 +230,10 @@ deploy-benchflow-dsl:
     - install-packages:
         packages: jq curl
     - script:
+        name: Generate Custom Deployment Tag
+        cwd: ./devops
+        code: ./generate-commit-specific-tag.sh
+    - script:
         name: Deliver benchflow-dsl on Bintray
         cwd: ./devops
         code: |
@@ -245,11 +251,57 @@ deploy-benchflow-dsl:
 # Pipeline used to package the Docker Image and deploy on the Docker Hub: benchflow-experiment-manager
 ###########################################################
 deploy-benchflow-experiment-manager:
+  # See: https://github.com/wercker/wercker/issues/262
+  box: 
+    id: alpine:3.5
+    cmd: /bin/sh
   steps:
-     # TODO: # this is going to be moved and handled by a requirements file in devops / base-images for building (fast approach for the first iterations, improved over time)
-    - install-packages:
-        packages: jq curl
-    
+    - script:
+        name: Build Base Layers
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Build needed base layers
+          source $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-combined-layers/build-chaperone-binaries-and-image-and-base-dns-envconsul-java8-layers.sh
+    - script:
+        name: Build and Configure BenchFlow Experiment Manager Image
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Add the BenchFlow Experiment Manager Service and Configure it
+          cd $WERCKER_SOURCE_DIR/benchflow-experiment-manager
+          source build-image.sh
+    - script:
+        name: Cleanup the Image
+        code: source $WERCKER_SOURCE_DIR/devops/cleanup-wercker-build.sh
+    - script:
+        name: Generate Custom Deployment Tag
+        code: source $WERCKER_SOURCE_DIR/devops/generate-commit-specific-tag.sh
+    # push container as-is
+    - internal/docker-push:
+        author: Vincenzo FERME <info@vincenzoferme.it>
+        disable-sync: false
+        repository: benchflow/experiment-manager
+        email: $DOCKER_HUB_EMAIL
+        username: $DOCKER_HUB_USERNAME
+        tag: $CUSTOM_VERSION_TAG,$WERCKER_GIT_BRANCH
+        ports: "8080"
+        # _CHAP_OPTIONS - Used instead entrypoint args so that any default can be overridden by CMD
+        env: "_CHAP_OPTIONS='--config apps/chaperone.d --default-home / --user runapps'"
+        entrypoint: "/usr/local/bin/chaperone"
+
+# TODO: evaluate where to place the following, if needed
+# test_container_local:
+#   docker run -d -p $(DB_PORT):3306 --name $(DBNAME) -e "MYSQL_ALLOW_EMPTY_PASSWORD=yes" -e "MYSQL_USER=root" $(DBNAME):latest
+#   docker run -ti --rm \
+#   -e "ENVCONSUL_CONSUL=$(ENVCONSUL_CONSUL)" \
+#   -e "FABAN_ADDRESS=$(FABAN_ADDRESS)" \
+#   -e "DRIVERS_MAKER_ADDRESS=$(DRIVERS_MAKER_ADDRESS)" \
+#   -e "DB_USER=$(DB_USER)" -e "DB_PASSWORD=$(DB_PASSWORD)" -e "DB_HOST=$(DBNAME):(DB_PORT)" \
+#   -e "DB_PORT=$(DB_PORT)" -e "DB_NAME=$(DB_NAME)" \
+#   -e "MINIO_ADDRESS=$(MINIO_ADDRESS)" \
+#   -p 8080:8080 --link=$(DBNAME) --name $(REPONAME) $(DOCKERIMAGENAME):$(VERSION)
+
 
 ###########################################################
 # ATTEMPS
