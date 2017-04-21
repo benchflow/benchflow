@@ -66,10 +66,12 @@ build-benchflow-experiment-manager:
         args: -f $WERCKER_SOURCE_DIR/benchflow-experiment-manager
     - script:
         # NOTE: we also copy devops files, because they are needed in subsequent steps
-        name: Copy benchflow-experiment-manager and devops to WERCKER_OUTPUT_DIR
+        # NOTE: we also need docker-images/base-images-later here for the subsequent steps
+        name: Copy benchflow-experiment-manager, devops, and base-images-layers to WERCKER_OUTPUT_DIR
         code: |
           cp $WERCKER_SOURCE_DIR/benchflow-experiment-manager/target/benchflow-experiment-manager.jar $WERCKER_OUTPUT_DIR
           cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR
+          cp -a $WERCKER_SOURCE_DIR/docker-images/base-images-layers $WERCKER_OUTPUT_DIR
 
 ###########################################################
 # DRAFT
@@ -84,10 +86,12 @@ build-benchflow-test-manager:
         args: -f $WERCKER_SOURCE_DIR/benchflow-test-manager
     - script:
         # NOTE: we also copy devops files, because they are needed in subsequent steps
-        name: Copy benchflow-test-manager and devops to WERCKER_OUTPUT_DIR
+        # NOTE: we also need docker-images/base-images-later here for the subsequent steps
+        name: Copy benchflow-experiment-manager, devops, and base-images-layers to WERCKER_OUTPUT_DIR
         code: |
           cp $WERCKER_SOURCE_DIR/benchflow-test-manager/target/benchflow-test-manager.jar $WERCKER_OUTPUT_DIR
           cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR
+          cp -a $WERCKER_SOURCE_DIR/docker-images/base-images-layers $WERCKER_OUTPUT_DIR
 
 ###########################################################
 # DRAFT
@@ -102,10 +106,12 @@ build-benchflow-driver-maker:
         args: -f $WERCKER_SOURCE_DIR/benchflow-driver-maker
     - script:
         # NOTE: we also copy devops files, because they are needed in subsequent steps
-        name: Copy benchflow-driver-maker and devops to WERCKER_OUTPUT_DIR
+        # NOTE: we also need docker-images/base-images-later here for the subsequent steps
+        name: Copy benchflow-experiment-manager, devops, and base-images-layers to WERCKER_OUTPUT_DIR
         code: |
           cp $WERCKER_SOURCE_DIR/benchflow-driver-maker/target/benchflow-driver-maker.jar $WERCKER_OUTPUT_DIR
           cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR
+          cp -a $WERCKER_SOURCE_DIR/docker-images/base-images-layers $WERCKER_OUTPUT_DIR
 
 ###########################################################
 # DRAFT
