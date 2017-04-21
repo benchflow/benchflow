@@ -55,6 +55,60 @@ build-benchflow-dsl:
 
 ###########################################################
 # DRAFT
+# Pipeline used to build: benchflow-experiment-manager
+###########################################################
+build-benchflow-experiment-manager:
+  box: maven:3.3.9-jdk-8
+  steps:
+    # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
+    - xenoterracide/maven:
+        goals: verify
+        args: -f $WERCKER_SOURCE_DIR/benchflow-experiment-manager
+    - script:
+        # NOTE: we also copy devops files, because they are needed in subsequent steps
+        name: Copy benchflow-experiment-manager and devops to WERCKER_OUTPUT_DIR
+        code: |
+          cp $WERCKER_SOURCE_DIR/benchflow-experiment-manager/target/benchflow-experiment-manager.jar $WERCKER_OUTPUT_DIR
+          cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR
+
+###########################################################
+# DRAFT
+# Pipeline used to build: benchflow-test-manager
+###########################################################
+build-benchflow-test-manager:
+  box: maven:3.3.9-jdk-8
+  steps:
+    # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
+    - xenoterracide/maven:
+        goals: verify
+        args: -f $WERCKER_SOURCE_DIR/benchflow-test-manager
+    - script:
+        # NOTE: we also copy devops files, because they are needed in subsequent steps
+        name: Copy benchflow-test-manager and devops to WERCKER_OUTPUT_DIR
+        code: |
+          cp $WERCKER_SOURCE_DIR/benchflow-test-manager/target/benchflow-test-manager.jar $WERCKER_OUTPUT_DIR
+          cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR
+
+###########################################################
+# DRAFT
+# Pipeline used to build: benchflow-driver-maker
+###########################################################
+build-benchflow-driver-maker:
+  box: maven:3.3.9-jdk-8
+  steps:
+    # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
+    - xenoterracide/maven:
+        goals: verify
+        args: -f $WERCKER_SOURCE_DIR/benchflow-driver-maker
+    - script:
+        # NOTE: we also copy devops files, because they are needed in subsequent steps
+        name: Copy benchflow-driver-maker and devops to WERCKER_OUTPUT_DIR
+        code: |
+          cp $WERCKER_SOURCE_DIR/benchflow-driver-maker/target/benchflow-driver-maker.jar $WERCKER_OUTPUT_DIR
+          cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR
+
+###########################################################
+# DRAFT
 # Pipeline used to build for testing the layer: docker-images/base-images-layers/*
 # See: docker-images/base-images-layers/chaperone/README.md
 ###########################################################
@@ -88,16 +142,8 @@ build-test-base-images-chaperone:
         # NOTE: Due to the need of the cmd: /bin/sh command above
         #       We need to use source here, so we get the code executed in the current shell
         code: |
-          # Set the working folder, so we can refer to files in that context (here so that we can quicky copy the code in other pipelines)
-          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup
-          # Build the Chaperone Binaries
-          source create-binaries.sh
-          
-          # Add the Base Image Chaperone Layer
-          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup
-          # Binaries folder ($WERCKER_OUTPUT_DIR)
-          export BINARIES_FOLDER=$WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup/lib
-          source install.sh
+          # Build the Chaperone binaries and Chaperone Image
+          source $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-combined-layers/build-chaperone-binaries-and-image.sh
 
 # FOR: the following pipelines
 # Starting with test-build-, instead of build-, because it is chained in a workflow with 
@@ -116,20 +162,8 @@ test-build-base-images-base:
         # NOTE: Due to the need of the cmd: /bin/sh command above
         #       We need to use source here, so we get the code executed in the current shell
         code: |
-          # Set the working folder, so we can refer to files in that context (here so that we can quicky copy the code in other pipelines)
-          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup
-          # Build the Chaperone Binaries
-          source create-binaries.sh
-
-          # Add the Base Image Chaperone Layer
-          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup
-          # Binaries folder ($WERCKER_OUTPUT_DIR)
-          export BINARIES_FOLDER=$WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup/lib
-          source install.sh
-
-          # Add the Base Image Base Layer
-          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base
-          source build-image.sh
+          # Build the Chaperone binaries and Chaperone Image and Base Layer
+          source $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-combined-layers/build-chaperone-binaries-and-image-and-base-layer.sh
 
 test-build-base-images-base-dns:
   # See: https://github.com/wercker/wercker/issues/262
@@ -142,24 +176,8 @@ test-build-base-images-base-dns:
         # NOTE: Due to the need of the cmd: /bin/sh command above
         #       We need to use source here, so we get the code executed in the current shell
         code: |
-          # Set the working folder, so we can refer to files in that context (here so that we can quicky copy the code in other pipelines)
-          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup
-          # Build the Chaperone Binaries
-          source create-binaries.sh
-
-          # Add the Base Image Chaperone Layer
-          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup
-          # Binaries folder ($WERCKER_OUTPUT_DIR)
-          export BINARIES_FOLDER=$WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup/lib
-          source install.sh
-
-          # Add the Base Image Base Layer
-          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base
-          source build-image.sh
-
-          # Add the Base Image Base DNS Layer
-          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-dns
-          source build-image.sh
+          # Build the Chaperone binaries and Chaperone Image and Base + DNS Layers
+          source $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-combined-layers/build-chaperone-binaries-and-image-and-base-dns-layers.sh
 
 test-build-base-images-base-envconsul:
   # See: https://github.com/wercker/wercker/issues/262
@@ -172,24 +190,8 @@ test-build-base-images-base-envconsul:
         # NOTE: Due to the need of the cmd: /bin/sh command above
         #       We need to use source here, so we get the code executed in the current shell
         code: |
-          # Set the working folder, so we can refer to files in that context (here so that we can quicky copy the code in other pipelines)
-          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup
-          # Build the Chaperone Binaries
-          source create-binaries.sh
-
-          # Add the Base Image Chaperone Layer
-          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup
-          # Binaries folder ($WERCKER_OUTPUT_DIR)
-          export BINARIES_FOLDER=$WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup/lib
-          source install.sh
-
-          # Add the Base Image Base Layer
-          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base
-          source build-image.sh
-
-          # Add the Base Image Base Envconsul Layer
-          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-envconsul
-          source build-image.sh
+          # Build the Chaperone binaries and Chaperone Image and Base + DNS Layers
+          source $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-combined-layers/build-chaperone-binaries-and-image-and-base-envconsul-layers.sh
 
 test-build-base-images-base-java8:
   # See: https://github.com/wercker/wercker/issues/262
@@ -202,24 +204,8 @@ test-build-base-images-base-java8:
         # NOTE: Due to the need of the cmd: /bin/sh command above
         #       We need to use source here, so we get the code executed in the current shell
         code: |
-          # Set the working folder, so we can refer to files in that context (here so that we can quicky copy the code in other pipelines)
-          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup
-          # Build the Chaperone Binaries
-          source create-binaries.sh
-
-          # Add the Base Image Chaperone Layer
-          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup
-          # Binaries folder ($WERCKER_OUTPUT_DIR)
-          export BINARIES_FOLDER=$WERCKER_SOURCE_DIR/docker-images/base-images-layers/chaperone/setup/lib
-          source install.sh
-          
-          # Add the Base Image Base Layer
-          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base
-          source build-image.sh
-
-          # Add the Base Image Base Java8 Layer
-          cd $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-java8
-          source build-image.sh
+          # Build the Chaperone binaries and Chaperone Image and Base + DNS Layers
+          source $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-combined-layers/build-chaperone-binaries-and-image-and-base-java8-layers.sh
 
 ###########################################################
 # DRAFT
@@ -242,6 +228,22 @@ deploy-benchflow-dsl:
           # Deliver branch and commit specific artifacts on Bintray
           export ARTIFACT_NAME=benchflow-dsl
           ./deliver-on-bintray.sh
+
+###########################################################
+# DRAFT
+# PACKAGE DOCKER IMAGES AND DEPLOY PIPELINES
+###########################################################
+
+###########################################################
+# DRAFT
+# Pipeline used to package the Docker Image and deploy on the Docker Hub: benchflow-experiment-manager
+###########################################################
+deploy-benchflow-experiment-manager:
+  steps:
+     # TODO: # this is going to be moved and handled by a requirements file in devops / base-images for building (fast approach for the first iterations, improved over time)
+    - install-packages:
+        packages: jq curl
+    
 
 ###########################################################
 # ATTEMPS
