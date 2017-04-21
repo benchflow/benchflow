@@ -1,5 +1,7 @@
 package cloud.benchflow.dsl.definition.configuration.goal
 
+import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.ExplorationSpace
+
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 11.03.17.
@@ -9,5 +11,4 @@ package cloud.benchflow.dsl.definition.configuration.goal
 case class Goal(
   goalType: String, // TODO - define type
   observation: Option[Any], // TODO - define type
-  explorationSpace: Option[Any] // TODO - define type
-  )
+  explorationSpace: Option[ExplorationSpace])
