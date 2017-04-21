@@ -17,9 +17,6 @@ configuration:
         users:
           values: [5, 10, 15, 20]
 
-
-  users: 10
-
   workload_execution:
      ramp_up: 0s
      steady_state: 60s
