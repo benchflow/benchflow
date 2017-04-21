@@ -142,7 +142,7 @@ class DemoConverterTest extends JUnitSuite {
 
     val benchFlowExperiment = BenchFlowDSL.experimentFromTestYaml(testYaml)
 
-    val convertedExperimentYamlString: String = DemoConverter.convertExperimentToPreviousYamlString(benchFlowExperiment.get)
+    val convertedExperimentYamlString: String = DemoConverter.convertExperimentToPreviousYamlString(benchFlowExperiment)
 
     //    val convertedYamlObject = convertedExperimentYamlString.parseYaml
     //    val expectedYamlObject = expectedExperimentYaml.parseYaml
