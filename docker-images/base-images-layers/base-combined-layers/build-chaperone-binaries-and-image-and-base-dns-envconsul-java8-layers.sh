@@ -1,6 +1,7 @@
 #/bin/bash
 # Combine the build of Chaperone binaries and Chaperone Image and Base + DNS + EnvConsul + Java8 Layers
 
+
 # TODO: remove, when the code become stable
 set -xv
 
