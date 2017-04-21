@@ -6,6 +6,8 @@ box: ubuntu:16.10
 
 # TODO: work on caching for all the steps
 # TODO: version pin steps
+# TODO: fine grain select what ate the artefacts that have to pass between pipelines
+#       relying on WERCKER_OUTPUT_DIR
 
 ###########################################################
 # DRAFT
