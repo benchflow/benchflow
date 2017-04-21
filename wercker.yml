@@ -252,6 +252,10 @@ deploy-benchflow-dsl:
           echo "Creating version for branch..."
           curl -v -u$BINTRAY_ADMIN_USERNAME:$BINTRAY_API_KEY -H "Content-Type: application/json" -d '{"name": "'"$WERCKER_GIT_BRANCH"'", "desc": "'"$WERCKER_GIT_BRANCH"'"}' "https://api.bintray.com/packages/$BINTRAY_USERNAME/$BINTRAY_USERNAME-maven/$ARTIFACT_NAME/versions" | jq .
           echo ""
+
+          ls $WERCKER_OUTPUT_DIR/
+
+          #TODO: make curl: Can't open fail the script, so the delivery fails
           echo "Uploading artefact for commit..."
           curl -T $WERCKER_OUTPUT_DIR/$ARTIFACT_NAME.jar -u$BINTRAY_ADMIN_USERNAME:$BINTRAY_API_KEY "https://api.bintray.com/content/$BINTRAY_USERNAME/$BINTRAY_USERNAME-maven/$ARTIFACT_NAME/$WERCKER_GIT_BRANCH_$CUSTOM_VERSION_TAG/$ARTIFACT_NAME_$WERCKER_GIT_BRANCH_$CUSTOM_VERSION_TAG.jar?publish=1&override=1" | jq .
           echo ""
