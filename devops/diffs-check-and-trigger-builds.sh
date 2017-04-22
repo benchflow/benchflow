@@ -241,6 +241,9 @@ do
 	     "benchflow-experiment-manager")
 	     branch_name_pipeline_id=$WERCKER_BENCHFLOW_EXPERIMENT_MANAGER_PIPELINE_ID
 	     ;;
+	     "benchflow-test-manager")
+	     branch_name_pipeline_id=$WERCKER_BENCHFLOW_TEST_MANAGER_PIPELINE_ID
+	     ;;
 			 *)
 	     echo "No build pipeline defined for the current folder"
 			 ;;
