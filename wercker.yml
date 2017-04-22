@@ -94,8 +94,8 @@ build-benchflow-experiment-manager:
         name: Copy benchflow-experiment-manager, devops, and base-images-layers to WERCKER_OUTPUT_DIR
         code: |
           cp $WERCKER_SOURCE_DIR/benchflow-experiment-manager/target/benchflow-experiment-manager.jar $WERCKER_OUTPUT_DIR
-          cp $WERCKER_SOURCE_DIR/benchflow-experiment-manager/configuration.yml $WERCKER_OUTPUT_DIR
-          cp -a $WERCKER_SOURCE_DIR/benchflow-experiment-manager/services $WERCKER_OUTPUT_DIR
+          cp $WERCKER_SOURCE_DIR/benchflow-experiment-manager/configuration.yml $WERCKER_OUTPUT_DIR/benchflow-experiment-manager
+          cp -a $WERCKER_SOURCE_DIR/benchflow-experiment-manager/services $WERCKER_OUTPUT_DIR/benchflow-experiment-manager
           cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR
           cp -a $WERCKER_SOURCE_DIR/docker-images $WERCKER_OUTPUT_DIR
 

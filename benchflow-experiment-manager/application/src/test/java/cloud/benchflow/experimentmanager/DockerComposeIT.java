@@ -36,7 +36,7 @@ public class DockerComposeIT {
 
     public static DockerPort MONGO_CONTAINER;
     public static DockerPort MINIO_CONTAINER;
-     
+    
     // dockerComposeRule and dockerMachine are used only when executing the local workflow
     public static DockerComposeRule dockerComposeRule;
     private static DockerMachine dockerMachine;
@@ -62,6 +62,8 @@ public class DockerComposeIT {
         if ((CI.matches("false")) &&
                 (dockerComposeRule == null || dockerMachine == null)) {
 
+            System.out.println(">>SETTING");
+
             //We rely on the CI env variable to detect if we are not in CI environment
             dockerMachine = DockerMachine.localMachine()
                     .withAdditionalEnvironmentVariable("MONGO_TAG", MONGO_TAG)
@@ -70,6 +72,8 @@ public class DockerComposeIT {
                     .withAdditionalEnvironmentVariable("MINIO_ACCESS_KEY", MINIO_ACCESS_KEY)
                     .withAdditionalEnvironmentVariable("MINIO_SECRET_KEY", MINIO_SECRET_KEY)
                     .build();
+
+            System.out.println(">>DOCKER MACHINE READY");
 
             // to wait for a service to be available see https://github.com/palantir/docker-compose-rule#waiting-for-a-service-to-be-available
             // can also be specified in docker compose as a health check
@@ -80,9 +84,13 @@ public class DockerComposeIT {
                     .waitingForService(MINIO_NAME, HealthChecks.toHaveAllPortsOpen())
                     .build();
 
+            System.out.println(">>DOCKER COMPOSE READY");
+
             // We make sure that the host and the container port are the same by defining it in docker compose
             MONGO_CONTAINER = dockerComposeRule.containers().container(MONGO_NAME).port(MONGO_PORT);
             MINIO_CONTAINER = dockerComposeRule.containers().container(MINIO_NAME).port(MINIO_PORT);
+
+            System.out.println(">>SET");
 
         } else if ((CI.matches("true")) &&
                         (MONGO_CONTAINER == null || MINIO_CONTAINER == null)) {
