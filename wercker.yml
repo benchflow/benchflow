@@ -57,8 +57,32 @@ build-benchflow-dsl:
 # DRAFT
 # Pipeline used to build: benchflow-experiment-manager
 ###########################################################
+# NOTE: We were relying on docker-compose for Integration Testing, but in Wercker
+# it is not possible to interact with the docker daemon to start containers:
+#   - See: http://devcenter.wercker.com/docs/faq/can-i-run-docker-commands, https://github.com/wercker/wercker/issues/63, http://devcenter.wercker.com/docs/faq/can-i-build-dockerfiles
+# We did some attempts in installing docker in docker and relying on it, but without success
+# Wercker relies on services instead: http://devcenter.wercker.com/docs/services#hs_cos_wrapper_name and we moved to services
+# waiting for the possibility, maybe, to use docker-compose that gives developers more control
 build-benchflow-experiment-manager:
   box: maven:3.3.9-jdk-8
+  services:
+    - name: mongo
+      id: mongo:3.4.2
+      ports:
+        - "27017:27017"
+      volume: 
+        - "$WERCKER_SOURCE_DIR/benchflow-experiment-manager/src/test/resources/docker-compose/mongo-data:/data/db:rw"
+      env:
+        MONGO_DATA_VOLUME_PATH: $WERCKER_SOURCE_DIR/benchflow-experiment-manager/src/test/resources/docker-compose/mongo-data
+    - name: minio
+      id: minio/minio:RELEASE.2017-02-16T01-47-30Z
+      ports:
+        - "9000:9000"
+      cmd: server /export
+      env:
+        MINIO_TAG: RELEASE.2017-02-16T01-47-30Z
+        MINIO_ACCESS_KEY: minio
+        MINIO_SECRET_KEY: minio123
   steps:
     # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
     - xenoterracide/maven:
