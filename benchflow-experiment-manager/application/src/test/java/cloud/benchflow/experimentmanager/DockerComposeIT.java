@@ -36,7 +36,7 @@ public class DockerComposeIT {
 
     public static DockerPort MONGO_CONTAINER;
     public static DockerPort MINIO_CONTAINER;
-
+    
     // dockerComposeRule and dockerMachine are used only when executing the local workflow
     public static DockerComposeRule dockerComposeRule;
     private static DockerMachine dockerMachine;

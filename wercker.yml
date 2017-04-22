@@ -286,6 +286,8 @@ deploy-benchflow-experiment-manager:
         #       We need to use source here, so we get the code executed in the current shell
         code: |
           # Build needed base layers
+          ls -la $WERCKER_SOURCE_DIR
+          ls -la $WERCKER_OUTPUT_DIR
           source $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-combined-layers/build-chaperone-binaries-and-image-and-base-dns-envconsul-java8-layers.sh
     - script:
         name: Build and Configure BenchFlow Experiment Manager Image
