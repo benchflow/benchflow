@@ -33,8 +33,10 @@ if [ ! -f $WERCKER_SOURCE_DIR/$ARTIFACT_NAME.jar ]; then
 fi
 
 #NOTE: The output of the previous pipeline is in the source of the next pipeline
+#NOTE: We need to name the jar with the actifact name as well, because for now even if we have a named package, the artefacts are all
+#      in the same maven repo, so we need the artefact name to differentiate them.
 echo "Uploading artefact for commit..."
-curl -v -T $WERCKER_SOURCE_DIR/$ARTIFACT_NAME.jar -u$BINTRAY_ADMIN_USERNAME:$BINTRAY_API_KEY "https://api.bintray.com/content/$BINTRAY_USERNAME/$BINTRAY_USERNAME-maven/$ARTIFACT_NAME/$WERCKER_GIT_BRANCH/$ARTIFACT_NAME_$WERCKER_GIT_BRANCH_$CUSTOM_VERSION_TAG.jar?publish=1&override=1" | jq .
+curl -v -T $WERCKER_SOURCE_DIR/$ARTIFACT_NAME.jar -u$BINTRAY_ADMIN_USERNAME:$BINTRAY_API_KEY "https://api.bintray.com/content/${BINTRAY_USERNAME}/${BINTRAY_USERNAME}-maven/${ARTIFACT_NAME}/${WERCKER_GIT_BRANCH}/${ARTIFACT_NAME}_${CUSTOM_VERSION_TAG}.jar?publish=1&override=1" | jq .
 echo ""
 echo "Uploading artefact for branch..."
-curl -v -T $WERCKER_SOURCE_DIR/$ARTIFACT_NAME.jar -u$BINTRAY_ADMIN_USERNAME:$BINTRAY_API_KEY "https://api.bintray.com/content/$BINTRAY_USERNAME/$BINTRAY_USERNAME-maven/$ARTIFACT_NAME/$WERCKER_GIT_BRANCH/$ARTIFACT_NAME_$WERCKER_GIT_BRANCH.jar?publish=1&override=1" | jq .
+curl -v -T $WERCKER_SOURCE_DIR/$ARTIFACT_NAME.jar -u$BINTRAY_ADMIN_USERNAME:$BINTRAY_API_KEY "https://api.bintray.com/content/${BINTRAY_USERNAME}/${BINTRAY_USERNAME}-maven/${ARTIFACT_NAME}/${WERCKER_GIT_BRANCH}/${ARTIFACT_NAME}_${WERCKER_GIT_BRANCH}.jar?publish=1&override=1" | jq .
