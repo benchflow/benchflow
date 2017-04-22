@@ -90,12 +90,12 @@ build-benchflow-experiment-manager:
         args: -f $WERCKER_SOURCE_DIR/benchflow-experiment-manager
     - script:
         # NOTE: we also copy devops files, because they are needed in subsequent steps
-        # NOTE: we also need docker-images/base-images-later here for the subsequent steps
+        # NOTE: we also need docker-images (from the root for compatibility of paths) here for the subsequent steps
         name: Copy benchflow-experiment-manager, devops, and base-images-layers to WERCKER_OUTPUT_DIR
         code: |
           cp $WERCKER_SOURCE_DIR/benchflow-experiment-manager/target/benchflow-experiment-manager.jar $WERCKER_OUTPUT_DIR
           cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR
-          cp -a $WERCKER_SOURCE_DIR/docker-images/base-images-layers $WERCKER_OUTPUT_DIR
+          cp -a $WERCKER_SOURCE_DIR/docker-images $WERCKER_OUTPUT_DIR
 
 ###########################################################
 # DRAFT
@@ -286,9 +286,7 @@ deploy-benchflow-experiment-manager:
         #       We need to use source here, so we get the code executed in the current shell
         code: |
           # Build needed base layers
-          ls -la $WERCKER_SOURCE_DIR
-          ls -la $WERCKER_OUTPUT_DIR
-          source $WERCKER_SOURCE_DIR/base-images-layers/base-combined-layers/build-chaperone-binaries-and-image-and-base-dns-envconsul-java8-layers.sh
+          source $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-combined-layers/build-chaperone-binaries-and-image-and-base-dns-envconsul-java8-layers.sh
     - script:
         name: Build and Configure BenchFlow Experiment Manager Image
         # NOTE: Due to the need of the cmd: /bin/sh command above

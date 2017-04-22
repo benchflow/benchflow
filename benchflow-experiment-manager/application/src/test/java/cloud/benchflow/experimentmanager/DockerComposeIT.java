@@ -36,7 +36,7 @@ public class DockerComposeIT {
 
     public static DockerPort MONGO_CONTAINER;
     public static DockerPort MINIO_CONTAINER;
-     
+    
     // dockerComposeRule and dockerMachine are used only when executing the local workflow
     public static DockerComposeRule dockerComposeRule;
     private static DockerMachine dockerMachine;
@@ -61,8 +61,6 @@ public class DockerComposeIT {
 
         if ((CI.matches("false")) &&
                 (dockerComposeRule == null || dockerMachine == null)) {
-
-            System.out.println(">>>>CI: Assigning values");
 
             //We rely on the CI env variable to detect if we are not in CI environment
             dockerMachine = DockerMachine.localMachine()
