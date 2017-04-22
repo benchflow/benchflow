@@ -304,6 +304,24 @@ deploy-benchflow-experiment-manager:
 
 
 ###########################################################
+# DRAFT
+# Pipeline used to package the Docker Image and deploy on the Docker Hub: benchflow-test-manager
+###########################################################
+
+
+# test_container_local:
+#   docker run -d -p $(DB_PORT):3306 --username $(DBNAME) -e "MYSQL_ALLOW_EMPTY_PASSWORD=yes" -e "MYSQL_USER=root" $(DBNAME):latest
+#   docker run -ti --rm \
+#   -e "ENVCONSUL_CONSUL=$(ENVCONSUL_CONSUL)" \
+#   -e "FABAN_ADDRESS=$(FABAN_ADDRESS)" \
+#   -e "DRIVERS_MAKER_ADDRESS=$(DRIVERS_MAKER_ADDRESS)" \
+#   -e "DB_USER=$(DB_USER)" -e "DB_PASSWORD=$(DB_PASSWORD)" -e "DB_HOST=$(DBNAME):(DB_PORT)" \
+#   -e "DB_PORT=$(DB_PORT)" -e "DB_NAME=$(DB_NAME)" \
+#   -e "MINIO_ADDRESS=$(MINIO_ADDRESS)" \
+#   -p 8080:8080 --link=$(DBNAME) --username $(REPONAME) $(DOCKERIMAGENAME):$(VERSION)
+
+
+###########################################################
 # ATTEMPS
 # Attemps of building base images, here for future reference when we can iterate to improve the building process
 ###########################################################
