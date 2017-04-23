@@ -1,10 +1,9 @@
-package cloud.benchflow.dsl.definition.goal.explorationspace
+package cloud.benchflow.dsl.definition.configuration.goal.explorationspace
 
-import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.ExplorationSpace
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.ExplorationSpaceYamlProtocol._
+import net.jcazevedo.moultingyaml._
 import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
-import net.jcazevedo.moultingyaml._
 
 import scala.util.Try
 
@@ -14,15 +13,15 @@ import scala.util.Try
  */
 class ExplorationSpaceTest extends JUnitSuite {
 
-  private val completeExplorationSpaceYaml: String =
+  private val workloadUsersExplorationSpaceYaml: String =
     """workload:
       | users:
       |   values: [1,2,10,32]
     """.stripMargin
 
-  @Test def completeUserExplorationSpace(): Unit = {
+  @Test def workloadUserExplorationSpace(): Unit = {
 
-    val triedExplorationSpace = completeExplorationSpaceYaml.parseYaml.convertTo[Try[ExplorationSpace]]
+    val triedExplorationSpace = workloadUsersExplorationSpaceYaml.parseYaml.convertTo[Try[ExplorationSpace]]
 
     Assert.assertTrue(triedExplorationSpace.isSuccess)
 

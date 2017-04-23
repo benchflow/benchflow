@@ -1,10 +1,9 @@
-package cloud.benchflow.dsl.definition.goal.explorationspace.workload.users
+package cloud.benchflow.dsl.definition.configuration.goal.explorationspace.workload.users
 
-import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.workload.users.ExplorationSpaceUsers
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.workload.users.ExplorationSpaceUsersYamlProtocol._
+import net.jcazevedo.moultingyaml._
 import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
-import net.jcazevedo.moultingyaml._
 
 import scala.util.Try
 
