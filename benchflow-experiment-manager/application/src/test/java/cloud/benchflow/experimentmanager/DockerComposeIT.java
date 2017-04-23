@@ -60,21 +60,12 @@ public class DockerComposeIT {
 
         String CI = getEnvOrDefault("CI", "false");
 
-        System.out.println(CI);
-        System.out.println(CI.matches("false"));
-        System.out.println(MONGO_CONTAINER);
-        System.out.println(MINIO_CONTAINER);
-
         if ((CI.matches("false")) &&
                 (MONGO_CONTAINER == null || MINIO_CONTAINER == null)) {
-
-            System.out.println("FALSE");
 
             // We make sure that the host and the container port are the same by defining it in docker compose
             MONGO_CONTAINER = dockerComposeRule.containers().container(MONGO_NAME).port(MONGO_PORT);
             MINIO_CONTAINER = dockerComposeRule.containers().container(MINIO_NAME).port(MINIO_PORT);
-
-            System.out.println("FALSE - SETUP DONE");
 
         } else if ((CI.matches("true")) &&
                         (MONGO_CONTAINER == null || MINIO_CONTAINER == null)) {
