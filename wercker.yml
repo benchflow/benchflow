@@ -309,6 +309,7 @@ deploy-benchflow-experiment-manager:
         code: |
           source $WERCKER_SOURCE_DIR/devops/cleanup-wercker-build.sh
           export DOCKER_IMAGE_CUSTOM_TAG="""${WERCKER_GIT_BRANCH}"_"${WERCKER_GIT_COMMIT:0:6}"""
+          env
     # push container as-is
     - internal/docker-push:
         author: Vincenzo FERME <info@vincenzoferme.it>
