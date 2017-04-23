@@ -284,6 +284,8 @@ deploy-benchflow-experiment-manager:
   box: 
     id: alpine:3.5
     cmd: /bin/sh
+    env:
+      - DOCKER_IMAGE_CUSTOM_TAG: ${WERCKER_GIT_BRANCH}"_"${WERCKER_GIT_COMMIT:0:6}
   steps:
     - script:
         name: Build Base Layers

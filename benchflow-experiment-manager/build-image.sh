@@ -4,7 +4,7 @@
 # TODO: remove, when the code become stable
 set -xv
 
-# copy service 
+# copy service
 cp target/benchflow-experiment-manager.jar /app/
 
 # copy service configuration
