@@ -96,6 +96,7 @@ build-benchflow-experiment-manager:
           cp $WERCKER_SOURCE_DIR/benchflow-experiment-manager/target/benchflow-experiment-manager.jar $WERCKER_OUTPUT_DIR
           mkdir -p $WERCKER_OUTPUT_DIR/benchflow-experiment-manager/
           cp $WERCKER_SOURCE_DIR/benchflow-experiment-manager/configuration.yml $WERCKER_OUTPUT_DIR/benchflow-experiment-manager
+          cp $WERCKER_SOURCE_DIR/benchflow-experiment-manager/build-image.sh $WERCKER_OUTPUT_DIR/benchflow-experiment-manager
           mkdir -p $WERCKER_OUTPUT_DIR/benchflow-experiment-manager/services/
           cp -Rf $WERCKER_SOURCE_DIR/benchflow-experiment-manager/services/* $WERCKER_OUTPUT_DIR/benchflow-experiment-manager/services/
           cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR

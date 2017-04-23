@@ -60,8 +60,13 @@ public class DockerComposeIT {
 
         String CI = getEnvOrDefault("CI", "false");
 
+        System.out.println(CI);
+        System.out.println(CI.matches("false"));
+        System.out.println(MONGO_CONTAINER);
+        System.out.println(MINIO_CONTAINER);
+
         if ((CI.matches("false")) &&
-                (dockerComposeRule == null || dockerMachine == null)) {
+                (MONGO_CONTAINER == null || MINIO_CONTAINER == null)) {
 
             System.out.println("FALSE");
 
