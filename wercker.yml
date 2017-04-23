@@ -106,8 +106,32 @@ build-benchflow-experiment-manager:
 # DRAFT
 # Pipeline used to build: benchflow-test-manager
 ###########################################################
+# NOTE: We were relying on docker-compose for Integration Testing, but in Wercker
+# it is not possible to interact with the docker daemon to start containers:
+#   - See: http://devcenter.wercker.com/docs/faq/can-i-run-docker-commands, https://github.com/wercker/wercker/issues/63, http://devcenter.wercker.com/docs/faq/can-i-build-dockerfiles
+# We did some attempts in installing docker in docker and relying on it, but without success
+# Wercker relies on services instead: http://devcenter.wercker.com/docs/services#hs_cos_wrapper_name and we moved to services
+# waiting for the possibility, maybe, to use docker-compose that gives developers more control
 build-benchflow-test-manager:
   box: maven:3.3.9-jdk-8
+  services:
+    - name: mongo
+      id: mongo:3.4.2
+      ports:
+        - "27017:27017"
+      volume: 
+        - "$WERCKER_SOURCE_DIR/benchflow-test-manager/src/test/resources/docker-compose/mongo-data:/data/db:rw"
+      env:
+        MONGO_DATA_VOLUME_PATH: $WERCKER_SOURCE_DIR/benchflow-test-manager/src/test/resources/docker-compose/mongo-data
+    - name: minio
+      id: minio/minio:RELEASE.2017-02-16T01-47-30Z
+      ports:
+        - "9000:9000"
+      cmd: server /export
+      env:
+        MINIO_TAG: RELEASE.2017-02-16T01-47-30Z
+        MINIO_ACCESS_KEY: minio
+        MINIO_SECRET_KEY: minio123
   steps:
     # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
     - xenoterracide/maven:
@@ -115,32 +139,37 @@ build-benchflow-test-manager:
         args: -f $WERCKER_SOURCE_DIR/benchflow-test-manager
     - script:
         # NOTE: we also copy devops files, because they are needed in subsequent steps
-        # NOTE: we also need docker-images/base-images-later here for the subsequent steps
-        name: Copy benchflow-experiment-manager, devops, and base-images-layers to WERCKER_OUTPUT_DIR
+        # NOTE: we also need docker-images (from the root for compatibility of paths) here for the subsequent steps
+        name: Copy benchflow-test-manager, devops, and base-images-layers to WERCKER_OUTPUT_DIR
         code: |
-          cp $WERCKER_SOURCE_DIR/benchflow-test-manager/target/benchflow-test-manager.jar $WERCKER_OUTPUT_DIR
+          mkdir -p $WERCKER_OUTPUT_DIR/benchflow-test-manager/target
+          cp $WERCKER_SOURCE_DIR/benchflow-test-manager/target/benchflow-test-manager.jar $WERCKER_OUTPUT_DIR/benchflow-test-manager/target/
+          cp $WERCKER_SOURCE_DIR/benchflow-test-manager/configuration.yml $WERCKER_OUTPUT_DIR/benchflow-test-manager
+          cp $WERCKER_SOURCE_DIR/benchflow-test-manager/build-image.sh $WERCKER_OUTPUT_DIR/benchflow-test-manager
+          mkdir -p $WERCKER_OUTPUT_DIR/benchflow-test-manager/services/
+          cp -Rf $WERCKER_SOURCE_DIR/benchflow-test-manager/services/* $WERCKER_OUTPUT_DIR/benchflow-test-manager/services/
           cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR
-          cp -a $WERCKER_SOURCE_DIR/docker-images/base-images-layers $WERCKER_OUTPUT_DIR
+          cp -a $WERCKER_SOURCE_DIR/docker-images $WERCKER_OUTPUT_DIR
 
 ###########################################################
 # DRAFT
 # Pipeline used to build: benchflow-driver-maker
 ###########################################################
-build-benchflow-driver-maker:
-  box: maven:3.3.9-jdk-8
-  steps:
-    # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
-    - xenoterracide/maven:
-        goals: verify
-        args: -f $WERCKER_SOURCE_DIR/benchflow-driver-maker
-    - script:
-        # NOTE: we also copy devops files, because they are needed in subsequent steps
-        # NOTE: we also need docker-images/base-images-later here for the subsequent steps
-        name: Copy benchflow-experiment-manager, devops, and base-images-layers to WERCKER_OUTPUT_DIR
-        code: |
-          cp $WERCKER_SOURCE_DIR/benchflow-driver-maker/target/benchflow-driver-maker.jar $WERCKER_OUTPUT_DIR
-          cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR
-          cp -a $WERCKER_SOURCE_DIR/docker-images/base-images-layers $WERCKER_OUTPUT_DIR
+# build-benchflow-driver-maker:
+#   box: maven:3.3.9-jdk-8
+#   steps:
+#     # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
+#     - xenoterracide/maven:
+#         goals: verify
+#         args: -f $WERCKER_SOURCE_DIR/benchflow-driver-maker
+#     - script:
+#         # NOTE: we also copy devops files, because they are needed in subsequent steps
+#         # NOTE: we also need docker-images/base-images-later here for the subsequent steps
+#         name: Copy benchflow-experiment-manager, devops, and base-images-layers to WERCKER_OUTPUT_DIR
+#         code: |
+#           cp $WERCKER_SOURCE_DIR/benchflow-driver-maker/target/benchflow-driver-maker.jar $WERCKER_OUTPUT_DIR
+#           cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR
+#           cp -a $WERCKER_SOURCE_DIR/docker-images/base-images-layers $WERCKER_OUTPUT_DIR
 
 ###########################################################
 # DRAFT
@@ -349,6 +378,58 @@ deploy-benchflow-experiment-manager:
 # DRAFT
 # Pipeline used to package the Docker Image and deploy on the Docker Hub: benchflow-test-manager
 ###########################################################
+deploy-benchflow-test-manager:
+  # See: https://github.com/wercker/wercker/issues/262
+  box: 
+    id: alpine:3.5
+    cmd: /bin/sh
+    # env:
+    #   DOCKER_IMAGE_CUSTOM_TAG: ${WERCKER_GIT_BRANCH}_${WERCKER_GIT_COMMIT}
+  steps:
+    - script:
+        name: Build Base Layers
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Build needed base layers
+          source $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-combined-layers/build-chaperone-binaries-and-image-and-base-dns-envconsul-java8-layers.sh
+    - script:
+        name: Build and Configure BenchFlow Test Manager Image
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Add the BenchFlow Test Manager Service and Configure it
+          cd $WERCKER_SOURCE_DIR/benchflow-test-manager
+          source build-image.sh
+    # TODO: understand how to make it work (the variable is not set in the docker-push steps)
+    # - script:
+    #     name: Generate Custom Deployment Tag
+    #     code: source $WERCKER_SOURCE_DIR/devops/generate-commit-specific-tag.sh
+    - script:
+        name: Cleanup the Image and set Custom Tag
+        code: |
+          source $WERCKER_SOURCE_DIR/devops/cleanup-wercker-build.sh
+    # push container as-is
+    - internal/docker-push:
+        author: Vincenzo FERME <info@vincenzoferme.it>
+        disable-sync: false
+        repository: benchflow/test-manager
+        email: $DOCKER_HUB_EMAIL
+        username: $DOCKER_HUB_USERNAME
+        password: $DOCKER_HUB_PASSWORD
+        # NOTE: first we push the commit specific image, then the image for the branch
+        # NOTE: Here we are supposed to use the tag obtained from "Generate Custom Deployment Tag"
+        # BUT there are many issues with it because alpine does not make variables available at this step
+        # as discussed: http://devcenter.wercker.com/docs/faq/alpine-faq, https://github.com/wercker/wercker/issues/226
+        # ALTERNATIVE: switch to ubuntu, or wait for a fix
+        # NOW: We just use the WERCKER_GIT_COMMIT that is made available from the beginning
+        tag: ${WERCKER_GIT_COMMIT},${WERCKER_GIT_BRANCH}
+        ports: "8080"
+        # _CHAP_OPTIONS - Used instead entrypoint args so that any default can be overridden by CMD
+        # Separating by , it is not working, and also placing variables in "" (http://devcenter.wercker.com/docs/steps/internal-steps#docker-push)
+        # the only approach that work is the following one
+        env: _CHAP_OPTIONS='--config apps/chaperone.d --default-home / --user runapps' ENVCONSUL_CONFIG=/envconsul
+        entrypoint: "/usr/local/bin/chaperone"
 
 
 # test_container_local:
