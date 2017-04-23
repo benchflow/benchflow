@@ -305,7 +305,9 @@ deploy-benchflow-experiment-manager:
         code: source $WERCKER_SOURCE_DIR/devops/generate-commit-specific-tag.sh
     - script:
         name: Cleanup the Image
-        code: source $WERCKER_SOURCE_DIR/devops/cleanup-wercker-build.sh
+        # TODO: understand how to make it work (the variable is not set in the docker-push steps)
+        # code: source $WERCKER_SOURCE_DIR/devops/cleanup-wercker-build.sh
+        code: export CUSTOM_VERSION_TAG=${WERCKER_GIT_BRANCH}"_"${WERCKER_GIT_COMMIT:0:6}
     # push container as-is
     - internal/docker-push:
         author: Vincenzo FERME <info@vincenzoferme.it>
