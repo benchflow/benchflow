@@ -310,6 +310,7 @@ deploy-benchflow-experiment-manager:
         name: Cleanup the Image and set Custom Tag
         code: |
           source $WERCKER_SOURCE_DIR/devops/cleanup-wercker-build.sh
+          env --null
     # push container as-is
     - internal/docker-push:
         author: Vincenzo FERME <info@vincenzoferme.it>
