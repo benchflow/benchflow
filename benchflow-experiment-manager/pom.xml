@@ -185,33 +185,6 @@
                         </execution>
                     </executions>
                 </plugin>
-                <!--&lt;!&ndash; Initial attemp from: http://www.eclipse.org/m2e/documentation/m2e-execution-not-covered.html &ndash;&gt;-->
-                <!--<plugin>-->
-                    <!--<groupId>org.eclipse.m2e</groupId>-->
-                    <!--<artifactId>lifecycle-mapping</artifactId>-->
-                    <!--<version>1.0.0</version>-->
-                    <!--<configuration>-->
-                        <!--<lifecycleMappingMetadata>-->
-                            <!--<pluginExecutions>-->
-                                <!--<pluginExecution>-->
-                                    <!--<pluginExecutionFilter>-->
-                                        <!--<groupId>com.googlecode.maven-download-plugin</groupId>-->
-                                        <!--<artifactId>download-maven-plugin</artifactId>-->
-                                        <!--<versionRange>${download-maven-plugin.version}</versionRange>-->
-                                        <!--<goals>-->
-                                            <!--<goal>wget</goal>-->
-                                        <!--</goals>-->
-                                    <!--</pluginExecutionFilter>-->
-                                    <!--<action>-->
-                                        <!--<execute>-->
-                                            <!--<runOnIncremental>false</runOnIncremental>-->
-                                        <!--</execute>-->
-                                    <!--</action>-->
-                                <!--</pluginExecution>-->
-                            <!--</pluginExecutions>-->
-                        <!--</lifecycleMappingMetadata>-->
-                    <!--</configuration>-->
-                <!--</plugin>-->
             </plugins>
         </pluginManagement>
         <plugins>
