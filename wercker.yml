@@ -316,7 +316,9 @@ deploy-benchflow-experiment-manager:
         tag: $CUSTOM_VERSION_TAG,$WERCKER_GIT_BRANCH
         ports: "8080"
         # _CHAP_OPTIONS - Used instead entrypoint args so that any default can be overridden by CMD
-        env: "_CHAP_OPTIONS='--config apps/chaperone.d --default-home / --user runapps'"
+        # Separating by , it is not working, and also placing variables in "" (http://devcenter.wercker.com/docs/steps/internal-steps#docker-push)
+        # the only approach that work is the following one
+        env: _CHAP_OPTIONS='--config apps/chaperone.d --default-home / --user runapps' ENVCONSUL_CONFIG=/envconsul
         entrypoint: "/usr/local/bin/chaperone"
 
 # TODO: evaluate where to place the following, if needed
