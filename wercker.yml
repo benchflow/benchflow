@@ -301,11 +301,11 @@ deploy-benchflow-experiment-manager:
           cd $WERCKER_SOURCE_DIR/benchflow-experiment-manager
           source build-image.sh
     - script:
-        name: Cleanup the Image
-        code: source $WERCKER_SOURCE_DIR/devops/cleanup-wercker-build.sh
-    - script:
         name: Generate Custom Deployment Tag
         code: source $WERCKER_SOURCE_DIR/devops/generate-commit-specific-tag.sh
+    - script:
+        name: Cleanup the Image
+        code: source $WERCKER_SOURCE_DIR/devops/cleanup-wercker-build.sh
     # push container as-is
     - internal/docker-push:
         author: Vincenzo FERME <info@vincenzoferme.it>

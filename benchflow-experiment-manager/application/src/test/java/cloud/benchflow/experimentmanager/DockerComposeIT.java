@@ -33,7 +33,7 @@ public class DockerComposeIT {
 
     private static String LOCAL_MONGO_DATA_VOLUME_PATH = System.getProperty("user.dir") + "/src/test/resources/docker-compose/mongo-data";
     private static String MONGO_DATA_VOLUME_PATH = getEnvOrDefault("MONGO_DATA_VOLUME_PATH", LOCAL_MONGO_DATA_VOLUME_PATH);
-    
+     
     public static DockerPort MONGO_CONTAINER;
     public static DockerPort MINIO_CONTAINER;
     
