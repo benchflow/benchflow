@@ -313,7 +313,7 @@ deploy-benchflow-experiment-manager:
     # push container as-is
     - internal/docker-push:
         author: Vincenzo FERME <info@vincenzoferme.it>
-        disable-sync: false
+        disable-sync: true
         repository: benchflow/experiment-manager
         email: $DOCKER_HUB_EMAIL
         username: $DOCKER_HUB_USERNAME
