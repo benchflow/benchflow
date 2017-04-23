@@ -93,8 +93,8 @@ build-benchflow-experiment-manager:
         # NOTE: we also need docker-images (from the root for compatibility of paths) here for the subsequent steps
         name: Copy benchflow-experiment-manager, devops, and base-images-layers to WERCKER_OUTPUT_DIR
         code: |
-          cp $WERCKER_SOURCE_DIR/benchflow-experiment-manager/target/benchflow-experiment-manager.jar $WERCKER_OUTPUT_DIR
-          mkdir -p $WERCKER_OUTPUT_DIR/benchflow-experiment-manager/
+          mkdir -p $WERCKER_OUTPUT_DIR/benchflow-experiment-manager/target
+          cp $WERCKER_SOURCE_DIR/benchflow-experiment-manager/target/benchflow-experiment-manager.jar $WERCKER_OUTPUT_DIR/benchflow-experiment-manager/target/
           cp $WERCKER_SOURCE_DIR/benchflow-experiment-manager/configuration.yml $WERCKER_OUTPUT_DIR/benchflow-experiment-manager
           cp $WERCKER_SOURCE_DIR/benchflow-experiment-manager/build-image.sh $WERCKER_OUTPUT_DIR/benchflow-experiment-manager
           mkdir -p $WERCKER_OUTPUT_DIR/benchflow-experiment-manager/services/
