@@ -1,13 +1,11 @@
-package cloud.benchflow.experimentmanager;
+package cloud.benchflow.testmanager;
 
 import com.palantir.docker.compose.DockerComposeRule;
 import com.palantir.docker.compose.connection.DockerMachine;
 import com.palantir.docker.compose.connection.DockerPort;
 import com.palantir.docker.compose.connection.waiting.HealthChecks;
 import org.apache.commons.io.FileUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.junit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,23 +20,33 @@ public class DockerComposeIT {
     private static String MONGO_NAME = getEnvOrDefault("MONGO_NAME", "mongo");
     private static String MONGO_HOST = getEnvOrDefault("MONGO_PORT_27017_TCP_ADDR", "localhost");
     private static int MONGO_PORT = Integer.valueOf(getEnvOrDefault("MONGO_PORT_27017_TCP_PORT", "27017"));
-    public static String MONGO_TAG = getEnvOrDefault("MONGO_TAG", "3.4.2");
+    private static String MONGO_TAG = getEnvOrDefault("MONGO_TAG", "3.4.2");
 
     private static String MINIO_NAME = getEnvOrDefault("MINIO_NAME", "minio");
     private static String MINIO_HOST = getEnvOrDefault("MINIO_PORT_9000_TCP_ADDR", "localhost");
     private static int MINIO_PORT = Integer.valueOf(getEnvOrDefault("MINIO_PORT_9000_TCP_PORT", "9000"));
-    public static String MINIO_ACCESS_KEY = getEnvOrDefault("MINIO_ACCESS_KEY", "minio");
-    public static String MINIO_SECRET_KEY = getEnvOrDefault("MINIO_SECRET_KEY", "minio123");
-    public static String MINIO_TAG = getEnvOrDefault("MINIO_TAG", "RELEASE.2017-02-16T01-47-30Z");
+    protected static String MINIO_ACCESS_KEY = getEnvOrDefault("MINIO_ACCESS_KEY", "minio");
+    protected static String MINIO_SECRET_KEY = getEnvOrDefault("MINIO_SECRET_KEY", "minio123");
+    private static String MINIO_TAG = getEnvOrDefault("MINIO_TAG", "RELEASE.2017-02-16T01-47-30Z");
 
     private static String LOCAL_MONGO_DATA_VOLUME_PATH = System.getProperty("user.dir") + "/src/test/resources/docker-compose/mongo-data";
     private static String MONGO_DATA_VOLUME_PATH = getEnvOrDefault("MONGO_DATA_VOLUME_PATH", LOCAL_MONGO_DATA_VOLUME_PATH);
-     
-    public static DockerPort MONGO_CONTAINER;
-    public static DockerPort MINIO_CONTAINER;
-    
+
+    private static String LOCAL_DOCKER_COMPOSE_PATH = "src/test/resources/docker-compose/docker-compose.yml";
+
+    protected static DockerPort MONGO_CONTAINER;
+    protected static DockerPort MINIO_CONTAINER;
+
+    // boolean to keep track if we are running in Continuous Integration or not
+    // by relying on the CI env variable
+    // IMPORTANT: needs to be executed before setupDockerMachineIfLocal() and setupDockerComposeIfLocal(),
+    // otherwise it is always false
+    private static boolean inLocal = getEnvOrDefault("CI", "false").matches("false");
+
     // dockerComposeRule and dockerMachine are used only when executing the local workflow
+    // IMPORTANT: needs to be executed before setupDockerComposeIfLocal()
     private static final DockerMachine dockerMachine = setupDockerMachineIfLocal();
+
     @ClassRule
     public static DockerComposeRule dockerComposeRule = setupDockerComposeIfLocal();
 
@@ -55,20 +63,30 @@ public class DockerComposeIT {
         FileUtils.cleanDirectory(new File(MONGO_DATA_VOLUME_PATH));
     }
 
+    @AfterClass
+    public static void cleanUpContainers() throws IOException {
+
+        FileUtils.cleanDirectory(new File(MONGO_DATA_VOLUME_PATH));
+
+    }
+
     // ensure that services are ready to be used for testing
     private static void ensureServicesAreReady() throws InterruptedException {
 
-        String CI = getEnvOrDefault("CI", "false");
+        System.out.println("============== ensureServicesAreReady =====================");
 
-        if ((CI.matches("false")) &&
-                (MONGO_CONTAINER == null || MINIO_CONTAINER == null)) {
+        if (MONGO_CONTAINER != null && MINIO_CONTAINER != null) {
+            // if container variables are already set we can return
+            return;
+        }
+
+        if (inLocal) {
 
             // We make sure that the host and the container port are the same by defining it in docker compose
             MONGO_CONTAINER = dockerComposeRule.containers().container(MONGO_NAME).port(MONGO_PORT);
             MINIO_CONTAINER = dockerComposeRule.containers().container(MINIO_NAME).port(MINIO_PORT);
 
-        } else if ((CI.matches("true")) &&
-                        (MONGO_CONTAINER == null || MINIO_CONTAINER == null)) {
+        } else {
 
             // We make sure that the host and the container port are the same by defining it in wercker
             MONGO_CONTAINER = new DockerPort(MONGO_HOST,MONGO_PORT,MONGO_PORT);
@@ -100,21 +118,12 @@ public class DockerComposeIT {
         }
     }
 
-    @AfterClass
-    public static void cleanUpContainers() throws IOException {
-
-        FileUtils.cleanDirectory(new File(MONGO_DATA_VOLUME_PATH));
-
-    }
-
     // setup docker machine if we are in the local workflow
     private static DockerMachine setupDockerMachineIfLocal() {
 
-        //We rely on the CI env variable to detect if we are not in CI environment
-        String CI = getEnvOrDefault("CI", "false");
+        System.out.println("============== setupDockerMachineIfLocal =====================");
 
-        if ((CI.matches("false")) &&
-                (dockerComposeRule == null || dockerMachine == null)) {
+        if (inLocal) {
 
             //We rely on the CI env variable to detect if we are not in CI environment
             return DockerMachine.localMachine()
@@ -124,35 +133,29 @@ public class DockerComposeIT {
                     .withAdditionalEnvironmentVariable("MINIO_ACCESS_KEY", MINIO_ACCESS_KEY)
                     .withAdditionalEnvironmentVariable("MINIO_SECRET_KEY", MINIO_SECRET_KEY)
                     .build();
-
-        } else {
-            return null;
         }
 
+        return null;
     }
 
     // setup docker compose if we are in the local workflow
     private static DockerComposeRule setupDockerComposeIfLocal() {
 
-        //We rely on the CI env variable to detect if we are not in CI environment
-        String CI = getEnvOrDefault("CI", "false");
+        System.out.println("============== setupDockerComposeIfLocal =====================");
 
-        if ((CI.matches("false")) &&
-                (dockerComposeRule == null || dockerMachine == null)) {
+        if (inLocal) {
 
             // to wait for a service to be available see https://github.com/palantir/docker-compose-rule#waiting-for-a-service-to-be-available
             // can also be specified in docker compose as a health check
             return dockerComposeRule = DockerComposeRule.builder()
-                            .file("src/test/resources/docker-compose/docker-compose.yml")
-                            .machine(dockerMachine)
-                            .waitingForService(MONGO_NAME, HealthChecks.toHaveAllPortsOpen())
-                            .waitingForService(MINIO_NAME, HealthChecks.toHaveAllPortsOpen())
-                            .build();
-
-        } else {
-            return null;
+                    .file(LOCAL_DOCKER_COMPOSE_PATH)
+                    .machine(dockerMachine)
+                    .waitingForService(MONGO_NAME, HealthChecks.toHaveAllPortsOpen())
+                    .waitingForService(MINIO_NAME, HealthChecks.toHaveAllPortsOpen())
+                    .build();
         }
 
+        return null;
     }
 
     // wait for a port to be available

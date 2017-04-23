@@ -2,6 +2,7 @@ package cloud.benchflow.testmanager.tasks;
 
 import cloud.benchflow.dsl.BenchFlowDSL;
 import cloud.benchflow.dsl.definition.BenchFlowExperiment;
+import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.testmanager.archive.BenchFlowTestArchiveExtractor;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
@@ -78,7 +79,7 @@ public class RunBenchFlowTestTask implements Runnable {
             String experimentID = experimentModelDAO.addExperiment(testID);
 
             // generate the PE definition
-            BenchFlowExperiment experiment = BenchFlowDSL.experimentFromTestYaml(testDefinitionYamlString).get();
+            BenchFlowExperiment experiment = BenchFlowDSL.experimentFromTestYaml(testDefinitionYamlString);
             InputStream peDefinition = IOUtils.toInputStream(BenchFlowDSL.experimentToYamlString(experiment), StandardCharsets.UTF_8);
 
             // save PE defintion to minio
@@ -95,6 +96,9 @@ public class RunBenchFlowTestTask implements Runnable {
         } catch (BenchFlowTestIDDoesNotExistException e) {
             // TODO - handle these exceptions properly (although should not happen)
             logger.error(e.toString());
+        } catch (BenchFlowDeserializationException e) {
+            // TODO - handle me
+            e.printStackTrace();
         }
 
     }

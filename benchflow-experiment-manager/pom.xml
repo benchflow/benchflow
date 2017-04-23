@@ -32,7 +32,8 @@
         <wiremock.version>2.5.1</wiremock.version>
         <dropwizard-swagger.version>1.0.6-1</dropwizard-swagger.version>
         <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
-        <maven-shade-plugin.verions>2.4.1</maven-shade-plugin.verions>
+        <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
+        <maven-shade-plugin.verion>2.4.1</maven-shade-plugin.verion>
         <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
         <maven-surefire-plugin.version>2.20</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>2.20</maven-failsafe-plugin.version>
@@ -40,13 +41,11 @@
     </properties>
 
     <repositories>
-
         <!-- for docker-compose-rule -->
         <repository>
             <id>palantir</id>
             <url>https://dl.bintray.com/palantir/releases</url>
         </repository>
-
     </repositories>
 
     <dependencyManagement>
@@ -195,7 +194,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -216,7 +215,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>${maven-shade-plugin.verions}</version>
+                <version>${maven-shade-plugin.verion}</version>
                 <configuration>
                     <createDependencyReducedPom>true</createDependencyReducedPom>
                     <filters>

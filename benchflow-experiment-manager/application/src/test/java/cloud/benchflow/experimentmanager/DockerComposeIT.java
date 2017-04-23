@@ -46,6 +46,7 @@ public class DockerComposeIT {
     private static boolean inLocal = getEnvOrDefault("CI", "false").matches("false");
 
     // dockerComposeRule and dockerMachine are used only when executing the local workflow
+    // IMPORTANT: needs to be executed before setupDockerComposeIfLocal()
     private static final DockerMachine dockerMachine = setupDockerMachineIfLocal();
 
     @ClassRule
