@@ -284,8 +284,8 @@ deploy-benchflow-experiment-manager:
   box: 
     id: alpine:3.5
     cmd: /bin/sh
-    # env:
-    #   DOCKER_IMAGE_CUSTOM_TAG: ${WERCKER_GIT_BRANCH}_${WERCKER_GIT_COMMIT}
+    env:
+      DOCKER_IMAGE_CUSTOM_TAG: ${WERCKER_GIT_BRANCH}_${WERCKER_GIT_COMMIT}
   steps:
     - script:
         name: Build Base Layers
@@ -310,8 +310,6 @@ deploy-benchflow-experiment-manager:
         name: Cleanup the Image and set Custom Tag
         code: |
           source $WERCKER_SOURCE_DIR/devops/cleanup-wercker-build.sh
-          # export DOCKER_IMAGE_CUSTOM_TAG="""${WERCKER_GIT_BRANCH}"_"${WERCKER_GIT_COMMIT:0:6}"""
-          env
     # push container as-is
     - internal/docker-push:
         author: Vincenzo FERME <info@vincenzoferme.it>
@@ -321,7 +319,12 @@ deploy-benchflow-experiment-manager:
         username: $DOCKER_HUB_USERNAME
         password: $DOCKER_HUB_PASSWORD
         # NOTE: first we push the commit specific image, then the image for the branch
-        tag: ${WERCKER_GIT_COMMIT},${WERCKER_GIT_BRANCH}
+        # NOTE: Here we are supposed to use the tag obtained from "Generate Custom Deployment Tag"
+        # BUT there are many issues with it because alpine does not make variables available at this step
+        # as discussed: http://devcenter.wercker.com/docs/faq/alpine-faq, https://github.com/wercker/wercker/issues/226
+        # ALTERNATIVE: switch to ubuntu, or wait for a fix
+        # NOW: We just use the WERCKER_GIT_COMMIT that is made available from the beginning
+        tag: ${DOCKER_IMAGE_CUSTOM_TAG},${WERCKER_GIT_BRANCH}
         ports: "8080"
         # _CHAP_OPTIONS - Used instead entrypoint args so that any default can be overridden by CMD
         # Separating by , it is not working, and also placing variables in "" (http://devcenter.wercker.com/docs/steps/internal-steps#docker-push)
