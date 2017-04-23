@@ -308,7 +308,7 @@ deploy-benchflow-experiment-manager:
         name: Cleanup the Image and set Custom Tag
         code: |
           source $WERCKER_SOURCE_DIR/devops/cleanup-wercker-build.sh
-          export CUSTOM_VERSION_TAG=${WERCKER_GIT_BRANCH}"_"${WERCKER_GIT_COMMIT:0:6}
+          export DOCKER_IMAGE_CUSTOM_TAG="""${WERCKER_GIT_BRANCH}"_"${WERCKER_GIT_COMMIT:0:6}"""
     # push container as-is
     - internal/docker-push:
         author: Vincenzo FERME <info@vincenzoferme.it>
@@ -318,7 +318,7 @@ deploy-benchflow-experiment-manager:
         username: $DOCKER_HUB_USERNAME
         password: $DOCKER_HUB_PASSWORD
         # NOTE: first we push the commit specific image, then the image for the branch
-        tag: ${CUSTOM_VERSION_TAG},${WERCKER_GIT_BRANCH}
+        tag: ${DOCKER_IMAGE_CUSTOM_TAG},${WERCKER_GIT_BRANCH}
         ports: "8080"
         # _CHAP_OPTIONS - Used instead entrypoint args so that any default can be overridden by CMD
         # Separating by , it is not working, and also placing variables in "" (http://devcenter.wercker.com/docs/steps/internal-steps#docker-push)
