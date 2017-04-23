@@ -313,6 +313,7 @@ deploy-benchflow-experiment-manager:
         repository: benchflow/experiment-manager
         email: $DOCKER_HUB_EMAIL
         username: $DOCKER_HUB_USERNAME
+        password: $DOCKER_HUB_PASSWORD
         tag: $CUSTOM_VERSION_TAG,$WERCKER_GIT_BRANCH
         ports: "8080"
         # _CHAP_OPTIONS - Used instead entrypoint args so that any default can be overridden by CMD
