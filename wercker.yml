@@ -285,8 +285,14 @@ deploy-benchflow-experiment-manager:
     id: alpine:3.5
     cmd: /bin/sh
     env:
-      DOCKER_IMAGE_CUSTOM_TAG: ${WERCKER_GIT_BRANCH}"_"${WERCKER_GIT_COMMIT:0:6}
+      DOCKER_IMAGE_CUSTOM_TAG: ${WERCKER_GIT_BRANCH}_${WERCKER_GIT_COMMIT}
   steps:
+    - script:
+        name: test
+        code: |
+          echo "---------"
+          echo ${WERCKER_GIT_COMMIT:0:6}
+          env
     - script:
         name: Build Base Layers
         # NOTE: Due to the need of the cmd: /bin/sh command above
@@ -310,7 +316,7 @@ deploy-benchflow-experiment-manager:
         name: Cleanup the Image and set Custom Tag
         code: |
           source $WERCKER_SOURCE_DIR/devops/cleanup-wercker-build.sh
-          export DOCKER_IMAGE_CUSTOM_TAG="""${WERCKER_GIT_BRANCH}"_"${WERCKER_GIT_COMMIT:0:6}"""
+          # export DOCKER_IMAGE_CUSTOM_TAG="""${WERCKER_GIT_BRANCH}"_"${WERCKER_GIT_COMMIT:0:6}"""
           env
     # push container as-is
     - internal/docker-push:
