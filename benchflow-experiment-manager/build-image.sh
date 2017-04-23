@@ -14,6 +14,8 @@ else
 fi
 EOL
 
+chmod +x /usr/local/bin/env
+
 # copy service 
 cp target/benchflow-experiment-manager.jar /app/
 
