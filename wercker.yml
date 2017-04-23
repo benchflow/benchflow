@@ -285,7 +285,7 @@ deploy-benchflow-experiment-manager:
     id: alpine:3.5
     cmd: /bin/sh
     env:
-      - DOCKER_IMAGE_CUSTOM_TAG: ${WERCKER_GIT_BRANCH}"_"${WERCKER_GIT_COMMIT:0:6}
+      DOCKER_IMAGE_CUSTOM_TAG: ${WERCKER_GIT_BRANCH}"_"${WERCKER_GIT_COMMIT:0:6}
   steps:
     - script:
         name: Build Base Layers
@@ -321,7 +321,7 @@ deploy-benchflow-experiment-manager:
         username: $DOCKER_HUB_USERNAME
         password: $DOCKER_HUB_PASSWORD
         # NOTE: first we push the commit specific image, then the image for the branch
-        tag: ${WERCKER_GIT_BRANCH}"_"${WERCKER_GIT_COMMIT:0:6},${WERCKER_GIT_BRANCH}
+        tag: ${DOCKER_IMAGE_CUSTOM_TAG},${WERCKER_GIT_BRANCH}
         ports: "8080"
         # _CHAP_OPTIONS - Used instead entrypoint args so that any default can be overridden by CMD
         # Separating by , it is not working, and also placing variables in "" (http://devcenter.wercker.com/docs/steps/internal-steps#docker-push)
