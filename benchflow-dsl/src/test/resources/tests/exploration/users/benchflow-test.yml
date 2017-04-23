@@ -17,6 +17,9 @@ configuration:
         users:
           values: [5, 10, 15, 20]
 
+  strategy:
+    selection: complete
+
   workload_execution:
      ramp_up: 0s
      steady_state: 60s
