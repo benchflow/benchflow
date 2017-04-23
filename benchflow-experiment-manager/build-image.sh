@@ -4,19 +4,7 @@
 # TODO: remove, when the code become stable
 set -xv
 
-cat >/usr/local/bin/env <<EOL
-if [ "$#" -eq 0 ]; then
-  /usr/bin/env
-elif [ "$1" == "--null" ]; then
-  /usr/bin/env | tr '\n' '\000'
-else
-  /usr/bin/env "$@"
-fi
-EOL
- 
-chmod +x /usr/local/bin/env
-
-# copy service 
+# copy service
 cp target/benchflow-experiment-manager.jar /app/
 
 # copy service configuration
