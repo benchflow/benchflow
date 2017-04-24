@@ -1,9 +1,14 @@
 package cloud.benchflow.testmanager;
 
+import cloud.benchflow.testmanager.constants.BenchFlowConstants;
+import cloud.benchflow.testmanager.helpers.TestConstants;
+import cloud.benchflow.testmanager.services.external.MinioService;
+import com.mongodb.MongoClient;
 import com.palantir.docker.compose.DockerComposeRule;
 import com.palantir.docker.compose.connection.DockerMachine;
 import com.palantir.docker.compose.connection.DockerPort;
 import com.palantir.docker.compose.connection.waiting.HealthChecks;
+import io.minio.MinioClient;
 import org.apache.commons.io.FileUtils;
 import org.junit.*;
 
@@ -67,6 +72,16 @@ public class DockerComposeIT {
     public static void cleanUpContainers() throws IOException {
 
         FileUtils.cleanDirectory(new File(MONGO_DATA_VOLUME_PATH));
+
+    }
+
+    @Before
+    public void cleanMongo() throws Exception {
+
+        MongoClient mongoClient = new MongoClient(MONGO_CONTAINER.getIp(), MONGO_CONTAINER.getExternalPort());
+
+        // make sure all data from this test is removed
+        mongoClient.getDatabase(BenchFlowConstants.DB_NAME).drop();
 
     }
 
@@ -160,20 +175,20 @@ public class DockerComposeIT {
 
     // wait for a port to be available
     // true = available, false = not available after maxRetries
-    private static boolean waitingForPortAvailability(DockerPort port, int maxRetries, int checkIntervalInMs) throws InterruptedException {
+    private static void waitingForPortAvailability(DockerPort port, int maxRetries, int checkIntervalInMs) throws InterruptedException {
 
         while (maxRetries>0) {
 
             Thread.sleep(checkIntervalInMs);
 
             if (port.isListeningNow()) {
-                return true;
-            } else {
-                maxRetries--;
+                return;
             }
+
+            maxRetries--;
         }
 
-        return false;
+        Assert.fail("could not connect to " + port + " after " + maxRetries + " retries.");
 
     }
 

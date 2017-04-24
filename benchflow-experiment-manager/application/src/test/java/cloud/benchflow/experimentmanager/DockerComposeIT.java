@@ -1,11 +1,14 @@
 package cloud.benchflow.experimentmanager;
 
+import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
+import com.mongodb.MongoClient;
 import com.palantir.docker.compose.DockerComposeRule;
 import com.palantir.docker.compose.connection.DockerMachine;
 import com.palantir.docker.compose.connection.DockerPort;
 import com.palantir.docker.compose.connection.waiting.HealthChecks;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 
@@ -69,6 +72,16 @@ public class DockerComposeIT {
     public static void cleanUpContainers() throws IOException {
 
         FileUtils.cleanDirectory(new File(MONGO_DATA_VOLUME_PATH));
+
+    }
+
+    @Before
+    public void cleanMongo() throws Exception {
+
+        MongoClient mongoClient = new MongoClient(MONGO_CONTAINER.getIp(), MONGO_CONTAINER.getExternalPort());
+
+        // make sure all data from this test is removed
+        mongoClient.getDatabase(BenchFlowConstants.DB_NAME).drop();
 
     }
 
