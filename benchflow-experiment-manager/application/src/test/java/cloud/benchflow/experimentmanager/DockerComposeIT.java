@@ -7,10 +7,7 @@ import com.palantir.docker.compose.connection.DockerMachine;
 import com.palantir.docker.compose.connection.DockerPort;
 import com.palantir.docker.compose.connection.waiting.HealthChecks;
 import org.apache.commons.io.FileUtils;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.junit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +35,7 @@ public class DockerComposeIT {
     private static String MONGO_DATA_VOLUME_PATH = getEnvOrDefault("MONGO_DATA_VOLUME_PATH", LOCAL_MONGO_DATA_VOLUME_PATH);
 
     private static String LOCAL_DOCKER_COMPOSE_PATH = "src/test/resources/docker-compose/docker-compose.yml";
-     
+
     protected static DockerPort MONGO_CONTAINER;
     protected static DockerPort MINIO_CONTAINER;
 
@@ -46,7 +43,7 @@ public class DockerComposeIT {
     // by relying on the CI env variable
     // IMPORTANT: needs to be executed before setupDockerMachineIfLocal() and setupDockerComposeIfLocal(),
     // otherwise it is always false
-    private static boolean inLocal = getEnvOrDefault("CI", "false").matches("false");
+    private static boolean inLocal = System.getenv("CI") == null;
 
     // dockerComposeRule and dockerMachine are used only when executing the local workflow
     // IMPORTANT: needs to be executed before setupDockerComposeIfLocal()
@@ -121,13 +118,13 @@ public class DockerComposeIT {
             System.out.println("Waiting for Mongo...");
 
             //Wait for Mongo
-            waitingForPortAvailability(MONGO_CONTAINER, maxRetries, checkIntervalInMs);
+            waitForPortAvailabilityOrFail(MONGO_CONTAINER, maxRetries, checkIntervalInMs);
 
             System.out.println("Mongo is available!");
             System.out.println("Waiting for Minio...");
 
             //Wait for Minio
-            waitingForPortAvailability(MONGO_CONTAINER, maxRetries, checkIntervalInMs);
+            waitForPortAvailabilityOrFail(MONGO_CONTAINER, maxRetries, checkIntervalInMs);
 
             System.out.println("Minio is available!");
         }
@@ -163,11 +160,11 @@ public class DockerComposeIT {
             // to wait for a service to be available see https://github.com/palantir/docker-compose-rule#waiting-for-a-service-to-be-available
             // can also be specified in docker compose as a health check
             return dockerComposeRule = DockerComposeRule.builder()
-                            .file(LOCAL_DOCKER_COMPOSE_PATH)
-                            .machine(dockerMachine)
-                            .waitingForService(MONGO_NAME, HealthChecks.toHaveAllPortsOpen())
-                            .waitingForService(MINIO_NAME, HealthChecks.toHaveAllPortsOpen())
-                            .build();
+                    .file(LOCAL_DOCKER_COMPOSE_PATH)
+                    .machine(dockerMachine)
+                    .waitingForService(MONGO_NAME, HealthChecks.toHaveAllPortsOpen())
+                    .waitingForService(MINIO_NAME, HealthChecks.toHaveAllPortsOpen())
+                    .build();
         }
 
         return null;
@@ -175,20 +172,20 @@ public class DockerComposeIT {
 
     // wait for a port to be available
     // true = available, false = not available after maxRetries
-    private static boolean waitingForPortAvailability(DockerPort port, int maxRetries, int checkIntervalInMs) throws InterruptedException {
+    private static void waitForPortAvailabilityOrFail(DockerPort port, int maxRetries, int checkIntervalInMs) throws InterruptedException {
 
         while (maxRetries>0) {
 
             Thread.sleep(checkIntervalInMs);
 
             if (port.isListeningNow()) {
-                return true;
-            } else {
-                maxRetries--;
+                return;
             }
+
+            maxRetries--;
         }
 
-        return false;
+        Assert.fail("could not connect to " + port + " after " + maxRetries + " retries.");
 
     }
 
