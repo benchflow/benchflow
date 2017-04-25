@@ -13,54 +13,53 @@ import java.nio.charset.StandardCharsets;
 
 import static cloud.benchflow.minioclient.helpers.TestConstants.VALID_EXPERIMENT_ID;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 2017-04-19
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
 public class BenchFlowExperimentMinioClientIT extends DockerComposeIT {
 
-    private BenchFlowExperimentMinioClient minioClient;
+  private BenchFlowExperimentMinioClient minioClient;
 
-    private InputStream experimentDefinitionInputStream;
+  private InputStream experimentDefinitionInputStream;
 
-    @Before
-    public void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
 
-        // TODO - see how to mock final class MinioClient
-        // https://github.com/mockito/mockito/wiki/What%27s-new-in-Mockito-2#mock-the-unmockable-opt-in-mocking-of-final-classesmethods
+    // TODO - see how to mock final class MinioClient
+    // https://github.com/mockito/mockito/wiki/What%27s-new-in-Mockito-2#mock-the-unmockable-opt-in-mocking-of-final-classesmethods
 
-        String minioEndpoint = "http://" + MINIO_CONTAINER.getIp() + ":" + MINIO_CONTAINER.getExternalPort();
+    String minioEndpoint =
+        "http://" + MINIO_CONTAINER.getIp() + ":" + MINIO_CONTAINER.getExternalPort();
 
-        MinioClient minioClient = new MinioClient(minioEndpoint, DockerComposeIT.MINIO_ACCESS_KEY, DockerComposeIT.MINIO_SECRET_KEY);
+    MinioClient minioClient =
+        new MinioClient(
+            minioEndpoint, DockerComposeIT.MINIO_ACCESS_KEY, DockerComposeIT.MINIO_SECRET_KEY);
 
-        this.minioClient = new BenchFlowExperimentMinioClient(minioClient);
+    this.minioClient = new BenchFlowExperimentMinioClient(minioClient);
 
-        this.minioClient.initializeBuckets();
+    this.minioClient.initializeBuckets();
 
-        experimentDefinitionInputStream = TestFiles.getValidExperimentDefinitionInputStream();
+    experimentDefinitionInputStream = TestFiles.getValidExperimentDefinitionInputStream();
+  }
 
+  @Test
+  public void saveGetRemoveBenchFlowExperimentDefinition() throws Exception {
 
-    }
+    minioClient.saveExperimentDefinition(VALID_EXPERIMENT_ID, experimentDefinitionInputStream);
 
-    @Test
-    public void saveGetRemoveBenchFlowExperimentDefinition() throws Exception {
+    InputStream receivedInputStream = minioClient.getExperimentDefinition(VALID_EXPERIMENT_ID);
 
-        minioClient.saveExperimentDefinition(VALID_EXPERIMENT_ID, experimentDefinitionInputStream);
+    Assert.assertNotNull(receivedInputStream);
 
-        InputStream receivedInputStream = minioClient.getExperimentDefinition(VALID_EXPERIMENT_ID);
+    String receivedString =
+        IOUtils.toString(
+            new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)),
+            StandardCharsets.UTF_8);
 
-        Assert.assertNotNull(receivedInputStream);
+    Assert.assertEquals(TestFiles.getValidExperimentDefinitionString(), receivedString);
 
-        String receivedString = IOUtils.toString(new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)), StandardCharsets.UTF_8);
+    minioClient.removeExperimentDefinition(VALID_EXPERIMENT_ID);
 
-        Assert.assertEquals(TestFiles.getValidExperimentDefinitionString(), receivedString);
+    receivedInputStream = minioClient.getExperimentDefinition(VALID_EXPERIMENT_ID);
 
-        minioClient.removeExperimentDefinition(VALID_EXPERIMENT_ID);
-
-        receivedInputStream = minioClient.getExperimentDefinition(VALID_EXPERIMENT_ID);
-
-        Assert.assertNull(receivedInputStream);
-
-    }
-
+    Assert.assertNull(receivedInputStream);
+  }
 }
