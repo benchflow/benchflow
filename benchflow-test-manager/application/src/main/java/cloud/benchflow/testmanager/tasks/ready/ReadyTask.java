@@ -46,6 +46,7 @@ public class ReadyTask implements Runnable {
 
         logger.info("preparing test with ID " + testID);
 
+
         // extract contents
         InputStream definitionInputStream = IOUtils.toInputStream(testDefinitionYamlString, StandardCharsets.UTF_8);
 
@@ -61,7 +62,7 @@ public class ReadyTask implements Runnable {
 
         taskController.runDetermineExecuteExperimentsTask(testID);
 
-    }
 
+    }
 
 }

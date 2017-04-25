@@ -31,7 +31,7 @@ import javax.ws.rs.core.Response;
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 18.02.17.
  */
-public class BenchFlowITManagerApplicationIT extends DockerComposeIT {
+public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
 
 
     @Rule

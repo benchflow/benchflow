@@ -6,6 +6,7 @@ import org.mongodb.morphia.utils.IndexType;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
@@ -47,6 +48,7 @@ public class BenchFlowTestModel {
     private BenchFlowTestState state;
     @Reference
     private Set<BenchFlowExperimentModel> experiments = new HashSet<>();
+    private List workloadUsersSpace = null;
 
     public BenchFlowTestModel() {
         // Empty constructor for MongoDB + Morphia
@@ -105,25 +107,30 @@ public class BenchFlowTestModel {
     public void addExperimentModel(BenchFlowExperimentModel experimentModel) {
 
         experiments.add(experimentModel);
-
     }
 
     public boolean containsExperimentModel(String experimentID) {
 
         return experiments.stream().filter(model -> model.getId().equals(experimentID)).count() != 0;
-
     }
 
     public Set<BenchFlowExperimentModel> getExperimentModels() {
 
         return experiments;
+    }
 
+    public List getWorkloadUsersSpace() {
+        return workloadUsersSpace;
+    }
+
+    public void setWorkloadUsersSpace(List workloadUsersSpace) {
+        this.workloadUsersSpace = workloadUsersSpace;
     }
 
     @JsonIgnore
     public long getNextExperimentNumber() {
 
-        return experiments.size() + 1;
+        return experiments.size();
 
     }
 

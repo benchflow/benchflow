@@ -2,6 +2,7 @@ package cloud.benchflow.testmanager.resources;
 
 import cloud.benchflow.dsl.BenchFlowDSL;
 import cloud.benchflow.dsl.definition.BenchFlowTest;
+import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.api.request.ChangeBenchFlowTestStateRequest;
 import cloud.benchflow.testmanager.api.response.ChangeBenchFlowTestStateResponse;
@@ -110,7 +111,7 @@ public class BenchFlowTestResource {
             if (testDefinitionString == null)
                 throw new InvalidTestArchiveException();
 
-            BenchFlowTest benchFlowTest = BenchFlowDSL.testFromYaml(testDefinitionString).get();
+            BenchFlowTest benchFlowTest = BenchFlowDSL.testFromYaml(testDefinitionString);
 
             InputStream deploymentDescriptorInputStream = BenchFlowTestArchiveExtractor.extractDeploymentDescriptorInputStream(
                     archiveZipInputStream);
@@ -129,7 +130,7 @@ public class BenchFlowTestResource {
 
             return new RunBenchFlowTestResponse(testID);
 
-        } catch (IOException | InvalidTestArchiveException e) {
+        } catch (IOException | InvalidTestArchiveException | BenchFlowDeserializationException e) {
             throw new InvalidTestArchiveWebException();
         }
 

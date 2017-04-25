@@ -2,6 +2,7 @@ package cloud.benchflow.testmanager.strategy.selection;
 
 import cloud.benchflow.dsl.BenchFlowDSL;
 import cloud.benchflow.dsl.definition.BenchFlowExperiment;
+import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import org.apache.commons.io.IOUtils;
@@ -36,7 +37,7 @@ public class CompleteSelectionStrategy implements ExperimentSelectionStrategy {
             String testDefinitionYamlString = IOUtils.toString(minioService.getTestDefinition(testID), StandardCharsets.UTF_8);
 
             // TODO - change so that this is generated based test goal
-            BenchFlowExperiment experiment = BenchFlowDSL.experimentFromTestYaml(testDefinitionYamlString).get();
+            BenchFlowExperiment experiment = BenchFlowDSL.experimentFromTestYaml(testDefinitionYamlString);
 
             // TODO - determine exploration space
 
@@ -49,6 +50,9 @@ public class CompleteSelectionStrategy implements ExperimentSelectionStrategy {
             return BenchFlowDSL.experimentToYamlString(experiment);
 
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (BenchFlowDeserializationException e) {
+            // TODO - handle me
             e.printStackTrace();
         }
 
