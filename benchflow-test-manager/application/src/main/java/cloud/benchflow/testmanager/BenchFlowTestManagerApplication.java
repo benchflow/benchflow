@@ -1,6 +1,10 @@
 package cloud.benchflow.testmanager;
 
 import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfiguration;
+import cloud.benchflow.testmanager.constants.BenchFlowConstants;
+import cloud.benchflow.testmanager.models.BenchFlowTestModel;
+import cloud.benchflow.testmanager.models.BenchFlowTestNumber;
+import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.resources.BenchFlowExperimentResource;
 import cloud.benchflow.testmanager.resources.BenchFlowTestResource;
 import cloud.benchflow.testmanager.resources.BenchFlowTrialResource;
@@ -9,8 +13,10 @@ import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerS
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
+import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
+import com.mongodb.MongoClient;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
 import io.dropwizard.Application;
@@ -19,6 +25,8 @@ import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.Morphia;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +41,7 @@ public class BenchFlowTestManagerApplication extends Application<BenchFlowTestMa
     }
 
     private static BenchFlowTestModelDAO testModelDAO;
+    private static ExplorationModelDAO explorationModelDAO;
     private static BenchFlowExperimentModelDAO experimentModelDAO;
     private static UserDAO userDAO;
     private static MinioService minioService;
@@ -41,6 +50,10 @@ public class BenchFlowTestManagerApplication extends Application<BenchFlowTestMa
 
     public static BenchFlowTestModelDAO getTestModelDAO() {
         return testModelDAO;
+    }
+
+    public static ExplorationModelDAO getExplorationModelDAO() {
+        return explorationModelDAO;
     }
 
     public static BenchFlowExperimentModelDAO getExperimentModelDAO() {
@@ -94,11 +107,30 @@ public class BenchFlowTestManagerApplication extends Application<BenchFlowTestMa
         // services
         ExecutorService taskExecutor = configuration.getTaskExecutorFactory().build(environment);
 
+        MongoClient mongoClient = configuration.getMongoDBFactory().build();
+        final Morphia morphia = new Morphia();
+
+        // tell Morphia where to find your classes
+        // can be called multiple times with different packages or classes
+        morphia.map(BenchFlowTestModel.class);
+        morphia.map(BenchFlowTestNumber.class);
+        morphia.map(User.class);
+
+        // create the Datastore
+        // TODO - set-up mongo DB (http://mongodb.github.io/mongo-java-driver/2.13/getting-started/quick-tour/)
+        // TODO - check about resilience and cache
+        Datastore datastore = morphia.createDatastore(mongoClient, BenchFlowConstants.DB_NAME);
+        datastore.ensureIndexes();
+
+
         // set the services used by multiple classes
         testTaskController = new BenchFlowTestTaskController(taskExecutor);
-        testModelDAO = new BenchFlowTestModelDAO(configuration.getMongoDBFactory().build());
-        experimentModelDAO = new BenchFlowExperimentModelDAO(configuration.getMongoDBFactory().build(), testModelDAO);
-        userDAO = new UserDAO(configuration.getMongoDBFactory().build(), testModelDAO);
+
+        testModelDAO = new BenchFlowTestModelDAO(datastore);
+        explorationModelDAO = new ExplorationModelDAO(datastore, testModelDAO);
+        experimentModelDAO = new BenchFlowExperimentModelDAO(datastore, testModelDAO);
+        userDAO = new UserDAO(mongoClient, testModelDAO);
+
         minioService = configuration.getMinioServiceFactory().build();
         experimentManagerService = configuration.getBenchFlowExperimentManagerServiceFactory().build(
                 configuration, environment);

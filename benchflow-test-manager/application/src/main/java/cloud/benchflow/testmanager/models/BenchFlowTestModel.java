@@ -1,5 +1,6 @@
 package cloud.benchflow.testmanager.models;
 
+import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.mongodb.morphia.annotations.*;
 import org.mongodb.morphia.utils.IndexType;
@@ -8,6 +9,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.READY;
@@ -48,7 +50,9 @@ public class BenchFlowTestModel {
     private BenchFlowTestState state;
     @Reference
     private Set<BenchFlowExperimentModel> experiments = new HashSet<>();
-    private List workloadUsersSpace = null;
+
+    @JsonIgnore
+    private ExplorationModel explorationModel = new ExplorationModel();
 
     public BenchFlowTestModel() {
         // Empty constructor for MongoDB + Morphia
@@ -114,17 +118,18 @@ public class BenchFlowTestModel {
         return experiments.stream().filter(model -> model.getId().equals(experimentID)).count() != 0;
     }
 
+    public List<Long> getExperimentNumbers() {
+
+        return experiments.stream().map(BenchFlowExperimentModel::getNumber).collect(Collectors.toList());
+    }
+
     public Set<BenchFlowExperimentModel> getExperimentModels() {
 
         return experiments;
     }
 
-    public List getWorkloadUsersSpace() {
-        return workloadUsersSpace;
-    }
-
-    public void setWorkloadUsersSpace(List workloadUsersSpace) {
-        this.workloadUsersSpace = workloadUsersSpace;
+    public ExplorationModel getExplorationModel() {
+        return explorationModel;
     }
 
     @JsonIgnore

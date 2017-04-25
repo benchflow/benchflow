@@ -4,13 +4,17 @@ import cloud.benchflow.dsl.BenchFlowDSL;
 import cloud.benchflow.dsl.definition.BenchFlowExperiment;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
+import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.services.external.MinioService;
+import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
+import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch)
@@ -20,38 +24,41 @@ public class CompleteSelectionStrategy implements ExperimentSelectionStrategy {
 
     private static Logger logger = LoggerFactory.getLogger(CompleteSelectionStrategy.class.getSimpleName());
 
-    private MinioService minioService;
+    private final MinioService minioService;
+    private final ExplorationModelDAO explorationModelDAO;
+    private final BenchFlowTestModelDAO testModelDAO;
 
     public CompleteSelectionStrategy() {
 
         this.minioService = BenchFlowTestManagerApplication.getMinioService();
-
+        this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
+        this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
     }
 
     @Override
     public String selectNextExperiment(String testID) {
 
+        logger.info("selectNextExperiment: " + testID);
 
         try {
 
             String testDefinitionYamlString = IOUtils.toString(minioService.getTestDefinition(testID), StandardCharsets.UTF_8);
 
-            // TODO - change so that this is generated based test goal
-            BenchFlowExperiment experiment = BenchFlowDSL.experimentFromTestYaml(testDefinitionYamlString);
+            // get exploration space
+            // TODO - generalize this to complete search space
+            List<Integer> explorationSpace = explorationModelDAO.getWorkloadUserSpace(testID);
 
-            // TODO - determine exploration space
+            // check which experiments have been executed
+            List<Long> executedExperimentNumbers = testModelDAO.getExperimentNumbers(testID);
 
-            // TODO - check which experiments have been executed
+            // select next experiment to execute
+            Integer nextUserConfig = explorationSpace.get(executedExperimentNumbers.size());
 
-            // TODO - select next experiment to execute
+            // generate Experiment YAML file
+            return BenchFlowDSL.experimentYamlBuilderFromTestYaml(testDefinitionYamlString).numUsers(nextUserConfig).build();
 
-            // TODO - generate Experiment YAML file
-
-            return BenchFlowDSL.experimentToYamlString(experiment);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BenchFlowDeserializationException e) {
+        } catch (IOException | BenchFlowTestIDDoesNotExistException | BenchFlowDeserializationException e) {
+            // should not happen
             // TODO - handle me
             e.printStackTrace();
         }

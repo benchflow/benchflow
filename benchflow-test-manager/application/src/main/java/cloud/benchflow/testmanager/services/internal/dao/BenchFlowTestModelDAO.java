@@ -26,26 +26,10 @@ public class BenchFlowTestModelDAO {
 
     private Datastore datastore;
 
-    public BenchFlowTestModelDAO(MongoClient mongoClient) {
+    public BenchFlowTestModelDAO(Datastore datastore) {
 
-        final Morphia morphia = new Morphia();
+        this.datastore = datastore;
 
-        // tell Morphia where to find your classes
-        // can be called multiple times with different packages or classes
-        morphia.map(BenchFlowTestModel.class);
-        morphia.map(BenchFlowTestNumber.class);
-        morphia.map(User.class);
-
-        // create the Datastore
-        // TODO - set-up mongo DB (http://mongodb.github.io/mongo-java-driver/2.13/getting-started/quick-tour/)
-        // TODO - check about resilience and cache
-        datastore = morphia.createDatastore(mongoClient, BenchFlowConstants.DB_NAME);
-        datastore.ensureIndexes();
-
-    }
-
-    public synchronized Datastore getDataStore() {
-        return datastore;
     }
 
     /**
@@ -205,6 +189,16 @@ public class BenchFlowTestModelDAO {
         final BenchFlowTestModel benchFlowTestModel = getTestModel(testID);
 
         return benchFlowTestModel.getState();
+
+    }
+
+    public synchronized List<Long> getExperimentNumbers(String testID) throws BenchFlowTestIDDoesNotExistException {
+
+        logger.info("getExperimentNumbers: " + testID);
+
+        BenchFlowTestModel benchFlowTestModel = getTestModel(testID);
+
+        return benchFlowTestModel.getExperimentNumbers();
 
     }
 

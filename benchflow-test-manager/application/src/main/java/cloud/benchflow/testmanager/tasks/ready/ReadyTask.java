@@ -1,15 +1,25 @@
 package cloud.benchflow.testmanager.tasks.ready;
 
+import cloud.benchflow.dsl.BenchFlowDSL;
+import cloud.benchflow.dsl.definition.BenchFlowTest;
+import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
+import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.services.external.MinioService;
+import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
+import cloud.benchflow.testmanager.strategy.selection.CompleteSelectionStrategy;
+import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.collection.JavaConverters;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch)
@@ -26,6 +36,7 @@ public class ReadyTask implements Runnable {
 
     // services
     private final MinioService minioService;
+    private final ExplorationModelDAO explorationModelDAO;
 
     private final BenchFlowTestTaskController taskController;
 
@@ -39,6 +50,7 @@ public class ReadyTask implements Runnable {
 
         this.taskController = BenchFlowTestManagerApplication.getTestTaskController();
         this.minioService = BenchFlowTestManagerApplication.getMinioService();
+        this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
     }
 
     @Override
@@ -60,9 +72,76 @@ public class ReadyTask implements Runnable {
                 fileName,
                 inputStream));
 
-        taskController.runDetermineExecuteExperimentsTask(testID);
+        try {
+            BenchFlowTest test = BenchFlowDSL.testFromYaml(testDefinitionYamlString);
+
+            generateExplorationSpace(test);
+
+            setExperimentSelectionStrategy(test);
+
+            taskController.runDetermineExecuteExperimentsTask(testID);
+
+        } catch (BenchFlowDeserializationException e) {
+            // should not happen since it has already been tested
+            logger.error("should not happen");
+            e.printStackTrace();
+        }
 
 
     }
+
+    private void generateExplorationSpace(BenchFlowTest test) {
+
+
+        try {
+
+            // generate exploration space if any
+
+            // TODO - replace this with calculating all possible combinations
+            // something like this https://blog.balfes.net/2015/06/08/finding-every-possible-combination-of-array-entries-from-multiple-lists-with-unknown-bounds-in-java/
+
+            if (test.configuration().goal().explorationSpace().isDefined()) {
+
+                if (test.configuration().goal().explorationSpace().get().workload().isDefined()) {
+
+                    List<Integer> workloadUserSpace = JavaConverters.asJavaCollectionConverter(test.configuration().goal().explorationSpace().get().workload().get().users().get().values())
+                            .asJavaCollection()
+                            .stream()
+                            .map(object -> (Integer) object)
+                            .collect(Collectors.toList());
+
+                    explorationModelDAO.setWorkloadUserSpace(testID, workloadUserSpace);
+
+                }
+
+            }
+
+
+        } catch (BenchFlowTestIDDoesNotExistException e) {
+            // should not happen since it has already been added
+            logger.error("should not happen");
+            e.printStackTrace();
+        }
+
+
+    }
+
+    private void setExperimentSelectionStrategy(BenchFlowTest test) {
+
+        // TODO - read this from BenchFlowTest
+
+        ExperimentSelectionStrategy selectionStrategy = new CompleteSelectionStrategy();
+
+        try {
+            explorationModelDAO.setExperimentSelectionStrategy(testID, selectionStrategy);
+        } catch (BenchFlowTestIDDoesNotExistException e) {
+            // should not happen since it has already been added
+            logger.error("should not happen");
+            e.printStackTrace();
+        }
+
+    }
+
+
 
 }

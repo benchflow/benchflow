@@ -1,6 +1,7 @@
 package cloud.benchflow.testmanager.services.internal.dao;
 
 import cloud.benchflow.faban.client.responses.RunStatus;
+import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
@@ -31,22 +32,9 @@ public class BenchFlowExperimentModelDAO {
     private Datastore datastore;
     private BenchFlowTestModelDAO testModelDAO;
 
-    public BenchFlowExperimentModelDAO(MongoClient mongoClient, BenchFlowTestModelDAO testModelDAO) {
-
+    public BenchFlowExperimentModelDAO(Datastore datastore, BenchFlowTestModelDAO testModelDAO) {
+        this.datastore = datastore;
         this.testModelDAO = testModelDAO;
-
-        final Morphia morphia = new Morphia();
-
-        // tell Morphia where to find your classes
-        // can be called multiple times with different packages or classes
-        morphia.map(BenchFlowExperimentModel.class);
-
-        // create the Datastore
-        // TODO - set-up mongo DB (http://mongodb.github.io/mongo-java-driver/2.13/getting-started/quick-tour/)
-        // TODO - check about resilience and cache
-        datastore = morphia.createDatastore(mongoClient, BenchFlowConstants.DB_NAME);
-        datastore.ensureIndexes();
-
     }
 
     /**

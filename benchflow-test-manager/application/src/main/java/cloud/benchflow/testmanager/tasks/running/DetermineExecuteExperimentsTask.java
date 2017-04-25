@@ -6,10 +6,12 @@ import cloud.benchflow.dsl.definition.BenchFlowTest;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
+import cloud.benchflow.testmanager.models.ExplorationModel;
 import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
+import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.strategy.selection.CompleteSelectionStrategy;
 import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
@@ -36,8 +38,8 @@ public class DetermineExecuteExperimentsTask implements Runnable {
     private final MinioService minioService;
     private final BenchFlowExperimentManagerService experimentManagerService;
     private final BenchFlowTestModelDAO testModelDAO;
+    private final ExplorationModelDAO explorationModelDAO;
     private final BenchFlowExperimentModelDAO experimentModelDAO;
-    private final BenchFlowTestTaskController testTaskController;
 
     public DetermineExecuteExperimentsTask(String testID) {
 
@@ -47,7 +49,7 @@ public class DetermineExecuteExperimentsTask implements Runnable {
         this.experimentManagerService = BenchFlowTestManagerApplication.getExperimentManagerService();
         this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
         this.experimentModelDAO = BenchFlowTestManagerApplication.getExperimentModelDAO();
-        this.testTaskController = BenchFlowTestManagerApplication.getTestTaskController();
+        this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
     }
 
     @Override
@@ -63,8 +65,8 @@ public class DetermineExecuteExperimentsTask implements Runnable {
             // add new experiment model
             String experimentID = experimentModelDAO.addExperiment(testID);
 
-            // TODO - get the right strategy as defined in the test
-            ExperimentSelectionStrategy selectionStrategy = new CompleteSelectionStrategy();
+            // get the selection strategy
+            ExperimentSelectionStrategy selectionStrategy = explorationModelDAO.getExperimentSelectionStrategy(testID);
 
             // generate the Experiment definition
             String experimentYaml = selectionStrategy.selectNextExperiment(testID);

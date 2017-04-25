@@ -62,6 +62,10 @@ public class BenchFlowExperimentModel {
         return id;
     }
 
+    public long getNumber() {
+        return number;
+    }
+
     public Date getStart() {
         return start;
     }
