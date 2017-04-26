@@ -3,6 +3,7 @@ package cloud.benchflow.experimentmanager.tasks;
 import cloud.benchflow.dsl.BenchFlowDSL;
 import cloud.benchflow.dsl.DemoConverter;
 import cloud.benchflow.dsl.definition.BenchFlowExperiment;
+import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.dsl.definition.workload.Workload;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
@@ -81,7 +82,7 @@ public class RunBenchFlowExperimentTask implements Runnable {
             // get the BenchFlowExperimentDefinition from minioService
             String experimentYamlString = IOUtils.toString(minioService.getExperimentDefinition(experimentID), StandardCharsets.UTF_8);
 
-            BenchFlowExperiment experiment = BenchFlowDSL.experimentFromExperimentYaml(experimentYamlString).get();
+            BenchFlowExperiment experiment = BenchFlowDSL.experimentFromExperimentYaml(experimentYamlString);
 
             int nTrials = experiment.configuration().terminationCriteria().get().experiment().number();
 
@@ -201,6 +202,8 @@ public class RunBenchFlowExperimentTask implements Runnable {
         } catch (JarFileNotFoundException e) {
             e.printStackTrace();
         } catch (BenchFlowExperimentIDDoesNotExistException e) {
+            e.printStackTrace();
+        } catch (BenchFlowDeserializationException e) {
             e.printStackTrace();
         } finally {
             // remove file that was sent to fabanClient

@@ -73,7 +73,7 @@ public class MinioService {
 
     public void saveExperimentDefinition(String experimentID, InputStream definitionInputStream) {
 
-        logger.info("getExperimentDefinition: " + experimentID);
+        logger.info("saveExperimentDefinition: " + experimentID);
 
         String objectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + PT_PE_DEFINITION_FILE_NAME;
 
