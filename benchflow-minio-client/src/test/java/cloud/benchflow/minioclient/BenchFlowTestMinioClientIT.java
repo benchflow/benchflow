@@ -1,18 +1,19 @@
 package cloud.benchflow.minioclient;
 
+import static cloud.benchflow.minioclient.helpers.TestConstants.VALID_TEST_ID;
+
 import cloud.benchflow.minioclient.helpers.TestFiles;
 import io.minio.MinioClient;
-import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-import static cloud.benchflow.minioclient.helpers.TestConstants.VALID_TEST_ID;
+import org.apache.commons.io.IOUtils;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
 public class BenchFlowTestMinioClientIT extends DockerComposeIT {

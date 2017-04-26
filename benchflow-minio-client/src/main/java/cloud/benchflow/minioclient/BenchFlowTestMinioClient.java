@@ -1,10 +1,11 @@
 package cloud.benchflow.minioclient;
 
 import io.minio.MinioClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
 public class BenchFlowTestMinioClient extends BenchFlowMinioClient {
