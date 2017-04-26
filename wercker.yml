@@ -55,6 +55,24 @@ build-benchflow-dsl:
 
 ###########################################################
 # DRAFT
+# Pipeline used to build: benchflow-minio-client
+###########################################################
+build-benchflow-minio-client:
+  box: maven:3.3.9-jdk-8
+  steps:
+    # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
+    - xenoterracide/maven:
+        goals: verify
+        args: -f $WERCKER_SOURCE_DIR/benchflow-minio-client
+    - script:
+        # NOTE: we also copy devops files, because they are needed in subsequent steps
+        name: Copy benchflow-minio-client and devops to WERCKER_OUTPUT_DIR
+        code: |
+          cp $WERCKER_SOURCE_DIR/benchflow-minio-client/target/benchflow-minio-client.jar $WERCKER_OUTPUT_DIR
+          cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR
+
+###########################################################
+# DRAFT
 # Pipeline used to build for testing the layer: docker-images/base-images-layers/*
 # See: docker-images/base-images-layers/chaperone/README.md
 ###########################################################
