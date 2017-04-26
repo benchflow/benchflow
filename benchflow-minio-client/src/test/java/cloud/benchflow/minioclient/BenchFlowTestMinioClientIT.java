@@ -109,10 +109,10 @@ public class BenchFlowTestMinioClientIT extends DockerComposeIT {
           Assert.assertNotNull(receivedInputStream);
 
           // TODO - assert the content is the same
-
-          //            String receivedString = IOUtils.toString(new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)), StandardCharsets.UTF_8);
-          //
-          //            Assert.assertEquals(TestArchives.getValidDeploymentDescriptorString(), receivedString);
+          // String receivedString =
+          // IOUtils.toString(new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)),
+          // StandardCharsets.UTF_8);
+          // Assert.assertEquals(TestArchives.getValidDeploymentDescriptorString(), receivedString);
 
           minioClient.removeTestBPMNModel(VALID_TEST_ID, name);
 

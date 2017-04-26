@@ -23,7 +23,10 @@ import org.xmlpull.v1.XmlPullParserException;
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
 public abstract class BenchFlowMinioClient {
 
-  // TODO - is this correct with only one bucket and it is called tests? Maybe better then just 'benchflow'?
+  /*
+   * TODO: is this correct with only one bucket and it is called tests?
+   * Maybe better then just 'benchflow'?
+   */
   protected static final String TESTS_BUCKET = "tests";
 
   private static final String DEPLOYMENT_DESCRIPTOR_NAME = "docker-compose";
