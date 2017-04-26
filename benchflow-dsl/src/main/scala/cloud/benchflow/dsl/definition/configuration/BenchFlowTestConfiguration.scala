@@ -1,6 +1,7 @@
 package cloud.benchflow.dsl.definition.configuration
 
 import cloud.benchflow.dsl.definition.configuration.goal.Goal
+import cloud.benchflow.dsl.definition.configuration.strategy.ExplorationStrategy
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowTestTerminationCriteria
 import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadExecution
 
@@ -12,5 +13,5 @@ case class BenchFlowTestConfiguration(
   goal: Goal,
   users: Option[Int],
   workloadExecution: Option[WorkloadExecution],
-  strategy: Option[Any], // TODO - define type
+  strategy: Option[ExplorationStrategy],
   terminationCriteria: Option[BenchFlowTestTerminationCriteria])
