@@ -15,8 +15,8 @@ public class DockerComposeIT {
   private static int MINIO_PORT = 9000;
 
   private static String MINIO_TAG = "RELEASE.2017-02-16T01-47-30Z";
-  static String MINIO_ACCESS_KEY = "minio";
-  static String MINIO_SECRET_KEY = "minio123";
+  protected static String MINIO_ACCESS_KEY = "minio";
+  protected static String MINIO_SECRET_KEY = "minio123";
 
   private static final DockerMachine dockerMachine =
       DockerMachine.localMachine()
@@ -32,7 +32,7 @@ public class DockerComposeIT {
           .machine(dockerMachine)
           .build();
 
-  static DockerPort MINIO_CONTAINER;
+  protected static DockerPort MINIO_CONTAINER;
 
   @BeforeClass
   public static void prepareContainers() throws IOException {

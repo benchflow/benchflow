@@ -153,7 +153,7 @@ public abstract class BenchFlowMinioClient {
     }
   }
 
-  void removeObject(String objectName) {
+  protected void removeObject(String objectName) {
     logger.info("removeObject: " + objectName);
     try {
       minioClient.removeObject(TESTS_BUCKET, objectName);
@@ -172,7 +172,7 @@ public abstract class BenchFlowMinioClient {
     }
   }
 
-  void copyObject(String fromObjectName, String toObjectName) {
+  protected void copyObject(String fromObjectName, String toObjectName) {
     logger.info("copyObject: from:" + fromObjectName + " to:" + toObjectName);
     try {
       // the provided copyObject does not seem to work, so we do this
