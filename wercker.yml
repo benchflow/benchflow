@@ -59,6 +59,16 @@ build-benchflow-dsl:
 ###########################################################
 build-benchflow-minio-client:
   box: maven:3.3.9-jdk-8
+  services:
+    - name: minio
+      id: minio/minio:RELEASE.2017-02-16T01-47-30Z
+      ports:
+        - "9000:9000"
+      cmd: server /export
+      env:
+        MINIO_TAG: RELEASE.2017-02-16T01-47-30Z
+        MINIO_ACCESS_KEY: minio
+        MINIO_SECRET_KEY: minio123
   steps:
     # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
     - xenoterracide/maven:
