@@ -44,54 +44,37 @@ public class BenchFlowExperimentMinioClient extends BenchFlowMinioClient {
 
   public void saveExperimentDefinition(String experimentID, InputStream definitionInputStream) {
     logger.info("getExperimentDefinition: " + experimentID);
-    String objectName =
-        minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + PT_PE_DEFINITION_FILE_NAME;
-    putInputStreamObject(definitionInputStream, objectName);
+    putInputStreamObject(definitionInputStream, objectNameOfExperimentDefinition(experimentID));
   }
 
   public InputStream getExperimentDefinition(String experimentID) {
     logger.info("getExperimentDefinition: " + experimentID);
-    String objectName =
-        minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + PT_PE_DEFINITION_FILE_NAME;
-    return getInputStreamObject(objectName);
+    return getInputStreamObject(objectNameOfExperimentDefinition(experimentID));
   }
 
   public void removeExperimentDefinition(String experimentID) {
     logger.info("removeExperimentDefinition: " + experimentID);
-    String objectName =
-        minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + PT_PE_DEFINITION_FILE_NAME;
-    removeObject(objectName);
+    removeObject(objectNameOfExperimentDefinition(experimentID));
   }
 
   public InputStream getExperimentDeploymentDescriptor(String experimentID) {
     logger.info("getExperimentDeploymentDescriptor: " + experimentID);
-    String objectName =
-        minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
-    return getInputStreamObject(objectName);
+    return getInputStreamObject(objectNameOfDeploymentDescriptor(experimentID));
   }
 
   public InputStream getExperimentBPMNModel(String experimentID, String modelName) {
     logger.info("getExperimentBPMNModel: " + experimentID + MINIO_ID_DELIMITER + modelName);
-    String testID = experimentID.substring(0, experimentID.lastIndexOf("."));
-    String objectName =
-        minioCompatibleID(testID)
-            + MINIO_ID_DELIMITER
-            + BPMN_MODELS_FOLDER_NAME
-            + MINIO_ID_DELIMITER
-            + modelName;
-    return getInputStreamObject(objectName);
+    String testID = testIDFromExperimentID(experimentID);
+    return getInputStreamObject(objectNameOfBPMNModel(testID, modelName));
   }
 
   public InputStream getDriversMakerGeneratedBenchmark(String experimentID) {
     logger.info("getDriversMakerGeneratedBenchmark: " + experimentID);
-    String objectName =
-        minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + GENERATED_BENCHMARK_FILENAME;
-    return getInputStreamObject(objectName);
+    return getInputStreamObject(objectNameOfBenchmark(experimentID));
   }
 
   public InputStream getDriversMakerGeneratedFabanConfiguration(String trialID) {
     logger.info("getDriversMakerGeneratedFabanConfiguration: " + trialID);
-    String objectName = minioCompatibleID(trialID) + MINIO_ID_DELIMITER + FABAN_CONFIG_FILENAME;
-    return getInputStreamObject(objectName);
+    return getInputStreamObject(objectNameOfFabanConfiguration(trialID));
   }
 }

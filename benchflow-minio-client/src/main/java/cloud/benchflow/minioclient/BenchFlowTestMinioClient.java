@@ -19,62 +19,44 @@ public class BenchFlowTestMinioClient extends BenchFlowMinioClient {
 
   public void saveTestDefinition(String testID, InputStream definition) {
     logger.info("saveTestDefinition: " + testID);
-    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER + PT_PE_DEFINITION_FILE_NAME;
-    putInputStreamObject(definition, objectName);
+    putInputStreamObject(definition, objectNameOfTestDefinition(testID));
   }
 
   public InputStream getTestDefinition(String testID) {
     logger.info("getTestDefinition: " + testID);
-    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER + PT_PE_DEFINITION_FILE_NAME;
-    return getInputStreamObject(objectName);
+    return getInputStreamObject(objectNameOfTestDefinition(testID));
   }
 
   public void removeTestDefinition(String testID) {
     logger.info("removeTestDefinition: " + testID);
-    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER + PT_PE_DEFINITION_FILE_NAME;
-    removeObject(objectName);
+    removeObject(objectNameOfTestDefinition(testID));
   }
 
   public void saveTestDeploymentDescriptor(String testID, InputStream deploymentDescriptor) {
     logger.info("saveTestDeploymentDescriptor: " + testID);
-    String objectName =
-        minioCompatibleID(testID) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
-    putInputStreamObject(deploymentDescriptor, objectName);
+    putInputStreamObject(deploymentDescriptor, objectNameOfDeploymentDescriptor(testID));
   }
 
   public void copyDeploymentDescriptorForExperiment(String testID, String experimentID) {
     logger.info("copyDeploymentDescriptorForExperiment: from:" + testID + " to:" + experimentID);
-    String testObjectID =
-        minioCompatibleID(testID) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
-    String experimentObjectID =
-        minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+    String testObjectID = objectNameOfDeploymentDescriptor(testID);
+    String experimentObjectID = objectNameOfDeploymentDescriptor(experimentID);
     copyObject(testObjectID, experimentObjectID);
   }
 
   public InputStream getTestDeploymentDescriptor(String testID) {
     logger.info("getTestDeploymentDescriptor: " + testID);
-    String objectName =
-        minioCompatibleID(testID) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
-
-    return getInputStreamObject(objectName);
+    return getInputStreamObject(objectNameOfDeploymentDescriptor(testID));
   }
 
   public void removeTestDeploymentDescriptor(String testID) {
     logger.info("removeTestDeploymentDescriptor: " + testID);
-    String objectName =
-        minioCompatibleID(testID) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
-    removeObject(objectName);
+    removeObject(objectNameOfDeploymentDescriptor(testID));
   }
 
   public void saveTestBPMNModel(String testID, String modelName, InputStream model) {
     logger.info("saveTestBPMNModel: " + testID + MINIO_ID_DELIMITER + modelName);
-    String objectName =
-        minioCompatibleID(testID)
-            + MINIO_ID_DELIMITER
-            + BPMN_MODELS_FOLDER_NAME
-            + MINIO_ID_DELIMITER
-            + modelName;
-    putInputStreamObject(model, objectName);
+    putInputStreamObject(model, objectNameOfBPMNModel(testID, modelName));
   }
 
   public void copyBPMNModelForExperiment(String testID, String experimentID, String modelName) {
@@ -85,40 +67,18 @@ public class BenchFlowTestMinioClient extends BenchFlowMinioClient {
             + experimentID
             + " model:"
             + modelName);
-    String testObjectID =
-        minioCompatibleID(testID)
-            + MINIO_ID_DELIMITER
-            + BPMN_MODELS_FOLDER_NAME
-            + MINIO_ID_DELIMITER
-            + modelName;
-    String experimentObjectID =
-        minioCompatibleID(experimentID)
-            + MINIO_ID_DELIMITER
-            + BPMN_MODELS_FOLDER_NAME
-            + MINIO_ID_DELIMITER
-            + modelName;
+    String testObjectID = objectNameOfBPMNModel(testID, modelName);
+    String experimentObjectID = objectNameOfBPMNModel(experimentID, modelName);
     copyObject(testObjectID, experimentObjectID);
   }
 
   public InputStream getTestBPMNModel(String testID, String modelName) {
     logger.info("getTestBPMNModel: " + testID + MINIO_ID_DELIMITER + modelName);
-    String objectName =
-        minioCompatibleID(testID)
-            + MINIO_ID_DELIMITER
-            + BPMN_MODELS_FOLDER_NAME
-            + MINIO_ID_DELIMITER
-            + modelName;
-    return getInputStreamObject(objectName);
+    return getInputStreamObject(objectNameOfBPMNModel(testID, modelName));
   }
 
   public void removeTestBPMNModel(String testID, String modelName) {
     logger.info("removeTestBPMNModel: " + testID + MINIO_ID_DELIMITER + modelName);
-    String objectName =
-        minioCompatibleID(testID)
-            + MINIO_ID_DELIMITER
-            + BPMN_MODELS_FOLDER_NAME
-            + MINIO_ID_DELIMITER
-            + modelName;
-    removeObject(objectName);
+    removeObject(objectNameOfBPMNModel(testID, modelName));
   }
 }

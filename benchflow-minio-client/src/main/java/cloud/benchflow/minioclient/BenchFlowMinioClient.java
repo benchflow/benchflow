@@ -55,6 +55,39 @@ public abstract class BenchFlowMinioClient {
     this.minioClient = minioClient;
   }
 
+  protected String testIDFromExperimentID(String experimentID) {
+    return experimentID.substring(0, experimentID.lastIndexOf("."));
+  }
+
+  protected String objectNameOfExperimentDefinition(String experimentID) {
+    return minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + PT_PE_DEFINITION_FILE_NAME;
+  }
+
+  protected String objectNameOfTestDefinition(String testID) {
+    return objectNameOfExperimentDefinition(testID);
+  }
+
+  protected String objectNameOfDeploymentDescriptor(String id) {
+    return minioCompatibleID(id) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+  }
+
+  protected String objectNameOfBPMNModel(String id, String modelName) {
+    return minioCompatibleID(id)
+        + MINIO_ID_DELIMITER
+        + BPMN_MODELS_FOLDER_NAME
+        + MINIO_ID_DELIMITER
+        + modelName;
+  }
+
+  protected String objectNameOfBenchmark(String id) {
+    return minioCompatibleID(id) + MINIO_ID_DELIMITER + GENERATED_BENCHMARK_FILENAME;
+  }
+
+  protected String objectNameOfFabanConfiguration(String id) {
+    return minioCompatibleID(id) + MINIO_ID_DELIMITER + FABAN_CONFIG_FILENAME;
+  }
+
+  /** Make default bucket if it doesn't exist. */
   public void initializeBuckets() {
     try {
       if (!minioClient.bucketExists(TESTS_BUCKET)) {
