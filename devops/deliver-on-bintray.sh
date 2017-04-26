@@ -16,7 +16,7 @@ set -xv
 echo "Delivering on Bintray"
  
 # Generate the tag used to deploy commit specific version
-CUSTOM_VERSION_TAG=${WERCKER_GIT_BRANCH}"_"${WERCKER_GIT_COMMIT:0:6}
+# CUSTOM_VERSION_TAG=${WERCKER_GIT_BRANCH}"_"${WERCKER_GIT_COMMIT:0:6}
 
 # Creates the version (nothing happens if already exists)
 # echo "Creating version for commit..."
