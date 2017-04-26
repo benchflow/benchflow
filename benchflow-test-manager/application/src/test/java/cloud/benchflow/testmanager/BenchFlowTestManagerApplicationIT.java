@@ -31,7 +31,7 @@ import javax.ws.rs.core.Response;
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 18.02.17.
  */
-public class BenchFlowITManagerApplicationIT extends DockerComposeIT {
+public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
 
 
     @Rule
@@ -54,7 +54,7 @@ public class BenchFlowITManagerApplicationIT extends DockerComposeIT {
         JerseyClientConfiguration configuration = new JerseyClientConfiguration();
         configuration.setChunkedEncodingEnabled(false);
         // needed because parsing testYaml takes more than default time
-        configuration.setTimeout(Duration.milliseconds(1000));
+        configuration.setTimeout(Duration.milliseconds(5000));
 
         Client client = new JerseyClientBuilder(RULE.getEnvironment()).using(configuration).build("test client");
 
