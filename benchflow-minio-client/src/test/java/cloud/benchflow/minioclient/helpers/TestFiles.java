@@ -10,7 +10,6 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
 public class TestFiles {
 
   private static String VALID_TEST_DEFINITION_FILE_PATH =

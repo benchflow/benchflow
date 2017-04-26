@@ -9,7 +9,6 @@ import java.io.IOException;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
 public class DockerComposeIT {
 
   private static String MINIO_NAME = "minio";

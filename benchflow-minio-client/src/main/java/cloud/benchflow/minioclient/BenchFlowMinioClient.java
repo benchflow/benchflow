@@ -20,12 +20,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParserException;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
 public abstract class BenchFlowMinioClient {
 
   /*
-   * TODO: is this correct with only one bucket and it is called tests?
-   * Maybe better then just 'benchflow'?
+   * TODO: is this correct with only one bucket and it is called tests? Maybe better then just
+   * 'benchflow'?
    */
   protected static final String TESTS_BUCKET = "tests";
 
@@ -108,10 +107,7 @@ public abstract class BenchFlowMinioClient {
     }
   }
 
-  /**
-   * @param inputStream
-   * @param objectName
-   */
+  /** Create new object with InputStream content. */
   protected void putInputStreamObject(InputStream inputStream, String objectName) {
     logger.info("putInputStreamObject: " + objectName);
     try {
@@ -134,10 +130,7 @@ public abstract class BenchFlowMinioClient {
     }
   }
 
-  /**
-   * @param objectName
-   * @return
-   */
+  /** Get object content as InputStream. */
   protected InputStream getInputStreamObject(String objectName) {
     logger.info("getInputStreamObject: " + objectName);
     try {
@@ -155,7 +148,7 @@ public abstract class BenchFlowMinioClient {
       logger.error("Exception in getInputStreamObject: " + objectName, e);
       return null;
     } catch (ErrorResponseException e) {
-      /* happens if the object doesn't exist*/
+      /* happens if the object doesn't exist */
       return null;
     }
   }
@@ -182,10 +175,13 @@ public abstract class BenchFlowMinioClient {
   void copyObject(String fromObjectName, String toObjectName) {
     logger.info("copyObject: from:" + fromObjectName + " to:" + toObjectName);
     try {
-      // the provided copyObject does not seem to work, so we do this workaround
-      // minioClient.copyObject(TESTS_BUCKET, fromObjectName, TESTS_BUCKET, toObjectName);
+      // the provided copyObject does not seem to work, so we do this
+      // workaround
+      // minioClient.copyObject(TESTS_BUCKET, fromObjectName,
+      // TESTS_BUCKET, toObjectName);
 
-      // convert to buffered input stream as the type minio returns cannot be put
+      // convert to buffered input stream as the type minio returns cannot
+      // be put
       String temp =
           IOUtils.toString(
               minioClient.getObject(TESTS_BUCKET, fromObjectName), StandardCharsets.UTF_8);

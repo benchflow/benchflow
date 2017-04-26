@@ -15,7 +15,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
 public class BenchFlowTestMinioClientIT extends DockerComposeIT {
 
   private BenchFlowTestMinioClient minioClient;

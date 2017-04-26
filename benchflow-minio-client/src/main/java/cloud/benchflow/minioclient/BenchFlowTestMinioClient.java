@@ -7,7 +7,6 @@ import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
 public class BenchFlowTestMinioClient extends BenchFlowMinioClient {
 
   private static Logger logger =
@@ -37,6 +36,10 @@ public class BenchFlowTestMinioClient extends BenchFlowMinioClient {
     putInputStreamObject(deploymentDescriptor, objectNameOfDeploymentDescriptor(testID));
   }
 
+  /**
+   * Create an object containing a experiment deployment descriptor by copying the content from the
+   * object containing a test deployment descriptor.
+   */
   public void copyDeploymentDescriptorForExperiment(String testID, String experimentID) {
     logger.info("copyDeploymentDescriptorForExperiment: from:" + testID + " to:" + experimentID);
     String testObjectID = objectNameOfDeploymentDescriptor(testID);

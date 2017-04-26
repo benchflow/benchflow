@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParserException;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
 public class BenchFlowExperimentMinioClient extends BenchFlowMinioClient {
 
   private static Logger logger =
@@ -22,6 +21,7 @@ public class BenchFlowExperimentMinioClient extends BenchFlowMinioClient {
     super(minioClient);
   }
 
+  /** Check if there is at least one object in the storage corresponding to the given ID. */
   public boolean isValidExperimentID(String experimentID) {
     logger.info("isValidExperimentID: " + experimentID);
     String objectName =
@@ -62,6 +62,10 @@ public class BenchFlowExperimentMinioClient extends BenchFlowMinioClient {
     return getInputStreamObject(objectNameOfDeploymentDescriptor(experimentID));
   }
 
+  /**
+   * Get content of object containing BPMN model associated with testID generated from given
+   * experimentID.
+   */
   public InputStream getExperimentBPMNModel(String experimentID, String modelName) {
     logger.info("getExperimentBPMNModel: " + experimentID + MINIO_ID_DELIMITER + modelName);
     String testID = testIDFromExperimentID(experimentID);

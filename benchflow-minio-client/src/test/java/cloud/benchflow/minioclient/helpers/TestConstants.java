@@ -2,7 +2,6 @@ package cloud.benchflow.minioclient.helpers;
 
 import static cloud.benchflow.minioclient.BenchFlowMinioClient.MODEL_ID_DELIMITER;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
 public class TestConstants {
 
   public static final String INVALID_BENCHFLOW_TEST_NAME = "invalid";
