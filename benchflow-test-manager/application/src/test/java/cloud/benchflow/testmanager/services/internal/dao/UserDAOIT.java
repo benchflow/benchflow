@@ -108,7 +108,7 @@ public class UserDAOIT extends DockerComposeIT {
 
         userDAO.addUser(TEST_USER_NAME);
 
-        DBCollection collection = testModelDAO.getDataStore().getCollection(User.class);
+        DBCollection collection = userDAO.getDatastore().getCollection(User.class);
 
         collection.getIndexInfo().forEach(dbObject -> {
 

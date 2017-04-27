@@ -30,7 +30,7 @@
         <wiremock.version>2.5.1</wiremock.version>
         <dropwizard-swagger.version>1.0.6-1</dropwizard-swagger.version>
         <benchflow-dsl.project.name>benchflow-dsl</benchflow-dsl.project.name>
-        <benchflow-dsl.version>feature-dsl-demo-conversion_86cf41</benchflow-dsl.version>
+        <benchflow-dsl.version>feature-dsl-demo-conversion_26f6ce</benchflow-dsl.version>
         <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
         <maven-shade-plugin.verion>2.4.1</maven-shade-plugin.verion>
         <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
@@ -166,7 +166,8 @@
                                 <goal>wget</goal>
                             </goals>
                             <configuration>
-                                <url>https://dl.bintray.com/benchflow/benchflow-maven/${benchflow-dsl.project.name}_${benchflow-dsl.version}.jar</url>
+                                <!--<url>https://dl.bintray.com/benchflow/benchflow-maven/${benchflow-dsl.project.name}_${benchflow-dsl.version}.jar</url>-->
+                                <url>https://dl.bintray.com/benchflow/benchflow-maven/${benchflow-dsl.version}.jar</url>
                                 <unpack>false</unpack>
                                 <outputFileName>${benchflow-dsl.project.name}_${benchflow-dsl.version}.jar</outputFileName>
                             </configuration>

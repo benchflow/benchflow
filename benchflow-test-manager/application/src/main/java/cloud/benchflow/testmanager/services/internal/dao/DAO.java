@@ -12,7 +12,7 @@ import org.mongodb.morphia.Morphia;
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 2017-04-27
  */
-public class DAO {
+public abstract class DAO {
 
     protected final Datastore datastore;
 

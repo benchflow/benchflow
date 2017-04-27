@@ -94,3 +94,6 @@ typings/
 # dotenv environment variables file
 .env
 scalastyle-output.xml
+
+# MongoDB test data
+mongo-data/

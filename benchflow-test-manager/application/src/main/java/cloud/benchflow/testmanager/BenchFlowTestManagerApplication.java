@@ -1,14 +1,9 @@
 package cloud.benchflow.testmanager;
 
 import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfiguration;
-import cloud.benchflow.testmanager.constants.BenchFlowConstants;
-import cloud.benchflow.testmanager.models.BenchFlowTestModel;
-import cloud.benchflow.testmanager.models.BenchFlowTestNumber;
-import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.resources.BenchFlowExperimentResource;
 import cloud.benchflow.testmanager.resources.BenchFlowTestResource;
 import cloud.benchflow.testmanager.resources.BenchFlowTrialResource;
-import cloud.benchflow.testmanager.resources.BenchFlowUserResource;
 import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
@@ -16,7 +11,6 @@ import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
-import com.mongodb.MongoClient;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
 import io.dropwizard.Application;
@@ -25,20 +19,12 @@ import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.Morphia;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 
 public class BenchFlowTestManagerApplication extends Application<BenchFlowTestManagerConfiguration> {
-
-    private Logger logger = LoggerFactory.getLogger(BenchFlowTestManagerApplication.class.getSimpleName());
-
-    public static void main(String[] args) throws Exception {
-        new BenchFlowTestManagerApplication().run(args);
-    }
 
     private static BenchFlowTestModelDAO testModelDAO;
     private static ExplorationModelDAO explorationModelDAO;
@@ -47,6 +33,11 @@ public class BenchFlowTestManagerApplication extends Application<BenchFlowTestMa
     private static MinioService minioService;
     private static BenchFlowExperimentManagerService experimentManagerService;
     private static BenchFlowTestTaskController testTaskController;
+    private Logger logger = LoggerFactory.getLogger(BenchFlowTestManagerApplication.class.getSimpleName());
+
+    public static void main(String[] args) throws Exception {
+        new BenchFlowTestManagerApplication().run(args);
+    }
 
     public static BenchFlowTestModelDAO getTestModelDAO() {
         return testModelDAO;

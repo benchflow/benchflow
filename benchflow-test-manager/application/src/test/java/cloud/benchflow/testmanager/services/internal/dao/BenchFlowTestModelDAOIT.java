@@ -158,7 +158,7 @@ public class BenchFlowTestModelDAOIT extends DockerComposeIT {
 
         testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, testUser);
 
-        DBCollection collection = testModelDAO.getDataStore().getCollection(BenchFlowTestModel.class);
+        DBCollection collection = testModelDAO.getDatastore().getCollection(BenchFlowTestModel.class);
 
         collection.getIndexInfo().forEach(dbObject -> {
 

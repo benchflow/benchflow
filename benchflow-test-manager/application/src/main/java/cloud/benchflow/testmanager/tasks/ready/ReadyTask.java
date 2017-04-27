@@ -63,6 +63,7 @@ public class ReadyTask implements Runnable {
         InputStream definitionInputStream = IOUtils.toInputStream(testDefinitionYamlString, StandardCharsets.UTF_8);
 
         // TODO - handle different SUT types
+        // TODO - check that termination criteria with time has not been exceeded
 
         // save PT archive contents to Minio
         minioService.saveTestDefinition(testID, definitionInputStream);
@@ -75,14 +76,18 @@ public class ReadyTask implements Runnable {
         try {
             BenchFlowTest test = BenchFlowDSL.testFromYaml(testDefinitionYamlString);
 
-            generateExplorationSpace(test);
+            List<Integer> workloadUserSpace = generateExplorationSpace(test);
+
+            if (workloadUserSpace != null) {
+                explorationModelDAO.setWorkloadUserSpace(testID, workloadUserSpace);
+            }
 
             setExperimentSelectionStrategy(test);
 
             taskController.runDetermineExecuteExperimentsTask(testID);
 
-        } catch (BenchFlowDeserializationException e) {
-            // should not happen since it has already been tested
+        } catch (BenchFlowDeserializationException | BenchFlowTestIDDoesNotExistException e) {
+            // should not happen since it has already been tested/added
             logger.error("should not happen");
             e.printStackTrace();
         }
@@ -90,40 +95,28 @@ public class ReadyTask implements Runnable {
 
     }
 
-    private void generateExplorationSpace(BenchFlowTest test) {
+    public static List<Integer> generateExplorationSpace(BenchFlowTest test) {
 
+        // generate exploration space if any
 
-        try {
+        // TODO - replace this with calculating all possible combinations
+        // something like this https://blog.balfes.net/2015/06/08/finding-every-possible-combination-of-array-entries-from-multiple-lists-with-unknown-bounds-in-java/
 
-            // generate exploration space if any
+        if (test.configuration().goal().explorationSpace().isDefined()) {
 
-            // TODO - replace this with calculating all possible combinations
-            // something like this https://blog.balfes.net/2015/06/08/finding-every-possible-combination-of-array-entries-from-multiple-lists-with-unknown-bounds-in-java/
+            if (test.configuration().goal().explorationSpace().get().workload().isDefined()) {
 
-            if (test.configuration().goal().explorationSpace().isDefined()) {
-
-                if (test.configuration().goal().explorationSpace().get().workload().isDefined()) {
-
-                    List<Integer> workloadUserSpace = JavaConverters.asJavaCollectionConverter(test.configuration().goal().explorationSpace().get().workload().get().users().get().values())
-                            .asJavaCollection()
-                            .stream()
-                            .map(object -> (Integer) object)
-                            .collect(Collectors.toList());
-
-                    explorationModelDAO.setWorkloadUserSpace(testID, workloadUserSpace);
-
-                }
+                return JavaConverters.asJavaCollectionConverter(test.configuration().goal().explorationSpace().get().workload().get().users().get().values())
+                        .asJavaCollection()
+                        .stream()
+                        .map(object -> (Integer) object)
+                        .collect(Collectors.toList());
 
             }
 
-
-        } catch (BenchFlowTestIDDoesNotExistException e) {
-            // should not happen since it has already been added
-            logger.error("should not happen");
-            e.printStackTrace();
         }
 
-
+        return null;
     }
 
     private void setExperimentSelectionStrategy(BenchFlowTest test) {
