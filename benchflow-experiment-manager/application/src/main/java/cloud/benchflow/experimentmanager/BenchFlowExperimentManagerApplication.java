@@ -6,6 +6,7 @@ import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerS
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
+import cloud.benchflow.experimentmanager.tasks.ExperimentTaskController;
 import cloud.benchflow.faban.client.FabanClient;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
@@ -62,7 +63,8 @@ public class BenchFlowExperimentManagerApplication extends Application<BenchFlow
                 .build(environment.getName());
 
         // services
-        ExecutorService taskExecutorService = configuration.getTaskExecutorFactory().build(environment);
+        ExecutorService experimentTaskExecutorService = configuration.getExperimentTaskExecutorFactory().build(environment);
+        ExecutorService trialTaskExecutorService = configuration.getTrialTaskExecutorFactory().build(environment);
         BenchFlowExperimentModelDAO experimentModelDAO = new BenchFlowExperimentModelDAO(configuration.getMongoDBFactory().build());
         MinioService minioService = configuration.getMinioServiceFactory().build();
         FabanClient fabanClient = configuration.getFabanServiceFactory().build();
@@ -71,6 +73,8 @@ public class BenchFlowExperimentManagerApplication extends Application<BenchFlow
 
         int submitRetries = configuration.getFabanServiceFactory().getSubmitRetries();
 
+        ExperimentTaskController experimentTaskController = new ExperimentTaskController(minioService, experimentModelDAO, fabanClient, driversMakerService, testManagerService, experimentTaskExecutorService, submitRetries);
+
         // make sure a bucket exists
         minioService.initializeBuckets();
 
@@ -78,13 +82,8 @@ public class BenchFlowExperimentManagerApplication extends Application<BenchFlow
         BenchFlowExperimentResource experimentResource = new BenchFlowExperimentResource(
                 minioService,
                 experimentModelDAO,
-                fabanClient,
-                driversMakerService,
-                taskExecutorService,
-                testManagerService,
-                submitRetries
+                experimentTaskController
         );
-
 
 
         // TODO - health checks for all services

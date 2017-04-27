@@ -6,6 +6,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
+ * NOTE: This class is to be removed when driver-maker updates its minio interaction
+ *
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 2017-04-11
  */

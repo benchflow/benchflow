@@ -1,6 +1,7 @@
 package cloud.benchflow.experimentmanager.tasks;
 
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
+import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
 import cloud.benchflow.experimentmanager.helpers.MinioTestData;
 import cloud.benchflow.experimentmanager.helpers.TestConstants;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
@@ -16,17 +17,19 @@ import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 2017-04-13
  */
-public class RunBenchFlowExperimentTaskTest {
+public class ExperimentTaskControllerTest {
 
-
-    private RunBenchFlowExperimentTask experimentTask;
     private String experimentID;
-    private RunBenchFlowExperimentTask.DriversMakerCompatibleID driversMakerCompatibleID;
+    private DriversMakerCompatibleID driversMakerCompatibleID;
     private int submitRetries = 1;
 
     private BenchFlowExperimentModelDAO experimentModelDAOMock = Mockito.mock(BenchFlowExperimentModelDAO.class);
@@ -35,33 +38,24 @@ public class RunBenchFlowExperimentTaskTest {
     private DriversMakerService driversMakerServiceMock = Mockito.mock(DriversMakerService.class);
     private BenchFlowTestManagerService testManagerServiceMock = Mockito.mock(BenchFlowTestManagerService.class);
 
-    private InputStream experimentDefinitionInputStream;
-    private InputStream deploymentDescriptorInputStream;
-    private InputStream bpmnModel11InputStream;
-    private InputStream generatedBenchmarkInputStream;
-    private InputStream fabanConfigurationInputStream;
+    private ExecutorService taskExecutorService = Executors.newSingleThreadExecutor();
+
+    private ExperimentTaskController experimentTaskController;
 
 
     @Before
     public void setUp() throws Exception {
 
         experimentID = TestConstants.BENCHFLOW_EXPERIMENT_ID;
-        driversMakerCompatibleID = new RunBenchFlowExperimentTask.DriversMakerCompatibleID().invoke(experimentID);
+        driversMakerCompatibleID = new DriversMakerCompatibleID(experimentID);
 
-        experimentDefinitionInputStream = MinioTestData.getExperimentDefinition();
-        deploymentDescriptorInputStream = MinioTestData.getDeploymentDescriptor();
-        bpmnModel11InputStream = MinioTestData.get11ParallelStructuredModel();
-        generatedBenchmarkInputStream = MinioTestData.getGeneratedBenchmark();
-        fabanConfigurationInputStream = MinioTestData.getFabanConfiguration();
-
-
-        experimentTask = new RunBenchFlowExperimentTask(
-                experimentID,
-                experimentModelDAOMock,
+        experimentTaskController = new ExperimentTaskController(
                 minioServiceMock,
+                experimentModelDAOMock,
                 fabanClientMock,
                 driversMakerServiceMock,
                 testManagerServiceMock,
+                taskExecutorService,
                 submitRetries
         );
 
@@ -77,36 +71,36 @@ public class RunBenchFlowExperimentTaskTest {
         RunStatus status = new RunStatus("COMPLETED", runId);
         String trialID = experimentID + BenchFlowConstants.MODEL_ID_DELIMITER + 1;
 
-        Mockito.doReturn(experimentDefinitionInputStream)
+        Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperimentDefinition())
                 .when(minioServiceMock)
                 .getExperimentDefinition(experimentID);
 
-        Mockito.doReturn(deploymentDescriptorInputStream)
+        Mockito.doAnswer(invocationOnMock ->  MinioTestData.getDeploymentDescriptor())
                 .when(minioServiceMock)
                 .getExperimentDeploymentDescriptor(experimentID);
 
-        Mockito.doReturn(bpmnModel11InputStream)
+        Mockito.doAnswer(invocationOnMock ->  MinioTestData.get11ParallelStructuredModel())
                 .when(minioServiceMock)
                 .getExperimentBPMNModel(experimentID, MinioTestData.BPM_MODEL_11_PARALLEL_NAME);
 
-        Mockito.doReturn(generatedBenchmarkInputStream)
+        Mockito.doAnswer(invocationOnMock -> MinioTestData.getGeneratedBenchmark())
                 .when(minioServiceMock)
                 .getDriversMakerGeneratedBenchmark(
                         driversMakerCompatibleID.getDriversMakerExperimentID(),
                         driversMakerCompatibleID.getExperimentNumber()
                 );
 
-        Mockito.doReturn(trialID)
-                .when(experimentModelDAOMock)
-                .addTrial(experimentID, 1);
-
-        Mockito.doReturn(fabanConfigurationInputStream)
+        Mockito.doAnswer(invocationOnMock -> MinioTestData.getFabanConfiguration())
                 .when(minioServiceMock)
                 .getDriversMakerGeneratedFabanConfiguration(
                         driversMakerCompatibleID.getDriversMakerExperimentID(),
                         driversMakerCompatibleID.getExperimentNumber(),
                         1
                 );
+
+        Mockito.doReturn(trialID)
+                .when(experimentModelDAOMock)
+                .addTrial(experimentID, 1);
 
         Mockito.doReturn(runId)
                 .when(fabanClientMock)
@@ -117,7 +111,10 @@ public class RunBenchFlowExperimentTaskTest {
                 .status(runId);
 
 
-        experimentTask.run();
+        experimentTaskController.submitExperiment(experimentID);
+
+        // wait for tasks to finish
+        taskExecutorService.awaitTermination(10, TimeUnit.SECONDS);
 
         Mockito.verify(experimentModelDAOMock, Mockito.times(1)).addExperiment(experimentID);
         Mockito.verify(driversMakerServiceMock, Mockito.times(1)).generateBenchmark(Mockito.anyString(), Mockito.anyLong(), Mockito.eq(nTrials));
