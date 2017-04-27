@@ -339,7 +339,7 @@ deploy-benchflow-minio-client:
     - script:
         name: Generate the Release Tag    
         cwd: ./devops   
-        code: ./generate-commit-specific-tag.sh
+        code: source generate-commit-specific-tag.sh
     - script:
         name: Deliver benchflow-minio-client on Bintray
         cwd: ./devops
