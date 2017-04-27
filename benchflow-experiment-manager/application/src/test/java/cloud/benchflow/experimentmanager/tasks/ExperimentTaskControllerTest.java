@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 2017-04-13
  */
-public class ExperimentTaksControllerTest {
+public class ExperimentTaskControllerTest {
 
     private String experimentID;
     private DriversMakerCompatibleID driversMakerCompatibleID;
@@ -114,7 +114,7 @@ public class ExperimentTaksControllerTest {
         experimentTaskController.submitExperiment(experimentID);
 
         // wait for tasks to finish
-        taskExecutorService.awaitTermination(1, TimeUnit.SECONDS);
+        taskExecutorService.awaitTermination(10, TimeUnit.SECONDS);
 
         Mockito.verify(experimentModelDAOMock, Mockito.times(1)).addExperiment(experimentID);
         Mockito.verify(driversMakerServiceMock, Mockito.times(1)).generateBenchmark(Mockito.anyString(), Mockito.anyLong(), Mockito.eq(nTrials));
