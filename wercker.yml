@@ -317,8 +317,9 @@ deploy-benchflow-dsl:
         packages: jq curl
     - script:
         name: Generate the Release Tag    
-        cwd: ./devops   
-        code: ./generate-commit-specific-tag.sh
+        cwd: ./devops
+        # we need source here so the exported variables in the script are actually available in the next step
+        code: source generate-commit-specific-tag.sh
     - script:
         name: Deliver benchflow-dsl on Bintray
         cwd: ./devops
@@ -338,7 +339,8 @@ deploy-benchflow-minio-client:
         packages: jq curl
     - script:
         name: Generate the Release Tag    
-        cwd: ./devops   
+        cwd: ./devops
+        # we need source here so the exported variables in the script are actually available in the next step
         code: source generate-commit-specific-tag.sh
     - script:
         name: Deliver benchflow-minio-client on Bintray
