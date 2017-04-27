@@ -122,7 +122,7 @@ public class BenchFlowExperimentModelDAOIT extends DockerComposeIT {
 
         experimentModelDAO.addExperiment(testID);
 
-        DBCollection collection = testModelDAO.getDataStore().getCollection(BenchFlowExperimentModel.class);
+        DBCollection collection = testModelDAO.getDatastore().getCollection(BenchFlowExperimentModel.class);
 
         collection.getIndexInfo().forEach(dbObject -> {
 

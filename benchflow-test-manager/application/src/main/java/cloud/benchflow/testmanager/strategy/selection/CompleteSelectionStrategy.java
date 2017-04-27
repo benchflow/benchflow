@@ -35,6 +35,13 @@ public class CompleteSelectionStrategy implements ExperimentSelectionStrategy {
         this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
     }
 
+    // only used for testing
+    public CompleteSelectionStrategy(MinioService minioService, ExplorationModelDAO explorationModelDAO, BenchFlowTestModelDAO testModelDAO) {
+        this.minioService = minioService;
+        this.explorationModelDAO = explorationModelDAO;
+        this.testModelDAO = testModelDAO;
+    }
+
     @Override
     public String selectNextExperiment(String testID) {
 

@@ -53,7 +53,7 @@ public class TestArchives {
         return new ZipInputStream(getNoDefinitionTestArchive());
     }
 
-    public static String getValidPTDefinitionString() throws IOException {
+    public static String getValidTestDefinitionString() throws IOException {
         return BenchFlowTestArchiveExtractor.extractBenchFlowTestDefinitionString(
                 getValidTestArchiveZip());
     }
@@ -62,15 +62,15 @@ public class TestArchives {
         return BenchFlowTestArchiveExtractor.extractDeploymentDescriptorString(getValidTestArchiveZip());
     }
 
-    public static InputStream getValidPTDefinitionInputStream() throws IOException {
+    public static InputStream getValidTestDefinitionInputStream() throws IOException {
 
-        String ptDefinitionString = BenchFlowTestArchiveExtractor.extractBenchFlowTestDefinitionString(
+        String testDefinitionString = BenchFlowTestArchiveExtractor.extractBenchFlowTestDefinitionString(
                 getValidTestArchiveZip());
 
-        if (ptDefinitionString == null)
+        if (testDefinitionString == null)
             return null;
 
-        return new ByteArrayInputStream(ptDefinitionString.getBytes());
+        return new ByteArrayInputStream(testDefinitionString.getBytes());
 
     }
 

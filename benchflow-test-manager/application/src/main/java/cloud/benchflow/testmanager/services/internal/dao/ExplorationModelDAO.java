@@ -3,6 +3,7 @@ package cloud.benchflow.testmanager.services.internal.dao;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
+import com.mongodb.MongoClient;
 import org.mongodb.morphia.Datastore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,15 +14,14 @@ import java.util.List;
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 2017-04-25
  */
-public class ExplorationModelDAO {
+public class ExplorationModelDAO extends DAO {
 
     private static Logger logger = LoggerFactory.getLogger(ExplorationModelDAO.class.getSimpleName());
 
-    private Datastore datastore;
     private BenchFlowTestModelDAO testModelDAO;
 
-    public ExplorationModelDAO(Datastore datastore, BenchFlowTestModelDAO testModelDAO) {
-        this.datastore = datastore;
+    public ExplorationModelDAO(MongoClient mongoClient, BenchFlowTestModelDAO testModelDAO) {
+        super(mongoClient);
         this.testModelDAO = testModelDAO;
     }
 

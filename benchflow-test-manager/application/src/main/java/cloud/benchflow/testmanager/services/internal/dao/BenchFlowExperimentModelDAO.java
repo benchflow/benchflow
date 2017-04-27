@@ -22,18 +22,17 @@ import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 22.02.17.
  */
-public class BenchFlowExperimentModelDAO {
+public class BenchFlowExperimentModelDAO extends DAO {
 
     // TODO - this is also stored in the model?? read it directly from the model
     private static final String BENCHFLOW_EXPERIMENT_ID_FIELD_NAME = "id";
 
     private static Logger logger = LoggerFactory.getLogger(BenchFlowExperimentModelDAO.class.getSimpleName());
 
-    private Datastore datastore;
     private BenchFlowTestModelDAO testModelDAO;
 
-    public BenchFlowExperimentModelDAO(Datastore datastore, BenchFlowTestModelDAO testModelDAO) {
-        this.datastore = datastore;
+    public BenchFlowExperimentModelDAO(MongoClient mongoClient, BenchFlowTestModelDAO testModelDAO) {
+        super(mongoClient);
         this.testModelDAO = testModelDAO;
     }
 

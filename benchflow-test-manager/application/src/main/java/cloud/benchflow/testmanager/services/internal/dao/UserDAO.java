@@ -19,29 +19,15 @@ import java.util.stream.Collectors;
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 22.02.17.
  */
-public class UserDAO {
+public class UserDAO extends DAO {
 
     private static Logger logger = LoggerFactory.getLogger(UserDAO.class.getSimpleName());
 
-    private Datastore datastore;
     private BenchFlowTestModelDAO testModelDAO;
 
     public UserDAO(MongoClient mongoClient, BenchFlowTestModelDAO benchFlowTestModelDAO) {
-
+        super(mongoClient);
         this.testModelDAO = benchFlowTestModelDAO;
-
-        final Morphia morphia = new Morphia();
-
-        // tell Morphia where to find your classes
-        // can be called multiple times with different packages or classes
-        morphia.map(User.class);
-
-        // create the Datastore
-        // TODO - set-up mongo DB (http://mongodb.github.io/mongo-java-driver/2.13/getting-started/quick-tour/)
-        // TODO - check about resilience and cache
-        datastore = morphia.createDatastore(mongoClient, BenchFlowConstants.DB_NAME);
-        datastore.ensureIndexes();
-
     }
 
     public synchronized User addUser(String username) throws UserIDAlreadyExistsException {
@@ -88,7 +74,7 @@ public class UserDAO {
                     .map(id -> datastore.createQuery(BenchFlowTestNumber.class)
                             .field(BenchFlowTestNumber.ID_FIELD_NAME)
                             .equal(id))
-                    .forEach(query -> datastore.delete(query));
+                    .forEach(datastore::delete);
 
             // remove the user from the DB
             datastore.delete(user);

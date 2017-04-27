@@ -6,6 +6,8 @@ import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistExcepti
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
+import cloud.benchflow.testmanager.strategy.selection.CompleteSelectionStrategy;
+import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,32 +43,37 @@ public class HandleExperimentResultTask implements Runnable {
 
         // TODO - get the experiment result
 
-        // TODO - decide next step (run another experiment or terminate)
-
         try {
 
-            // TODO - move this into validation strategy
+            ExperimentSelectionStrategy selectionStrategy = explorationModelDAO.getExperimentSelectionStrategy(testID);
 
-            // get exploration space
-            // TODO - generalize this to complete search space
-            List<Integer> explorationSpace = explorationModelDAO.getWorkloadUserSpace(testID);
-            // check which experiments have been executed
-            List<Long> executedExperimentNumbers = testModelDAO.getExperimentNumbers(testID);
+            if (selectionStrategy instanceof CompleteSelectionStrategy) {
 
-            if (explorationSpace.size() == executedExperimentNumbers.size()) {
+                // TODO - decide next step (run another experiment or terminate)
 
-                testModelDAO.setTestState(testID, BenchFlowTestModel.BenchFlowTestState.TERMINATED);
+                // get exploration space
+                // TODO - generalize this to complete search space
+                List<Integer> explorationSpace = explorationModelDAO.getWorkloadUserSpace(testID);
+                // check which experiments have been executed
+                List<Long> executedExperimentNumbers = testModelDAO.getExperimentNumbers(testID);
+
+                if (explorationSpace.size() == executedExperimentNumbers.size()) {
+
+                    testModelDAO.setTestState(testID, BenchFlowTestModel.BenchFlowTestState.TERMINATED);
+
+                } else {
+                    testTaskController.runDetermineExecuteExperimentsTask(testID);
+                }
 
             } else {
-                testTaskController.runDetermineExecuteExperimentsTask(testID);
+                // TODO
             }
+
 
 
         } catch (BenchFlowTestIDDoesNotExistException e) {
             e.printStackTrace();
         }
-
-
 
 
     }

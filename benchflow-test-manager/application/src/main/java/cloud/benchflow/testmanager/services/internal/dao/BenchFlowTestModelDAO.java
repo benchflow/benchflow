@@ -20,16 +20,12 @@ import java.util.stream.Collectors;
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 19.12.16.
  */
-public class BenchFlowTestModelDAO {
+public class BenchFlowTestModelDAO extends DAO {
 
     private static Logger logger = LoggerFactory.getLogger(BenchFlowTestModelDAO.class.getSimpleName());
 
-    private Datastore datastore;
-
-    public BenchFlowTestModelDAO(Datastore datastore) {
-
-        this.datastore = datastore;
-
+    public BenchFlowTestModelDAO(MongoClient mongoClient) {
+        super(mongoClient);
     }
 
     /**

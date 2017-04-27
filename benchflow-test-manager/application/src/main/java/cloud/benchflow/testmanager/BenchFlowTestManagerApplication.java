@@ -107,29 +107,13 @@ public class BenchFlowTestManagerApplication extends Application<BenchFlowTestMa
         // services
         ExecutorService taskExecutor = configuration.getTaskExecutorFactory().build(environment);
 
-        MongoClient mongoClient = configuration.getMongoDBFactory().build();
-        final Morphia morphia = new Morphia();
-
-        // tell Morphia where to find your classes
-        // can be called multiple times with different packages or classes
-        morphia.map(BenchFlowTestModel.class);
-        morphia.map(BenchFlowTestNumber.class);
-        morphia.map(User.class);
-
-        // create the Datastore
-        // TODO - set-up mongo DB (http://mongodb.github.io/mongo-java-driver/2.13/getting-started/quick-tour/)
-        // TODO - check about resilience and cache
-        Datastore datastore = morphia.createDatastore(mongoClient, BenchFlowConstants.DB_NAME);
-        datastore.ensureIndexes();
-
-
         // set the services used by multiple classes
         testTaskController = new BenchFlowTestTaskController(taskExecutor);
 
-        testModelDAO = new BenchFlowTestModelDAO(datastore);
-        explorationModelDAO = new ExplorationModelDAO(datastore, testModelDAO);
-        experimentModelDAO = new BenchFlowExperimentModelDAO(datastore, testModelDAO);
-        userDAO = new UserDAO(mongoClient, testModelDAO);
+        testModelDAO = new BenchFlowTestModelDAO(configuration.getMongoDBFactory().build());
+        explorationModelDAO = new ExplorationModelDAO(configuration.getMongoDBFactory().build(), testModelDAO);
+        experimentModelDAO = new BenchFlowExperimentModelDAO(configuration.getMongoDBFactory().build(), testModelDAO);
+        userDAO = new UserDAO(configuration.getMongoDBFactory().build(), testModelDAO);
 
         minioService = configuration.getMinioServiceFactory().build();
         experimentManagerService = configuration.getBenchFlowExperimentManagerServiceFactory().build(

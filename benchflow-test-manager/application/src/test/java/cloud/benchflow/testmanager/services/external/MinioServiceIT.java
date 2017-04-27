@@ -45,7 +45,7 @@ public class MinioServiceIT extends DockerComposeIT {
 
         minioService = new MinioService(minioClient);
 
-        ptDefinitionInputStream = TestArchives.getValidPTDefinitionInputStream();
+        ptDefinitionInputStream = TestArchives.getValidTestDefinitionInputStream();
 
         deploymentDescriptorInputStream = TestArchives.getValidDeploymentDescriptorInputStream();
 
@@ -64,7 +64,7 @@ public class MinioServiceIT extends DockerComposeIT {
 
         String receivedString = IOUtils.toString(new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)), StandardCharsets.UTF_8);
 
-        Assert.assertEquals(TestArchives.getValidPTDefinitionString(), receivedString);
+        Assert.assertEquals(TestArchives.getValidTestDefinitionString(), receivedString);
 
         minioService.removeTestDefinition(VALID_TEST_ID);
 
@@ -136,7 +136,7 @@ public class MinioServiceIT extends DockerComposeIT {
 
         String receivedString = IOUtils.toString(new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)), StandardCharsets.UTF_8);
 
-        Assert.assertEquals(TestArchives.getValidPTDefinitionString(), receivedString);
+        Assert.assertEquals(TestArchives.getValidTestDefinitionString(), receivedString);
 
         minioService.removeExperimentDefinition(VALID_EXPERIMENT_ID);
 
