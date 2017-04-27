@@ -2,6 +2,7 @@ package cloud.benchflow.experimentmanager.tasks.experiment;
 
 import cloud.benchflow.dsl.BenchFlowDSL;
 import cloud.benchflow.dsl.definition.BenchFlowExperiment;
+import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
@@ -70,7 +71,7 @@ public class ExperimentRunningTask extends CancellableTask {
             // get the BenchFlowExperimentDefinition from minioService
             String experimentYamlString = IOUtils.toString(minioService.getExperimentDefinition(experimentID), StandardCharsets.UTF_8);
 
-            BenchFlowExperiment experiment = BenchFlowDSL.experimentFromExperimentYaml(experimentYamlString).get();
+            BenchFlowExperiment experiment = BenchFlowDSL.experimentFromExperimentYaml(experimentYamlString);
 
             int nTrials = experiment.configuration().terminationCriteria().get().experiment().number();
 
@@ -177,6 +178,10 @@ public class ExperimentRunningTask extends CancellableTask {
         } catch (BenchFlowExperimentIDDoesNotExistException e) {
             e.printStackTrace();
         } catch (RunIdNotFoundException e) {
+            e.printStackTrace();
+        } catch (BenchFlowDeserializationException e) {
+            // should not happen at this stage
+            // TODO - handle me
             e.printStackTrace();
         }
 

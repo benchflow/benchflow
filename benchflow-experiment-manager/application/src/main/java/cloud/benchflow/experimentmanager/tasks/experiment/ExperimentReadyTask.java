@@ -3,6 +3,7 @@ package cloud.benchflow.experimentmanager.tasks.experiment;
 import cloud.benchflow.dsl.BenchFlowDSL;
 import cloud.benchflow.dsl.DemoConverter;
 import cloud.benchflow.dsl.definition.BenchFlowExperiment;
+import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.dsl.definition.workload.Workload;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
@@ -72,7 +73,7 @@ public class ExperimentReadyTask extends CancellableTask {
             // get the BenchFlowExperimentDefinition from minio
             String experimentYamlString = IOUtils.toString(minioService.getExperimentDefinition(experimentID), StandardCharsets.UTF_8);
 
-            BenchFlowExperiment experiment = BenchFlowDSL.experimentFromExperimentYaml(experimentYamlString).get();
+            BenchFlowExperiment experiment = BenchFlowDSL.experimentFromExperimentYaml(experimentYamlString);
 
             int nTrials = experiment.configuration().terminationCriteria().get().experiment().number();
 
@@ -134,6 +135,10 @@ public class ExperimentReadyTask extends CancellableTask {
             logger.error("could not find jar for " + experimentID + " : " + e.getMessage());
 
             testManagerService.setExperimentState(experimentID, BenchFlowExperimentModel.BenchFlowExperimentState.TERMINATED, BenchFlowExperimentStatus.ERROR);
+            e.printStackTrace();
+        } catch (BenchFlowDeserializationException e) {
+            // should already have been checked in previous step
+            // TODO - handle me
             e.printStackTrace();
         }
 
