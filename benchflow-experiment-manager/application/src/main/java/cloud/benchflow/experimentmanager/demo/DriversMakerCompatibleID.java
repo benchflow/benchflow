@@ -4,6 +4,8 @@ import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.tasks.experiment.ExperimentReadyTask;
 
 /**
+ * NOTE: This class is to be removed when driver-maker updates its minio interaction
+ *
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 2017-04-19
  */
