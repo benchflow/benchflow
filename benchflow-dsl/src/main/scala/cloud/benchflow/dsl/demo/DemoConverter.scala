@@ -1,8 +1,8 @@
-package cloud.benchflow.dsl
+package cloud.benchflow.dsl.demo
 
 import cloud.benchflow.dsl.definition.BenchFlowExperiment
-import cloud.benchflow.dsl.definition.datacollection.serverside.collector.{ Collector, CollectorMultiple, CollectorMultipleEnvironment }
 import cloud.benchflow.dsl.definition.datacollection.serverside.collector.CollectorMultipleEnvironmentYamlProtocol._
+import cloud.benchflow.dsl.definition.datacollection.serverside.collector.{ CollectorMultiple, CollectorMultipleEnvironment }
 import cloud.benchflow.dsl.definition.sut.configuration.targetservice.TargetServiceYamlProtocol._
 import net.jcazevedo.moultingyaml._
 

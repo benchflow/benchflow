@@ -1,8 +1,8 @@
-package cloud.benchflow.dsl
+package cloud.benchflow.dsl.demo
 
-import org.junit.{ Assert, Test }
+import cloud.benchflow.dsl.BenchFlowDSL
+import org.junit.Test
 import org.scalatest.junit.JUnitSuite
-import net.jcazevedo.moultingyaml._
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch)
