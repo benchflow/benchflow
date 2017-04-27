@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 14.02.17.
  */
-public class BenchFlowITModelDAOIT extends DockerComposeIT {
+public class BenchFlowTestModelDAOIT extends DockerComposeIT {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();

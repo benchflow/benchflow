@@ -1,6 +1,5 @@
-package cloud.benchflow.dsl.definition.goal.explorationspace.workload
+package cloud.benchflow.dsl.definition.configuration.goal.explorationspace.workload
 
-import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.workload.WorkloadExplorationSpace
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.workload.WorkloadExplorationSpaceYamlProtocol._
 import net.jcazevedo.moultingyaml._
 import org.junit.{ Assert, Test }

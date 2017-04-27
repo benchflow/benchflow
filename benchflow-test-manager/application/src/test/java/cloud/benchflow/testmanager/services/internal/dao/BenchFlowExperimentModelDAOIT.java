@@ -31,11 +31,12 @@ public class BenchFlowExperimentModelDAOIT extends DockerComposeIT {
     private UserDAO userDAO;
     private User testUser;
     private String testID;
+    private MongoClient mongoClient;
 
     @Before
     public void setUp() throws Exception {
 
-        MongoClient mongoClient = new MongoClient(MONGO_CONTAINER.getIp(), MONGO_CONTAINER.getExternalPort());
+        mongoClient = new MongoClient(MONGO_CONTAINER.getIp(), MONGO_CONTAINER.getExternalPort());
 
         testModelDAO = new BenchFlowTestModelDAO(mongoClient);
 
