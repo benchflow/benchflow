@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ParallelMultiple11Activiti5210>
+  <jvmConfig xmlns:fh="http://faban.sunsource.net/ns/fabanharness">
+    <fh:javaHome>/usr/lib/jvm/java7</fh:javaHome>
+    <fh:jvmOptions>-Xmx2048m -Xms124m -XX:+DisableExplicitGC</fh:jvmOptions>
+  </jvmConfig>
+  <fa:runConfig definition="cloud.benchflow.experiment.drivers.WfMSStartDriver" xmlns="http://faban.sunsource.net/ns/fabandriver" xmlns:fh="http://faban.sunsource.net/ns/fabanharness" xmlns:fa="http://faban.sunsource.net/ns/faban">
+    <fh:description>ParallelMultiple11Activiti5210</fh:description>
+    <fa:scale>10</fa:scale>
+    <fh:timeSync>false</fh:timeSync>
+    <fa:hostConfig>
+      <fa:host>10.42.15.193</fa:host>
+      <fh:tools>NONE</fh:tools>
+    </fa:hostConfig>
+    <stats>
+      <interval>1</interval>
+      <maxRunTime>6</maxRunTime>
+    </stats>
+    <driverConfig name="WfMSStartDriver">
+      <agents>10.42.15.193:1</agents>
+    </driverConfig>
+    <fa:runControl unit="time">
+      <fa:rampUp>30</fa:rampUp>
+      <fa:steadyState>60</fa:steadyState>
+      <fa:rampDown>30</fa:rampDown>
+    </fa:runControl>
+    <threadStart>
+      <delay>3000</delay>
+      <simultaneous>false</simultaneous>
+      <parallel>true</parallel>
+    </threadStart>
+  </fa:runConfig>
+  <sutConfiguration>
+    <serviceName>activiti</serviceName>
+    <endpoint>/activiti-rest</endpoint>
+    <address>192.168.41.45:8080</address>
+  </sutConfiguration>
+  <benchFlowServices>
+    <privatePort>8080</privatePort>
+    <deploymentManager>10.40.1.128:8050</deploymentManager>
+    <servicesConfiguration>
+      <service name="activiti">
+        <collectors></collectors>
+      </service>
+      <service name="db">
+        <collectors>
+          <collector name="mysql">
+            <id>benchflow.collector.mysql.db</id>
+            <api>
+              <stop>/store</stop>
+            </api>
+            <monitors>
+              <monitor name="cpu">
+                <id>benchflow.monitor.mysql.db.cpu</id>
+                <configuration>
+                  <param name="COMPLETION_QUERY">SELECT+COUNT(*)+FROM+ACT_HI_PROCINST+WHERE+END_TIME_+IS+NULL</param>
+                  <param name="COMPLETION_QUERY_VALUE">0</param>
+                  <param name="COMPLETION_QUERY_METHOD">equal</param>
+                </configuration>
+                <api>
+                  <monitor>/data</monitor>
+                </api>
+                <runPhase>end</runPhase>
+              </monitor>
+              <monitor name="querymysql">
+                <id>benchflow.monitor.mysql.db.querymysql</id>
+                <configuration>
+                  <param name="COMPLETION_QUERY">SELECT+COUNT(*)+FROM+ACT_HI_PROCINST+WHERE+END_TIME_+IS+NULL</param>
+                  <param name="COMPLETION_QUERY_VALUE">0</param>
+                  <param name="COMPLETION_QUERY_METHOD">equal</param>
+                </configuration>
+                <api>
+                  <start>/start</start>
+                  <monitor>/data</monitor>
+                  <stop>/stop</stop>
+                </api>
+                <runPhase>end</runPhase>
+              </monitor>
+            </monitors>
+          </collector>
+        </collectors>
+      </service>
+    </servicesConfiguration>
+  </benchFlowServices>
+  <benchFlowRunConfiguration>
+    <trialId>BenchFlow.ParallelMultiple11Activiti5210.12.1</trialId>
+  </benchFlowRunConfiguration>
+</ParallelMultiple11Activiti5210>

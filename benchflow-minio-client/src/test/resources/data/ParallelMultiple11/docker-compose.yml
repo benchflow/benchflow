@@ -1,0 +1,27 @@
+version: '2'
+services:
+  activiti:
+    image: 'vincenzoferme/wfms:activiti_5.21.0_conf'
+    command: bash -c "sleep 60 && sed -i s/create.demo.models=true/create.demo.models=false/g /opt/tomcat/webapps/activiti-explorer/WEB-INF/classes/engine.properties && sed -i s/create.demo.reports=true/create.demo.reports=false/g /opt/tomcat/webapps/activiti-explorer/WEB-INF/classes/engine.properties && sed -i s/create.demo.definitions=true/create.demo.definitions=false/g /opt/tomcat/webapps/activiti-explorer/WEB-INF/classes/engine.properties && /assets/init"
+    environment:
+      - DB_TYPE=mysql
+      - DB_HOST=${BENCHFLOW_db_IP}
+      - DB_PORT=${BENCHFLOW_db_PORT}
+      - DB_NAME=${BENCHFLOW_db_MYSQL_DATABASE}
+      - DB_USER=${BENCHFLOW_db_MYSQL_USER}
+      - DB_PASS=${BENCHFLOW_db_MYSQL_PASSWORD}
+    network_mode: host
+    ports:
+      - '8080:8080'
+
+  db:
+    image: 'mysql:5.7.17'
+    environment:
+      - MYSQL_DATABASE=activiti_production
+      - MYSQL_PASSWORD=kermit
+      - MYSQL_ROOT_PASSWORD=kermit
+      - MYSQL_USER=kermit
+    network_mode: host
+    ports:
+      - 3306:3306
+
