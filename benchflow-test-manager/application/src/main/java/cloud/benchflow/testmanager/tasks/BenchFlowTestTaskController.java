@@ -29,6 +29,11 @@ public class BenchFlowTestTaskController {
         this.taskExecutorService = taskExecutorService;
     }
 
+    // used for testing
+    protected ExecutorService getTaskExecutorService() {
+        return taskExecutorService;
+    }
+
     synchronized public void submitTest(String testID, String testDefinitionYamlString, InputStream deploymentDescriptorInputStream, Map<String, InputStream> bpmnModelInputStreams) {
 
         logger.info("submitTest with testID: " + testID);
@@ -89,6 +94,14 @@ public class BenchFlowTestTaskController {
 
         // TODO - should go into a stateless queue (so that we can recover)
         taskExecutorService.submit(task);
+
+    }
+
+    synchronized public void testMaxTimeReached(String testID) {
+
+        logger.info("testMaxTimeReached: " + testID);
+
+        // TODO - implement me
 
     }
 

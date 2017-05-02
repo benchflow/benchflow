@@ -1,6 +1,7 @@
 package cloud.benchflow.testmanager.models;
 
 import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
+import org.mongodb.morphia.annotations.Embedded;
 
 import java.util.List;
 
@@ -8,11 +9,16 @@ import java.util.List;
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 2017-04-25
  */
+@Embedded
 public class ExplorationModel {
 
     private List<Integer> workloadUsersSpace = null;
 
-    private ExperimentSelectionStrategy experimentSelectionStrategy;
+    private ExperimentSelectionStrategy.Type experimentSelectionType;
+
+    public ExplorationModel() {
+        // empty constructor for Morphia
+    }
 
     public List<Integer> getWorkloadUsersSpace() {
         return workloadUsersSpace;
@@ -22,12 +28,11 @@ public class ExplorationModel {
         this.workloadUsersSpace = workloadUsersSpace;
     }
 
-    public ExperimentSelectionStrategy getExperimentSelectionStrategy() {
-        return experimentSelectionStrategy;
+    public ExperimentSelectionStrategy.Type getExperimentSelectionType() {
+        return experimentSelectionType;
     }
 
-    public void setExperimentSelectionStrategy(ExperimentSelectionStrategy experimentSelectionStrategy) {
-        this.experimentSelectionStrategy = experimentSelectionStrategy;
+    public void setExperimentSelectionType(ExperimentSelectionStrategy.Type experimentSelectionType) {
+        this.experimentSelectionType = experimentSelectionType;
     }
-
 }

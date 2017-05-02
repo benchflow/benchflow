@@ -123,10 +123,10 @@ public class ReadyTask implements Runnable {
 
         // TODO - read this from BenchFlowTest
 
-        ExperimentSelectionStrategy selectionStrategy = new CompleteSelectionStrategy();
+        ExperimentSelectionStrategy.Type selectionStrategyType = ExperimentSelectionStrategy.Type.COMPLETE_SELECTION;
 
         try {
-            explorationModelDAO.setExperimentSelectionStrategy(testID, selectionStrategy);
+            explorationModelDAO.setExperimentSelectionStrategy(testID, selectionStrategyType);
         } catch (BenchFlowTestIDDoesNotExistException e) {
             // should not happen since it has already been added
             logger.error("should not happen");

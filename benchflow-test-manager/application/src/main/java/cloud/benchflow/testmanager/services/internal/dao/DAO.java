@@ -3,6 +3,7 @@ package cloud.benchflow.testmanager.services.internal.dao;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestNumber;
+import cloud.benchflow.testmanager.models.ExplorationModel;
 import cloud.benchflow.testmanager.models.User;
 import com.mongodb.MongoClient;
 import org.mongodb.morphia.Datastore;
@@ -25,6 +26,7 @@ public abstract class DAO {
         morphia.map(BenchFlowTestModel.class);
         morphia.map(BenchFlowTestNumber.class);
         morphia.map(User.class);
+        morphia.map(ExplorationModel.class);
 
         // create the Datastore
         // TODO - set-up mongo DB (http://mongodb.github.io/mongo-java-driver/2.13/getting-started/quick-tour/)

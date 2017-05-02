@@ -6,6 +6,8 @@ package cloud.benchflow.testmanager.strategy.selection;
  */
 public interface ExperimentSelectionStrategy {
 
+    enum Type {COMPLETE_SELECTION}
+
     String selectNextExperiment(String testID);
 
 }

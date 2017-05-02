@@ -2,6 +2,7 @@ package cloud.benchflow.testmanager.services.internal.dao;
 
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
+import cloud.benchflow.testmanager.strategy.selection.CompleteSelectionStrategy;
 import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
 import com.mongodb.MongoClient;
 import org.mongodb.morphia.Datastore;
@@ -53,17 +54,23 @@ public class ExplorationModelDAO extends DAO {
 
         final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
 
-        return benchFlowTestModel.getExplorationModel().getExperimentSelectionStrategy();
+        switch (benchFlowTestModel.getExplorationModel().getExperimentSelectionType()) {
+            case COMPLETE_SELECTION:
+                return new CompleteSelectionStrategy();
+            default:
+                logger.info("not yet implemented");
+                return null;
+        }
 
     }
 
-    public synchronized void setExperimentSelectionStrategy(String testID, ExperimentSelectionStrategy experimentSelectionStrategy) throws BenchFlowTestIDDoesNotExistException {
+    public synchronized void setExperimentSelectionStrategy(String testID, ExperimentSelectionStrategy.Type strategyType) throws BenchFlowTestIDDoesNotExistException {
 
         logger.info("setExperimentSelectionStrategy: " + testID);
 
         final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
 
-        benchFlowTestModel.getExplorationModel().setExperimentSelectionStrategy(experimentSelectionStrategy);
+        benchFlowTestModel.getExplorationModel().setExperimentSelectionType(strategyType);
 
         datastore.save(benchFlowTestModel);
 

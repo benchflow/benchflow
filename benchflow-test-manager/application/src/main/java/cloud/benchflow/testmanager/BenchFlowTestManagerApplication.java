@@ -67,6 +67,11 @@ public class BenchFlowTestManagerApplication extends Application<BenchFlowTestMa
         return testTaskController;
     }
 
+    // used for testing to insert mock/spy object
+    public static void setExperimentManagerService(BenchFlowExperimentManagerService experimentManagerService) {
+        BenchFlowTestManagerApplication.experimentManagerService = experimentManagerService;
+    }
+
     @Override
     public String getName() {
         return "benchflow-test-orchestrator";

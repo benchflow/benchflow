@@ -62,6 +62,8 @@ public class CompleteSelectionStrategyTest {
                 .getWorkloadUserSpace(testID);
 
         List<Long> experimentNumbers = new ArrayList<>();
+        // ensure that experiment is available in DB
+        experimentNumbers.add(0L);
 
         Mockito.doReturn(experimentNumbers)
                 .when(testModelDAOMock)
@@ -78,7 +80,7 @@ public class CompleteSelectionStrategyTest {
                 .when(minioMock)
                 .getTestDefinition(testID);
 
-        experimentNumbers.add(0L);
+        experimentNumbers.add(1L);
 
         experimentYaml = completeSelectionStrategy.selectNextExperiment(testID);
 

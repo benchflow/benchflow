@@ -58,8 +58,13 @@ public class CompleteSelectionStrategy implements ExperimentSelectionStrategy {
             // check which experiments have been executed
             List<Long> executedExperimentNumbers = testModelDAO.getExperimentNumbers(testID);
 
+            // expects that experiment has already been added to DB
+            int nextExperimentNumber = executedExperimentNumbers.size() - 1;
+
             // select next experiment to execute
-            Integer nextUserConfig = explorationSpace.get(executedExperimentNumbers.size());
+            Integer nextUserConfig = explorationSpace.get(nextExperimentNumber);
+
+            logger.info("selectNextExperiment: number: " + nextExperimentNumber);
 
             // generate Experiment YAML file
             return BenchFlowDSL.experimentYamlBuilderFromTestYaml(testDefinitionYamlString).numUsers(nextUserConfig).build();

@@ -47,7 +47,7 @@ public class HandleExperimentResultTask implements Runnable {
 
             ExperimentSelectionStrategy selectionStrategy = explorationModelDAO.getExperimentSelectionStrategy(testID);
 
-            if (selectionStrategy instanceof CompleteSelectionStrategy) {
+            if (selectionStrategy.getClass().equals(CompleteSelectionStrategy.class)) {
 
                 // TODO - decide next step (run another experiment or terminate)
 
