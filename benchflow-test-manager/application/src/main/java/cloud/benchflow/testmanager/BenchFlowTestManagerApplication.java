@@ -11,6 +11,7 @@ import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
+import com.mongodb.MongoClient;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
 import io.dropwizard.Application;
@@ -106,10 +107,14 @@ public class BenchFlowTestManagerApplication extends Application<BenchFlowTestMa
         // set the services used by multiple classes
         testTaskController = new BenchFlowTestTaskController(taskExecutor);
 
-        testModelDAO = new BenchFlowTestModelDAO(configuration.getMongoDBFactory().build());
-        explorationModelDAO = new ExplorationModelDAO(configuration.getMongoDBFactory().build(), testModelDAO);
-        experimentModelDAO = new BenchFlowExperimentModelDAO(configuration.getMongoDBFactory().build(), testModelDAO);
-        userDAO = new UserDAO(configuration.getMongoDBFactory().build(), testModelDAO);
+        // Typically you only create one MongoClient instance for a given MongoDB deployment (e.g. standalone, replica set, or a sharded cluster) and use it across your application.
+        // http://mongodb.github.io/mongo-java-driver/3.4/driver/getting-started/quick-start/
+        MongoClient mongoClient = configuration.getMongoDBFactory().build();
+
+        testModelDAO = new BenchFlowTestModelDAO(mongoClient);
+        explorationModelDAO = new ExplorationModelDAO(mongoClient, testModelDAO);
+        experimentModelDAO = new BenchFlowExperimentModelDAO(mongoClient, testModelDAO);
+        userDAO = new UserDAO(mongoClient, testModelDAO);
 
         minioService = configuration.getMinioServiceFactory().build();
         experimentManagerService = configuration.getBenchFlowExperimentManagerServiceFactory().build(

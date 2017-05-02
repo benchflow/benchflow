@@ -2,6 +2,8 @@ package cloud.benchflow.testmanager.configurations.factory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.ServerAddress;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Max;
@@ -46,7 +48,9 @@ public class MongoDBFactory {
      */
     public MongoClient build() {
 
-        return new MongoClient(host, port);
+        ServerAddress serverAddress = new ServerAddress(host, port);
+
+        return new MongoClient(serverAddress);
 
     }
 }

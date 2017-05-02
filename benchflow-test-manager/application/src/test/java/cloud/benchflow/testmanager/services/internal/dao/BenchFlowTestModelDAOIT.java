@@ -34,8 +34,6 @@ public class BenchFlowTestModelDAOIT extends DockerComposeIT {
     @Before
     public void setUp() throws Exception {
 
-        MongoClient mongoClient = new MongoClient(MONGO_CONTAINER.getIp(), MONGO_CONTAINER.getExternalPort());
-
         testModelDAO = new BenchFlowTestModelDAO(mongoClient);
         userDAO = new UserDAO(mongoClient, testModelDAO);
 

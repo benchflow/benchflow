@@ -2,6 +2,8 @@ package cloud.benchflow.testmanager;
 
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.ServerAddress;
 import com.palantir.docker.compose.DockerComposeRule;
 import com.palantir.docker.compose.connection.DockerMachine;
 import com.palantir.docker.compose.connection.DockerPort;
@@ -52,6 +54,8 @@ public class DockerComposeIT {
     @ClassRule
     public static DockerComposeRule dockerComposeRule = setupDockerComposeIfLocal();
 
+    protected static MongoClient mongoClient;
+
     // this seems to happen every time an IT test is executed but the variable assignment of the above variables survive
     @BeforeClass
     public static void prepareContainers() throws IOException, InterruptedException {
@@ -61,24 +65,40 @@ public class DockerComposeIT {
         // create the mongo data directory if not present
         FileUtils.forceMkdir(new File(MONGO_DATA_VOLUME_PATH));
 
-        // remove possible previous files
-        FileUtils.cleanDirectory(new File(MONGO_DATA_VOLUME_PATH));
+        System.out.println("================ CLEANING MONGO ========================");
+
+        ServerAddress serverAddress = new ServerAddress(MONGO_CONTAINER.getIp(), MONGO_CONTAINER.getExternalPort());
+
+        mongoClient = new MongoClient(serverAddress);
+
+        // make sure all data before this test is removed
+        for (String dbName : mongoClient.listDatabaseNames()) {
+            mongoClient.getDatabase(dbName).drop();
+        }
+
     }
 
     @AfterClass
     public static void cleanUpContainers() throws IOException {
 
-        FileUtils.cleanDirectory(new File(MONGO_DATA_VOLUME_PATH));
+        System.out.println("================= CLEANING UP AFTER TEST ==============");
+
+        mongoClient.close();
+        mongoClient = null;
 
     }
 
     @Before
     public void cleanMongo() throws Exception {
 
-        MongoClient mongoClient = new MongoClient(MONGO_CONTAINER.getIp(), MONGO_CONTAINER.getExternalPort());
-
-        // make sure all data from this test is removed
-        mongoClient.getDatabase(BenchFlowConstants.DB_NAME).drop();
+//        System.out.println("================ CLEANING MONGO ========================");
+//
+//        MongoClient mongoClient = new MongoClient(MONGO_CONTAINER.getIp(), MONGO_CONTAINER.getExternalPort());
+//
+//        // make sure all data before this test is removed
+//        for (String dbName : mongoClient.listDatabaseNames()) {
+//            mongoClient.getDatabase(dbName).drop();
+//        }
 
     }
 

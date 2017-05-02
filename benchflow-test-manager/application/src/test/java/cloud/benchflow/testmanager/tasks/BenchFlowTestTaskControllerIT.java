@@ -7,6 +7,7 @@ import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfigurat
 import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.helpers.TestFiles;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
+import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
@@ -91,9 +92,9 @@ public class BenchFlowTestTaskControllerIT extends DockerComposeIT {
                 .when(experimentManagerService)
                 .runBenchFlowExperiment(Matchers.anyString());
 
-        userDAO.addUser(TestConstants.TEST_USER_NAME);
+        User user = userDAO.addUser(TestConstants.TEST_USER_NAME);
 
-        String testID = testModelDAO.addTestModel(testName, TestConstants.TEST_USER);
+        String testID = testModelDAO.addTestModel(testName, user);
 
         String testDefinitionString = IOUtils.toString(TestFiles.getTestExplorationCompleteUsersInputStream(), StandardCharsets.UTF_8);
         InputStream deploymentDescriptorInputStream = TestArchives.getValidDeploymentDescriptorInputStream();
