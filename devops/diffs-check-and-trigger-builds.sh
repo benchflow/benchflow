@@ -238,6 +238,9 @@ do
 	     "benchflow-dsl")
 	     branch_name_pipeline_id=$WERCKER_BENCHFLOW_DSL_PIPELINE_ID
 	     ;;
+	     "benchflow-minio-client")
+	     branch_name_pipeline_id=$WERCKER_BENCHFLOW_MINIO_CLIENT_PIPELINE_ID
+	     ;;
 	     "benchflow-experiment-manager")
 	     branch_name_pipeline_id=$WERCKER_BENCHFLOW_EXPERIMENT_MANAGER_PIPELINE_ID
 	     ;;
