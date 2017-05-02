@@ -5,6 +5,9 @@
 box: ubuntu:16.10
 
 # TODO: work on caching for all the steps
+# TODO: version pin steps
+# TODO: fine grain select what ate the artefacts that have to pass between pipelines
+#       relying on WERCKER_OUTPUT_DIR
 
 ###########################################################
 # DRAFT
@@ -29,17 +32,251 @@ what-to-build:
 
 ###########################################################
 # DRAFT
+# BUILD PIPELINES
+###########################################################
+
+###########################################################
+# DRAFT
 # Pipeline used to build: benchflow-dsl
 ###########################################################
 build-benchflow-dsl:
   box: maven:3.3.9-jdk-8
   steps:
+    # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
     - xenoterracide/maven:
-        goals: package
+        goals: verify
         args: -f $WERCKER_SOURCE_DIR/benchflow-dsl
     - script:
-        name: Copy benchflow-dsl to WERCKER_OUTPUT_DIR
-        code: cp $WERCKER_SOURCE_DIR/benchflow-dsl/target/benchflow-dsl.jar $WERCKER_OUTPUT_DIR
+        # NOTE: we also copy devops files, because they are needed in subsequent steps
+        name: Copy benchflow-dsl and devops to WERCKER_OUTPUT_DIR
+        code: |
+          cp $WERCKER_SOURCE_DIR/benchflow-dsl/target/benchflow-dsl.jar $WERCKER_OUTPUT_DIR
+          cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR
+
+###########################################################
+# DRAFT
+# Pipeline used to build: benchflow-experiment-manager
+###########################################################
+# NOTE: We were relying on docker-compose for Integration Testing, but in Wercker
+# it is not possible to interact with the docker daemon to start containers:
+#   - See: http://devcenter.wercker.com/docs/faq/can-i-run-docker-commands, https://github.com/wercker/wercker/issues/63, http://devcenter.wercker.com/docs/faq/can-i-build-dockerfiles
+# We did some attempts in installing docker in docker and relying on it, but without success
+# Wercker relies on services instead: http://devcenter.wercker.com/docs/services#hs_cos_wrapper_name and we moved to services
+# waiting for the possibility, maybe, to use docker-compose that gives developers more control
+build-benchflow-experiment-manager:
+  box: maven:3.3.9-jdk-8
+  services:
+    - name: mongo
+      id: mongo:3.4.2
+      ports:
+        - "27017:27017"
+      volume: 
+        - "$WERCKER_SOURCE_DIR/benchflow-experiment-manager/src/test/resources/docker-compose/mongo-data:/data/db:rw"
+      env:
+        MONGO_DATA_VOLUME_PATH: $WERCKER_SOURCE_DIR/benchflow-experiment-manager/src/test/resources/docker-compose/mongo-data
+    - name: minio
+      id: minio/minio:RELEASE.2017-02-16T01-47-30Z
+      ports:
+        - "9000:9000"
+      cmd: server /export
+      env:
+        MINIO_TAG: RELEASE.2017-02-16T01-47-30Z
+        MINIO_ACCESS_KEY: minio
+        MINIO_SECRET_KEY: minio123
+  steps:
+    # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
+    - xenoterracide/maven:
+        goals: verify
+        args: -f $WERCKER_SOURCE_DIR/benchflow-experiment-manager
+    - script:
+        # NOTE: we also copy devops files, because they are needed in subsequent steps
+        # NOTE: we also need docker-images (from the root for compatibility of paths) here for the subsequent steps
+        name: Copy benchflow-experiment-manager, devops, and base-images-layers to WERCKER_OUTPUT_DIR
+        code: |
+          mkdir -p $WERCKER_OUTPUT_DIR/benchflow-experiment-manager/target
+          cp $WERCKER_SOURCE_DIR/benchflow-experiment-manager/target/benchflow-experiment-manager.jar $WERCKER_OUTPUT_DIR/benchflow-experiment-manager/target/
+          cp $WERCKER_SOURCE_DIR/benchflow-experiment-manager/configuration.yml $WERCKER_OUTPUT_DIR/benchflow-experiment-manager
+          cp $WERCKER_SOURCE_DIR/benchflow-experiment-manager/build-image.sh $WERCKER_OUTPUT_DIR/benchflow-experiment-manager
+          mkdir -p $WERCKER_OUTPUT_DIR/benchflow-experiment-manager/services/
+          cp -Rf $WERCKER_SOURCE_DIR/benchflow-experiment-manager/services/* $WERCKER_OUTPUT_DIR/benchflow-experiment-manager/services/
+          cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR
+          cp -a $WERCKER_SOURCE_DIR/docker-images $WERCKER_OUTPUT_DIR
+
+###########################################################
+# DRAFT
+# Pipeline used to build: benchflow-test-manager
+###########################################################
+# NOTE: We were relying on docker-compose for Integration Testing, but in Wercker
+# it is not possible to interact with the docker daemon to start containers:
+#   - See: http://devcenter.wercker.com/docs/faq/can-i-run-docker-commands, https://github.com/wercker/wercker/issues/63, http://devcenter.wercker.com/docs/faq/can-i-build-dockerfiles
+# We did some attempts in installing docker in docker and relying on it, but without success
+# Wercker relies on services instead: http://devcenter.wercker.com/docs/services#hs_cos_wrapper_name and we moved to services
+# waiting for the possibility, maybe, to use docker-compose that gives developers more control
+build-benchflow-test-manager:
+  box: maven:3.3.9-jdk-8
+  services:
+    - name: mongo
+      id: mongo:3.4.2
+      ports:
+        - "27017:27017"
+      volume: 
+        - "$WERCKER_SOURCE_DIR/benchflow-test-manager/src/test/resources/docker-compose/mongo-data:/data/db:rw"
+      env:
+        MONGO_DATA_VOLUME_PATH: $WERCKER_SOURCE_DIR/benchflow-test-manager/src/test/resources/docker-compose/mongo-data
+    - name: minio
+      id: minio/minio:RELEASE.2017-02-16T01-47-30Z
+      ports:
+        - "9000:9000"
+      cmd: server /export
+      env:
+        MINIO_TAG: RELEASE.2017-02-16T01-47-30Z
+        MINIO_ACCESS_KEY: minio
+        MINIO_SECRET_KEY: minio123
+  steps:
+    # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
+    - xenoterracide/maven:
+        goals: verify
+        args: -f $WERCKER_SOURCE_DIR/benchflow-test-manager
+    - script:
+        # NOTE: we also copy devops files, because they are needed in subsequent steps
+        # NOTE: we also need docker-images (from the root for compatibility of paths) here for the subsequent steps
+        name: Copy benchflow-test-manager, devops, and base-images-layers to WERCKER_OUTPUT_DIR
+        code: |
+          mkdir -p $WERCKER_OUTPUT_DIR/benchflow-test-manager/target
+          cp $WERCKER_SOURCE_DIR/benchflow-test-manager/target/benchflow-test-manager.jar $WERCKER_OUTPUT_DIR/benchflow-test-manager/target/
+          cp $WERCKER_SOURCE_DIR/benchflow-test-manager/configuration.yml $WERCKER_OUTPUT_DIR/benchflow-test-manager
+          cp $WERCKER_SOURCE_DIR/benchflow-test-manager/build-image.sh $WERCKER_OUTPUT_DIR/benchflow-test-manager
+          mkdir -p $WERCKER_OUTPUT_DIR/benchflow-test-manager/services/
+          cp -Rf $WERCKER_SOURCE_DIR/benchflow-test-manager/services/* $WERCKER_OUTPUT_DIR/benchflow-test-manager/services/
+          cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR
+          cp -a $WERCKER_SOURCE_DIR/docker-images $WERCKER_OUTPUT_DIR
+
+###########################################################
+# DRAFT
+# Pipeline used to build: benchflow-driver-maker
+###########################################################
+# build-benchflow-driver-maker:
+#   box: maven:3.3.9-jdk-8
+#   steps:
+#     # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
+#     - xenoterracide/maven:
+#         goals: verify
+#         args: -f $WERCKER_SOURCE_DIR/benchflow-driver-maker
+#     - script:
+#         # NOTE: we also copy devops files, because they are needed in subsequent steps
+#         # NOTE: we also need docker-images/base-images-later here for the subsequent steps
+#         name: Copy benchflow-experiment-manager, devops, and base-images-layers to WERCKER_OUTPUT_DIR
+#         code: |
+#           cp $WERCKER_SOURCE_DIR/benchflow-driver-maker/target/benchflow-driver-maker.jar $WERCKER_OUTPUT_DIR
+#           cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR
+#           cp -a $WERCKER_SOURCE_DIR/docker-images/base-images-layers $WERCKER_OUTPUT_DIR
+
+###########################################################
+# DRAFT
+# Pipeline used to build for testing the layer: docker-images/base-images-layers/*
+# See: docker-images/base-images-layers/chaperone/README.md
+###########################################################
+# Last Version on: https://github.com/garywiz/chaperone-docker
+# 1.0.16-U14
+# Current Custom Version on: https://github.com/garywiz/chaperone-docker
+# 1.0.17-U14
+# Base Images Versioning:
+  # Current Version: 0.1.0 (see: docker-images/base-images/chaperone/setup/version.inc)
+  # Now we version code in folders reporting the version number, and we always update version 0.1.0
+  # paying attention that it does not influence the behavior of dependent images. Since we do that
+  # for now we really use just the root folder.
+  # ATTENTION: When editing base images, we always have to work in a feature branch and we have to
+  #            be sure the layers build before merging into devel, to which other services are referencing
+  #            for the code to be used when building the layers they need
+# NOTE: Base images have version defined manually and dictated by the version set to chaperone,
+#       because currently no matter what we update we start the build from the chaperone images
+#       by updating the version in docker-images/base-images/chaperone/setup/version.inc, that 
+#       triggers a rebuild of the image, so that we can reference to the new version in dependent images
+#       given that now they are always build in a pipelines starting with build-base-images-chaperone-binaries
+# ADDITIONAL PERSONAL NOTE: They have to happen in folders, so we can actually control updates (or not, if we care
+# fully check that before going into devel, things correclty build)
+# TODO: Monitor https://github.com/garywiz/chaperone-docker/issues/5
+# DECIDE: If migrate to the following image at some point: https://github.com/phusion/baseimage-docker
+build-test-base-images-chaperone:
+  # See: https://github.com/wercker/wercker/issues/262
+  box: 
+    id: alpine:3.5
+    cmd: /bin/sh
+  steps:
+    - script:
+        name: Build the Chaperone Binaries and Install Chaperone and dependencies
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Build the Chaperone binaries and Chaperone Image
+          source $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-combined-layers/build-chaperone-binaries-and-image.sh
+
+# FOR: the following pipelines
+# Starting with test-build-, instead of build-, because it is chained in a workflow with 
+# build-base-images-chaperone and CI scripts search for pipelines starting with build-
+# when it is time to build something, so we use build- only if it is the first pipeline in a workflow
+# We do this to simplify the build scripts, even though we reduce flexibility, for now
+
+test-build-base-images-base:
+  # See: https://github.com/wercker/wercker/issues/262
+  box: 
+    id: alpine:3.5
+    cmd: /bin/sh
+  steps:
+    - script:
+        name: Build Base Image Layer - Base
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Build the Chaperone binaries and Chaperone Image and Base Layer
+          source $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-combined-layers/build-chaperone-binaries-and-image-and-base-layer.sh
+
+test-build-base-images-base-dns:
+  # See: https://github.com/wercker/wercker/issues/262
+  box: 
+    id: alpine:3.5
+    cmd: /bin/sh
+  steps:
+    - script:
+        name: Build Base Image Layer - Base DNS
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Build the Chaperone binaries and Chaperone Image and Base + DNS Layers
+          source $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-combined-layers/build-chaperone-binaries-and-image-and-base-dns-layers.sh
+
+test-build-base-images-base-envconsul:
+  # See: https://github.com/wercker/wercker/issues/262
+  box: 
+    id: alpine:3.5
+    cmd: /bin/sh
+  steps:
+    - script:
+        name: Build Base Image Layer - Base Envconsul
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Build the Chaperone binaries and Chaperone Image and Base + DNS Layers
+          source $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-combined-layers/build-chaperone-binaries-and-image-and-base-envconsul-layers.sh
+
+test-build-base-images-base-java8:
+  # See: https://github.com/wercker/wercker/issues/262
+  box: 
+    id: alpine:3.5
+    cmd: /bin/sh
+  steps:
+    - script:
+        name: Build Base Image Layer - Base Java8
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Build the Chaperone binaries and Chaperone Image and Base + DNS Layers
+          source $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-combined-layers/build-chaperone-binaries-and-image-and-base-java8-layers.sh
+
+###########################################################
+# DRAFT
+# DEPLOY PIPELINES
+###########################################################
 
 ###########################################################
 # DRAFT
@@ -50,10 +287,269 @@ deploy-benchflow-dsl:
      # TODO: # this is going to be moved and handled by a requirements file in devops / base-images for building (fast approach for the first iterations, improved over time)
     - install-packages:
         packages: jq curl
+    # - script:
+    #     name: Deliver benchflow-dsl on Bintray
+    #     cwd: ./devops
+    #     code: |
+    #       # Deliver branch and commit specific artifacts on Bintray
+    #       export ARTIFACT_NAME=benchflow-dsl
+    #       ./deliver-on-bintray.sh
+    - script:
+        name: Generate Custom Deployment Tag
+        cwd: ./devops
+        code: ./generate-commit-specific-tag.sh
     - script:
         name: Deliver benchflow-dsl on Bintray
-        cwd: ./devops
         code: |
+          set -xv
           # Deliver branch and commit specific artifacts on Bintray
           export ARTIFACT_NAME=benchflow-dsl
-          ./deliver-on-bintray.sh
+          # Generate the tag used to deploy commit specific version
+          CUSTOM_VERSION_TAG=${WERCKER_GIT_BRANCH}"_"${WERCKER_GIT_COMMIT:0:6}
+
+          # Creates the version (nothing happens if already exists)
+          echo "Creating version for commit..."
+          curl -v -u$BINTRAY_ADMIN_USERNAME:$BINTRAY_API_KEY -H "Content-Type: application/json" -d '{"name": "'"$WERCKER_GIT_BRANCH_$CUSTOM_VERSION_TAG"'", "desc": "'"$WERCKER_GIT_BRANCH_$CUSTOM_VERSION_TAG"'"}' "https://api.bintray.com/packages/$BINTRAY_USERNAME/$BINTRAY_USERNAME-maven/$ARTIFACT_NAME/versions" | jq .
+          echo ""
+          echo "Creating version for branch..."
+          curl -v -u$BINTRAY_ADMIN_USERNAME:$BINTRAY_API_KEY -H "Content-Type: application/json" -d '{"name": "'"$WERCKER_GIT_BRANCH"'", "desc": "'"$WERCKER_GIT_BRANCH"'"}' "https://api.bintray.com/packages/$BINTRAY_USERNAME/$BINTRAY_USERNAME-maven/$ARTIFACT_NAME/versions" | jq .
+          echo ""
+          
+          # Check if the expected file exists
+          if [ ! -f $WERCKER_SOURCE_DIR/$ARTIFACT_NAME.jar ]; then
+              echo "File not found: $WERCKER_SOURCE_DIR/$ARTIFACT_NAME.jar"
+              exit 1
+          fi
+
+          #NOTE: The output of the previous pipeline is in the source of the next pipeline
+          echo "Uploading artefact for commit..."
+          curl -v -T $WERCKER_SOURCE_DIR/$ARTIFACT_NAME.jar -u$BINTRAY_ADMIN_USERNAME:$BINTRAY_API_KEY "https://api.bintray.com/content/$BINTRAY_USERNAME/$BINTRAY_USERNAME-maven/$ARTIFACT_NAME/$WERCKER_GIT_BRANCH_$CUSTOM_VERSION_TAG/$ARTIFACT_NAME_$WERCKER_GIT_BRANCH_$CUSTOM_VERSION_TAG.jar?publish=1&override=1" | jq .
+          echo ""
+          echo "Uploading artefact for branch..."
+          curl -v -T $WERCKER_SOURCE_DIR/$ARTIFACT_NAME.jar -u$BINTRAY_ADMIN_USERNAME:$BINTRAY_API_KEY "https://api.bintray.com/content/$BINTRAY_USERNAME/$BINTRAY_USERNAME-maven/$ARTIFACT_NAME/$WERCKER_GIT_BRANCH/$ARTIFACT_NAME_$WERCKER_GIT_BRANCH.jar?publish=1&override=1" | jq .
+
+###########################################################
+# DRAFT
+# PACKAGE DOCKER IMAGES AND DEPLOY PIPELINES
+###########################################################
+
+###########################################################
+# DRAFT
+# Pipeline used to package the Docker Image and deploy on the Docker Hub: benchflow-experiment-manager
+###########################################################
+deploy-benchflow-experiment-manager:
+  # See: https://github.com/wercker/wercker/issues/262
+  box: 
+    id: alpine:3.5
+    cmd: /bin/sh
+    # env:
+    #   DOCKER_IMAGE_CUSTOM_TAG: ${WERCKER_GIT_BRANCH}_${WERCKER_GIT_COMMIT}
+  steps:
+    - script:
+        name: Build Base Layers
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Build needed base layers
+          source $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-combined-layers/build-chaperone-binaries-and-image-and-base-dns-envconsul-java8-layers.sh
+    - script:
+        name: Build and Configure BenchFlow Experiment Manager Image
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Add the BenchFlow Experiment Manager Service and Configure it
+          cd $WERCKER_SOURCE_DIR/benchflow-experiment-manager
+          source build-image.sh
+    # TODO: understand how to make it work (the variable is not set in the docker-push steps)
+    # - script:
+    #     name: Generate Custom Deployment Tag
+    #     code: source $WERCKER_SOURCE_DIR/devops/generate-commit-specific-tag.sh
+    - script:
+        name: Cleanup the Image and set Custom Tag
+        code: |
+          source $WERCKER_SOURCE_DIR/devops/cleanup-wercker-build.sh
+    # push container as-is
+    - internal/docker-push:
+        author: Vincenzo FERME <info@vincenzoferme.it>
+        disable-sync: false
+        repository: benchflow/experiment-manager
+        email: $DOCKER_HUB_EMAIL
+        username: $DOCKER_HUB_USERNAME
+        password: $DOCKER_HUB_PASSWORD
+        # NOTE: first we push the commit specific image, then the image for the branch
+        # NOTE: Here we are supposed to use the tag obtained from "Generate Custom Deployment Tag"
+        # BUT there are many issues with it because alpine does not make variables available at this step
+        # as discussed: http://devcenter.wercker.com/docs/faq/alpine-faq, https://github.com/wercker/wercker/issues/226
+        # ALTERNATIVE: switch to ubuntu, or wait for a fix
+        # NOW: We just use the WERCKER_GIT_COMMIT that is made available from the beginning
+        tag: ${WERCKER_GIT_COMMIT},${WERCKER_GIT_BRANCH}
+        ports: "8080"
+        # _CHAP_OPTIONS - Used instead entrypoint args so that any default can be overridden by CMD
+        # Separating by , it is not working, and also placing variables in "" (http://devcenter.wercker.com/docs/steps/internal-steps#docker-push)
+        # the only approach that work is the following one
+        env: _CHAP_OPTIONS='--config apps/chaperone.d --default-home / --user runapps' ENVCONSUL_CONFIG=/envconsul
+        entrypoint: "/usr/local/bin/chaperone"
+
+# TODO: evaluate where to place the following, if needed
+# test_container_local:
+#   docker run -d -p $(DB_PORT):3306 --name $(DBNAME) -e "MYSQL_ALLOW_EMPTY_PASSWORD=yes" -e "MYSQL_USER=root" $(DBNAME):latest
+#   docker run -ti --rm \
+#   -e "ENVCONSUL_CONSUL=$(ENVCONSUL_CONSUL)" \
+#   -e "FABAN_ADDRESS=$(FABAN_ADDRESS)" \
+#   -e "DRIVERS_MAKER_ADDRESS=$(DRIVERS_MAKER_ADDRESS)" \
+#   -e "DB_USER=$(DB_USER)" -e "DB_PASSWORD=$(DB_PASSWORD)" -e "DB_HOST=$(DBNAME):(DB_PORT)" \
+#   -e "DB_PORT=$(DB_PORT)" -e "DB_NAME=$(DB_NAME)" \
+#   -e "MINIO_ADDRESS=$(MINIO_ADDRESS)" \
+#   -p 8080:8080 --link=$(DBNAME) --name $(REPONAME) $(DOCKERIMAGENAME):$(VERSION)
+
+
+###########################################################
+# DRAFT
+# Pipeline used to package the Docker Image and deploy on the Docker Hub: benchflow-test-manager
+###########################################################
+deploy-benchflow-test-manager:
+  # See: https://github.com/wercker/wercker/issues/262
+  box: 
+    id: alpine:3.5
+    cmd: /bin/sh
+    # env:
+    #   DOCKER_IMAGE_CUSTOM_TAG: ${WERCKER_GIT_BRANCH}_${WERCKER_GIT_COMMIT}
+  steps:
+    - script:
+        name: Build Base Layers
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Build needed base layers
+          source $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-combined-layers/build-chaperone-binaries-and-image-and-base-dns-envconsul-java8-layers.sh
+    - script:
+        name: Build and Configure BenchFlow Test Manager Image
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Add the BenchFlow Test Manager Service and Configure it
+          cd $WERCKER_SOURCE_DIR/benchflow-test-manager
+          source build-image.sh
+    # TODO: understand how to make it work (the variable is not set in the docker-push steps)
+    # - script:
+    #     name: Generate Custom Deployment Tag
+    #     code: source $WERCKER_SOURCE_DIR/devops/generate-commit-specific-tag.sh
+    - script:
+        name: Cleanup the Image and set Custom Tag
+        code: |
+          source $WERCKER_SOURCE_DIR/devops/cleanup-wercker-build.sh
+    # push container as-is
+    - internal/docker-push:
+        author: Vincenzo FERME <info@vincenzoferme.it>
+        disable-sync: false
+        repository: benchflow/test-manager
+        email: $DOCKER_HUB_EMAIL
+        username: $DOCKER_HUB_USERNAME
+        password: $DOCKER_HUB_PASSWORD
+        # NOTE: first we push the commit specific image, then the image for the branch
+        # NOTE: Here we are supposed to use the tag obtained from "Generate Custom Deployment Tag"
+        # BUT there are many issues with it because alpine does not make variables available at this step
+        # as discussed: http://devcenter.wercker.com/docs/faq/alpine-faq, https://github.com/wercker/wercker/issues/226
+        # ALTERNATIVE: switch to ubuntu, or wait for a fix
+        # NOW: We just use the WERCKER_GIT_COMMIT that is made available from the beginning
+        tag: ${WERCKER_GIT_COMMIT},${WERCKER_GIT_BRANCH}
+        ports: "8080"
+        # _CHAP_OPTIONS - Used instead entrypoint args so that any default can be overridden by CMD
+        # Separating by , it is not working, and also placing variables in "" (http://devcenter.wercker.com/docs/steps/internal-steps#docker-push)
+        # the only approach that work is the following one
+        env: _CHAP_OPTIONS='--config apps/chaperone.d --default-home / --user runapps' ENVCONSUL_CONFIG=/envconsul
+        entrypoint: "/usr/local/bin/chaperone"
+
+
+# test_container_local:
+#   docker run -d -p $(DB_PORT):3306 --username $(DBNAME) -e "MYSQL_ALLOW_EMPTY_PASSWORD=yes" -e "MYSQL_USER=root" $(DBNAME):latest
+#   docker run -ti --rm \
+#   -e "ENVCONSUL_CONSUL=$(ENVCONSUL_CONSUL)" \
+#   -e "FABAN_ADDRESS=$(FABAN_ADDRESS)" \
+#   -e "DRIVERS_MAKER_ADDRESS=$(DRIVERS_MAKER_ADDRESS)" \
+#   -e "DB_USER=$(DB_USER)" -e "DB_PASSWORD=$(DB_PASSWORD)" -e "DB_HOST=$(DBNAME):(DB_PORT)" \
+#   -e "DB_PORT=$(DB_PORT)" -e "DB_NAME=$(DB_NAME)" \
+#   -e "MINIO_ADDRESS=$(MINIO_ADDRESS)" \
+#   -p 8080:8080 --link=$(DBNAME) --username $(REPONAME) $(DOCKERIMAGENAME):$(VERSION)
+
+
+###########################################################
+# ATTEMPS
+# Attemps of building base images, here for future reference when we can iterate to improve the building process
+###########################################################
+# build-base-images-chaperone-binaries:
+    # TODO: for now it is comment out because it somehow causes error in step
+    # Configure container of package-and-deploy-base-images-chaperone
+    # Then anyway we have to fine grain control what has to pass to the next pipelines,
+    # according to how they are piped, because they need code to build
+    # # This speeds up the build, because we just copy what we need
+    # - script:
+    #     name: Copy the Binaries to the WERCKER_OUTPUT_DIR
+    #     cwd: $WERCKER_SOURCE_DIR/docker-images/base-images/chaperone/setup/lib
+    #     code: cp setproctitle-install.tar.gz $WERCKER_OUTPUT_DIR
+
+###########################################################
+# DRAFT
+# BUILD AND DEPLOY PIPELINES
+###########################################################
+
+###########################################################
+# DRAFT
+# Pipeline used to build and deploy on Docker Hub: docker-images/base-images/chaperone
+# See: docker-images/base-images/chaperone/README.md
+###########################################################
+
+# package-and-deploy-base-images-chaperone:
+#   # See: https://github.com/wercker/wercker/issues/262
+#   box: 
+#     id: alpine:3.5
+#     cmd: /bin/sh
+#   steps:
+#     # See: https://github.com/ytet5uy4/step-apk-add
+#     - ytet5uy4/apk-add@0.1.2:
+#         name: Install chaperone and dependencies
+#         update: "true"
+#         cache: "true"
+#         packages: musl python3 bash sudo
+#     - script:
+#         name: Configure container
+#         cwd: $WERCKER_SOURCE_DIR/docker-images/base-images/chaperone/setup
+#         code: |
+#           # Binaries folder ($WERCKER_OUTPUT_DIR)
+#           export BINARIES_FOLDER=$WERCKER_SOURCE_DIR/docker-images/base-images/chaperone/setup/lib
+#           source install.sh
+#     - script:
+#         name: Cleanup the Image
+#         cwd: ./devops
+#         code: ./cleanup-wercker-build.sh
+    # - script:
+    #     name: Manually Set the Image Tag
+    #     code: export CUSTOM_VERSION_TAG=chaperone_0.1.0
+    # push container as-is
+    # - internal/docker-push:
+    #     author: Vincenzo FERME <info@vincenzoferme.it>
+    #     disable-sync: false
+    #     repository: benchflow/base-images
+    #     email: $DOCKER_HUB_EMAIL
+    #     username: $DOCKER_HUB_USERNAME
+    #     password: $DOCKER_HUB_PASSWORD
+    #     # TODO: understand how to let the previous commented step work
+    #     tag: chaperone_0.1.0
+    #     # _CHAP_OPTIONS - Used instead entrypoint args so that any default can be overridden by CMD
+    #     env: "_CHAP_OPTIONS='--config apps/chaperone.d --default-home / --user runapps'"
+    #     entrypoint: "/usr/local/bin/chaperone"
+    # - script:
+    #     name: Add a file to WERCKER_OUTPUT_DIR, to speed up the not needed store step
+    #     code: touch $WERCKER_OUTPUT_DIR/.skip
+
+# NOTE: it merges the code to build chaperone image, because of:
+# https://github.com/garywiz/chaperone-docker/issues/5 AND
+# building the image by ourself (see package-and-deploy-base-images-chaperone) 
+# also does not solve the issue unless we change the settings of the same, 
+# that we would avoid for now
+# NOTE: Since for now we have to add chaperone every time, the builds are started in
+#       parallel after the build of the chaperone binaries that control the build and version
+# TODO: Monitor https://github.com/garywiz/chaperone-docker/issues/5
+# Starting with package-, instead of build-, because it is chained in a workflow with 
+# build-base-images-chaperone-binaries and CI scripts search for pipelines starting with build-
+# when it is time to build something, so we use build- only if it is the first pipeline in a workflow

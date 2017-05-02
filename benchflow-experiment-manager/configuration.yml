@@ -85,6 +85,12 @@ testManager:
 
 # TODO - @VF shall we remove this or keep for future?
 # currently not used, instead default with poolSize == 1
-taskExecutor:
+experimentTaskExecutor:
+  minThreads: 5
+  maxThreads: 15
+
+# TODO - @VF shall we remove this or keep for future?
+# currently not used, instead default with poolSize == 1
+trialTaskExecutor:
   minThreads: 5
   maxThreads: 15

@@ -1,0 +1,30 @@
+stats:
+  image: benchflow/collectors:stats_dev
+  #Needed for chaperone, because we start the collector using pid="host"
+  command: --force
+  #The next two settings are needed when the collector is monitoring a container
+  #using
+  network_mode: host
+  pid: host
+  environment:
+  - BENCHFLOW_DATA_NAME=stats
+
+  - KAFKA_TOPIC=stats
+
+  - MINIO_HOST=http://${BENCHFLOW_ENV_MINIO_IP}
+  - MINIO_PORT=${BENCHFLOW_ENV_MINIO_PORT}
+  - MINIO_ACCESSKEYID=${BENCHFLOW_ENV_MINIO_ACCESS_KEY}
+  - MINIO_SECRETACCESSKEY=${BENCHFLOW_ENV_MINIO_SECRET_KEY}
+
+  - CONTAINERS=${BENCHFLOW_BENCHMARK_BOUNDSERVICE_CONTAINER_NAME}
+
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+  expose:
+    - 8090
+  ports:
+    - '8090:8090'
+
+endpoints:
+  start: /start
+  stop: /stop

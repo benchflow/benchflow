@@ -73,7 +73,7 @@ public class MinioService {
 
     public void saveExperimentDefinition(String experimentID, InputStream definitionInputStream) {
 
-        logger.info("getExperimentDefinition: " + experimentID);
+        logger.info("saveExperimentDefinition: " + experimentID);
 
         String objectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + PT_PE_DEFINITION_FILE_NAME;
 
@@ -89,13 +89,13 @@ public class MinioService {
         return getInputStreamObject(objectName);
     }
 
-    public void copyExperimentDefintionForDriversMaker(String experimentID, long experimentNumber, InputStream definitionInputStream) {
+    public void copyExperimentDefintionForDriversMaker(String driversMakerExperimentID, long experimentNumber, InputStream definitionInputStream) {
 
         // TODO - change/remove this method when DriversMaker changes
 
-        logger.info("copyExperimentDefintionForDriversMaker: " + experimentID + MODEL_ID_DELIMITER + experimentNumber);
+        logger.info("copyExperimentDefintionForDriversMaker: " + driversMakerExperimentID + MODEL_ID_DELIMITER + experimentNumber);
 
-        String objectName = minioCompatibleID(experimentID);
+        String objectName = minioCompatibleID(driversMakerExperimentID);
 
         try {
 
@@ -107,6 +107,15 @@ public class MinioService {
         }
 
 
+    }
+
+    public void saveExperimentDeploymentDescriptor(String experimentID, InputStream definitionInputStream) {
+
+        logger.info("saveExperimentDeploymentDescriptor: " + experimentID);
+
+        String objectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+
+        putInputStreamObject(definitionInputStream, objectName);
     }
 
     public InputStream getExperimentDeploymentDescriptor(String experimentID) {
@@ -138,6 +147,15 @@ public class MinioService {
             logger.error(e.getMessage());
         }
 
+    }
+
+    public void saveExperimentBPMNModel(String experimentID, String modelName, InputStream definitionInputStream) {
+
+        logger.info("saveExperimentBPMNModel: " + experimentID);
+
+        String objectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER + modelName;
+
+        putInputStreamObject(definitionInputStream, objectName);
     }
 
     public InputStream getExperimentBPMNModel(String experimentID, String modelName) {

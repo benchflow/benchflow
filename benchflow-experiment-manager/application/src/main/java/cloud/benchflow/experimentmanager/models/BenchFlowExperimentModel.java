@@ -24,6 +24,7 @@ public class BenchFlowExperimentModel {
     private Date start = new Date();
     private Date lastModified = new Date();
     private BenchFlowExperimentState state = BenchFlowExperimentState.READY;
+    private BenchFlowExperimentStatus status = BenchFlowExperimentStatus.READY;
     @Reference
     private List<TrialModel> trials = new ArrayList<>();
 
@@ -64,11 +65,21 @@ public class BenchFlowExperimentModel {
         this.state = state;
     }
 
+    public BenchFlowExperimentStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(BenchFlowExperimentStatus status) {
+        this.status = status;
+    }
+
     public void addTrial(TrialModel trialModel) {
 
         trials.add(trialModel);
 
     }
 
-    public enum BenchFlowExperimentState {READY, RUNNING, ABORTED, COMPLETED}
+    public enum BenchFlowExperimentState {READY, RUNNING, TERMINATED}
+
+    public enum BenchFlowExperimentStatus {READY, NEW_TRIAL, HANDLE_RESULT, CHECK_CRITERIA, RE_EXECUTE_TRIAL, COMPLETED, FAILURE, ABORTED, ERROR}
 }

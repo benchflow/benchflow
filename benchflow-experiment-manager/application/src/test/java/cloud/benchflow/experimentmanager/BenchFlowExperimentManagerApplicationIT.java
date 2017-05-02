@@ -47,11 +47,11 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
 
         // make sure experiment has been saved to minio
         minioService.saveExperimentDefinition(experimentID, MinioTestData.getExperimentDefinition());
+        minioService.saveExperimentDeploymentDescriptor(experimentID, MinioTestData.getDeploymentDescriptor());
+        minioService.saveExperimentBPMNModel(experimentID, MinioTestData.BPM_MODEL_11_PARALLEL_NAME, MinioTestData.get11ParallelStructuredModel());
 
         Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
 
-        // about hardcoding localhost: no way to get IP and also in the dropwizard examples they have it hardcoded
-        // https://github.com/dropwizard/dropwizard/blob/master/dropwizard-example/src/test/java/com/example/helloworld/IntegrationTest.java#L46
         Response response = client.target(String.format("http://localhost:%d", RULE.getLocalPort()))
                 .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
                 .path(BenchFlowExperimentResource.RUN_ACTION_PATH)
@@ -70,8 +70,6 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
 
         Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
 
-        // about hardcoding localhost: no way to get IP and also in the dropwizard examples they have it hardcoded
-        // https://github.com/dropwizard/dropwizard/blob/master/dropwizard-example/src/test/java/com/example/helloworld/IntegrationTest.java#L46
         Response response = client.target(String.format("http://localhost:%d", RULE.getLocalPort()))
                 .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
                 .path(BenchFlowExperimentResource.RUN_ACTION_PATH)

@@ -15,7 +15,7 @@ object BenchFlowExperimentTerminationCriteriaYamlProtocol extends DefaultYamlPro
 
   val ExperimentKey = YamlString("experiment")
 
-  private def keyString(key: YamlString) = "configuration.termination_criteria" + key.value
+  private def keyString(key: YamlString) = "configuration.termination_criteria." + key.value
 
   implicit object ExperimentOnlyTerminationCriteriaReadFormat extends YamlFormat[Try[BenchFlowExperimentTerminationCriteria]] {
     override def read(yaml: YamlValue): Try[BenchFlowExperimentTerminationCriteria] = {
