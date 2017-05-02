@@ -124,7 +124,7 @@ public class DockerComposeIT {
             System.out.println("Waiting for Minio...");
 
             //Wait for Minio
-            waitForPortAvailabilityOrFail(MONGO_CONTAINER, maxRetries, checkIntervalInMs);
+            waitForPortAvailabilityOrFail(MINIO_CONTAINER, maxRetries, checkIntervalInMs);
 
             System.out.println("Minio is available!");
         }
