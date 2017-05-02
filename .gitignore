@@ -97,3 +97,6 @@ scalastyle-output.xml
 
 # MongoDB test data
 mongo-data/
+
+# Downloaded external libraries
+external/
