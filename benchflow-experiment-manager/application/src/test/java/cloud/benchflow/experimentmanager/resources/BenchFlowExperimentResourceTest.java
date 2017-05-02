@@ -2,11 +2,9 @@ package cloud.benchflow.experimentmanager.resources;
 
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.helpers.TestConstants;
-import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
-import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
-import cloud.benchflow.faban.client.FabanClient;
+import cloud.benchflow.experimentmanager.tasks.ExperimentTaskController;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -14,7 +12,6 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import javax.ws.rs.WebApplicationException;
-import java.util.concurrent.ExecutorService;
 
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
 import static org.mockito.Mockito.mock;
@@ -32,10 +29,7 @@ public class BenchFlowExperimentResourceTest {
 
     private MinioService minioMock = mock(MinioService.class);
     private BenchFlowExperimentModelDAO experimentModelDAO = mock(BenchFlowExperimentModelDAO.class);
-    private FabanClient fabanMock = mock(FabanClient.class);
-    private DriversMakerService driversMakerMock = mock(DriversMakerService.class);
-    private ExecutorService taskExecutorService = mock(ExecutorService.class);
-    private BenchFlowTestManagerService testManagerService = mock(BenchFlowTestManagerService.class);
+    private ExperimentTaskController experimentTaskController = mock(ExperimentTaskController.class);
 
     private BenchFlowExperimentResource experimentResource;
 
@@ -47,11 +41,7 @@ public class BenchFlowExperimentResourceTest {
         experimentResource = new BenchFlowExperimentResource(
                 minioMock,
                 experimentModelDAO,
-                fabanMock,
-                driversMakerMock,
-                taskExecutorService,
-                testManagerService,
-                submitRetries
+                experimentTaskController
         );
 
     }
@@ -71,7 +61,7 @@ public class BenchFlowExperimentResourceTest {
 
         experimentResource.runBenchFlowExperiment(username, testName, testNumber, experimentNumber);
 
-        Mockito.verify(taskExecutorService, times(1)).submit(Mockito.any(Runnable.class));
+        Mockito.verify(experimentTaskController, times(1)).submitExperiment(experimentID);
         Mockito.verify(minioMock, times(1)).isValidExperimentID(experimentID);
 
     }
@@ -94,7 +84,7 @@ public class BenchFlowExperimentResourceTest {
 
         experimentResource.runBenchFlowExperiment(username, testName, testNumber, experimentNumber);
 
-        Mockito.verify(taskExecutorService, times(0)).submit(Mockito.any(Runnable.class));
+        Mockito.verify(experimentTaskController, times(0)).submitExperiment(experimentID);
         Mockito.verify(minioMock, times(1)).isValidExperimentID(experimentID);
 
     }

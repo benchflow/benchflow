@@ -5,12 +5,9 @@ import cloud.benchflow.experimentmanager.api.response.BenchFlowExperimentStateRe
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
-import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
-import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
-import cloud.benchflow.experimentmanager.tasks.RunBenchFlowExperimentTask;
-import cloud.benchflow.faban.client.FabanClient;
+import cloud.benchflow.experimentmanager.tasks.ExperimentTaskController;
 import io.swagger.annotations.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +17,6 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.concurrent.ExecutorService;
 
 /**
  * @author Simone D'Avico (simonedavico@gmail.com)
@@ -38,29 +34,12 @@ public class BenchFlowExperimentResource {
 
     private MinioService minio;
     private BenchFlowExperimentModelDAO experimentModelDAO;
-    private FabanClient faban;
-    private DriversMakerService driversMaker;
-    private BenchFlowTestManagerService testManagerService;
-    private ExecutorService taskExecutorService;
+    private ExperimentTaskController experimentTaskController;
 
-    private int submitRetries;
-
-    public BenchFlowExperimentResource(
-            MinioService minio,
-            BenchFlowExperimentModelDAO experimentModelDAO,
-            FabanClient faban,
-            DriversMakerService driversMaker,
-            ExecutorService taskExecutorService,
-            BenchFlowTestManagerService testManagerService,
-            int submitRetries
-    ) {
+    public BenchFlowExperimentResource(MinioService minio, BenchFlowExperimentModelDAO experimentModelDAO, ExperimentTaskController experimentTaskController) {
         this.minio = minio;
         this.experimentModelDAO = experimentModelDAO;
-        this.faban = faban;
-        this.driversMaker = driversMaker;
-        this.taskExecutorService = taskExecutorService;
-        this.testManagerService = testManagerService;
-        this.submitRetries = submitRetries;
+        this.experimentTaskController = experimentTaskController;
     }
 
     @POST
@@ -81,19 +60,7 @@ public class BenchFlowExperimentResource {
             throw new WebApplicationException(BenchFlowConstants.INVALID_EXPERIMENT_ID_MESSAGE, Response.Status.PRECONDITION_FAILED);
         }
 
-        RunBenchFlowExperimentTask task = new RunBenchFlowExperimentTask(
-                experimentID,
-                experimentModelDAO,
-                minio,
-                faban,
-                driversMaker,
-                testManagerService,
-                submitRetries
-        );
-
-        // TODO - should go into a stateless queue (so that we can recover)
-        // (for now) only allows one experiment at a time (poolSize == 1)
-        taskExecutorService.submit(task);
+        experimentTaskController.submitExperiment(experimentID);
 
     }
 
@@ -134,6 +101,8 @@ public class BenchFlowExperimentResource {
         logger.info("PUT /" + username + "/" + testName + "/" + testNumber + "/" + experimentNumber + ACTION_PATH);
 
         String experimentID = BenchFlowConstants.getExperimentID(username, testName, testNumber, experimentNumber);
+
+        // TODO - inform the controller about changing state (don't do it here)
 
         BenchFlowExperimentModel.BenchFlowExperimentState state = experimentModelDAO.setExperimentModelState(
                 experimentID,
