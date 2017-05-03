@@ -160,7 +160,7 @@
                     <executions>
                         <execution>
                             <id>download-${benchflow-dsl.project.name}</id>
-                            <phase>clean</phase>
+                            <phase>validate</phase>
                             <goals>
                                 <goal>wget</goal>
                             </goals>
@@ -203,7 +203,7 @@
                 <executions>
                     <execution>
                         <id>benchflow-dsl</id>
-                        <phase>post-clean</phase>
+                        <phase>initialize</phase>
                         <configuration>
                             <file>${main.basedir}/external/${benchflow-dsl-jar.project.name}_${benchflow-dsl-jar.version}.jar</file>
                             <repositoryLayout>default</repositoryLayout>
