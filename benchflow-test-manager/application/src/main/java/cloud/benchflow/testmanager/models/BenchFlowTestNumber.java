@@ -18,7 +18,7 @@ public class BenchFlowTestNumber {
     @Id
     private String testIdentifier;
 
-    private Long counter = 1L;
+    private Long counter = 0L;
 
     BenchFlowTestNumber() {
         // Empty constructor for MongoDB + Morphia

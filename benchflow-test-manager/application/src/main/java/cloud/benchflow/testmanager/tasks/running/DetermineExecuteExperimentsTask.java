@@ -37,7 +37,6 @@ public class DetermineExecuteExperimentsTask implements Runnable {
     // services
     private final MinioService minioService;
     private final BenchFlowExperimentManagerService experimentManagerService;
-    private final BenchFlowTestModelDAO testModelDAO;
     private final ExplorationModelDAO explorationModelDAO;
     private final BenchFlowExperimentModelDAO experimentModelDAO;
 
@@ -47,7 +46,6 @@ public class DetermineExecuteExperimentsTask implements Runnable {
 
         this.minioService = BenchFlowTestManagerApplication.getMinioService();
         this.experimentManagerService = BenchFlowTestManagerApplication.getExperimentManagerService();
-        this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
         this.experimentModelDAO = BenchFlowTestManagerApplication.getExperimentModelDAO();
         this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
     }
@@ -55,12 +53,9 @@ public class DetermineExecuteExperimentsTask implements Runnable {
     @Override
     public void run() {
 
-        logger.info("Determine & Experiments task running");
+        logger.info("running: " + testID);
 
         try {
-
-            // set test as running
-            testModelDAO.setTestState(testID, BenchFlowTestModel.BenchFlowTestState.RUNNING);
 
             // add new experiment model
             String experimentID = experimentModelDAO.addExperiment(testID);
@@ -86,11 +81,11 @@ public class DetermineExecuteExperimentsTask implements Runnable {
             // run PE on PEManager
             experimentManagerService.runBenchFlowExperiment(experimentID);
 
-            // we don't schedule another task since we have to wait for the experiment result
-
         } catch (BenchFlowTestIDDoesNotExistException e) {
             e.printStackTrace();
         }
+
+        logger.info("complete: " + testID);
 
     }
 }

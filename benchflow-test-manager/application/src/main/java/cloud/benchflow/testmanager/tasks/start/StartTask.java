@@ -37,8 +37,6 @@ public class StartTask implements Runnable {
     private final MinioService minioService;
     private final ExplorationModelDAO explorationModelDAO;
 
-    private final BenchFlowTestTaskController taskController;
-
 
     public StartTask(String testID, String testDefinitionYamlString, InputStream deploymentDescriptorInputStream, Map<String, InputStream> bpmnModelInputStreams) {
 
@@ -47,7 +45,6 @@ public class StartTask implements Runnable {
         this.deploymentDescriptorInputStream = deploymentDescriptorInputStream;
         this.bpmnModelInputStreams = bpmnModelInputStreams;
 
-        this.taskController = BenchFlowTestManagerApplication.getTestTaskController();
         this.minioService = BenchFlowTestManagerApplication.getMinioService();
         this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
     }
@@ -55,7 +52,7 @@ public class StartTask implements Runnable {
     @Override
     public void run() {
 
-        logger.info("preparing test with ID " + testID);
+        logger.info("running: " + testID);
 
 
         // extract contents
@@ -83,13 +80,13 @@ public class StartTask implements Runnable {
 
             setExperimentSelectionStrategy(test);
 
-            taskController.runDetermineExecuteExperimentsTask(testID);
-
         } catch (BenchFlowDeserializationException | BenchFlowTestIDDoesNotExistException e) {
             // should not happen since it has already been tested/added
             logger.error("should not happen");
             e.printStackTrace();
         }
+
+        logger.info("completed: " + testID);
 
 
     }

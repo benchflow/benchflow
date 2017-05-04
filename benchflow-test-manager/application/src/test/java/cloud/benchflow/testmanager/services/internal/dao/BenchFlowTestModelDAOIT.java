@@ -130,7 +130,7 @@ public class BenchFlowTestModelDAOIT extends DockerComposeIT {
 
         BenchFlowTestModel.BenchFlowTestState state = testModelDAO.getTestState(testID);
 
-        assertEquals(BenchFlowTestModel.BenchFlowTestState.READY, state);
+        assertEquals(BenchFlowTestModel.BenchFlowTestState.START, state);
 
         testModelDAO.setTestState(testID, TERMINATED);
 
