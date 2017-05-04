@@ -55,6 +55,24 @@ build-benchflow-dsl:
 
 ###########################################################
 # DRAFT
+# Pipeline used to build: benchflow-faban-client
+###########################################################
+build-benchflow-faban-client:
+  box: maven:3.3.9-jdk-8
+  steps:
+    # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
+    - xenoterracide/maven:
+        goals: clean post-clean process-sources test package verify
+        args: -f $WERCKER_SOURCE_DIR/benchflow-faban-client
+    - script:
+        # NOTE: we also copy devops files, because they are needed in subsequent steps
+        name: Copy benchflow-faban-client and devops to WERCKER_OUTPUT_DIR
+        code: |
+          cp $WERCKER_SOURCE_DIR/benchflow-faban-client/target/benchflow-faban-client.jar $WERCKER_OUTPUT_DIR
+          cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR
+
+###########################################################
+# DRAFT
 # Pipeline used to build: benchflow-minio-client
 ###########################################################
 build-benchflow-minio-client:
@@ -326,6 +344,28 @@ deploy-benchflow-dsl:
         code: |
           # Deliver branch and commit specific artifacts on Bintray
           export ARTIFACT_NAME=benchflow-dsl
+          ./deliver-on-bintray.sh
+
+###########################################################
+# DRAFT
+# Pipeline used to deploy on Bintray: benchflow-faban-client
+###########################################################
+deploy-benchflow-faban-client:
+  steps:
+     # TODO: # this is going to be moved and handled by a requirements file in devops / base-images for building (fast approach for the first iterations, improved over time)
+    - install-packages:
+        packages: jq curl
+    - script:
+        name: Generate the Release Tag    
+        cwd: ./devops
+        # we need source here so the exported variables in the script are actually available in the next step
+        code: source generate-commit-specific-tag.sh
+    - script:
+        name: Deliver benchflow-faban-client on Bintray
+        cwd: ./devops
+        code: |
+          # Deliver branch and commit specific artifacts on Bintray
+          export ARTIFACT_NAME=benchflow-faban-client
           ./deliver-on-bintray.sh
 
 ###########################################################
