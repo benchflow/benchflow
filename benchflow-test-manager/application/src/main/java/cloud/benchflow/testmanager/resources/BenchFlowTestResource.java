@@ -16,13 +16,9 @@ import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebExcep
 import cloud.benchflow.testmanager.exceptions.web.InvalidTestArchiveWebException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
-import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
-import cloud.benchflow.testmanager.services.external.MinioService;
-import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
-import cloud.benchflow.testmanager.tasks.RunBenchFlowTestTask;
 import io.swagger.annotations.Api;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
@@ -37,7 +33,6 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -126,7 +121,7 @@ public class BenchFlowTestResource {
             String testID = testModelDAO.addTestModel(benchFlowTest.name(), BenchFlowConstants.BENCHFLOW_USER);
 
             // submit the new test
-            testTaskController.submitTest(testID, testDefinitionString, deploymentDescriptorInputStream, bpmnModelsInputStream);
+            testTaskController.startTest(testID, testDefinitionString, deploymentDescriptorInputStream, bpmnModelsInputStream);
 
             return new RunBenchFlowTestResponse(testID);
 

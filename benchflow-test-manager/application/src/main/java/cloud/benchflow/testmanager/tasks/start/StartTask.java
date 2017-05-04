@@ -1,4 +1,4 @@
-package cloud.benchflow.testmanager.tasks.ready;
+package cloud.benchflow.testmanager.tasks.start;
 
 import cloud.benchflow.dsl.BenchFlowDSL;
 import cloud.benchflow.dsl.definition.BenchFlowTest;
@@ -7,7 +7,6 @@ import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
-import cloud.benchflow.testmanager.strategy.selection.CompleteSelectionStrategy;
 import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import org.apache.commons.io.IOUtils;
@@ -25,9 +24,9 @@ import java.util.stream.Collectors;
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 2017-04-20
  */
-public class ReadyTask implements Runnable {
+public class StartTask implements Runnable {
 
-    private static Logger logger = LoggerFactory.getLogger(ReadyTask.class.getSimpleName());
+    private static Logger logger = LoggerFactory.getLogger(StartTask.class.getSimpleName());
 
     private final String testID;
     private final String testDefinitionYamlString;
@@ -41,7 +40,7 @@ public class ReadyTask implements Runnable {
     private final BenchFlowTestTaskController taskController;
 
 
-    public ReadyTask(String testID, String testDefinitionYamlString, InputStream deploymentDescriptorInputStream, Map<String, InputStream> bpmnModelInputStreams) {
+    public StartTask(String testID, String testDefinitionYamlString, InputStream deploymentDescriptorInputStream, Map<String, InputStream> bpmnModelInputStreams) {
 
         this.testID = testID;
         this.testDefinitionYamlString = testDefinitionYamlString;

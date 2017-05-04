@@ -1,7 +1,7 @@
 package cloud.benchflow.testmanager.tasks;
 
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
-import cloud.benchflow.testmanager.tasks.ready.ReadyTask;
+import cloud.benchflow.testmanager.tasks.start.StartTask;
 import cloud.benchflow.testmanager.tasks.running.DetermineExecuteExperimentsTask;
 import cloud.benchflow.testmanager.tasks.running.HandleExperimentResultTask;
 import org.slf4j.Logger;
@@ -34,13 +34,13 @@ public class BenchFlowTestTaskController {
         return taskExecutorService;
     }
 
-    synchronized public void submitTest(String testID, String testDefinitionYamlString, InputStream deploymentDescriptorInputStream, Map<String, InputStream> bpmnModelInputStreams) {
+    synchronized public void startTest(String testID, String testDefinitionYamlString, InputStream deploymentDescriptorInputStream, Map<String, InputStream> bpmnModelInputStreams) {
 
-        logger.info("submitTest with testID: " + testID);
+        logger.info("startTest with testID: " + testID);
 
-        if (testSubmitted(testID)) return;
+        if (testStarted(testID)) return;
 
-        ReadyTask readyTask = new ReadyTask(
+        StartTask startTask = new StartTask(
                 testID,
                 testDefinitionYamlString,
                 deploymentDescriptorInputStream,
@@ -49,10 +49,10 @@ public class BenchFlowTestTaskController {
 
 
         // TODO - change to future and then decide what to do next here
-        testTasks.put(testID, readyTask);
+        testTasks.put(testID, startTask);
 
         // TODO - should go into a stateless queue (so that we can recover)
-        taskExecutorService.submit(readyTask);
+        taskExecutorService.submit(startTask);
 
     }
 
@@ -60,7 +60,7 @@ public class BenchFlowTestTaskController {
 
         logger.info("runDetermineExecuteExperimentsTask with testID: " + testID);
 
-        if (!testSubmitted(testID)) return;
+        if (!testStarted(testID)) return;
 
         DetermineExecuteExperimentsTask task = new DetermineExecuteExperimentsTask(testID);
 
@@ -78,7 +78,7 @@ public class BenchFlowTestTaskController {
 
         String testID = BenchFlowConstants.getTestIDFromExperimentID(experimentID);
 
-        if (!testSubmitted(testID)) return;
+        if (!testStarted(testID)) return;
 
         HandleExperimentResultTask task = new HandleExperimentResultTask(experimentID);
 
@@ -98,7 +98,7 @@ public class BenchFlowTestTaskController {
 
     }
 
-    private boolean testSubmitted(String testID) {
+    private boolean testStarted(String testID) {
         if (testTasks.containsKey(testID)) {
             logger.info("test already submitted");
             return true;

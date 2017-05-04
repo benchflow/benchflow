@@ -2,23 +2,20 @@ package cloud.benchflow.testmanager.strategy.selection;
 
 import cloud.benchflow.dsl.BenchFlowDSL;
 import cloud.benchflow.dsl.definition.BenchFlowTest;
-import cloud.benchflow.testmanager.archive.TestArchives;
 import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.helpers.TestFiles;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
-import cloud.benchflow.testmanager.tasks.ready.ReadyTask;
+import cloud.benchflow.testmanager.tasks.start.StartTask;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -55,7 +52,7 @@ public class CompleteSelectionStrategyTest {
 
         BenchFlowTest test = BenchFlowDSL.testFromYaml(testYaml);
 
-        List<Integer> selectionStrategy = ReadyTask.generateExplorationSpace(test);
+        List<Integer> selectionStrategy = StartTask.generateExplorationSpace(test);
 
         Mockito.doReturn(selectionStrategy)
                 .when(explorationModelDAOMock)

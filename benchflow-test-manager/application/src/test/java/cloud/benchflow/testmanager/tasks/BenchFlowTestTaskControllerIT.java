@@ -100,7 +100,7 @@ public class BenchFlowTestTaskControllerIT extends DockerComposeIT {
         InputStream deploymentDescriptorInputStream = TestArchives.getValidDeploymentDescriptorInputStream();
         Map<String, InputStream> bpmnModelsInputStream = TestArchives.getValidBPMNModels();
 
-        testTaskController.submitTest(testID, testDefinitionString, deploymentDescriptorInputStream, bpmnModelsInputStream);
+        testTaskController.startTest(testID, testDefinitionString, deploymentDescriptorInputStream, bpmnModelsInputStream);
 
         countDownLatch.await(120, TimeUnit.SECONDS);
 

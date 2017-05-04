@@ -48,8 +48,8 @@ public class BenchFlowExperimentModel {
         this.id = testID + MODEL_ID_DELIMITER + experimentNumber;
 
         this.hashedID = this.id;
-        this.state = BenchFlowExperimentState.READY;
-        this.status = BenchFlowExperimentStatus.READY;
+        this.state = BenchFlowExperimentState.START;
+        this.status = BenchFlowExperimentStatus.START;
 
     }
 
@@ -106,8 +106,8 @@ public class BenchFlowExperimentModel {
 
     }
 
-    public enum BenchFlowExperimentState {READY, RUNNING, TERMINATED}
+    public enum BenchFlowExperimentState {START, READY, RUNNING, TERMINATED}
 
-    public enum BenchFlowExperimentStatus {READY, NEW_TRIAL, HANDLE_RESULT, CHECK_CRITERIA, RE_EXECUTE_TRIAL, COMPLETED, FAILURE, ABORTED, ERROR}
+    public enum BenchFlowExperimentStatus {START, READY, NEW_TRIAL, HANDLE_RESULT, CHECK_CRITERIA, RE_EXECUTE_TRIAL, COMPLETED, FAILURE, ABORTED, ERROR}
 
 }

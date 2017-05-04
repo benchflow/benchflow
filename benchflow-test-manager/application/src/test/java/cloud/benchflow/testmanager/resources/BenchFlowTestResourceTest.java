@@ -10,9 +10,6 @@ import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebExcep
 import cloud.benchflow.testmanager.exceptions.web.InvalidTestArchiveWebException;
 import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
-import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
-import cloud.benchflow.testmanager.services.external.MinioService;
-import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
@@ -26,7 +23,6 @@ import org.mockito.Mockito;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
-import java.util.concurrent.ExecutorService;
 
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
@@ -86,7 +82,7 @@ public class BenchFlowTestResourceTest {
 
         Assert.assertTrue(response.getTestID().contains(VALID_BENCHFLOW_TEST_NAME));
 
-        verify(testTaskController, times(1)).submitTest(
+        verify(testTaskController, times(1)).startTest(
                 Mockito.matches(expectedTestID),
                 Mockito.any(String.class),
                 Mockito.any(InputStream.class),

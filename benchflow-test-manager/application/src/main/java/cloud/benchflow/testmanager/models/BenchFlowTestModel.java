@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.READY;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.START;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch)
@@ -67,7 +68,7 @@ public class BenchFlowTestModel {
         this.id = user.getUsername() + MODEL_ID_DELIMITER + benchFlowTestName + MODEL_ID_DELIMITER + benchFlowTestNumber;
         this.hashedID = this.id;
 
-        this.state = READY;
+        this.state = START;
 
     }
 
@@ -139,6 +140,6 @@ public class BenchFlowTestModel {
 
     }
 
-    public enum BenchFlowTestState {READY, WAITING, RUNNING, TERMINATED}
+    public enum BenchFlowTestState {START, READY, WAITING, RUNNING, TERMINATED}
 
 }
