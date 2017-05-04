@@ -81,24 +81,8 @@ public class DockerComposeIT {
     @AfterClass
     public static void cleanUpContainers() throws IOException {
 
-        System.out.println("================= CLEANING UP AFTER TEST ==============");
-
         mongoClient.close();
         mongoClient = null;
-
-    }
-
-    @Before
-    public void cleanMongo() throws Exception {
-
-//        System.out.println("================ CLEANING MONGO ========================");
-//
-//        MongoClient mongoClient = new MongoClient(MONGO_CONTAINER.getIp(), MONGO_CONTAINER.getExternalPort());
-//
-//        // make sure all data before this test is removed
-//        for (String dbName : mongoClient.listDatabaseNames()) {
-//            mongoClient.getDatabase(dbName).drop();
-//        }
 
     }
 
