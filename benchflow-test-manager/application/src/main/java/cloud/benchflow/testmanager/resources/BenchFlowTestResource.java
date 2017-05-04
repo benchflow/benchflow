@@ -19,6 +19,7 @@ import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
+import cloud.benchflow.testmanager.tasks.start.StartTask;
 import io.swagger.annotations.Api;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
@@ -102,20 +103,20 @@ public class BenchFlowTestResource {
 
       // validate archive
       // Get the contents of archive and check if valid Test ID
-      String testDefinitionString =
+      String testDefinitionYamlString =
           BenchFlowTestArchiveExtractor.extractBenchFlowTestDefinitionString(archiveZipInputStream);
 
-      if (testDefinitionString == null) throw new InvalidTestArchiveException();
+      if (testDefinitionYamlString == null) throw new InvalidTestArchiveException();
 
-      BenchFlowTest benchFlowTest = BenchFlowDSL.testFromYaml(testDefinitionString);
+      BenchFlowTest benchFlowTest = BenchFlowDSL.testFromYaml(testDefinitionYamlString);
 
       InputStream deploymentDescriptorInputStream =
           BenchFlowTestArchiveExtractor.extractDeploymentDescriptorInputStream(
               archiveZipInputStream);
-      Map<String, InputStream> bpmnModelsInputStream =
+      Map<String, InputStream> bpmnModelInputStreams =
           BenchFlowTestArchiveExtractor.extractBPMNModelInputStreams(archiveZipInputStream);
 
-      if (deploymentDescriptorInputStream == null || bpmnModelsInputStream.size() == 0) {
+      if (deploymentDescriptorInputStream == null || bpmnModelInputStreams.size() == 0) {
         throw new InvalidTestArchiveException();
       }
 
@@ -123,9 +124,12 @@ public class BenchFlowTestResource {
       String testID =
           testModelDAO.addTestModel(benchFlowTest.name(), BenchFlowConstants.BENCHFLOW_USER);
 
-      // submit the new test
-      testTaskController.startTest(
-          testID, testDefinitionString, deploymentDescriptorInputStream, bpmnModelsInputStream);
+      new Thread(new StartTask(
+          testID,
+          testDefinitionYamlString,
+          deploymentDescriptorInputStream,
+          bpmnModelInputStreams))
+          .start();
 
       return new RunBenchFlowTestResponse(testID);
 

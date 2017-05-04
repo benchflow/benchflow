@@ -11,6 +11,7 @@ import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
+import cloud.benchflow.testmanager.tasks.start.StartTask;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import org.apache.commons.io.IOUtils;
@@ -101,8 +102,16 @@ public class BenchFlowTestTaskControllerIT extends DockerComposeIT {
         TestArchives.getValidDeploymentDescriptorInputStream();
     Map<String, InputStream> bpmnModelsInputStream = TestArchives.getValidBPMNModels();
 
-    testTaskController.startTest(
-        testID, testDefinitionString, deploymentDescriptorInputStream, bpmnModelsInputStream);
+    Thread startTaskThread = new Thread(new StartTask(
+        testID,
+        testDefinitionString,
+        deploymentDescriptorInputStream,
+        bpmnModelsInputStream
+    ));
+
+    startTaskThread.start();
+
+    startTaskThread.join();
 
     countDownLatch.await(120, TimeUnit.SECONDS);
 

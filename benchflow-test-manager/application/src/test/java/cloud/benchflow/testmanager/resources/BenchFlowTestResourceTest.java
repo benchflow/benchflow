@@ -84,11 +84,7 @@ public class BenchFlowTestResourceTest {
     Assert.assertTrue(response.getTestID().contains(VALID_BENCHFLOW_TEST_NAME));
 
     verify(testTaskController, times(1))
-        .startTest(
-            Mockito.matches(expectedTestID),
-            Mockito.any(String.class),
-            Mockito.any(InputStream.class),
-            Mockito.anyMap());
+        .startComplete(Mockito.matches(expectedTestID));
   }
 
   @Test

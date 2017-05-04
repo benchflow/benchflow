@@ -9,13 +9,43 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16.
+ */
 public class BenchFlowTestManagerConfiguration extends Configuration {
 
   // see http://www.dropwizard.io/1.0.6/docs/manual/core.html#configuration
 
+  // Swagger Configuration
+  @Valid
+  @NotNull
+  private final SwaggerBundleConfiguration swagger = new SwaggerBundleConfiguration();
   // Jersey Client Configuration
-  @Valid @NotNull private JerseyClientConfiguration jerseyClient = new JerseyClientConfiguration();
+  @Valid
+  @NotNull
+  private JerseyClientConfiguration jerseyClient = new JerseyClientConfiguration();
+  // BenchFlow Environment Configuration
+  @Valid
+  @NotNull
+  private BenchFlowEnvironmentFactory benchFlowEnvironmentFactory =
+      new BenchFlowEnvironmentFactory();
+  // MongoDB Configuration
+  @Valid
+  @NotNull
+  private MongoDBFactory mongoDBFactory = new MongoDBFactory();
+  // BenchFlow-Experiment-Manager Service
+  @Valid
+  @NotNull
+  private ExperimentManagerServiceFactory benchFlowExperimentManagerServiceFactory =
+      new ExperimentManagerServiceFactory();
+  // Minio Service
+  @Valid
+  @NotNull
+  private MinioServiceFactory minioServiceFactory = new MinioServiceFactory();
+  // Task Executor
+  @Valid
+  @NotNull
+  private TaskExecutorFactory taskExecutorFactory = new TaskExecutorFactory();
 
   @JsonProperty("jerseyClient")
   public JerseyClientConfiguration getJerseyClientConfiguration() {
@@ -31,19 +61,10 @@ public class BenchFlowTestManagerConfiguration extends Configuration {
     this.jerseyClient = jerseyClient;
   }
 
-  // Swagger Configuration
-  @Valid @NotNull
-  private final SwaggerBundleConfiguration swagger = new SwaggerBundleConfiguration();
-
   @JsonProperty("swagger")
   public SwaggerBundleConfiguration getSwagger() {
     return swagger;
   }
-
-  // BenchFlow Environment Configuration
-  @Valid @NotNull
-  private BenchFlowEnvironmentFactory benchFlowEnvironmentFactory =
-      new BenchFlowEnvironmentFactory();
 
   @JsonProperty("benchFlowEnvironment")
   public BenchFlowEnvironmentFactory getBenchFlowEnvironmentFactory() {
@@ -56,9 +77,6 @@ public class BenchFlowTestManagerConfiguration extends Configuration {
     this.benchFlowEnvironmentFactory = benchFlowEnvironmentFactory;
   }
 
-  // MongoDB Configuration
-  @Valid @NotNull private MongoDBFactory mongoDBFactory = new MongoDBFactory();
-
   @JsonProperty("mongoDB")
   public MongoDBFactory getMongoDBFactory() {
     return mongoDBFactory;
@@ -68,11 +86,6 @@ public class BenchFlowTestManagerConfiguration extends Configuration {
   public void setMongoDBFactory(MongoDBFactory mongoDBFactory) {
     this.mongoDBFactory = mongoDBFactory;
   }
-
-  // BenchFlow-Experiment-Manager Service
-  @Valid @NotNull
-  private ExperimentManagerServiceFactory benchFlowExperimentManagerServiceFactory =
-      new ExperimentManagerServiceFactory();
 
   @JsonProperty("benchFlowExperimentManager")
   public ExperimentManagerServiceFactory getBenchFlowExperimentManagerServiceFactory() {
@@ -85,9 +98,6 @@ public class BenchFlowTestManagerConfiguration extends Configuration {
     this.benchFlowExperimentManagerServiceFactory = benchFlowExperimentManagerServiceFactory;
   }
 
-  // Minio Service
-  @Valid @NotNull private MinioServiceFactory minioServiceFactory = new MinioServiceFactory();
-
   @JsonProperty("minio")
   public MinioServiceFactory getMinioServiceFactory() {
     return minioServiceFactory;
@@ -97,9 +107,6 @@ public class BenchFlowTestManagerConfiguration extends Configuration {
   public void setMinioServiceFactory(MinioServiceFactory minioServiceFactory) {
     this.minioServiceFactory = minioServiceFactory;
   }
-
-  // Task Executor
-  @Valid @NotNull private TaskExecutorFactory taskExecutorFactory = new TaskExecutorFactory();
 
   @JsonProperty("taskExecutor")
   public TaskExecutorFactory getTaskExecutorFactory() {

@@ -37,6 +37,7 @@ public class StartTask implements Runnable {
   // services
   private final MinioService minioService;
   private final ExplorationModelDAO explorationModelDAO;
+  private final BenchFlowTestTaskController testTaskController;
 
   public StartTask(
       String testID,
@@ -51,6 +52,7 @@ public class StartTask implements Runnable {
 
     this.minioService = BenchFlowTestManagerApplication.getMinioService();
     this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
+    this.testTaskController = BenchFlowTestManagerApplication.getTestTaskController();
   }
 
   @Override
@@ -90,6 +92,9 @@ public class StartTask implements Runnable {
     }
 
     logger.info("completed: " + testID);
+
+    // submit the new test
+    testTaskController.startComplete(testID);
   }
 
   public static List<Integer> generateExplorationSpace(BenchFlowTest test) {

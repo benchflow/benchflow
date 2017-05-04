@@ -9,10 +9,13 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.ws.rs.client.Client;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17.
+ */
 public class ExperimentManagerServiceFactory {
 
-  @NotEmpty private String address;
+  @NotEmpty
+  private String address;
 
   @JsonProperty
   public String getAddress() {
@@ -25,8 +28,10 @@ public class ExperimentManagerServiceFactory {
   }
 
   /**
-   * @param environment
-   * @return
+   *
+   * @param config application configuration
+   * @param environment application environment
+   * @return BenchFlowExperimentManagerService
    */
   public BenchFlowExperimentManagerService build(
       BenchFlowTestManagerConfiguration config, Environment environment) {

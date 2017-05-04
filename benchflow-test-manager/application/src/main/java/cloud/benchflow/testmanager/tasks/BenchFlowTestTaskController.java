@@ -9,15 +9,16 @@ import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.strategy.selection.CompleteSelectionStrategy;
 import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
 import cloud.benchflow.testmanager.tasks.running.DetermineExecuteExperimentsTask;
-import cloud.benchflow.testmanager.tasks.start.StartTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20
+ */
 public class BenchFlowTestTaskController {
 
   private static Logger logger =
@@ -40,35 +41,20 @@ public class BenchFlowTestTaskController {
     return taskExecutorService;
   }
 
-  public synchronized void startTest(
-      String testID,
-      String testDefinitionYamlString,
-      InputStream deploymentDescriptorInputStream,
-      Map<String, InputStream> bpmnModelInputStreams) {
+  /**
+   *
+   * @param testID
+   */
+  public synchronized void startComplete(String testID) {
 
-    logger.info("startTest with testID: " + testID);
+    logger.info("startComplete with testID: " + testID);
 
     if (testTasks.containsKey(testID)) {
       logger.info("test already started");
       return;
     }
 
-    StartTask startTask =
-        new StartTask(
-            testID,
-            testDefinitionYamlString,
-            deploymentDescriptorInputStream,
-            bpmnModelInputStreams);
-
-    testTasks.put(testID, startTask);
-
-    // TODO - should go into a stateless queue (so that we can recover)
-    Future<?> future = taskExecutorService.submit(startTask);
-
     try {
-
-      // wait for start task to complete
-      future.get();
 
       // change state to ready
       testModelDAO.setTestState(testID, BenchFlowTestModel.BenchFlowTestState.READY);
@@ -76,9 +62,7 @@ public class BenchFlowTestTaskController {
       // move to next state
       runDetermineExecuteExperimentsTask(testID);
 
-    } catch (InterruptedException | ExecutionException e) {
-      // TODO - decide what to do in this case
-      e.printStackTrace();
+
     } catch (BenchFlowTestIDDoesNotExistException e) {
       // should not happen since already checked before
       logger.error("test could not be found");
@@ -88,11 +72,6 @@ public class BenchFlowTestTaskController {
   private synchronized void runDetermineExecuteExperimentsTask(String testID) {
 
     logger.info("runDetermineExecuteExperimentsTask with testID: " + testID);
-
-    if (!testTasks.containsKey(testID)) {
-      logger.info("test not started");
-      return;
-    }
 
     DetermineExecuteExperimentsTask task = new DetermineExecuteExperimentsTask(testID);
 

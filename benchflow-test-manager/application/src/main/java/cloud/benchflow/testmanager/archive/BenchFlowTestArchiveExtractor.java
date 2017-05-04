@@ -48,9 +48,10 @@ public class BenchFlowTestArchiveExtractor {
   }
 
   /**
-   *
    * @param benchFlowTestArchive test bundle zip
+   *
    * @return test definition InputStream
+   *
    * @throws IOException if test definition cannot be found
    */
   public static InputStream extractBenchFlowTestDefinitionInputStream(
@@ -62,9 +63,10 @@ public class BenchFlowTestArchiveExtractor {
   }
 
   /**
-   *
    * @param benchFlowTestArchive test bundle zip
+   *
    * @return deployment descriptor InputStream
+   *
    * @throws IOException if deployment descriptor cannot be found
    */
   public static InputStream extractDeploymentDescriptorInputStream(
@@ -76,9 +78,10 @@ public class BenchFlowTestArchiveExtractor {
   }
 
   /**
-   *
    * @param benchFlowTestArchive test bundle zip
+   *
    * @return deployment descriptor String
+   *
    * @throws IOException if deployment descriptor cannot be found
    */
   public static String extractDeploymentDescriptorString(ZipInputStream benchFlowTestArchive)
@@ -104,6 +107,8 @@ public class BenchFlowTestArchiveExtractor {
             return readZipEntryToInputStream(benchFlowTestArchive);
           case STRING:
             return readZipEntryToString(benchFlowTestArchive);
+          default:
+            return null;
         }
       }
     }
@@ -112,9 +117,10 @@ public class BenchFlowTestArchiveExtractor {
   }
 
   /**
-   *
    * @param benchFlowTestArchive test bundle zip
+   *
    * @return Map with BPMN model filename and InputStream
+   *
    * @throws IOException if file cannot be found
    */
   public static Map<String, InputStream> extractBPMNModelInputStreams(

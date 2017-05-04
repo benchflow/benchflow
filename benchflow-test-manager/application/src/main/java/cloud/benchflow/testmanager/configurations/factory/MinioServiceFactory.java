@@ -7,10 +7,17 @@ import io.minio.errors.InvalidEndpointException;
 import io.minio.errors.InvalidPortException;
 import org.hibernate.validator.constraints.NotEmpty;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17.
+ */
 public class MinioServiceFactory {
 
-  @NotEmpty private String address;
+  @NotEmpty
+  private String address;
+  @NotEmpty
+  private String accessKey;
+  @NotEmpty
+  private String secretKey;
 
   @JsonProperty
   public String getAddress() {
@@ -22,8 +29,6 @@ public class MinioServiceFactory {
     this.address = address;
   }
 
-  @NotEmpty private String accessKey;
-
   @JsonProperty
   public String getAccessKey() {
     return accessKey;
@@ -33,8 +38,6 @@ public class MinioServiceFactory {
   public void setAccessKey(String accessKey) {
     this.accessKey = accessKey;
   }
-
-  @NotEmpty private String secretKey;
 
   @JsonProperty
   public String getSecretKey() {
@@ -47,9 +50,10 @@ public class MinioServiceFactory {
   }
 
   /**
-   * @return
-   * @throws InvalidPortException
-   * @throws InvalidEndpointException
+   * @return MinioService
+   *
+   * @throws InvalidPortException if port is not open
+   * @throws InvalidEndpointException if endpoint does not exist
    */
   public MinioService build() throws InvalidPortException, InvalidEndpointException {
 

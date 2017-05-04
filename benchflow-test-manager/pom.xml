@@ -172,7 +172,6 @@
                             </goals>
                             <configuration>
                                 <url>https://dl.bintray.com/benchflow/benchflow-maven/${benchflow-dsl.project.name}_${benchflow-dsl-jar.version}.jar</url>
-                                <!--<url>https://dl.bintray.com/benchflow/benchflow-maven/${benchflow-dsl.version}.jar</url>-->
                                 <unpack>false</unpack>
                                 <outputDirectory>${main.basedir}/external</outputDirectory>
                                 <outputFileName>${benchflow-dsl.project.name}_${benchflow-dsl-jar.version}.jar</outputFileName>
