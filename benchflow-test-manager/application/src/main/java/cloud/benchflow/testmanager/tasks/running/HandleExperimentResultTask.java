@@ -50,14 +50,9 @@ public class HandleExperimentResultTask implements Runnable {
             if (selectionStrategy.getClass().equals(CompleteSelectionStrategy.class)) {
 
                 // TODO - decide next step (run another experiment or terminate)
+                boolean testComplete = ((CompleteSelectionStrategy) selectionStrategy).isTestComplete(testID);
 
-                // get exploration space
-                // TODO - generalize this to complete search space
-                List<Integer> explorationSpace = explorationModelDAO.getWorkloadUserSpace(testID);
-                // check which experiments have been executed
-                List<Long> executedExperimentNumbers = testModelDAO.getExperimentNumbers(testID);
-
-                if (explorationSpace.size() == executedExperimentNumbers.size()) {
+                if (testComplete) {
 
                     testModelDAO.setTestState(testID, BenchFlowTestModel.BenchFlowTestState.TERMINATED);
 
@@ -77,4 +72,6 @@ public class HandleExperimentResultTask implements Runnable {
 
 
     }
+
+
 }

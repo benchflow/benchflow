@@ -77,4 +77,17 @@ public class CompleteSelectionStrategy implements ExperimentSelectionStrategy {
 
         return null;
     }
+
+    public boolean isTestComplete(String testID) throws BenchFlowTestIDDoesNotExistException {
+        // get exploration space
+        // TODO - generalize this to complete search space
+        List<Integer> explorationSpace = explorationModelDAO.getWorkloadUserSpace(testID);
+        // check which experiments have been executed
+        List<Long> executedExperimentNumbers = testModelDAO.getExperimentNumbers(testID);
+
+        return explorationSpace.size() == executedExperimentNumbers.size();
+
+    }
+
+
 }
