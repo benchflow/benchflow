@@ -16,9 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20 */
 public class BenchFlowTestTaskController {
 
   private static Logger logger =
@@ -41,10 +39,7 @@ public class BenchFlowTestTaskController {
     return taskExecutorService;
   }
 
-  /**
-   *
-   * @param testID
-   */
+  /** @param testID */
   public synchronized void startComplete(String testID) {
 
     logger.info("startComplete with testID: " + testID);
@@ -61,7 +56,6 @@ public class BenchFlowTestTaskController {
 
       // move to next state
       runDetermineExecuteExperimentsTask(testID);
-
 
     } catch (BenchFlowTestIDDoesNotExistException e) {
       // should not happen since already checked before
@@ -104,31 +98,40 @@ public class BenchFlowTestTaskController {
 
     try {
 
-      ExperimentSelectionStrategy selectionStrategy =
-          explorationModelDAO.getExperimentSelectionStrategy(testID);
+      ExperimentSelectionStrategy.Type selectionType =
+          explorationModelDAO.getExperimentSelectionStrategyType(testID);
 
-      if (selectionStrategy.getClass().equals(CompleteSelectionStrategy.class)) {
+      switch (selectionType) {
+        case COMPLETE_SELECTION:
+          handleCompleteSelectionStrategyResult(testID);
 
-        // TODO - decide next step (run another experiment or terminate)
-        boolean testComplete =
-            ((CompleteSelectionStrategy) selectionStrategy).isTestComplete(testID);
+          break;
 
-        if (testComplete) {
-
-          testModelDAO.setTestState(testID, BenchFlowTestModel.BenchFlowTestState.TERMINATED);
-
-          testTasks.remove(testID);
-
-        } else {
-          runDetermineExecuteExperimentsTask(testID);
-        }
-
-      } else {
-        // TODO
+          // TODO - other cases: should be delegated to a task that interacts with other services
+        default:
+          break;
       }
 
     } catch (BenchFlowTestIDDoesNotExistException e) {
       e.printStackTrace();
+    }
+  }
+
+  private void handleCompleteSelectionStrategyResult(String testID)
+      throws BenchFlowTestIDDoesNotExistException {
+    CompleteSelectionStrategy completeSelectionStrategy =
+        (CompleteSelectionStrategy) explorationModelDAO.getExperimentSelectionStrategy(testID);
+
+    boolean testComplete = completeSelectionStrategy.isTestComplete(testID);
+
+    if (testComplete) {
+
+      testModelDAO.setTestState(testID, BenchFlowTestModel.BenchFlowTestState.TERMINATED);
+
+      testTasks.remove(testID);
+
+    } else {
+      runDetermineExecuteExperimentsTask(testID);
     }
   }
 

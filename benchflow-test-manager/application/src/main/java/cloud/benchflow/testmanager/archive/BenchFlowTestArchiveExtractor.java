@@ -14,9 +14,7 @@ import java.util.zip.ZipInputStream;
 
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.*;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 15.02.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 15.02.17. */
 public class BenchFlowTestArchiveExtractor {
 
   //    benchflow-test.yaml or .yml
@@ -35,9 +33,7 @@ public class BenchFlowTestArchiveExtractor {
 
   /**
    * @param benchFlowTestArchive test bundle zip
-   *
    * @return test definition String
-   *
    * @throws IOException if test definition cannot be found
    */
   public static String extractBenchFlowTestDefinitionString(ZipInputStream benchFlowTestArchive)
@@ -49,9 +45,7 @@ public class BenchFlowTestArchiveExtractor {
 
   /**
    * @param benchFlowTestArchive test bundle zip
-   *
    * @return test definition InputStream
-   *
    * @throws IOException if test definition cannot be found
    */
   public static InputStream extractBenchFlowTestDefinitionInputStream(
@@ -64,9 +58,7 @@ public class BenchFlowTestArchiveExtractor {
 
   /**
    * @param benchFlowTestArchive test bundle zip
-   *
    * @return deployment descriptor InputStream
-   *
    * @throws IOException if deployment descriptor cannot be found
    */
   public static InputStream extractDeploymentDescriptorInputStream(
@@ -79,9 +71,7 @@ public class BenchFlowTestArchiveExtractor {
 
   /**
    * @param benchFlowTestArchive test bundle zip
-   *
    * @return deployment descriptor String
-   *
    * @throws IOException if deployment descriptor cannot be found
    */
   public static String extractDeploymentDescriptorString(ZipInputStream benchFlowTestArchive)
@@ -118,9 +108,7 @@ public class BenchFlowTestArchiveExtractor {
 
   /**
    * @param benchFlowTestArchive test bundle zip
-   *
    * @return Map with BPMN model filename and InputStream
-   *
    * @throws IOException if file cannot be found
    */
   public static Map<String, InputStream> extractBPMNModelInputStreams(

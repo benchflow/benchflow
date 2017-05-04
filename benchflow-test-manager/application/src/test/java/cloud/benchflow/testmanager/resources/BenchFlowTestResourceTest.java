@@ -73,7 +73,7 @@ public class BenchFlowTestResourceTest {
             + MODEL_ID_DELIMITER
             + TestConstants.VALID_BENCHFLOW_TEST_NAME
             + MODEL_ID_DELIMITER
-            + 1;
+            + 0;
 
     Mockito.doReturn(expectedTestID)
         .when(testModelDAOMock)
@@ -82,9 +82,6 @@ public class BenchFlowTestResourceTest {
     RunBenchFlowTestResponse response = resource.runBenchFlowTest(TEST_USER_NAME, expArchive);
 
     Assert.assertTrue(response.getTestID().contains(VALID_BENCHFLOW_TEST_NAME));
-
-    verify(testTaskController, times(1))
-        .startComplete(Mockito.matches(expectedTestID));
   }
 
   @Test

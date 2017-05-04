@@ -102,12 +102,13 @@ public class BenchFlowTestTaskControllerIT extends DockerComposeIT {
         TestArchives.getValidDeploymentDescriptorInputStream();
     Map<String, InputStream> bpmnModelsInputStream = TestArchives.getValidBPMNModels();
 
-    Thread startTaskThread = new Thread(new StartTask(
-        testID,
-        testDefinitionString,
-        deploymentDescriptorInputStream,
-        bpmnModelsInputStream
-    ));
+    Thread startTaskThread =
+        new Thread(
+            new StartTask(
+                testID,
+                testDefinitionString,
+                deploymentDescriptorInputStream,
+                bpmnModelsInputStream));
 
     startTaskThread.start();
 

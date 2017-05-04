@@ -124,11 +124,12 @@ public class BenchFlowTestResource {
       String testID =
           testModelDAO.addTestModel(benchFlowTest.name(), BenchFlowConstants.BENCHFLOW_USER);
 
-      new Thread(new StartTask(
-          testID,
-          testDefinitionYamlString,
-          deploymentDescriptorInputStream,
-          bpmnModelInputStreams))
+      new Thread(
+              new StartTask(
+                  testID,
+                  testDefinitionYamlString,
+                  deploymentDescriptorInputStream,
+                  bpmnModelInputStreams))
           .start();
 
       return new RunBenchFlowTestResponse(testID);

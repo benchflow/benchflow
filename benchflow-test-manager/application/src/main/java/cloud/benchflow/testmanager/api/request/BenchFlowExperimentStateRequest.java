@@ -6,21 +6,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotNull;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 16.02.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 16.02.17. */
 public class BenchFlowExperimentStateRequest {
 
-  @NotNull
-  @JsonProperty
-  private BenchFlowExperimentState state;
+  @NotNull @JsonProperty private BenchFlowExperimentState state;
 
-  @NotNull
-  @JsonProperty
-  private BenchFlowExperimentStatus status;
+  @NotNull @JsonProperty private BenchFlowExperimentStatus status;
 
-  public BenchFlowExperimentStateRequest() {
-  }
+  public BenchFlowExperimentStateRequest() {}
 
   public BenchFlowExperimentStateRequest(
       BenchFlowExperimentState state, BenchFlowExperimentStatus status) {
