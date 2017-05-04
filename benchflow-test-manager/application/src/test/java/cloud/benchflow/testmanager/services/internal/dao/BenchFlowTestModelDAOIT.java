@@ -18,155 +18,145 @@ import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_BENCHFLOW_
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
 import static org.junit.Assert.assertEquals;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 14.02.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 14.02.17. */
 public class BenchFlowTestModelDAOIT extends DockerComposeIT {
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+  @Rule public ExpectedException exception = ExpectedException.none();
 
-    private BenchFlowTestModelDAO testModelDAO;
-    private UserDAO userDAO;
-    private User testUser;
+  private BenchFlowTestModelDAO testModelDAO;
+  private UserDAO userDAO;
+  private User testUser;
 
-    @Before
-    public void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
 
-        testModelDAO = new BenchFlowTestModelDAO(mongoClient);
-        userDAO = new UserDAO(mongoClient, testModelDAO);
+    testModelDAO = new BenchFlowTestModelDAO(mongoClient);
+    userDAO = new UserDAO(mongoClient, testModelDAO);
 
-        testUser = userDAO.addUser(TestConstants.TEST_USER_NAME);
+    testUser = userDAO.addUser(TestConstants.TEST_USER_NAME);
+  }
 
-    }
+  @After
+  public void tearDown() throws Exception {
 
-    @After
-    public void tearDown() throws Exception {
+    userDAO.removeUser(testUser.getUsername());
+  }
 
-        userDAO.removeUser(testUser.getUsername());
+  @Test
+  public void addGetRemoveBenchFlowTestModel() throws Exception {
 
-    }
+    String testID = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, testUser);
 
-    @Test
-    public void addGetRemoveBenchFlowTestModel() throws Exception {
+    BenchFlowTestModel savedModel = testModelDAO.getTestModel(testID);
 
-        String testID = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, testUser);
+    Assert.assertNotNull(savedModel);
 
-        BenchFlowTestModel savedModel = testModelDAO.getTestModel(testID);
+    assertEquals(testID, savedModel.getId());
 
-        Assert.assertNotNull(savedModel);
+    testModelDAO.removeTestModel(testID);
+  }
 
-        assertEquals(testID, savedModel.getId());
+  @Test
+  public void getBenchFlowTestModels() throws Exception {
 
-        testModelDAO.removeTestModel(testID);
+    // Test IDs
+    String testName = "benchFlowTest";
 
-    }
+    int initialSize = testModelDAO.getTestModels().size();
 
-    @Test
-    public void getBenchFlowTestModels() throws Exception {
+    String firstID = testModelDAO.addTestModel(testName, testUser);
+    String secondID = testModelDAO.addTestModel(testName, testUser);
 
-        // Test IDs
-        String testName = "benchFlowTest";
+    List<String> modelIDs = testModelDAO.getTestModels();
 
-        int initialSize = testModelDAO.getTestModels().size();
+    Assert.assertNotNull(modelIDs);
 
-        String firstID = testModelDAO.addTestModel(testName, testUser);
-        String secondID = testModelDAO.addTestModel(testName, testUser);
+    assertEquals(initialSize + 2, modelIDs.size());
 
-        List<String> modelIDs = testModelDAO.getTestModels();
+    String thirdID = testModelDAO.addTestModel(testName, testUser);
 
-        Assert.assertNotNull(modelIDs);
+    modelIDs = testModelDAO.getTestModels();
 
-        assertEquals(initialSize + 2, modelIDs.size());
+    assertEquals(initialSize + 3, modelIDs.size());
 
-        String thirdID = testModelDAO.addTestModel(testName, testUser);
+    testModelDAO.removeTestModel(firstID);
+    testModelDAO.removeTestModel(secondID);
 
-        modelIDs = testModelDAO.getTestModels();
+    modelIDs = testModelDAO.getTestModels();
 
-        assertEquals(initialSize + 3, modelIDs.size());
+    assertEquals(initialSize + 1, modelIDs.size());
 
-        testModelDAO.removeTestModel(firstID);
-        testModelDAO.removeTestModel(secondID);
+    testModelDAO.removeTestModel(thirdID);
 
-        modelIDs = testModelDAO.getTestModels();
+    modelIDs = testModelDAO.getTestModels();
 
-        assertEquals(initialSize + 1, modelIDs.size());
+    assertEquals(initialSize + 0, modelIDs.size());
+  }
 
-        testModelDAO.removeTestModel(thirdID);
+  @Test
+  public void conflictingTestModelNames() throws Exception {
 
-        modelIDs = testModelDAO.getTestModels();
+    String testIDFirst = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, testUser);
 
-        assertEquals(initialSize + 0, modelIDs.size());
+    BenchFlowTestModel model = testModelDAO.getTestModel(testIDFirst);
 
-    }
+    Assert.assertNotNull(model);
 
-    @Test
-    public void conflictingTestModelNames() throws Exception {
+    String testIDSecond = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, testUser);
 
-        String testIDFirst = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, testUser);
+    Assert.assertNotEquals(testIDFirst, testIDSecond);
 
-        BenchFlowTestModel model = testModelDAO.getTestModel(testIDFirst);
+    model = testModelDAO.getTestModel(testIDSecond);
 
-        Assert.assertNotNull(model);
+    Assert.assertNotNull(model);
 
-        String testIDSecond = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, testUser);
+    testModelDAO.removeTestModel(testIDFirst);
+    testModelDAO.removeTestModel(testIDSecond);
+  }
 
-        Assert.assertNotEquals(testIDFirst, testIDSecond);
+  @Test
+  public void changeBenchFlowTestState() throws Exception {
 
-        model = testModelDAO.getTestModel(testIDSecond);
+    String testID = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, testUser);
 
-        Assert.assertNotNull(model);
+    BenchFlowTestModel.BenchFlowTestState state = testModelDAO.getTestState(testID);
 
-        testModelDAO.removeTestModel(testIDFirst);
-        testModelDAO.removeTestModel(testIDSecond);
+    assertEquals(BenchFlowTestModel.BenchFlowTestState.START, state);
 
-    }
+    testModelDAO.setTestState(testID, TERMINATED);
 
-    @Test
-    public void changeBenchFlowTestState() throws Exception {
+    state = testModelDAO.getTestState(testID);
 
-        String testID = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, testUser);
+    assertEquals(TERMINATED, state);
 
-        BenchFlowTestModel.BenchFlowTestState state = testModelDAO.getTestState(testID);
+    testModelDAO.removeTestModel(testID);
+  }
 
-        assertEquals(BenchFlowTestModel.BenchFlowTestState.START, state);
+  @Test
+  public void changeBenchFlowTestStateInvalidID() throws Exception {
 
-        testModelDAO.setTestState(testID, TERMINATED);
+    exception.expect(BenchFlowTestIDDoesNotExistException.class);
 
-        state = testModelDAO.getTestState(testID);
+    testModelDAO.setTestState("not_valid", BenchFlowTestModel.BenchFlowTestState.RUNNING);
+  }
 
-        assertEquals(TERMINATED, state);
+  @Test
+  public void testHashedID() throws Exception {
 
-        testModelDAO.removeTestModel(testID);
+    testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, testUser);
 
-    }
+    DBCollection collection = testModelDAO.getDatastore().getCollection(BenchFlowTestModel.class);
 
-    @Test
-    public void changeBenchFlowTestStateInvalidID() throws Exception {
-
-        exception.expect(BenchFlowTestIDDoesNotExistException.class);
-
-        testModelDAO.setTestState("not_valid", BenchFlowTestModel.BenchFlowTestState.RUNNING);
-
-    }
-
-    @Test
-    public void testHashedID() throws Exception {
-
-        testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, testUser);
-
-        DBCollection collection = testModelDAO.getDatastore().getCollection(BenchFlowTestModel.class);
-
-        collection.getIndexInfo().forEach(dbObject -> {
-
-            BasicDBObject index = (BasicDBObject) dbObject;
-            if (!index.getString("name").equals("_id_")) {
-                assertEquals("hashed", ((DBObject) index.get("key")).get(BenchFlowTestModel.HASHED_ID_FIELD_NAME));
-            }
-
-        });
-
-
-    }
+    collection
+        .getIndexInfo()
+        .forEach(
+            dbObject -> {
+              BasicDBObject index = (BasicDBObject) dbObject;
+              if (!index.getString("name").equals("_id_")) {
+                assertEquals(
+                    "hashed",
+                    ((DBObject) index.get("key")).get(BenchFlowTestModel.HASHED_ID_FIELD_NAME));
+              }
+            });
+  }
 }

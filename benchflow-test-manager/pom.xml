@@ -1,8 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
-    <groupId>cloud.benchflow</groupId>
+
+    <parent>
+        <groupId>cloud.benchflow</groupId>
+        <artifactId>benchflow</artifactId>
+        <version>0.1.0</version>
+    </parent>
+
     <artifactId>benchflow-test-manager</artifactId>
     <version>0.1.0</version>
     <name>benchflow-test-manager</name>
@@ -20,6 +25,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <main.basedir>${project.basedir}</main.basedir>
+        <root.project.basedir>${project.basedir}/../</root.project.basedir>
         <java.version>1.8</java.version>
         <dropwizard.version>1.0.6</dropwizard.version>
         <dropwizard.template.config.version>1.4.0</dropwizard.template.config.version>

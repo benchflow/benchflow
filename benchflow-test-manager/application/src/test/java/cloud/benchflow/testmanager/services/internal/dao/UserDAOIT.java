@@ -14,110 +14,100 @@ import static cloud.benchflow.testmanager.helpers.TestConstants.TEST_USER_NAME;
 import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_BENCHFLOW_TEST_NAME;
 import static org.junit.Assert.assertEquals;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 22.02.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17. */
 public class UserDAOIT extends DockerComposeIT {
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+  @Rule public ExpectedException exception = ExpectedException.none();
 
-    private BenchFlowTestModelDAO testModelDAO;
-    private UserDAO userDAO;
+  private BenchFlowTestModelDAO testModelDAO;
+  private UserDAO userDAO;
 
-    @Before
-    public void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
 
-        testModelDAO = new BenchFlowTestModelDAO(mongoClient);
+    testModelDAO = new BenchFlowTestModelDAO(mongoClient);
 
-        userDAO = new UserDAO(mongoClient, testModelDAO);
+    userDAO = new UserDAO(mongoClient, testModelDAO);
+  }
 
-    }
+  @After
+  public void tearDown() throws Exception {
 
-    @After
-    public void tearDown() throws Exception {
+    userDAO.removeUser(TEST_USER_NAME);
+  }
 
-        userDAO.removeUser(TEST_USER_NAME);
+  @Test
+  public void addRemoveUser() throws Exception {
 
-    }
+    User user = userDAO.addUser(TEST_USER_NAME);
 
-    @Test
-    public void addRemoveUser() throws Exception {
+    Assert.assertNotNull(user);
 
-        User user = userDAO.addUser(TEST_USER_NAME);
+    User savedUser = userDAO.getUser(user.getUsername());
 
-        Assert.assertNotNull(user);
+    Assert.assertEquals(TEST_USER_NAME, savedUser.getUsername());
 
-        User savedUser = userDAO.getUser(user.getUsername());
+    userDAO.removeUser(TEST_USER_NAME);
 
-        Assert.assertEquals(TEST_USER_NAME, savedUser.getUsername());
+    user = userDAO.getUser(TEST_USER_NAME);
 
-        userDAO.removeUser(TEST_USER_NAME);
+    Assert.assertNull(user);
+  }
 
-        user = userDAO.getUser(TEST_USER_NAME);
+  @Test
+  public void addSameUserTwice() throws Exception {
 
-        Assert.assertNull(user);
+    userDAO.addUser(TEST_USER_NAME);
 
-    }
+    exception.expect(UserIDAlreadyExistsException.class);
 
-    @Test
-    public void addSameUserTwice() throws Exception {
+    userDAO.addUser(TEST_USER_NAME);
+  }
 
-        userDAO.addUser(TEST_USER_NAME);
+  @Test
+  public void removeUserWithBenchFlowTests() throws Exception {
 
-        exception.expect(UserIDAlreadyExistsException.class);
+    User user = userDAO.addUser(TEST_USER_NAME);
 
-        userDAO.addUser(TEST_USER_NAME);
+    String testModel1ID = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, user);
 
-    }
+    user = userDAO.getUser(user.getUsername());
 
-    @Test
-    public void removeUserWithBenchFlowTests() throws Exception {
+    Assert.assertNotNull(user);
 
-        User user = userDAO.addUser(TEST_USER_NAME);
+    Assert.assertEquals(1, user.getTestModels().size());
 
-        String testModel1ID = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, user);
+    String testModel2ID = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, user);
 
-        user = userDAO.getUser(user.getUsername());
+    Assert.assertEquals(2, user.getTestModels().size());
 
-        Assert.assertNotNull(user);
+    userDAO.removeUser(user.getUsername());
 
-        Assert.assertEquals(1, user.getTestModels().size());
+    user = userDAO.getUser(user.getUsername());
 
-        String testModel2ID = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, user);
+    Assert.assertNull(user);
 
-        Assert.assertEquals(2, user.getTestModels().size());
+    Assert.assertEquals(false, testModelDAO.testModelExists(testModel1ID));
 
-        userDAO.removeUser(user.getUsername());
+    Assert.assertEquals(false, testModelDAO.testModelExists(testModel2ID));
+  }
 
-        user = userDAO.getUser(user.getUsername());
+  @Test
+  public void testHashedID() throws Exception {
 
-        Assert.assertNull(user);
+    userDAO.addUser(TEST_USER_NAME);
 
-        Assert.assertEquals(false, testModelDAO.testModelExists(testModel1ID));
+    DBCollection collection = userDAO.getDatastore().getCollection(User.class);
 
-        Assert.assertEquals(false, testModelDAO.testModelExists(testModel2ID));
-
-    }
-
-    @Test
-    public void testHashedID() throws Exception {
-
-        userDAO.addUser(TEST_USER_NAME);
-
-        DBCollection collection = userDAO.getDatastore().getCollection(User.class);
-
-        collection.getIndexInfo().forEach(dbObject -> {
-
-            BasicDBObject index = (BasicDBObject) dbObject;
-            if (!index.getString("name").equals("_id_")) {
-                assertEquals("hashed", ((DBObject) index.get("key")).get(User.HASHED_ID_FIELD_NAME));
-            }
-
-        });
-
-
-    }
-
+    collection
+        .getIndexInfo()
+        .forEach(
+            dbObject -> {
+              BasicDBObject index = (BasicDBObject) dbObject;
+              if (!index.getString("name").equals("_id_")) {
+                assertEquals(
+                    "hashed", ((DBObject) index.get("key")).get(User.HASHED_ID_FIELD_NAME));
+              }
+            });
+  }
 }

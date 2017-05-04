@@ -15,35 +15,33 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 27.02.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 27.02.17. */
 public class BenchFlowTrialEndpointTest {
 
-    private static BenchFlowExperimentModelDAO experimentModelDAOMock = Mockito.mock(BenchFlowExperimentModelDAO.class);
+  private static BenchFlowExperimentModelDAO experimentModelDAOMock =
+      Mockito.mock(BenchFlowExperimentModelDAO.class);
 
-    @ClassRule
-    public static final ResourceTestRule resources = ResourceTestRule.builder()
-            .addResource(new BenchFlowTrialResource(experimentModelDAOMock))
-            .build();
+  @ClassRule
+  public static final ResourceTestRule resources =
+      ResourceTestRule.builder()
+          .addResource(new BenchFlowTrialResource(experimentModelDAOMock))
+          .build();
 
+  @Test
+  public void submitTrialStatus() throws Exception {
 
-    @Test
-    public void submitTrialStatus() throws Exception {
+    String trialID = TestConstants.VALID_TRIAL_ID;
 
-        String trialID = TestConstants.VALID_TRIAL_ID;
+    SubmitTrialStatusRequest statusRequest = new SubmitTrialStatusRequest(RunStatus.Code.COMPLETED);
 
-        SubmitTrialStatusRequest statusRequest = new SubmitTrialStatusRequest(RunStatus.Code.COMPLETED);
+    Response response =
+        resources
+            .client()
+            .target(BenchFlowConstants.getPathFromTrialID(trialID))
+            .path(BenchFlowTrialResource.STATUS_PATH)
+            .request()
+            .put(Entity.entity(statusRequest, MediaType.APPLICATION_JSON));
 
-        Response response = resources.client()
-                .target(BenchFlowConstants.getPathFromTrialID(trialID))
-                .path(BenchFlowTrialResource.STATUS_PATH)
-                .request()
-                .put(Entity.entity(statusRequest, MediaType.APPLICATION_JSON));
-
-        Assert.assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
-
-    }
-
+    Assert.assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+  }
 }

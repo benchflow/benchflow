@@ -18,128 +18,132 @@ import org.slf4j.LoggerFactory;
 
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 22.02.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17. */
 public class BenchFlowExperimentModelDAO extends DAO {
 
-    // TODO - this is also stored in the model?? read it directly from the model
-    private static final String BENCHFLOW_EXPERIMENT_ID_FIELD_NAME = "id";
+  // TODO - this is also stored in the model?? read it directly from the model
+  private static final String BENCHFLOW_EXPERIMENT_ID_FIELD_NAME = "id";
 
-    private static Logger logger = LoggerFactory.getLogger(BenchFlowExperimentModelDAO.class.getSimpleName());
+  private static Logger logger =
+      LoggerFactory.getLogger(BenchFlowExperimentModelDAO.class.getSimpleName());
 
-    private BenchFlowTestModelDAO testModelDAO;
+  private BenchFlowTestModelDAO testModelDAO;
 
-    public BenchFlowExperimentModelDAO(MongoClient mongoClient, BenchFlowTestModelDAO testModelDAO) {
-        super(mongoClient);
-        this.testModelDAO = testModelDAO;
-    }
+  public BenchFlowExperimentModelDAO(MongoClient mongoClient, BenchFlowTestModelDAO testModelDAO) {
+    super(mongoClient);
+    this.testModelDAO = testModelDAO;
+  }
 
-    /**
-     * @param testID
-     * @return
-     * @throws BenchFlowTestIDDoesNotExistException
-     */
-    public synchronized String addExperiment(String testID) throws BenchFlowTestIDDoesNotExistException {
+  /**
+   * @param testID
+   * @return
+   * @throws BenchFlowTestIDDoesNotExistException
+   */
+  public synchronized String addExperiment(String testID)
+      throws BenchFlowTestIDDoesNotExistException {
 
-        logger.info("addExperiment: " + testID);
+    logger.info("addExperiment: " + testID);
 
-        final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
+    final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
 
-        long experimentNumber = benchFlowTestModel.getNextExperimentNumber();
+    long experimentNumber = benchFlowTestModel.getNextExperimentNumber();
 
-        BenchFlowExperimentModel experimentModel = new BenchFlowExperimentModel(testID,
-                                                                                    experimentNumber);
+    BenchFlowExperimentModel experimentModel =
+        new BenchFlowExperimentModel(testID, experimentNumber);
 
-        // first save the PE model and then add it to PT Model
-        datastore.save(experimentModel);
+    // first save the PE model and then add it to PT Model
+    datastore.save(experimentModel);
 
-        benchFlowTestModel.addExperimentModel(experimentModel);
+    benchFlowTestModel.addExperimentModel(experimentModel);
 
-        datastore.save(benchFlowTestModel);
+    datastore.save(benchFlowTestModel);
 
-        return experimentModel.getId();
+    return experimentModel.getId();
+  }
 
-    }
+  /**
+   * @param experimentID
+   * @return
+   * @throws BenchFlowExperimentIDDoesNotExistException
+   */
+  private synchronized BenchFlowExperimentModel getExperiment(String experimentID)
+      throws BenchFlowExperimentIDDoesNotExistException {
 
-    /**
-     * @param experimentID
-     * @return
-     * @throws BenchFlowExperimentIDDoesNotExistException
-     */
-    private synchronized BenchFlowExperimentModel getExperiment(String experimentID) throws BenchFlowExperimentIDDoesNotExistException {
+    logger.info("getExperiment: " + experimentID);
 
-        logger.info("getExperiment: " + experimentID);
+    final Query<BenchFlowExperimentModel> testModelQuery =
+        datastore
+            .createQuery(BenchFlowExperimentModel.class)
+            .field(BENCHFLOW_EXPERIMENT_ID_FIELD_NAME)
+            .equal(experimentID);
 
-        final Query<BenchFlowExperimentModel> testModelQuery = datastore
-                .createQuery(BenchFlowExperimentModel.class)
-                .field(BENCHFLOW_EXPERIMENT_ID_FIELD_NAME)
-                .equal(experimentID);
+    BenchFlowExperimentModel experimentModel = testModelQuery.get();
 
-        BenchFlowExperimentModel experimentModel = testModelQuery.get();
+    if (experimentModel == null) throw new BenchFlowExperimentIDDoesNotExistException();
 
-        if (experimentModel == null)
-            throw new BenchFlowExperimentIDDoesNotExistException();
+    return experimentModel;
+  }
 
-        return experimentModel;
+  /**
+   * @param experimentID
+   * @param state
+   * @throws BenchFlowExperimentIDDoesNotExistException
+   */
+  public synchronized void setExperimentState(
+      String experimentID, BenchFlowExperimentState state, BenchFlowExperimentStatus status)
+      throws BenchFlowExperimentIDDoesNotExistException {
 
-    }
+    logger.info("setExperimentState: " + experimentID + " : " + state.name());
 
-    /**
-     *
-     * @param experimentID
-     * @param state
-     * @throws BenchFlowExperimentIDDoesNotExistException
-     */
-    public synchronized void setExperimentState(String experimentID, BenchFlowExperimentState state, BenchFlowExperimentStatus status) throws BenchFlowExperimentIDDoesNotExistException {
+    final BenchFlowExperimentModel experimentModel;
 
-        logger.info("setExperimentState: " + experimentID + " : " + state.name());
+    experimentModel = getExperiment(experimentID);
 
-        final BenchFlowExperimentModel experimentModel;
+    experimentModel.setState(state);
+    experimentModel.setStatus(status);
 
-        experimentModel = getExperiment(experimentID);
+    datastore.save(experimentModel);
+  }
 
-        experimentModel.setState(state);
-        experimentModel.setStatus(status);
+  /**
+   * @param experimentID
+   * @param trialNUmber
+   * @param status
+   * @throws BenchFlowTestIDDoesNotExistException
+   */
+  public synchronized void addTrialStatus(
+      String experimentID, long trialNUmber, RunStatus.Code status)
+      throws BenchFlowExperimentIDDoesNotExistException {
 
-        datastore.save(experimentModel);
+    logger.info(
+        "addTrialStatus: "
+            + experimentID
+            + MODEL_ID_DELIMITER
+            + trialNUmber
+            + " : "
+            + status.name());
 
-    }
+    final BenchFlowExperimentModel experimentModel;
 
-    /**
-     * @param experimentID
-     * @param trialNUmber
-     * @param status
-     * @throws BenchFlowTestIDDoesNotExistException
-     */
-    public synchronized void addTrialStatus(String experimentID, long trialNUmber, RunStatus.Code status) throws BenchFlowExperimentIDDoesNotExistException {
+    experimentModel = getExperiment(experimentID);
 
-        logger.info(
-                "addTrialStatus: " + experimentID + MODEL_ID_DELIMITER + trialNUmber + " : " + status.name());
+    experimentModel.setTrialStatus(trialNUmber, status);
+    datastore.save(experimentModel);
+  }
 
-        final BenchFlowExperimentModel experimentModel;
+  /**
+   * @param experimentID
+   * @param trialNumber
+   * @return
+   * @throws BenchFlowExperimentIDDoesNotExistException
+   */
+  public synchronized RunStatus.Code getTrialStatus(String experimentID, long trialNumber)
+      throws BenchFlowExperimentIDDoesNotExistException {
 
-        experimentModel = getExperiment(experimentID);
+    logger.info("getTrialStatus: " + experimentID + MODEL_ID_DELIMITER + trialNumber);
 
-        experimentModel.setTrialStatus(trialNUmber, status);
-        datastore.save(experimentModel);
+    final BenchFlowExperimentModel experimentModel = getExperiment(experimentID);
 
-    }
-
-    /**
-     * @param experimentID
-     * @param trialNumber
-     * @return
-     * @throws BenchFlowExperimentIDDoesNotExistException
-     */
-    public synchronized RunStatus.Code getTrialStatus(String experimentID, long trialNumber) throws BenchFlowExperimentIDDoesNotExistException {
-
-        logger.info("getTrialStatus: " + experimentID + MODEL_ID_DELIMITER + trialNumber);
-
-        final BenchFlowExperimentModel experimentModel = getExperiment(experimentID);
-
-        return experimentModel.getTrialStatus(trialNumber);
-
-    }
+    return experimentModel.getTrialStatus(trialNumber);
+  }
 }

@@ -25,128 +25,134 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 
-public class BenchFlowTestManagerApplication extends Application<BenchFlowTestManagerConfiguration> {
+public class BenchFlowTestManagerApplication
+    extends Application<BenchFlowTestManagerConfiguration> {
 
-    private static BenchFlowTestModelDAO testModelDAO;
-    private static ExplorationModelDAO explorationModelDAO;
-    private static BenchFlowExperimentModelDAO experimentModelDAO;
-    private static UserDAO userDAO;
-    private static MinioService minioService;
-    private static BenchFlowExperimentManagerService experimentManagerService;
-    private static BenchFlowTestTaskController testTaskController;
-    private Logger logger = LoggerFactory.getLogger(BenchFlowTestManagerApplication.class.getSimpleName());
+  private static BenchFlowTestModelDAO testModelDAO;
+  private static ExplorationModelDAO explorationModelDAO;
+  private static BenchFlowExperimentModelDAO experimentModelDAO;
+  private static UserDAO userDAO;
+  private static MinioService minioService;
+  private static BenchFlowExperimentManagerService experimentManagerService;
+  private static BenchFlowTestTaskController testTaskController;
+  private Logger logger =
+      LoggerFactory.getLogger(BenchFlowTestManagerApplication.class.getSimpleName());
 
-    public static void main(String[] args) throws Exception {
-        new BenchFlowTestManagerApplication().run(args);
-    }
+  public static void main(String[] args) throws Exception {
+    new BenchFlowTestManagerApplication().run(args);
+  }
 
-    public static BenchFlowTestModelDAO getTestModelDAO() {
-        return testModelDAO;
-    }
+  public static BenchFlowTestModelDAO getTestModelDAO() {
+    return testModelDAO;
+  }
 
-    public static ExplorationModelDAO getExplorationModelDAO() {
-        return explorationModelDAO;
-    }
+  public static ExplorationModelDAO getExplorationModelDAO() {
+    return explorationModelDAO;
+  }
 
-    public static BenchFlowExperimentModelDAO getExperimentModelDAO() {
-        return experimentModelDAO;
-    }
+  public static BenchFlowExperimentModelDAO getExperimentModelDAO() {
+    return experimentModelDAO;
+  }
 
-    public static UserDAO getUserDAO() {
-        return userDAO;
-    }
+  public static UserDAO getUserDAO() {
+    return userDAO;
+  }
 
-    public static MinioService getMinioService() {
-        return minioService;
-    }
+  public static MinioService getMinioService() {
+    return minioService;
+  }
 
-    public static BenchFlowExperimentManagerService getExperimentManagerService() {
-        return experimentManagerService;
-    }
+  public static BenchFlowExperimentManagerService getExperimentManagerService() {
+    return experimentManagerService;
+  }
 
-    public static BenchFlowTestTaskController getTestTaskController() {
-        return testTaskController;
-    }
+  // used for testing to insert mock/spy object
+  public static void setExperimentManagerService(
+      BenchFlowExperimentManagerService experimentManagerService) {
+    BenchFlowTestManagerApplication.experimentManagerService = experimentManagerService;
+  }
 
-    // used for testing to insert mock/spy object
-    public static void setExperimentManagerService(BenchFlowExperimentManagerService experimentManagerService) {
-        BenchFlowTestManagerApplication.experimentManagerService = experimentManagerService;
-    }
+  public static BenchFlowTestTaskController getTestTaskController() {
+    return testTaskController;
+  }
 
-    @Override
-    public String getName() {
-        return "benchflow-test-orchestrator";
-    }
+  @Override
+  public String getName() {
+    return "benchflow-test-orchestrator";
+  }
 
-    @Override
-    public void initialize(Bootstrap<BenchFlowTestManagerConfiguration> bootstrap) {
+  @Override
+  public void initialize(Bootstrap<BenchFlowTestManagerConfiguration> bootstrap) {
 
-        logger.info("initialize");
+    logger.info("initialize");
 
-        // Dropwizard Template Config
-        bootstrap.addBundle(new TemplateConfigBundle(new TemplateConfigBundleConfiguration().resourceIncludePath("/app")));
+    // Dropwizard Template Config
+    bootstrap.addBundle(
+        new TemplateConfigBundle(
+            new TemplateConfigBundleConfiguration().resourceIncludePath("/app")));
 
-        // Dropwizard Swagger
-        bootstrap.addBundle(new SwaggerBundle<BenchFlowTestManagerConfiguration>() {
-            @Override
-            protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(BenchFlowTestManagerConfiguration configuration) {
-                return configuration.getSwagger();
-            }
+    // Dropwizard Swagger
+    bootstrap.addBundle(
+        new SwaggerBundle<BenchFlowTestManagerConfiguration>() {
+          @Override
+          protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(
+              BenchFlowTestManagerConfiguration configuration) {
+            return configuration.getSwagger();
+          }
         });
+  }
 
-    }
+  @Override
+  public void run(BenchFlowTestManagerConfiguration configuration, Environment environment)
+      throws Exception {
 
-    @Override
-    public void run(BenchFlowTestManagerConfiguration configuration, Environment environment) throws Exception {
+    logger.info("run");
 
-        logger.info("run");
+    // service
 
-        // services
-        ExecutorService taskExecutor = configuration.getTaskExecutorFactory().build(environment);
+    // set the services used by multiple classes
 
-        // set the services used by multiple classes
+    // Typically you only create one MongoClient instance for a given MongoDB deployment
+    // (e.g. standalone, replica set, or a sharded cluster) and use it across your application.
+    // http://mongodb.github.io/mongo-java-driver/3.4/driver/getting-started/quick-start/
+    MongoClient mongoClient = configuration.getMongoDBFactory().build();
 
-        // Typically you only create one MongoClient instance for a given MongoDB deployment (e.g. standalone, replica set, or a sharded cluster) and use it across your application.
-        // http://mongodb.github.io/mongo-java-driver/3.4/driver/getting-started/quick-start/
-        MongoClient mongoClient = configuration.getMongoDBFactory().build();
+    testModelDAO = new BenchFlowTestModelDAO(mongoClient);
+    explorationModelDAO = new ExplorationModelDAO(mongoClient, testModelDAO);
+    experimentModelDAO = new BenchFlowExperimentModelDAO(mongoClient, testModelDAO);
+    userDAO = new UserDAO(mongoClient, testModelDAO);
 
-        testModelDAO = new BenchFlowTestModelDAO(mongoClient);
-        explorationModelDAO = new ExplorationModelDAO(mongoClient, testModelDAO);
-        experimentModelDAO = new BenchFlowExperimentModelDAO(mongoClient, testModelDAO);
-        userDAO = new UserDAO(mongoClient, testModelDAO);
+    minioService = configuration.getMinioServiceFactory().build();
+    experimentManagerService =
+        configuration
+            .getBenchFlowExperimentManagerServiceFactory()
+            .build(configuration, environment);
 
-        minioService = configuration.getMinioServiceFactory().build();
-        experimentManagerService = configuration.getBenchFlowExperimentManagerServiceFactory().build(
-                configuration, environment);
+    // has to be last so the other dependencies are already available when instantiating
+    ExecutorService taskExecutor = configuration.getTaskExecutorFactory().build(environment);
+    testTaskController = new BenchFlowTestTaskController(taskExecutor);
 
-        // has to be last so the other dependencies are already available when instantiating
-        testTaskController = new BenchFlowTestTaskController(taskExecutor);
+    // make sure a bucket exists
+    minioService.initializeBuckets();
 
-        // make sure a bucket exists
-        minioService.initializeBuckets();
+    // resources
+    //        final BenchFlowUserResource userResource = new BenchFlowUserResource();
 
+    final BenchFlowTestResource testResource = new BenchFlowTestResource();
+    final BenchFlowExperimentResource experimentResource = new BenchFlowExperimentResource();
+    final BenchFlowTrialResource trialResource = new BenchFlowTrialResource();
 
-        // resources
-//        final BenchFlowUserResource userResource = new BenchFlowUserResource();
+    // TODO - health checks for all services
+    //        final TemplateHealthCheck healthCheck =
+    //                new TemplateHealthCheck(configuration.getTemplate());
+    //        environment.healthChecks().register("template", healthCheck);
 
-        final BenchFlowTestResource testResource = new BenchFlowTestResource();
-        final BenchFlowExperimentResource experimentResource = new BenchFlowExperimentResource();
-        final BenchFlowTrialResource trialResource = new BenchFlowTrialResource();
+    //        environment.jersey().register(userResource);
+    environment.jersey().register(testResource);
+    environment.jersey().register(experimentResource);
+    environment.jersey().register(trialResource);
 
-        // TODO - health checks for all services
-//        final TemplateHealthCheck healthCheck =
-//                new TemplateHealthCheck(configuration.getTemplate());
-//        environment.healthChecks().register("template", healthCheck);
-
-//        environment.jersey().register(userResource);
-        environment.jersey().register(testResource);
-        environment.jersey().register(experimentResource);
-        environment.jersey().register(trialResource);
-
-        // add support for submitting files
-        environment.jersey().register(MultiPartFeature.class);
-
-    }
-
-
+    // add support for submitting files
+    environment.jersey().register(MultiPartFeature.class);
+  }
 }

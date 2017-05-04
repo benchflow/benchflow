@@ -35,153 +35,156 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 13.02.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17. */
 @Path("/v1/users/{username}/tests")
 @Api(value = "benchflow-test")
 public class BenchFlowTestResource {
 
-    public static String RUN_PATH = "/run";
-    public static String STATE_PATH = "/state";
-    public static String STATUS_PATH = "/status";
+  public static String RUN_PATH = "/run";
+  public static String STATE_PATH = "/state";
+  public static String STATUS_PATH = "/status";
 
-    private Logger logger = LoggerFactory.getLogger(BenchFlowTestResource.class.getSimpleName());
+  private Logger logger = LoggerFactory.getLogger(BenchFlowTestResource.class.getSimpleName());
 
-    private final BenchFlowTestModelDAO testModelDAO;
-    private final UserDAO userDAO;
+  private final BenchFlowTestModelDAO testModelDAO;
+  private final UserDAO userDAO;
 
-    private final BenchFlowTestTaskController testTaskController;
+  private final BenchFlowTestTaskController testTaskController;
 
-    public BenchFlowTestResource() {
-        this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
-        this.userDAO = BenchFlowTestManagerApplication.getUserDAO();
-        this.testTaskController = BenchFlowTestManagerApplication.getTestTaskController();
+  public BenchFlowTestResource() {
+    this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
+    this.userDAO = BenchFlowTestManagerApplication.getUserDAO();
+    this.testTaskController = BenchFlowTestManagerApplication.getTestTaskController();
+  }
+
+  /* used for tests */
+  public BenchFlowTestResource(
+      BenchFlowTestModelDAO testModelDAO,
+      UserDAO userDAO,
+      BenchFlowTestTaskController testTaskController) {
+    this.testModelDAO = testModelDAO;
+    this.userDAO = userDAO;
+    this.testTaskController = testTaskController;
+  }
+
+  @POST
+  @Path("/run")
+  @Consumes(MediaType.MULTIPART_FORM_DATA)
+  @Produces(MediaType.APPLICATION_JSON)
+  public RunBenchFlowTestResponse runBenchFlowTest(
+      @PathParam("username") String username,
+      @FormDataParam("benchFlowTestBundle") final InputStream benchFlowTestBundle) {
+
+    logger.info(
+        "request received: POST " + BenchFlowConstants.getPathFromUsername(username) + RUN_PATH);
+
+    if (benchFlowTestBundle == null) {
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
 
-    /* used for tests */
-    public BenchFlowTestResource(BenchFlowTestModelDAO testModelDAO, UserDAO userDAO, BenchFlowTestTaskController testTaskController) {
-        this.testModelDAO = testModelDAO;
-        this.userDAO = userDAO;
-        this.testTaskController = testTaskController;
+    ZipInputStream archiveZipInputStream = new ZipInputStream(benchFlowTestBundle);
+
+    User user = new User(username);
+
+    // TODO - check valid user
+    // TODO - move user creating into separate Class for handling users
+    if (!userDAO.userExists(user)) {
+
+      try {
+        userDAO.addUser(BenchFlowConstants.BENCHFLOW_USER.getUsername());
+      } catch (UserIDAlreadyExistsException e) {
+        // since we already checked that the user doesn't exist it cannot happen
+        throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+      }
     }
 
-    @POST
-    @Path("/run")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces(MediaType.APPLICATION_JSON)
-    public RunBenchFlowTestResponse runBenchFlowTest(@PathParam("username") String username,
-                                                     @FormDataParam("benchFlowTestBundle") final InputStream benchFlowTestBundle) {
+    try {
 
-        logger.info("request received: POST " + BenchFlowConstants.getPathFromUsername(username) + RUN_PATH);
+      // validate archive
+      // Get the contents of archive and check if valid Test ID
+      String testDefinitionString =
+          BenchFlowTestArchiveExtractor.extractBenchFlowTestDefinitionString(archiveZipInputStream);
 
-        if (benchFlowTestBundle == null) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
-        }
+      if (testDefinitionString == null) throw new InvalidTestArchiveException();
 
-        ZipInputStream archiveZipInputStream = new ZipInputStream(benchFlowTestBundle);
+      BenchFlowTest benchFlowTest = BenchFlowDSL.testFromYaml(testDefinitionString);
 
-        User user = new User(username);
+      InputStream deploymentDescriptorInputStream =
+          BenchFlowTestArchiveExtractor.extractDeploymentDescriptorInputStream(
+              archiveZipInputStream);
+      Map<String, InputStream> bpmnModelsInputStream =
+          BenchFlowTestArchiveExtractor.extractBPMNModelInputStreams(archiveZipInputStream);
 
-        // TODO - check valid user
-        // TODO - move user creating into separate Class for handling users
-        if (!userDAO.userExists(user)) {
+      if (deploymentDescriptorInputStream == null || bpmnModelsInputStream.size() == 0) {
+        throw new InvalidTestArchiveException();
+      }
 
-            try {
-                userDAO.addUser(BenchFlowConstants.BENCHFLOW_USER.getUsername());
-            } catch (UserIDAlreadyExistsException e) {
-                // since we already checked that the user doesn't exist it cannot happen
-                throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-            }
-        }
+      // save new test
+      String testID =
+          testModelDAO.addTestModel(benchFlowTest.name(), BenchFlowConstants.BENCHFLOW_USER);
 
-        try {
+      // submit the new test
+      testTaskController.startTest(
+          testID, testDefinitionString, deploymentDescriptorInputStream, bpmnModelsInputStream);
 
-            // validate archive
-            // Get the contents of archive and check if valid Test ID
-            String testDefinitionString = BenchFlowTestArchiveExtractor.extractBenchFlowTestDefinitionString(
-                    archiveZipInputStream);
+      return new RunBenchFlowTestResponse(testID);
 
-            if (testDefinitionString == null)
-                throw new InvalidTestArchiveException();
+    } catch (IOException | InvalidTestArchiveException | BenchFlowDeserializationException e) {
+      throw new InvalidTestArchiveWebException();
+    }
+  }
 
-            BenchFlowTest benchFlowTest = BenchFlowDSL.testFromYaml(testDefinitionString);
+  @PUT
+  @Path("{testName}/{testNumber}/state")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public ChangeBenchFlowTestStateResponse changeBenchFlowTestState(
+      @PathParam("username") String username,
+      @PathParam("testName") String testName,
+      @PathParam("testNumber") int testNumber,
+      @NotNull @Valid final ChangeBenchFlowTestStateRequest stateRequest) {
 
-            InputStream deploymentDescriptorInputStream = BenchFlowTestArchiveExtractor.extractDeploymentDescriptorInputStream(
-                    archiveZipInputStream);
-            Map<String, InputStream> bpmnModelsInputStream = BenchFlowTestArchiveExtractor.extractBPMNModelInputStreams(
-                    archiveZipInputStream);
+    String testID = BenchFlowConstants.getTestID(username, testName, testNumber);
+    logger.info(
+        "request received: PUT " + BenchFlowConstants.getPathFromTestID(testID) + STATE_PATH);
 
-            if (deploymentDescriptorInputStream == null || bpmnModelsInputStream.size() == 0) {
-                throw new InvalidTestArchiveException();
-            }
+    // TODO - handle the actual state change (e.g. on PE Manager)
 
-            // save new test
-            String testID = testModelDAO.addTestModel(benchFlowTest.name(), BenchFlowConstants.BENCHFLOW_USER);
+    // update the state
+    BenchFlowTestModel.BenchFlowTestState newState = null;
 
-            // submit the new test
-            testTaskController.startTest(testID, testDefinitionString, deploymentDescriptorInputStream, bpmnModelsInputStream);
-
-            return new RunBenchFlowTestResponse(testID);
-
-        } catch (IOException | InvalidTestArchiveException | BenchFlowDeserializationException e) {
-            throw new InvalidTestArchiveWebException();
-        }
-
+    try {
+      newState = testModelDAO.setTestState(testID, stateRequest.getState());
+    } catch (BenchFlowTestIDDoesNotExistException e) {
+      throw new InvalidBenchFlowTestIDWebException();
     }
 
-    @PUT
-    @Path("{testName}/{testNumber}/state")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public ChangeBenchFlowTestStateResponse changeBenchFlowTestState(@PathParam("username") String username,
-                                                                     @PathParam("testName") String testName,
-                                                                     @PathParam("testNumber") int testNumber,
-                                                                     @NotNull @Valid final ChangeBenchFlowTestStateRequest stateRequest) {
+    // return the state as saved
+    return new ChangeBenchFlowTestStateResponse(newState);
+  }
 
-        String testID = BenchFlowConstants.getTestID(username, testName, testNumber);
-        logger.info("request received: PUT " + BenchFlowConstants.getPathFromTestID(testID) + STATE_PATH);
+  @Path("{testName}/{testNumber}/status")
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public BenchFlowTestModel getBenchFlowTestStatus(
+      @PathParam("username") String username,
+      @PathParam("testName") String testName,
+      @PathParam("testNumber") int testNumber) {
 
-        // TODO - handle the actual state change (e.g. on PE Manager)
+    String testID = BenchFlowConstants.getTestID(username, testName, testNumber);
 
+    logger.info(
+        "request received: GET " + BenchFlowConstants.getPathFromTestID(testID) + STATUS_PATH);
 
-        // update the state
-        BenchFlowTestModel.BenchFlowTestState newState = null;
+    // get the BenchFlowTestModel from DAO
+    BenchFlowTestModel benchFlowTestModel = null;
 
-        try {
-            newState = testModelDAO.setTestState(testID, stateRequest.getState());
-        } catch (BenchFlowTestIDDoesNotExistException e) {
-            throw new InvalidBenchFlowTestIDWebException();
-        }
-
-        // return the state as saved
-        return new ChangeBenchFlowTestStateResponse(newState);
-
+    try {
+      benchFlowTestModel = testModelDAO.getTestModel(testID);
+    } catch (BenchFlowTestIDDoesNotExistException e) {
+      throw new InvalidBenchFlowTestIDWebException();
     }
 
-    @Path("{testName}/{testNumber}/status")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public BenchFlowTestModel getBenchFlowTestStatus(@PathParam("username") String username,
-                                                     @PathParam("testName") String testName,
-                                                     @PathParam("testNumber") int testNumber) {
-
-        String testID = BenchFlowConstants.getTestID(username, testName, testNumber);
-
-        logger.info("request received: GET " + BenchFlowConstants.getPathFromTestID(testID) + STATUS_PATH);
-
-        // get the BenchFlowTestModel from DAO
-        BenchFlowTestModel benchFlowTestModel = null;
-
-        try {
-            benchFlowTestModel = testModelDAO.getTestModel(testID);
-        } catch (BenchFlowTestIDDoesNotExistException e) {
-            throw new InvalidBenchFlowTestIDWebException();
-        }
-
-        return benchFlowTestModel;
-
-    }
-
+    return benchFlowTestModel;
+  }
 }

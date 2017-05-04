@@ -16,194 +16,195 @@ import java.io.IOException;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch)
- * @author Vincenzo Ferme (fermevincenzo@gmail.com)
- *         created on 02.03.17.
+ * @author Vincenzo Ferme (fermevincenzo@gmail.com) created on 02.03.17.
  */
 public class DockerComposeIT {
 
-    private static String MONGO_NAME = getEnvOrDefault("MONGO_NAME", "mongo");
-    private static String MONGO_HOST = getEnvOrDefault("MONGO_PORT_27017_TCP_ADDR", "localhost");
-    private static int MONGO_PORT = Integer.valueOf(getEnvOrDefault("MONGO_PORT_27017_TCP_PORT", "27017"));
-    private static String MONGO_TAG = getEnvOrDefault("MONGO_TAG", "3.4.2");
+  private static String MONGO_NAME = getEnvOrDefault("MONGO_NAME", "mongo");
+  private static String MONGO_HOST = getEnvOrDefault("MONGO_PORT_27017_TCP_ADDR", "localhost");
+  private static int MONGO_PORT =
+      Integer.valueOf(getEnvOrDefault("MONGO_PORT_27017_TCP_PORT", "27017"));
+  private static String MONGO_TAG = getEnvOrDefault("MONGO_TAG", "3.4.2");
 
-    private static String MINIO_NAME = getEnvOrDefault("MINIO_NAME", "minio");
-    private static String MINIO_HOST = getEnvOrDefault("MINIO_PORT_9000_TCP_ADDR", "localhost");
-    private static int MINIO_PORT = Integer.valueOf(getEnvOrDefault("MINIO_PORT_9000_TCP_PORT", "9000"));
-    protected static String MINIO_ACCESS_KEY = getEnvOrDefault("MINIO_ACCESS_KEY", "minio");
-    protected static String MINIO_SECRET_KEY = getEnvOrDefault("MINIO_SECRET_KEY", "minio123");
-    private static String MINIO_TAG = getEnvOrDefault("MINIO_TAG", "RELEASE.2017-02-16T01-47-30Z");
+  private static String MINIO_NAME = getEnvOrDefault("MINIO_NAME", "minio");
+  private static String MINIO_HOST = getEnvOrDefault("MINIO_PORT_9000_TCP_ADDR", "localhost");
+  private static int MINIO_PORT =
+      Integer.valueOf(getEnvOrDefault("MINIO_PORT_9000_TCP_PORT", "9000"));
+  protected static String MINIO_ACCESS_KEY = getEnvOrDefault("MINIO_ACCESS_KEY", "minio");
+  protected static String MINIO_SECRET_KEY = getEnvOrDefault("MINIO_SECRET_KEY", "minio123");
+  private static String MINIO_TAG = getEnvOrDefault("MINIO_TAG", "RELEASE.2017-02-16T01-47-30Z");
 
-    private static String LOCAL_MONGO_DATA_VOLUME_PATH = System.getProperty("user.dir") + "/src/test/resources/docker-compose/mongo-data";
-    private static String MONGO_DATA_VOLUME_PATH = getEnvOrDefault("MONGO_DATA_VOLUME_PATH", LOCAL_MONGO_DATA_VOLUME_PATH);
+  private static String LOCAL_MONGO_DATA_VOLUME_PATH =
+      System.getProperty("user.dir") + "/src/test/resources/docker-compose/mongo-data";
+  private static String MONGO_DATA_VOLUME_PATH =
+      getEnvOrDefault("MONGO_DATA_VOLUME_PATH", LOCAL_MONGO_DATA_VOLUME_PATH);
 
-    private static String LOCAL_DOCKER_COMPOSE_PATH = "src/test/resources/docker-compose/docker-compose.yml";
+  private static String LOCAL_DOCKER_COMPOSE_PATH =
+      "src/test/resources/docker-compose/docker-compose.yml";
 
-    protected static DockerPort MONGO_CONTAINER;
-    protected static DockerPort MINIO_CONTAINER;
+  protected static DockerPort MONGO_CONTAINER;
+  protected static DockerPort MINIO_CONTAINER;
 
-    // boolean to keep track if we are running in Continuous Integration or not
-    // by relying on the CI env variable
-    // IMPORTANT: needs to be executed before setupDockerMachineIfLocal() and setupDockerComposeIfLocal(),
-    // otherwise it is always false
-    private static boolean inLocal = System.getenv("CI") == null;
+  // boolean to keep track if we are running in Continuous Integration or not
+  // by relying on the CI env variable
+  // IMPORTANT: needs to be executed before setupDockerMachineIfLocal() and setupDockerComposeIfLocal(),
+  // otherwise it is always false
+  private static boolean inLocal = System.getenv("CI") == null;
 
-    // dockerComposeRule and dockerMachine are used only when executing the local workflow
-    // IMPORTANT: needs to be executed before setupDockerComposeIfLocal()
-    private static final DockerMachine dockerMachine = setupDockerMachineIfLocal();
+  // dockerComposeRule and dockerMachine are used only when executing the local workflow
+  // IMPORTANT: needs to be executed before setupDockerComposeIfLocal()
+  private static final DockerMachine dockerMachine = setupDockerMachineIfLocal();
 
-    @ClassRule
-    public static DockerComposeRule dockerComposeRule = setupDockerComposeIfLocal();
+  @ClassRule public static DockerComposeRule dockerComposeRule = setupDockerComposeIfLocal();
 
-    protected static MongoClient mongoClient;
+  protected static MongoClient mongoClient;
 
-    // this seems to happen every time an IT test is executed but the variable assignment of the above variables survive
-    @BeforeClass
-    public static void prepareContainers() throws IOException, InterruptedException {
+  // this seems to happen every time an IT test is executed but the variable assignment of the above variables survive
+  @BeforeClass
+  public static void prepareContainers() throws IOException, InterruptedException {
 
-        ensureServicesAreReady();
+    ensureServicesAreReady();
 
-        // create the mongo data directory if not present
-        FileUtils.forceMkdir(new File(MONGO_DATA_VOLUME_PATH));
+    // create the mongo data directory if not present
+    FileUtils.forceMkdir(new File(MONGO_DATA_VOLUME_PATH));
 
-        System.out.println("================ CLEANING MONGO ========================");
+    System.out.println("================ CLEANING MONGO ========================");
 
-        ServerAddress serverAddress = new ServerAddress(MONGO_CONTAINER.getIp(), MONGO_CONTAINER.getExternalPort());
+    ServerAddress serverAddress =
+        new ServerAddress(MONGO_CONTAINER.getIp(), MONGO_CONTAINER.getExternalPort());
 
-        mongoClient = new MongoClient(serverAddress);
+    mongoClient = new MongoClient(serverAddress);
 
-        // make sure all data before this test is removed
-        for (String dbName : mongoClient.listDatabaseNames()) {
-            mongoClient.getDatabase(dbName).drop();
-        }
+    // make sure all data before this test is removed
+    for (String dbName : mongoClient.listDatabaseNames()) {
+      mongoClient.getDatabase(dbName).drop();
+    }
+  }
 
+  @AfterClass
+  public static void cleanUpContainers() throws IOException {
+
+    mongoClient.close();
+    mongoClient = null;
+  }
+
+  // ensure that services are ready to be used for testing
+  private static void ensureServicesAreReady() throws InterruptedException {
+
+    System.out.println("============== ensureServicesAreReady =====================");
+
+    if (MONGO_CONTAINER != null && MINIO_CONTAINER != null) {
+      // if container variables are already set we can return
+      return;
     }
 
-    @AfterClass
-    public static void cleanUpContainers() throws IOException {
+    if (inLocal) {
 
-        mongoClient.close();
-        mongoClient = null;
+      // We make sure that the host and the container port are the same by defining it in docker compose
+      MONGO_CONTAINER = dockerComposeRule.containers().container(MONGO_NAME).port(MONGO_PORT);
+      MINIO_CONTAINER = dockerComposeRule.containers().container(MINIO_NAME).port(MINIO_PORT);
 
+    } else {
+
+      // We make sure that the host and the container port are the same by defining it in wercker
+      MONGO_CONTAINER = new DockerPort(MONGO_HOST, MONGO_PORT, MONGO_PORT);
+      MINIO_CONTAINER = new DockerPort(MINIO_HOST, MINIO_PORT, MINIO_PORT);
+
+      //The following is not usable, even if cool: https://github.com/palantir/docker-compose-rule/blob/8cce225f6d434cb47b2b09c089871b48bc83897b/docker-compose-rule-core/src/main/java/com/palantir/docker/compose/connection/DockerPort.java
+      //because it depends on docker clusters that we do not start
+
+      // We cannot use a ClassRule because: The @ClassRule 'waitingForServices' must return an implementation of TestRule.
+
+      //Handle the wait for a port to be reachable, one by one, with maximum retry
+      int maxRetries = 10;
+
+      //Waiting check interval
+      int checkIntervalInMs = 10000;
+
+      System.out.println("Waiting for Mongo...");
+
+      //Wait for Mongo
+      waitForPortAvailabilityOrFail(MONGO_CONTAINER, maxRetries, checkIntervalInMs);
+
+      System.out.println("Mongo is available!");
+      System.out.println("Waiting for Minio...");
+
+      //Wait for Minio
+      waitForPortAvailabilityOrFail(MINIO_CONTAINER, maxRetries, checkIntervalInMs);
+
+      System.out.println("Minio is available!");
+    }
+  }
+
+  // setup docker machine if we are in the local workflow
+  private static DockerMachine setupDockerMachineIfLocal() {
+
+    System.out.println("============== setupDockerMachineIfLocal =====================");
+
+    if (inLocal) {
+
+      //We rely on the CI env variable to detect if we are not in CI environment
+      return DockerMachine.localMachine()
+          .withAdditionalEnvironmentVariable("MONGO_TAG", MONGO_TAG)
+          .withAdditionalEnvironmentVariable("MONGO_DATA_VOLUME", MONGO_DATA_VOLUME_PATH)
+          .withAdditionalEnvironmentVariable("MINIO_TAG", MINIO_TAG)
+          .withAdditionalEnvironmentVariable("MINIO_ACCESS_KEY", MINIO_ACCESS_KEY)
+          .withAdditionalEnvironmentVariable("MINIO_SECRET_KEY", MINIO_SECRET_KEY)
+          .build();
     }
 
-    // ensure that services are ready to be used for testing
-    private static void ensureServicesAreReady() throws InterruptedException {
+    return null;
+  }
 
-        System.out.println("============== ensureServicesAreReady =====================");
+  // setup docker compose if we are in the local workflow
+  private static DockerComposeRule setupDockerComposeIfLocal() {
 
-        if (MONGO_CONTAINER != null && MINIO_CONTAINER != null) {
-            // if container variables are already set we can return
-            return;
-        }
+    System.out.println("============== setupDockerComposeIfLocal =====================");
 
-        if (inLocal) {
+    if (inLocal) {
 
-            // We make sure that the host and the container port are the same by defining it in docker compose
-            MONGO_CONTAINER = dockerComposeRule.containers().container(MONGO_NAME).port(MONGO_PORT);
-            MINIO_CONTAINER = dockerComposeRule.containers().container(MINIO_NAME).port(MINIO_PORT);
-
-        } else {
-
-            // We make sure that the host and the container port are the same by defining it in wercker
-            MONGO_CONTAINER = new DockerPort(MONGO_HOST,MONGO_PORT,MONGO_PORT);
-            MINIO_CONTAINER = new DockerPort(MINIO_HOST,MINIO_PORT,MINIO_PORT);
-
-            //The following is not usable, even if cool: https://github.com/palantir/docker-compose-rule/blob/8cce225f6d434cb47b2b09c089871b48bc83897b/docker-compose-rule-core/src/main/java/com/palantir/docker/compose/connection/DockerPort.java
-            //because it depends on docker clusters that we do not start
-
-            // We cannot use a ClassRule because: The @ClassRule 'waitingForServices' must return an implementation of TestRule.
-
-            //Handle the wait for a port to be reachable, one by one, with maximum retry
-            int maxRetries = 10;
-
-            //Waiting check interval
-            int checkIntervalInMs = 10000;
-
-            System.out.println("Waiting for Mongo...");
-
-            //Wait for Mongo
-            waitForPortAvailabilityOrFail(MONGO_CONTAINER, maxRetries, checkIntervalInMs);
-
-            System.out.println("Mongo is available!");
-            System.out.println("Waiting for Minio...");
-
-            //Wait for Minio
-            waitForPortAvailabilityOrFail(MINIO_CONTAINER, maxRetries, checkIntervalInMs);
-
-            System.out.println("Minio is available!");
-        }
+      // to wait for a service to be available see https://github.com/palantir/docker-compose-rule#waiting-for-a-service-to-be-available
+      // can also be specified in docker compose as a health check
+      return dockerComposeRule =
+          DockerComposeRule.builder()
+              .file(LOCAL_DOCKER_COMPOSE_PATH)
+              .machine(dockerMachine)
+              .waitingForService(MONGO_NAME, HealthChecks.toHaveAllPortsOpen())
+              .waitingForService(MINIO_NAME, HealthChecks.toHaveAllPortsOpen())
+              .build();
     }
 
-    // setup docker machine if we are in the local workflow
-    private static DockerMachine setupDockerMachineIfLocal() {
+    return null;
+  }
 
-        System.out.println("============== setupDockerMachineIfLocal =====================");
+  // wait for a port to be available
+  // true = available, false = not available after maxRetries
+  private static void waitForPortAvailabilityOrFail(
+      DockerPort port, int maxRetries, int checkIntervalInMs) throws InterruptedException {
 
-        if (inLocal) {
+    while (maxRetries > 0) {
 
-            //We rely on the CI env variable to detect if we are not in CI environment
-            return DockerMachine.localMachine()
-                    .withAdditionalEnvironmentVariable("MONGO_TAG", MONGO_TAG)
-                    .withAdditionalEnvironmentVariable("MONGO_DATA_VOLUME", MONGO_DATA_VOLUME_PATH)
-                    .withAdditionalEnvironmentVariable("MINIO_TAG", MINIO_TAG)
-                    .withAdditionalEnvironmentVariable("MINIO_ACCESS_KEY", MINIO_ACCESS_KEY)
-                    .withAdditionalEnvironmentVariable("MINIO_SECRET_KEY", MINIO_SECRET_KEY)
-                    .build();
-        }
+      Thread.sleep(checkIntervalInMs);
 
-        return null;
+      if (port.isListeningNow()) {
+        return;
+      }
+
+      maxRetries--;
     }
 
-    // setup docker compose if we are in the local workflow
-    private static DockerComposeRule setupDockerComposeIfLocal() {
+    Assert.fail("could not connect to " + port + " after " + maxRetries + " retries.");
+  }
 
-        System.out.println("============== setupDockerComposeIfLocal =====================");
+  // return the requested environment variable or a passed default
+  private static String getEnvOrDefault(String env, String defaultValue) {
 
-        if (inLocal) {
+    String envValue = System.getenv(env);
 
-            // to wait for a service to be available see https://github.com/palantir/docker-compose-rule#waiting-for-a-service-to-be-available
-            // can also be specified in docker compose as a health check
-            return dockerComposeRule = DockerComposeRule.builder()
-                    .file(LOCAL_DOCKER_COMPOSE_PATH)
-                    .machine(dockerMachine)
-                    .waitingForService(MONGO_NAME, HealthChecks.toHaveAllPortsOpen())
-                    .waitingForService(MINIO_NAME, HealthChecks.toHaveAllPortsOpen())
-                    .build();
-        }
-
-        return null;
+    if (envValue != null) {
+      return envValue;
+    } else {
+      return defaultValue;
     }
-
-    // wait for a port to be available
-    // true = available, false = not available after maxRetries
-    private static void waitForPortAvailabilityOrFail(DockerPort port, int maxRetries, int checkIntervalInMs) throws InterruptedException {
-
-        while (maxRetries>0) {
-
-            Thread.sleep(checkIntervalInMs);
-
-            if (port.isListeningNow()) {
-                return;
-            }
-
-            maxRetries--;
-        }
-
-        Assert.fail("could not connect to " + port + " after " + maxRetries + " retries.");
-
-    }
-
-    // return the requested environment variable or a passed default
-    private static String getEnvOrDefault(String env, String defaultValue) {
-
-        String envValue = System.getenv(env);
-
-        if (envValue != null) {
-            return envValue;
-        } else {
-            return defaultValue;
-        }
-
-    }
-
+  }
 }

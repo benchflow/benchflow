@@ -9,37 +9,33 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.ws.rs.client.Client;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 13.02.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17. */
 public class ExperimentManagerServiceFactory {
 
-    @NotEmpty
-    private String address;
+  @NotEmpty private String address;
 
-    @JsonProperty
-    public String getAddress() {
-        return address;
-    }
+  @JsonProperty
+  public String getAddress() {
+    return address;
+  }
 
-    @JsonProperty
-    public void setAddress(String address) {
-        this.address = address;
-    }
+  @JsonProperty
+  public void setAddress(String address) {
+    this.address = address;
+  }
 
+  /**
+   * @param environment
+   * @return
+   */
+  public BenchFlowExperimentManagerService build(
+      BenchFlowTestManagerConfiguration config, Environment environment) {
 
-    /**
-     * @param environment
-     * @return
-     */
-    public BenchFlowExperimentManagerService build(BenchFlowTestManagerConfiguration config, Environment environment) {
+    Client client =
+        new JerseyClientBuilder(environment)
+            .using(config.getJerseyClientConfiguration())
+            .build(environment.getName());
 
-        Client client = new JerseyClientBuilder(environment)
-                .using(config.getJerseyClientConfiguration())
-                .build(environment.getName());
-
-        return new BenchFlowExperimentManagerService(client, getAddress());
-
-    }
+    return new BenchFlowExperimentManagerService(client, getAddress());
+  }
 }

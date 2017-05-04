@@ -23,116 +23,119 @@ import java.util.stream.Collectors;
 /**
  * Prepares the test for running.
  *
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 2017-04-20
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20
  */
 public class StartTask implements Runnable {
 
-    private static Logger logger = LoggerFactory.getLogger(StartTask.class.getSimpleName());
+  private static Logger logger = LoggerFactory.getLogger(StartTask.class.getSimpleName());
 
-    private final String testID;
-    private final String testDefinitionYamlString;
-    private final InputStream deploymentDescriptorInputStream;
-    private final Map<String, InputStream> bpmnModelInputStreams;
+  private final String testID;
+  private final String testDefinitionYamlString;
+  private final InputStream deploymentDescriptorInputStream;
+  private final Map<String, InputStream> bpmnModelInputStreams;
 
-    // services
-    private final MinioService minioService;
-    private final ExplorationModelDAO explorationModelDAO;
+  // services
+  private final MinioService minioService;
+  private final ExplorationModelDAO explorationModelDAO;
 
+  public StartTask(
+      String testID,
+      String testDefinitionYamlString,
+      InputStream deploymentDescriptorInputStream,
+      Map<String, InputStream> bpmnModelInputStreams) {
 
-    public StartTask(String testID, String testDefinitionYamlString, InputStream deploymentDescriptorInputStream, Map<String, InputStream> bpmnModelInputStreams) {
+    this.testID = testID;
+    this.testDefinitionYamlString = testDefinitionYamlString;
+    this.deploymentDescriptorInputStream = deploymentDescriptorInputStream;
+    this.bpmnModelInputStreams = bpmnModelInputStreams;
 
-        this.testID = testID;
-        this.testDefinitionYamlString = testDefinitionYamlString;
-        this.deploymentDescriptorInputStream = deploymentDescriptorInputStream;
-        this.bpmnModelInputStreams = bpmnModelInputStreams;
+    this.minioService = BenchFlowTestManagerApplication.getMinioService();
+    this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
+  }
 
-        this.minioService = BenchFlowTestManagerApplication.getMinioService();
-        this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
+  @Override
+  public void run() {
+
+    logger.info("running: " + testID);
+
+    // extract contents
+    InputStream definitionInputStream =
+        IOUtils.toInputStream(testDefinitionYamlString, StandardCharsets.UTF_8);
+
+    // TODO - handle different SUT types
+    // TODO - check that termination criteria with time has not been exceeded
+
+    // save PT archive contents to Minio
+    minioService.saveTestDefinition(testID, definitionInputStream);
+    minioService.saveTestDeploymentDescriptor(testID, deploymentDescriptorInputStream);
+
+    bpmnModelInputStreams.forEach(
+        (fileName, inputStream) -> minioService.saveTestBPMNModel(testID, fileName, inputStream));
+
+    try {
+      BenchFlowTest test = BenchFlowDSL.testFromYaml(testDefinitionYamlString);
+
+      List<Integer> workloadUserSpace = generateExplorationSpace(test);
+
+      if (workloadUserSpace != null) {
+        explorationModelDAO.setWorkloadUserSpace(testID, workloadUserSpace);
+      }
+
+      setExperimentSelectionStrategy(test);
+
+    } catch (BenchFlowDeserializationException | BenchFlowTestIDDoesNotExistException e) {
+      // should not happen since it has already been tested/added
+      logger.error("should not happen");
+      e.printStackTrace();
     }
 
-    @Override
-    public void run() {
+    logger.info("completed: " + testID);
+  }
 
-        logger.info("running: " + testID);
+  public static List<Integer> generateExplorationSpace(BenchFlowTest test) {
 
+    // generate exploration space if any
 
-        // extract contents
-        InputStream definitionInputStream = IOUtils.toInputStream(testDefinitionYamlString, StandardCharsets.UTF_8);
+    // TODO - replace this with calculating all possible combinations
+    // something like this https://blog.balfes.net/2015/06/08/finding-every-possible-combination-of-array-entries-from-multiple-lists-with-unknown-bounds-in-java/
 
-        // TODO - handle different SUT types
-        // TODO - check that termination criteria with time has not been exceeded
+    if (test.configuration().goal().explorationSpace().isDefined()) {
 
-        // save PT archive contents to Minio
-        minioService.saveTestDefinition(testID, definitionInputStream);
-        minioService.saveTestDeploymentDescriptor(testID, deploymentDescriptorInputStream);
+      if (test.configuration().goal().explorationSpace().get().workload().isDefined()) {
 
-        bpmnModelInputStreams.forEach((fileName, inputStream) -> minioService.saveTestBPMNModel(testID,
-                fileName,
-                inputStream));
-
-        try {
-            BenchFlowTest test = BenchFlowDSL.testFromYaml(testDefinitionYamlString);
-
-            List<Integer> workloadUserSpace = generateExplorationSpace(test);
-
-            if (workloadUserSpace != null) {
-                explorationModelDAO.setWorkloadUserSpace(testID, workloadUserSpace);
-            }
-
-            setExperimentSelectionStrategy(test);
-
-        } catch (BenchFlowDeserializationException | BenchFlowTestIDDoesNotExistException e) {
-            // should not happen since it has already been tested/added
-            logger.error("should not happen");
-            e.printStackTrace();
-        }
-
-        logger.info("completed: " + testID);
-
-
+        return JavaConverters.asJavaCollectionConverter(
+                test.configuration()
+                    .goal()
+                    .explorationSpace()
+                    .get()
+                    .workload()
+                    .get()
+                    .users()
+                    .get()
+                    .values())
+            .asJavaCollection()
+            .stream()
+            .map(object -> (Integer) object)
+            .collect(Collectors.toList());
+      }
     }
 
-    public static List<Integer> generateExplorationSpace(BenchFlowTest test) {
+    return null;
+  }
 
-        // generate exploration space if any
+  private void setExperimentSelectionStrategy(BenchFlowTest test) {
 
-        // TODO - replace this with calculating all possible combinations
-        // something like this https://blog.balfes.net/2015/06/08/finding-every-possible-combination-of-array-entries-from-multiple-lists-with-unknown-bounds-in-java/
+    // TODO - read this from BenchFlowTest
 
-        if (test.configuration().goal().explorationSpace().isDefined()) {
+    ExperimentSelectionStrategy.Type selectionStrategyType =
+        ExperimentSelectionStrategy.Type.COMPLETE_SELECTION;
 
-            if (test.configuration().goal().explorationSpace().get().workload().isDefined()) {
-
-                return JavaConverters.asJavaCollectionConverter(test.configuration().goal().explorationSpace().get().workload().get().users().get().values())
-                        .asJavaCollection()
-                        .stream()
-                        .map(object -> (Integer) object)
-                        .collect(Collectors.toList());
-
-            }
-
-        }
-
-        return null;
+    try {
+      explorationModelDAO.setExperimentSelectionStrategy(testID, selectionStrategyType);
+    } catch (BenchFlowTestIDDoesNotExistException e) {
+      // should not happen since it has already been added
+      logger.error("should not happen");
+      e.printStackTrace();
     }
-
-    private void setExperimentSelectionStrategy(BenchFlowTest test) {
-
-        // TODO - read this from BenchFlowTest
-
-        ExperimentSelectionStrategy.Type selectionStrategyType = ExperimentSelectionStrategy.Type.COMPLETE_SELECTION;
-
-        try {
-            explorationModelDAO.setExperimentSelectionStrategy(testID, selectionStrategyType);
-        } catch (BenchFlowTestIDDoesNotExistException e) {
-            // should not happen since it has already been added
-            logger.error("should not happen");
-            e.printStackTrace();
-        }
-
-    }
-
-
-
+  }
 }

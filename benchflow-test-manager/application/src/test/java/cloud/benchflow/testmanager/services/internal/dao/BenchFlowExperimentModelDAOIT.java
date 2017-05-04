@@ -18,120 +18,112 @@ import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_
 import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_BENCHFLOW_TEST_NAME;
 import static org.junit.Assert.assertEquals;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 22.02.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17. */
 public class BenchFlowExperimentModelDAOIT extends DockerComposeIT {
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-    private BenchFlowTestModelDAO testModelDAO;
-    private BenchFlowExperimentModelDAO experimentModelDAO;
-    private UserDAO userDAO;
-    private User testUser;
-    private String testID;
+  @Rule public ExpectedException exception = ExpectedException.none();
+  private BenchFlowTestModelDAO testModelDAO;
+  private BenchFlowExperimentModelDAO experimentModelDAO;
+  private UserDAO userDAO;
+  private User testUser;
+  private String testID;
 
-    @Before
-    public void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
 
-        testModelDAO = new BenchFlowTestModelDAO(mongoClient);
+    testModelDAO = new BenchFlowTestModelDAO(mongoClient);
 
-        experimentModelDAO = new BenchFlowExperimentModelDAO(mongoClient, testModelDAO);
+    experimentModelDAO = new BenchFlowExperimentModelDAO(mongoClient, testModelDAO);
 
-        userDAO = new UserDAO(mongoClient, testModelDAO);
+    userDAO = new UserDAO(mongoClient, testModelDAO);
 
-        testUser = userDAO.addUser(TestConstants.TEST_USER_NAME);
+    testUser = userDAO.addUser(TestConstants.TEST_USER_NAME);
 
-        testID = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, testUser);
+    testID = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, testUser);
 
-        BenchFlowTestModel model = testModelDAO.getTestModel(testID);
+    BenchFlowTestModel model = testModelDAO.getTestModel(testID);
 
-        Assert.assertNotNull(model);
-        assertEquals(testID, model.getId());
+    Assert.assertNotNull(model);
+    assertEquals(testID, model.getId());
+  }
 
-    }
+  @After
+  public void tearDown() throws Exception {
 
-    @After
-    public void tearDown() throws Exception {
+    userDAO.removeUser(testUser.getUsername());
+  }
 
-        userDAO.removeUser(testUser.getUsername());
+  @Test
+  public void addTrialStatus() throws Exception {
 
-    }
+    int trialNumber = 0;
 
-    @Test
-    public void addTrialStatus() throws Exception {
+    String experimentID = experimentModelDAO.addExperiment(testID);
 
-        int trialNumber = 0;
+    // STARTED
+    experimentModelDAO.addTrialStatus(experimentID, trialNumber, RunStatus.Code.STARTED);
+    RunStatus.Code trialStatus = experimentModelDAO.getTrialStatus(experimentID, trialNumber);
 
-        String experimentID = experimentModelDAO.addExperiment(testID);
+    Assert.assertNotNull(trialStatus);
+    assertEquals(RunStatus.Code.STARTED, trialStatus);
 
-        // STARTED
-        experimentModelDAO.addTrialStatus(experimentID, trialNumber, RunStatus.Code.STARTED);
-        RunStatus.Code trialStatus = experimentModelDAO.getTrialStatus(experimentID, trialNumber);
+    // TERMINATED
+    experimentModelDAO.addTrialStatus(experimentID, trialNumber, RunStatus.Code.COMPLETED);
+    trialStatus = experimentModelDAO.getTrialStatus(experimentID, trialNumber);
 
-        Assert.assertNotNull(trialStatus);
-        assertEquals(RunStatus.Code.STARTED, trialStatus);
+    Assert.assertNotNull(trialStatus);
+    assertEquals(RunStatus.Code.COMPLETED, trialStatus);
+  }
 
-        // TERMINATED
-        experimentModelDAO.addTrialStatus(experimentID, trialNumber, RunStatus.Code.COMPLETED);
-        trialStatus = experimentModelDAO.getTrialStatus(experimentID, trialNumber);
+  @Test
+  public void addMultipleExperiments() throws Exception {
 
-        Assert.assertNotNull(trialStatus);
-        assertEquals(RunStatus.Code.COMPLETED, trialStatus);
+    // make sure that the experiment counter is incremented correctly
 
-    }
+    String firstID = experimentModelDAO.addExperiment(testID);
 
-    @Test
-    public void addMultipleExperiments() throws Exception {
+    assertEquals(testID + MODEL_ID_DELIMITER + 0, firstID);
 
-        // make sure that the experiment counter is incremented correctly
+    BenchFlowTestModel testModel = testModelDAO.getTestModel(testID);
 
-        String firstID = experimentModelDAO.addExperiment(testID);
+    assertEquals(1, testModel.getExperimentModels().size());
 
-        assertEquals(testID + MODEL_ID_DELIMITER + 0, firstID);
+    String secondID = experimentModelDAO.addExperiment(testID);
 
-        BenchFlowTestModel testModel = testModelDAO.getTestModel(testID);
+    assertEquals(testID + MODEL_ID_DELIMITER + 1, secondID);
 
-        assertEquals(1, testModel.getExperimentModels().size());
+    testModel = testModelDAO.getTestModel(testID);
 
-        String secondID = experimentModelDAO.addExperiment(testID);
+    assertEquals(2, testModel.getExperimentModels().size());
+  }
 
-        assertEquals(testID + MODEL_ID_DELIMITER + 1, secondID);
+  @Test
+  public void addTrialToMissingExperiment() throws Exception {
 
-        testModel = testModelDAO.getTestModel(testID);
+    exception.expect(BenchFlowExperimentIDDoesNotExistException.class);
 
-        assertEquals(2, testModel.getExperimentModels().size());
+    experimentModelDAO.addTrialStatus("not_valid", 1, RunStatus.Code.COMPLETED);
+  }
 
-    }
+  @Test
+  public void testHashedID() throws Exception {
 
-    @Test
-    public void addTrialToMissingExperiment() throws Exception {
+    experimentModelDAO.addExperiment(testID);
 
+    DBCollection collection =
+        testModelDAO.getDatastore().getCollection(BenchFlowExperimentModel.class);
 
-        exception.expect(BenchFlowExperimentIDDoesNotExistException.class);
-
-        experimentModelDAO.addTrialStatus("not_valid", 1, RunStatus.Code.COMPLETED);
-
-    }
-
-    @Test
-    public void testHashedID() throws Exception {
-
-        experimentModelDAO.addExperiment(testID);
-
-        DBCollection collection = testModelDAO.getDatastore().getCollection(BenchFlowExperimentModel.class);
-
-        collection.getIndexInfo().forEach(dbObject -> {
-
-            BasicDBObject index = (BasicDBObject) dbObject;
-            if (!index.getString("name").equals("_id_")) {
-                assertEquals("hashed",
-                             ((DBObject) index.get("key")).get(BenchFlowExperimentModel.HASHED_ID_FIELD_NAME));
-            }
-
-        });
-
-
-    }
+    collection
+        .getIndexInfo()
+        .forEach(
+            dbObject -> {
+              BasicDBObject index = (BasicDBObject) dbObject;
+              if (!index.getString("name").equals("_id_")) {
+                assertEquals(
+                    "hashed",
+                    ((DBObject) index.get("key"))
+                        .get(BenchFlowExperimentModel.HASHED_ID_FIELD_NAME));
+              }
+            });
+  }
 }

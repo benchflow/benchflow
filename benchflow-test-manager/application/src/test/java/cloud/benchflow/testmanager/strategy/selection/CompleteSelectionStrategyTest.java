@@ -18,73 +18,67 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 2017-04-27
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-27 */
 public class CompleteSelectionStrategyTest {
 
-    private MinioService minioMock = Mockito.mock(MinioService.class);
-    private ExplorationModelDAO explorationModelDAOMock = Mockito.mock(ExplorationModelDAO.class);
-    private BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
+  private MinioService minioMock = Mockito.mock(MinioService.class);
+  private ExplorationModelDAO explorationModelDAOMock = Mockito.mock(ExplorationModelDAO.class);
+  private BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
 
-    private CompleteSelectionStrategy completeSelectionStrategy;
+  private CompleteSelectionStrategy completeSelectionStrategy;
 
-    @Before
-    public void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
 
-        completeSelectionStrategy = new CompleteSelectionStrategy(minioMock, explorationModelDAOMock, testModelDAOMock);
+    completeSelectionStrategy =
+        new CompleteSelectionStrategy(minioMock, explorationModelDAOMock, testModelDAOMock);
+  }
 
-    }
+  @Test
+  public void selectNextExperiment() throws Exception {
 
-    @Test
-    public void selectNextExperiment() throws Exception {
+    String testID = TestConstants.VALID_TEST_ID;
 
-        String testID = TestConstants.VALID_TEST_ID;
+    String expectedNumUsers = "5";
 
-        String expectedNumUsers = "5";
+    Mockito.doReturn(TestFiles.getTestExplorationCompleteUsersInputStream())
+        .when(minioMock)
+        .getTestDefinition(testID);
 
-        Mockito.doReturn(TestFiles.getTestExplorationCompleteUsersInputStream())
-                .when(minioMock)
-                .getTestDefinition(testID);
+    String testYaml =
+        IOUtils.toString(
+            TestFiles.getTestExplorationCompleteUsersInputStream(), StandardCharsets.UTF_8);
 
-        String testYaml = IOUtils.toString(TestFiles.getTestExplorationCompleteUsersInputStream(), StandardCharsets.UTF_8);
+    BenchFlowTest test = BenchFlowDSL.testFromYaml(testYaml);
 
-        BenchFlowTest test = BenchFlowDSL.testFromYaml(testYaml);
+    List<Integer> selectionStrategy = StartTask.generateExplorationSpace(test);
 
-        List<Integer> selectionStrategy = StartTask.generateExplorationSpace(test);
+    Mockito.doReturn(selectionStrategy).when(explorationModelDAOMock).getWorkloadUserSpace(testID);
 
-        Mockito.doReturn(selectionStrategy)
-                .when(explorationModelDAOMock)
-                .getWorkloadUserSpace(testID);
+    List<Long> experimentNumbers = new ArrayList<>();
+    // ensure that experiment is available in DB
+    experimentNumbers.add(0L);
 
-        List<Long> experimentNumbers = new ArrayList<>();
-        // ensure that experiment is available in DB
-        experimentNumbers.add(0L);
+    Mockito.doReturn(experimentNumbers).when(testModelDAOMock).getExperimentNumbers(testID);
 
-        Mockito.doReturn(experimentNumbers)
-                .when(testModelDAOMock)
-                .getExperimentNumbers(testID);
+    String experimentYaml = completeSelectionStrategy.selectNextExperiment(testID);
 
-        String experimentYaml = completeSelectionStrategy.selectNextExperiment(testID);
+    Assert.assertNotNull(experimentYaml);
+    Assert.assertTrue(experimentYaml.contains("users: " + expectedNumUsers));
 
-        Assert.assertNotNull(experimentYaml);
-        Assert.assertTrue(experimentYaml.contains("users: " + expectedNumUsers));
+    // run the next experiment
+    // make sure input stream has not been read already
+    Mockito.doReturn(TestFiles.getTestExplorationCompleteUsersInputStream())
+        .when(minioMock)
+        .getTestDefinition(testID);
 
-        // run the next experiment
-        // make sure input stream has not been read already
-        Mockito.doReturn(TestFiles.getTestExplorationCompleteUsersInputStream())
-                .when(minioMock)
-                .getTestDefinition(testID);
+    experimentNumbers.add(1L);
 
-        experimentNumbers.add(1L);
+    experimentYaml = completeSelectionStrategy.selectNextExperiment(testID);
 
-        experimentYaml = completeSelectionStrategy.selectNextExperiment(testID);
+    expectedNumUsers = "10";
 
-        expectedNumUsers = "10";
-
-        Assert.assertNotNull(experimentYaml);
-        Assert.assertTrue(experimentYaml.contains("users: " + expectedNumUsers));
-
-    }
+    Assert.assertNotNull(experimentYaml);
+    Assert.assertTrue(experimentYaml.contains("users: " + expectedNumUsers));
+  }
 }

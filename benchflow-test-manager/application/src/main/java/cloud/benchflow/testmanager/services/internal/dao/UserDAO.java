@@ -15,95 +15,86 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 22.02.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17. */
 public class UserDAO extends DAO {
 
-    private static Logger logger = LoggerFactory.getLogger(UserDAO.class.getSimpleName());
+  private static Logger logger = LoggerFactory.getLogger(UserDAO.class.getSimpleName());
 
-    private BenchFlowTestModelDAO testModelDAO;
+  private BenchFlowTestModelDAO testModelDAO;
 
-    public UserDAO(MongoClient mongoClient, BenchFlowTestModelDAO benchFlowTestModelDAO) {
-        super(mongoClient);
-        this.testModelDAO = benchFlowTestModelDAO;
+  public UserDAO(MongoClient mongoClient, BenchFlowTestModelDAO benchFlowTestModelDAO) {
+    super(mongoClient);
+    this.testModelDAO = benchFlowTestModelDAO;
+  }
+
+  public synchronized User addUser(String username) throws UserIDAlreadyExistsException {
+
+    logger.info("addUser: " + username);
+
+    User user = new User(username);
+
+    if (datastore.get(user) != null) throw new UserIDAlreadyExistsException();
+
+    datastore.save(user);
+
+    return user;
+  }
+
+  /** @param username */
+  public synchronized void removeUser(String username) {
+
+    logger.info("removeUser: " + username);
+
+    User user = getUser(username);
+
+    if (user != null) {
+
+      // first remove the reference to the test models from the user and save to DB
+      List<String> testModelIDs =
+          user.getTestModels().stream().map(BenchFlowTestModel::getId).collect(Collectors.toList());
+
+      user.removeAllTestModels();
+
+      datastore.save(user);
+
+      // remove the test models saved in the DB
+      testModelIDs.forEach(testModelID -> testModelDAO.removeTestModel(testModelID));
+
+      // remove the test number counter
+      // TODO - change this to remove all counters with IDs that starts with the username
+      testModelIDs
+          .stream()
+          .map(testModelID -> testModelID.substring(0, testModelID.lastIndexOf(".")))
+          .map(
+              id ->
+                  datastore
+                      .createQuery(BenchFlowTestNumber.class)
+                      .field(BenchFlowTestNumber.ID_FIELD_NAME)
+                      .equal(id))
+          .forEach(datastore::delete);
+
+      // remove the user from the DB
+      datastore.delete(user);
     }
+  }
 
-    public synchronized User addUser(String username) throws UserIDAlreadyExistsException {
+  public synchronized User getUser(String username) {
 
-        logger.info("addUser: " + username);
+    logger.info("getUser: " + username);
 
-        User user = new User(username);
+    final Query<User> testModelQuery =
+        datastore.createQuery(User.class).field(User.ID_FIELD_NAME).equal(username);
 
-        if (datastore.get(user) != null)
-            throw new UserIDAlreadyExistsException();
+    return testModelQuery.get();
+  }
 
-        datastore.save(user);
+  public synchronized boolean userExists(User user) {
 
-        return user;
+    return datastore.get(user) != null;
+  }
 
-    }
+  public synchronized boolean userExists(String username) {
 
-    /**
-     * @param username
-     */
-    public synchronized void removeUser(String username) {
-
-        logger.info("removeUser: " + username);
-
-        User user = getUser(username);
-
-        if (user != null) {
-
-            // first remove the reference to the test models from the user and save to DB
-            List<String> testModelIDs = user.getTestModels().stream().map(BenchFlowTestModel::getId).collect(
-                    Collectors.toList());
-
-            user.removeAllTestModels();
-
-            datastore.save(user);
-
-            // remove the test models saved in the DB
-            testModelIDs.forEach(testModelID -> testModelDAO.removeTestModel(testModelID));
-
-            // remove the test number counter
-            // TODO - change this to remove all counters with IDs that starts with the username
-            testModelIDs.stream()
-                    .map(testModelID -> testModelID.substring(0, testModelID.lastIndexOf(".")))
-                    .map(id -> datastore.createQuery(BenchFlowTestNumber.class)
-                            .field(BenchFlowTestNumber.ID_FIELD_NAME)
-                            .equal(id))
-                    .forEach(datastore::delete);
-
-            // remove the user from the DB
-            datastore.delete(user);
-        }
-
-    }
-
-    public synchronized User getUser(String username) {
-
-        logger.info("getUser: " + username);
-
-        final Query<User> testModelQuery = datastore
-                .createQuery(User.class)
-                .field(User.ID_FIELD_NAME)
-                .equal(username);
-
-        return testModelQuery.get();
-
-    }
-
-    public synchronized boolean userExists(User user) {
-
-        return datastore.get(user) != null;
-
-    }
-
-    public synchronized boolean userExists(String username) {
-
-        return getUser(username) != null;
-
-    }
+    return getUser(username) != null;
+  }
 }

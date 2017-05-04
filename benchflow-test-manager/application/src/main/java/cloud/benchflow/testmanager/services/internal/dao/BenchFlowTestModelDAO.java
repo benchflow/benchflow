@@ -16,186 +16,180 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 19.12.16.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 19.12.16. */
 public class BenchFlowTestModelDAO extends DAO {
 
-    private static Logger logger = LoggerFactory.getLogger(BenchFlowTestModelDAO.class.getSimpleName());
+  private static Logger logger =
+      LoggerFactory.getLogger(BenchFlowTestModelDAO.class.getSimpleName());
 
-    public BenchFlowTestModelDAO(MongoClient mongoClient) {
-        super(mongoClient);
+  public BenchFlowTestModelDAO(MongoClient mongoClient) {
+    super(mongoClient);
+  }
+
+  /** @param testName */
+  public synchronized String addTestModel(String testName, User user) {
+
+    logger.info("addTestModel: " + testName);
+
+    long testNumber = generateTestNumber(testName, user);
+
+    BenchFlowTestModel model = new BenchFlowTestModel(user, testName, testNumber);
+    datastore.save(model);
+
+    user.addTestModel(model);
+
+    datastore.save(user);
+
+    return model.getId();
+  }
+
+  /**
+   * @param testName
+   * @return
+   */
+  private synchronized long generateTestNumber(String testName, User user) {
+
+    String benchFlowTestIdentifier =
+        BenchFlowTestNumber.generateBenchFlowTestIdentifier(user.getUsername(), testName);
+
+    Query<BenchFlowTestNumber> query =
+        datastore
+            .createQuery(BenchFlowTestNumber.class)
+            .field(BenchFlowTestNumber.ID_FIELD_NAME)
+            .equal(benchFlowTestIdentifier);
+
+    UpdateOperations<BenchFlowTestNumber> update =
+        datastore
+            .createUpdateOperations(BenchFlowTestNumber.class)
+            .inc(BenchFlowTestNumber.COUNTER_FIELD_NAME);
+
+    BenchFlowTestNumber counter = datastore.findAndModify(query, update);
+
+    if (counter == null) {
+      counter = new BenchFlowTestNumber(user.getUsername(), testName);
+      datastore.save(counter);
     }
 
-    /**
-     * @param testName
-     */
-    public synchronized String addTestModel(String testName, User user) {
+    return counter.getCounter();
+  }
 
-        logger.info("addTestModel: " + testName);
+  /** @param testID */
+  public synchronized void removeTestModel(String testID) {
 
-        long testNumber = generateTestNumber(testName, user);
+    logger.info("removeTestModel: " + testID);
 
-        BenchFlowTestModel model = new BenchFlowTestModel(user, testName,
-                                                              testNumber);
-        datastore.save(model);
+    try {
 
-        user.addTestModel(model);
+      BenchFlowTestModel testModel = getTestModel(testID);
 
-        datastore.save(user);
+      testModel.getExperimentModels().forEach(datastore::delete);
 
-        return model.getId();
+      User user = testModel.getUser();
+
+      user.removeTestModel(testModel);
+
+      datastore.delete(testModel);
+      datastore.save(user);
+
+    } catch (BenchFlowTestIDDoesNotExistException e) {
+      logger.info("tried to remove non-existent benchflow test");
     }
+  }
 
-    /**
-     * @param testName
-     * @return
-     */
-    private synchronized long generateTestNumber(String testName, User user) {
+  /**
+   * @param testID
+   * @return
+   */
+  public synchronized BenchFlowTestModel getTestModel(String testID)
+      throws BenchFlowTestIDDoesNotExistException {
 
-        String benchFlowTestIdentifier = BenchFlowTestNumber.generateBenchFlowTestIdentifier(user.getUsername(),
-                                                                                                   testName);
+    // TODO - this should not be a public method - if an operation is needed we should add a method for it
 
-        Query<BenchFlowTestNumber> query = datastore
-                .createQuery(BenchFlowTestNumber.class)
-                .field(BenchFlowTestNumber.ID_FIELD_NAME)
-                .equal(benchFlowTestIdentifier);
+    logger.info("getTestModel: " + testID);
 
-        UpdateOperations<BenchFlowTestNumber> update = datastore.createUpdateOperations(
-                BenchFlowTestNumber.class).inc(BenchFlowTestNumber.COUNTER_FIELD_NAME);
+    final Query<BenchFlowTestModel> testModelQuery =
+        datastore
+            .createQuery(BenchFlowTestModel.class)
+            .field(BenchFlowTestModel.ID_FIELD_NAME)
+            .equal(testID);
 
-        BenchFlowTestNumber counter = datastore.findAndModify(query, update);
+    BenchFlowTestModel benchFlowTestModel = testModelQuery.get();
 
-        if (counter == null) {
-            counter = new BenchFlowTestNumber(user.getUsername(), testName);
-            datastore.save(counter);
-        }
+    if (benchFlowTestModel == null) throw new BenchFlowTestIDDoesNotExistException();
 
-        return counter.getCounter();
+    return benchFlowTestModel;
+  }
 
-    }
+  public synchronized boolean testModelExists(String testID) {
 
-    /**
-     * @param testID
-     */
-    public synchronized void removeTestModel(String testID) {
+    logger.info("testModelExists: " + testID);
 
-        logger.info("removeTestModel: " + testID);
+    final Query<BenchFlowTestModel> testModelQuery =
+        datastore
+            .createQuery(BenchFlowTestModel.class)
+            .field(BenchFlowTestModel.ID_FIELD_NAME)
+            .equal(testID);
 
-        try {
+    BenchFlowTestModel benchFlowTestModel = testModelQuery.get();
 
-            BenchFlowTestModel testModel = getTestModel(testID);
+    return benchFlowTestModel != null;
+  }
 
-            testModel.getExperimentModels().forEach(datastore::delete);
+  /** @return */
+  public synchronized List<String> getTestModels() {
 
-            User user = testModel.getUser();
+    logger.info("getTestModels");
 
-            user.removeTestModel(testModel);
+    final Query<BenchFlowTestModel> testModelQuery =
+        datastore.createQuery(BenchFlowTestModel.class);
 
-            datastore.delete(testModel);
-            datastore.save(user);
+    return testModelQuery
+        .asList()
+        .stream()
+        .map(BenchFlowTestModel::getId)
+        .collect(Collectors.toList());
+  }
 
-        } catch (BenchFlowTestIDDoesNotExistException e) {
-            logger.info("tried to remove non-existent benchflow test");
-        }
+  /**
+   * @param testID
+   * @param state
+   */
+  public synchronized BenchFlowTestModel.BenchFlowTestState setTestState(
+      String testID, BenchFlowTestModel.BenchFlowTestState state)
+      throws BenchFlowTestIDDoesNotExistException {
 
-    }
+    logger.info("setTestState: " + testID + " : " + state.name());
 
-    /**
-     * @param testID
-     * @return
-     */
-    public synchronized BenchFlowTestModel getTestModel(String testID) throws BenchFlowTestIDDoesNotExistException {
+    final BenchFlowTestModel benchFlowTestModel = getTestModel(testID);
 
-        // TODO - this should not be a public method - if an operation is needed we should add a method for it
+    benchFlowTestModel.setState(state);
 
-        logger.info("getTestModel: " + testID);
+    datastore.save(benchFlowTestModel);
 
-        final Query<BenchFlowTestModel> testModelQuery = datastore
-                .createQuery(BenchFlowTestModel.class)
-                .field(BenchFlowTestModel.ID_FIELD_NAME)
-                .equal(testID);
+    return getTestModel(testID).getState();
+  }
 
-        BenchFlowTestModel benchFlowTestModel = testModelQuery.get();
+  /**
+   * @param testID
+   * @return
+   */
+  public synchronized BenchFlowTestModel.BenchFlowTestState getTestState(String testID)
+      throws BenchFlowTestIDDoesNotExistException {
 
-        if (benchFlowTestModel == null)
-            throw new BenchFlowTestIDDoesNotExistException();
+    logger.info("getTestState: " + testID);
 
-        return benchFlowTestModel;
+    final BenchFlowTestModel benchFlowTestModel = getTestModel(testID);
 
-    }
+    return benchFlowTestModel.getState();
+  }
 
-    public synchronized boolean testModelExists(String testID) {
+  public synchronized List<Long> getExperimentNumbers(String testID)
+      throws BenchFlowTestIDDoesNotExistException {
 
-        logger.info("testModelExists: " + testID);
+    logger.info("getExperimentNumbers: " + testID);
 
-        final Query<BenchFlowTestModel> testModelQuery = datastore
-                .createQuery(BenchFlowTestModel.class)
-                .field(BenchFlowTestModel.ID_FIELD_NAME)
-                .equal(testID);
+    BenchFlowTestModel benchFlowTestModel = getTestModel(testID);
 
-        BenchFlowTestModel benchFlowTestModel = testModelQuery.get();
-
-        return benchFlowTestModel != null;
-    }
-
-    /**
-     * @return
-     */
-    public synchronized List<String> getTestModels() {
-
-        logger.info("getTestModels");
-
-        final Query<BenchFlowTestModel> testModelQuery = datastore
-                .createQuery(BenchFlowTestModel.class);
-
-        return testModelQuery.asList()
-                .stream()
-                .map(BenchFlowTestModel::getId)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * @param testID
-     * @param state
-     */
-    public synchronized BenchFlowTestModel.BenchFlowTestState setTestState(String testID, BenchFlowTestModel.BenchFlowTestState state) throws BenchFlowTestIDDoesNotExistException {
-
-        logger.info("setTestState: " + testID + " : " + state.name());
-
-        final BenchFlowTestModel benchFlowTestModel = getTestModel(testID);
-
-        benchFlowTestModel.setState(state);
-
-        datastore.save(benchFlowTestModel);
-
-        return getTestModel(testID).getState();
-
-    }
-
-    /**
-     * @param testID
-     * @return
-     */
-    public synchronized BenchFlowTestModel.BenchFlowTestState getTestState(String testID) throws BenchFlowTestIDDoesNotExistException {
-
-        logger.info("getTestState: " + testID);
-
-        final BenchFlowTestModel benchFlowTestModel = getTestModel(testID);
-
-        return benchFlowTestModel.getState();
-
-    }
-
-    public synchronized List<Long> getExperimentNumbers(String testID) throws BenchFlowTestIDDoesNotExistException {
-
-        logger.info("getExperimentNumbers: " + testID);
-
-        BenchFlowTestModel benchFlowTestModel = getTestModel(testID);
-
-        return benchFlowTestModel.getExperimentNumbers();
-
-    }
-
+    return benchFlowTestModel.getExperimentNumbers();
+  }
 }
