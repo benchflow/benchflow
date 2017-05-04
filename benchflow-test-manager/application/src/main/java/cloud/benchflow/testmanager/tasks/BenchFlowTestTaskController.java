@@ -38,10 +38,7 @@ public class BenchFlowTestTaskController {
 
         logger.info("submitTest with testID: " + testID);
 
-        if (testTasks.containsKey(testID)) {
-            logger.info("test already submitted");
-            return;
-        }
+        if (testSubmitted(testID)) return;
 
         ReadyTask readyTask = new ReadyTask(
                 testID,
@@ -50,6 +47,8 @@ public class BenchFlowTestTaskController {
                 bpmnModelInputStreams
         );
 
+
+        // TODO - change to future and then decide what to do next here
         testTasks.put(testID, readyTask);
 
         // TODO - should go into a stateless queue (so that we can recover)
@@ -61,10 +60,7 @@ public class BenchFlowTestTaskController {
 
         logger.info("runDetermineExecuteExperimentsTask with testID: " + testID);
 
-        if (!testTasks.containsKey(testID)) {
-            logger.info("test is not submitted");
-            return;
-        }
+        if (!testSubmitted(testID)) return;
 
         DetermineExecuteExperimentsTask task = new DetermineExecuteExperimentsTask(testID);
 
@@ -82,10 +78,7 @@ public class BenchFlowTestTaskController {
 
         String testID = BenchFlowConstants.getTestIDFromExperimentID(experimentID);
 
-        if (!testTasks.containsKey(testID)) {
-            logger.info("test is not submitted");
-            return;
-        }
+        if (!testSubmitted(testID)) return;
 
         HandleExperimentResultTask task = new HandleExperimentResultTask(experimentID);
 
@@ -103,6 +96,14 @@ public class BenchFlowTestTaskController {
 
         // TODO - implement me
 
+    }
+
+    private boolean testSubmitted(String testID) {
+        if (testTasks.containsKey(testID)) {
+            logger.info("test already submitted");
+            return true;
+        }
+        return false;
     }
 
 
