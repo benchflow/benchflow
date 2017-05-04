@@ -1,30 +1,23 @@
 package cloud.benchflow.testmanager.tasks.running;
 
-import cloud.benchflow.dsl.BenchFlowDSL;
-import cloud.benchflow.dsl.definition.BenchFlowExperiment;
-import cloud.benchflow.dsl.definition.BenchFlowTest;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
-import cloud.benchflow.testmanager.models.BenchFlowTestModel;
-import cloud.benchflow.testmanager.models.ExplorationModel;
 import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
-import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
-import cloud.benchflow.testmanager.strategy.selection.CompleteSelectionStrategy;
 import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
-import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
+ * Determines the next experiment to run and request it to be run on the experiment-manager.
+ *
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 2017-04-20
  */

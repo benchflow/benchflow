@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
+ * Prepares the test for running.
+ *
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 2017-04-20
  */
