@@ -223,6 +223,7 @@
               <executions>
                 <execution>
                   <id>test</id>
+                  <phase>verify</phase>
                   <goals>
                     <goal>test</goal>
                   </goals>

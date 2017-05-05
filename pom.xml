@@ -8,6 +8,11 @@
   <artifactId>benchflow</artifactId>
   <version>0.1.0</version>
   <packaging>pom</packaging>
+
+  <properties>
+      <root.project.basedir>${project.basedir}/../</root.project.basedir>
+  </properties>
+  
   <build>
     <plugins>
       <!-- Enable scalastyle -->
@@ -22,7 +27,7 @@
           <failOnWarning>false</failOnWarning>
           <sourceDirectory>${basedir}/src/main/scala</sourceDirectory>
           <testSourceDirectory>${basedir}/src/test/scala</testSourceDirectory>
-          <configLocation>${basedir}/../scalastyle-config.xml</configLocation>
+          <configLocation>${root.project.basedir}scalastyle-config.xml</configLocation>
           <outputFile>${project.basedir}/scalastyle-output.xml</outputFile>
           <outputEncoding>UTF-8</outputEncoding>
         </configuration>

@@ -15,6 +15,7 @@ import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
+import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -29,129 +30,136 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.concurrent.ExecutorService;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 26.02.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 26.02.17. */
 public class BenchFlowTestEndpointTest {
 
-    private static ExecutorService executorServiceMock = Mockito.mock(ExecutorService.class);
-    private static MinioService minioServiceMock = Mockito.mock(MinioService.class);
-    private static BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
-    private static BenchFlowExperimentModelDAO experimentModelDAOMock = Mockito.mock(
-            BenchFlowExperimentModelDAO.class);
-    private static UserDAO userDAOMock = Mockito.mock(UserDAO.class);
-    private static BenchFlowExperimentManagerService experimentManagerServiceMock = Mockito.mock(
-            BenchFlowExperimentManagerService.class);
+  private static BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
+  private static UserDAO userDAOMock = Mockito.mock(UserDAO.class);
+  private static BenchFlowTestTaskController testTaskControllerMock =
+      Mockito.mock(BenchFlowTestTaskController.class);
 
-    @ClassRule
-    public static final ResourceTestRule resources = ResourceTestRule.builder()
-            .addProvider(MultiPartFeature.class)
-            .addResource(new BenchFlowTestResource(executorServiceMock, minioServiceMock, testModelDAOMock, experimentModelDAOMock, userDAOMock, experimentManagerServiceMock))
-            .build();
+  @ClassRule
+  public static final ResourceTestRule resources =
+      ResourceTestRule.builder()
+          .addProvider(MultiPartFeature.class)
+          .addResource(
+              new BenchFlowTestResource(testModelDAOMock, userDAOMock, testTaskControllerMock))
+          .build();
 
-    @Test
-    public void runValidBenchFlowTest() throws Exception {
+  @Test
+  public void runValidBenchFlowTest() throws Exception {
 
-        String benchFlowTestName = "testNameExample";
-        User user = BenchFlowConstants.BENCHFLOW_USER;
+    String benchFlowTestName = "testNameExample";
+    User user = BenchFlowConstants.BENCHFLOW_USER;
 
-        Mockito.doReturn(
-                user.getUsername() + BenchFlowConstants.MODEL_ID_DELIMITER + benchFlowTestName + BenchFlowConstants.MODEL_ID_DELIMITER + 1).when(
-                testModelDAOMock).addTestModel(benchFlowTestName, user);
+    Mockito.doReturn(
+            user.getUsername()
+                + BenchFlowConstants.MODEL_ID_DELIMITER
+                + benchFlowTestName
+                + BenchFlowConstants.MODEL_ID_DELIMITER
+                + 1)
+        .when(testModelDAOMock)
+        .addTestModel(benchFlowTestName, user);
 
-        FileDataBodyPart fileDataBodyPart = new FileDataBodyPart("benchFlowTestBundle",
-                TestArchives.getValidTestArchiveFile(),
-                MediaType.APPLICATION_OCTET_STREAM_TYPE);
+    FileDataBodyPart fileDataBodyPart =
+        new FileDataBodyPart(
+            "benchFlowTestBundle",
+            TestArchives.getValidTestArchiveFile(),
+            MediaType.APPLICATION_OCTET_STREAM_TYPE);
 
-        MultiPart multiPart = new MultiPart();
-        multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
-        multiPart.bodyPart(fileDataBodyPart);
+    MultiPart multiPart = new MultiPart();
+    multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
+    multiPart.bodyPart(fileDataBodyPart);
 
-        Response response = resources.client()
-                .target(BenchFlowConstants.getPathFromUsername(user.getUsername()))
-                .path(BenchFlowConstants.TESTS_PATH)
-                .path(BenchFlowTestResource.RUN_PATH)
-                .register(MultiPartFeature.class)
-                .request(MediaType.APPLICATION_JSON)
-                .post(Entity.entity(multiPart, multiPart.getMediaType()));
+    Response response =
+        resources
+            .client()
+            .target(BenchFlowConstants.getPathFromUsername(user.getUsername()))
+            .path(BenchFlowConstants.TESTS_PATH)
+            .path(BenchFlowTestResource.RUN_PATH)
+            .register(MultiPartFeature.class)
+            .request(MediaType.APPLICATION_JSON)
+            .post(Entity.entity(multiPart, multiPart.getMediaType()));
 
-        Assert.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+    Assert.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
-        RunBenchFlowTestResponse testResponse = response.readEntity(RunBenchFlowTestResponse.class);
+    RunBenchFlowTestResponse testResponse = response.readEntity(RunBenchFlowTestResponse.class);
 
-        Assert.assertNotNull(testResponse);
-        Assert.assertTrue(testResponse.getTestID().contains(benchFlowTestName));
+    Assert.assertNotNull(testResponse);
+    Assert.assertTrue(testResponse.getTestID().contains(benchFlowTestName));
+  }
 
-    }
+  @Test
+  public void runInvalidArchiveBenchFlowTest() throws Exception {
 
-    @Test
-    public void runInvalidArchiveBenchFlowTest() throws Exception {
+    // TODO
 
-        // TODO
+  }
 
-    }
+  @Test
+  public void changeBenchFlowTestState() throws Exception {
 
-    @Test
-    public void changeBenchFlowTestState() throws Exception {
+    BenchFlowTestModel.BenchFlowTestState state = BenchFlowTestModel.BenchFlowTestState.TERMINATED;
+    String testID = TestConstants.VALID_TEST_ID;
 
-        BenchFlowTestModel.BenchFlowTestState state = BenchFlowTestModel.BenchFlowTestState.COMPLETED;
-        String testID = TestConstants.VALID_TEST_ID;
+    Mockito.doReturn(state).when(testModelDAOMock).setTestState(testID, state);
 
-        Mockito.doReturn(state).when(testModelDAOMock).setTestState(testID, state);
+    ChangeBenchFlowTestStateRequest stateRequest = new ChangeBenchFlowTestStateRequest(state);
 
-        ChangeBenchFlowTestStateRequest stateRequest = new ChangeBenchFlowTestStateRequest(state);
+    Response response =
+        resources
+            .client()
+            .target(BenchFlowConstants.getPathFromTestID(testID))
+            .path(BenchFlowTestResource.STATE_PATH)
+            .request(MediaType.APPLICATION_JSON)
+            .put(Entity.entity(stateRequest, MediaType.APPLICATION_JSON));
 
-        Response response = resources.client()
-                .target(BenchFlowConstants.getPathFromTestID(testID))
-                .path(BenchFlowTestResource.STATE_PATH)
-                .request(MediaType.APPLICATION_JSON)
-                .put(Entity.entity(stateRequest, MediaType.APPLICATION_JSON));
+    ChangeBenchFlowTestStateResponse stateResponse =
+        response.readEntity(ChangeBenchFlowTestStateResponse.class);
 
-        ChangeBenchFlowTestStateResponse stateResponse = response.readEntity(ChangeBenchFlowTestStateResponse.class);
+    Assert.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+    Assert.assertNotNull(stateResponse);
+    Assert.assertEquals(state, stateResponse.getState());
+  }
 
-        Assert.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        Assert.assertNotNull(stateResponse);
-        Assert.assertEquals(state, stateResponse.getState());
+  @Test
+  public void invalidBenchFlowTestState() throws Exception {
 
-    }
+    // TODO
 
-    @Test
-    public void invalidBenchFlowTestState() throws Exception {
+  }
 
-        // TODO
+  @Test
+  public void getBenchFlowTestStatus() throws Exception {
 
-    }
+    String testID = TestConstants.VALID_TEST_ID;
 
-    @Test
-    public void getBenchFlowTestStatus() throws Exception {
+    BenchFlowTestModel testModel =
+        new BenchFlowTestModel(
+            TestConstants.TEST_USER,
+            TestConstants.VALID_BENCHFLOW_TEST_NAME,
+            TestConstants.VALID_TEST_NUMBER);
+    testModel.setState(BenchFlowTestModel.BenchFlowTestState.RUNNING);
+    BenchFlowExperimentModel experimentModel = new BenchFlowExperimentModel(testModel.getId(), 1);
+    testModel.addExperimentModel(experimentModel);
+    experimentModel.setTrialStatus(1, RunStatus.Code.COMPLETED);
+    testModel.addExperimentModel(experimentModel);
 
-        String testID = TestConstants.VALID_TEST_ID;
+    Mockito.doReturn(testModel).when(testModelDAOMock).getTestModel(testID);
 
-        BenchFlowTestModel testModel = new BenchFlowTestModel(TestConstants.TEST_USER, TestConstants.VALID_BENCHFLOW_TEST_NAME, TestConstants.VALID_TEST_NUMBER);
-        testModel.setState(BenchFlowTestModel.BenchFlowTestState.RUNNING);
-        BenchFlowExperimentModel experimentModel = new BenchFlowExperimentModel(testModel.getId(), 1);
-        testModel.addExperimentModel(experimentModel);
-        experimentModel.setTrialStatus(1, RunStatus.Code.COMPLETED);
-        testModel.addExperimentModel(experimentModel);
+    Response response =
+        resources
+            .client()
+            .target(BenchFlowConstants.getPathFromTestID(testID))
+            .path(BenchFlowTestResource.STATUS_PATH)
+            .request(MediaType.APPLICATION_JSON)
+            .get();
 
-        Mockito.doReturn(testModel)
-                .when(testModelDAOMock)
-                .getTestModel(testID);
+    BenchFlowTestModel statusResponse = response.readEntity(BenchFlowTestModel.class);
 
-        Response response = resources.client()
-                .target(BenchFlowConstants.getPathFromTestID(testID))
-                .path(BenchFlowTestResource.STATUS_PATH)
-                .request(MediaType.APPLICATION_JSON)
-                .get();
-
-        BenchFlowTestModel statusResponse = response.readEntity(BenchFlowTestModel.class);
-
-
-        Assert.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        Assert.assertNotNull(statusResponse);
-        // TODO - adjust when status object is decided
-        Assert.assertEquals(testID, statusResponse.getId());
-
-    }
+    Assert.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+    Assert.assertNotNull(statusResponse);
+    // TODO - adjust when status object is decided
+    Assert.assertEquals(testID, statusResponse.getId());
+  }
 }
