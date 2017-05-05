@@ -1,14 +1,11 @@
 package cloud.benchflow.testmanager.tasks;
 
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
-import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
-import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
-import cloud.benchflow.testmanager.strategy.selection.CompleteSelectionStrategy;
 import cloud.benchflow.testmanager.tasks.running.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +14,9 @@ import java.util.concurrent.*;
 
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState.GOAL_REACHED;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20
+ */
 public class BenchFlowTestTaskController {
 
   private static Logger logger =
@@ -49,19 +48,13 @@ public class BenchFlowTestTaskController {
       switch (testState) {
         case START:
 
-          // change state to ready
-          testModelDAO.setTestState(testID, BenchFlowTestState.READY);
-
-          handleTestState(testID);
+          setNextTestState(testID, BenchFlowTestState.READY);
 
           break;
 
         case READY:
 
-          // change state to running
-          testModelDAO.setTestState(testID, BenchFlowTestState.RUNNING);
-
-          handleTestState(testID);
+          setNextTestState(testID, BenchFlowTestState.RUNNING);
 
           break;
 
@@ -90,6 +83,13 @@ public class BenchFlowTestTaskController {
     } catch (BenchFlowTestIDDoesNotExistException e) {
       e.printStackTrace();
     }
+  }
+
+  private void setNextTestState(String testID, BenchFlowTestState running) throws BenchFlowTestIDDoesNotExistException {
+    // change state to running
+    testModelDAO.setTestState(testID, running);
+
+    handleTestState(testID);
   }
 
   private synchronized void handleTestRunningState(String testID) {
