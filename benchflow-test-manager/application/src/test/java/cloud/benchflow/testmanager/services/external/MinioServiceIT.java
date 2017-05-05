@@ -17,133 +17,134 @@ import java.util.Map;
 import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_EXPERIMENT_ID;
 import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_TEST_ID;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 16.02.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 16.02.17. */
 public class MinioServiceIT extends DockerComposeIT {
 
-    private MinioService minioService;
+  private MinioService minioService;
 
-    private InputStream ptDefinitionInputStream;
+  private InputStream ptDefinitionInputStream;
 
-    private InputStream deploymentDescriptorInputStream;
-    private Map<String, InputStream> bpmnModelsMap;
+  private InputStream deploymentDescriptorInputStream;
+  private Map<String, InputStream> bpmnModelsMap;
 
-    @Before
-    public void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
 
-        // TODO - see how to mock final class MinioClient
-        // https://github.com/mockito/mockito/wiki/What%27s-new-in-Mockito-2#mock-the-unmockable-opt-in-mocking-of-final-classesmethods
+    // TODO - see how to mock final class MinioClient
+    // https://github.com/mockito/mockito/wiki/What%27s-new-in-Mockito-2#mock-the-unmockable-opt-in-mocking-of-final-classesmethods
 
-        String minioEndpoint = "http://" + MINIO_CONTAINER.getIp() + ":" + MINIO_CONTAINER.getExternalPort();
+    String minioEndpoint =
+        "http://" + MINIO_CONTAINER.getIp() + ":" + MINIO_CONTAINER.getExternalPort();
 
-        MinioClient minioClient = new MinioClient(minioEndpoint, DockerComposeIT.MINIO_ACCESS_KEY, DockerComposeIT.MINIO_SECRET_KEY);
+    MinioClient minioClient =
+        new MinioClient(
+            minioEndpoint, DockerComposeIT.MINIO_ACCESS_KEY, DockerComposeIT.MINIO_SECRET_KEY);
 
-        if (!minioClient.bucketExists(BenchFlowConstants.TESTS_BUCKET))
-            minioClient.makeBucket(BenchFlowConstants.TESTS_BUCKET);
+    if (!minioClient.bucketExists(BenchFlowConstants.TESTS_BUCKET))
+      minioClient.makeBucket(BenchFlowConstants.TESTS_BUCKET);
 
-        minioService = new MinioService(minioClient);
+    minioService = new MinioService(minioClient);
 
-        ptDefinitionInputStream = TestArchives.getValidPTDefinitionInputStream();
+    ptDefinitionInputStream = TestArchives.getValidTestDefinitionInputStream();
 
-        deploymentDescriptorInputStream = TestArchives.getValidDeploymentDescriptorInputStream();
+    deploymentDescriptorInputStream = TestArchives.getValidDeploymentDescriptorInputStream();
 
-        bpmnModelsMap = TestArchives.getValidBPMNModels();
+    bpmnModelsMap = TestArchives.getValidBPMNModels();
+  }
 
-    }
+  @Test
+  public void saveGetRemoveBenchFlowTestDefinition() throws Exception {
 
-    @Test
-    public void saveGetRemoveBenchFlowTestDefinition() throws Exception {
+    minioService.saveTestDefinition(VALID_TEST_ID, ptDefinitionInputStream);
 
-        minioService.saveTestDefinition(VALID_TEST_ID, ptDefinitionInputStream);
+    InputStream receivedInputStream = minioService.getTestDefinition(VALID_TEST_ID);
 
-        InputStream receivedInputStream = minioService.getTestDefinition(VALID_TEST_ID);
+    Assert.assertNotNull(receivedInputStream);
 
-        Assert.assertNotNull(receivedInputStream);
+    String receivedString =
+        IOUtils.toString(
+            new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)),
+            StandardCharsets.UTF_8);
 
-        String receivedString = IOUtils.toString(new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)), StandardCharsets.UTF_8);
+    Assert.assertEquals(TestArchives.getValidTestDefinitionString(), receivedString);
 
-        Assert.assertEquals(TestArchives.getValidPTDefinitionString(), receivedString);
+    minioService.removeTestDefinition(VALID_TEST_ID);
 
-        minioService.removeTestDefinition(VALID_TEST_ID);
+    receivedInputStream = minioService.getTestDefinition(VALID_TEST_ID);
 
-        receivedInputStream = minioService.getTestDefinition(VALID_TEST_ID);
+    Assert.assertNull(receivedInputStream);
+  }
 
-        Assert.assertNull(receivedInputStream);
+  @Test
+  public void saveGetRemoveDeploymentDescriptor() throws Exception {
 
-    }
+    minioService.saveTestDeploymentDescriptor(VALID_TEST_ID, deploymentDescriptorInputStream);
 
-    @Test
-    public void saveGetRemoveDeploymentDescriptor() throws Exception {
+    InputStream receivedInputStream = minioService.getTestDeploymentDescriptor(VALID_TEST_ID);
 
-        minioService.saveTestDeploymentDescriptor(VALID_TEST_ID, deploymentDescriptorInputStream);
+    Assert.assertNotNull(receivedInputStream);
 
-        InputStream receivedInputStream = minioService.getTestDeploymentDescriptor(VALID_TEST_ID);
+    String receivedString =
+        IOUtils.toString(
+            new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)),
+            StandardCharsets.UTF_8);
 
-        Assert.assertNotNull(receivedInputStream);
+    Assert.assertEquals(TestArchives.getValidDeploymentDescriptorString(), receivedString);
 
-        String receivedString = IOUtils.toString(new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)), StandardCharsets.UTF_8);
+    minioService.removeTestDeploymentDescriptor(VALID_TEST_ID);
 
-        Assert.assertEquals(TestArchives.getValidDeploymentDescriptorString(), receivedString);
+    receivedInputStream = minioService.getTestDeploymentDescriptor(VALID_TEST_ID);
 
-        minioService.removeTestDeploymentDescriptor(VALID_TEST_ID);
+    Assert.assertNull(receivedInputStream);
+  }
 
-        receivedInputStream = minioService.getTestDeploymentDescriptor(VALID_TEST_ID);
+  @Test
+  public void saveGetRemoveBPMNDefinitions() throws Exception {
 
-        Assert.assertNull(receivedInputStream);
+    // TODO
 
-    }
+    bpmnModelsMap.forEach(
+        (name, model) -> {
+          minioService.saveTestBPMNModel(VALID_TEST_ID, name, model);
 
+          InputStream receivedInputStream = minioService.getTestBPMNModel(VALID_TEST_ID, name);
 
-    @Test
-    public void saveGetRemoveBPMNDefinitions() throws Exception {
+          Assert.assertNotNull(receivedInputStream);
 
-        // TODO
+          // TODO - assert the content is the same
 
-        bpmnModelsMap.forEach((name, model) -> {
+          //            String receivedString = IOUtils.toString(new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)), StandardCharsets.UTF_8);
+          //
+          //            Assert.assertEquals(TestArchives.getValidDeploymentDescriptorString(), receivedString);
 
-            minioService.saveTestBPMNModel(VALID_TEST_ID, name, model);
+          minioService.removeTestBPMNModel(VALID_TEST_ID, name);
 
-            InputStream receivedInputStream = minioService.getTestBPMNModel(VALID_TEST_ID, name);
+          receivedInputStream = minioService.getTestBPMNModel(VALID_TEST_ID, name);
 
-            Assert.assertNotNull(receivedInputStream);
-
-            // TODO - assert the content is the same
-
-//            String receivedString = IOUtils.toString(new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)), StandardCharsets.UTF_8);
-//
-//            Assert.assertEquals(TestArchives.getValidDeploymentDescriptorString(), receivedString);
-
-            minioService.removeTestBPMNModel(VALID_TEST_ID, name);
-
-            receivedInputStream = minioService.getTestBPMNModel(VALID_TEST_ID, name);
-
-            Assert.assertNull(receivedInputStream);
-
+          Assert.assertNull(receivedInputStream);
         });
+  }
 
-    }
+  @Test
+  public void saveGetRemoveBenchFlowExperimentDefinition() throws Exception {
 
-    @Test
-    public void saveGetRemoveBenchFlowExperimentDefinition() throws Exception {
+    minioService.saveExperimentDefinition(VALID_EXPERIMENT_ID, ptDefinitionInputStream);
 
-        minioService.saveExperimentDefinition(VALID_EXPERIMENT_ID, ptDefinitionInputStream);
+    InputStream receivedInputStream = minioService.getExperimentDefinition(VALID_EXPERIMENT_ID);
 
-        InputStream receivedInputStream = minioService.getExperimentDefinition(VALID_EXPERIMENT_ID);
+    Assert.assertNotNull(receivedInputStream);
 
-        Assert.assertNotNull(receivedInputStream);
+    String receivedString =
+        IOUtils.toString(
+            new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)),
+            StandardCharsets.UTF_8);
 
-        String receivedString = IOUtils.toString(new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)), StandardCharsets.UTF_8);
+    Assert.assertEquals(TestArchives.getValidTestDefinitionString(), receivedString);
 
-        Assert.assertEquals(TestArchives.getValidPTDefinitionString(), receivedString);
+    minioService.removeExperimentDefinition(VALID_EXPERIMENT_ID);
 
-        minioService.removeExperimentDefinition(VALID_EXPERIMENT_ID);
+    receivedInputStream = minioService.getExperimentDefinition(VALID_EXPERIMENT_ID);
 
-        receivedInputStream = minioService.getExperimentDefinition(VALID_EXPERIMENT_ID);
-
-        Assert.assertNull(receivedInputStream);
-
-    }
-
+    Assert.assertNull(receivedInputStream);
+  }
 }

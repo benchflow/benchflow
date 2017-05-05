@@ -11,7 +11,7 @@ box: ubuntu:16.10
 
 ###########################################################
 # DRAFT
-# Main pipeline to detect what has been changed 
+# Main pipeline to detect what has been changed
 ###########################################################
 what-to-build:
   steps:
@@ -42,9 +42,9 @@ what-to-build:
 build-benchflow-dsl:
   box: maven:3.3.9-jdk-8
   steps:
-    # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
+    # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one.
     - xenoterracide/maven:
-        goals: verify
+        goals: clean post-clean process-sources test package verify
         args: -f $WERCKER_SOURCE_DIR/benchflow-dsl
     - script:
         # NOTE: we also copy devops files, because they are needed in subsequent steps
@@ -88,9 +88,9 @@ build-benchflow-minio-client:
         MINIO_ACCESS_KEY: minio
         MINIO_SECRET_KEY: minio123
   steps:
-    # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
+    # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one.
     - xenoterracide/maven:
-        goals: verify
+        goals: clean post-clean process-sources test package verify
         args: -f $WERCKER_SOURCE_DIR/benchflow-minio-client
     - script:
         # NOTE: we also copy devops files, because they are needed in subsequent steps
@@ -116,7 +116,7 @@ build-benchflow-experiment-manager:
       id: mongo:3.4.2
       ports:
         - "27017:27017"
-      volume: 
+      volume:
         - "$WERCKER_SOURCE_DIR/benchflow-experiment-manager/src/test/resources/docker-compose/mongo-data:/data/db:rw"
       env:
         MONGO_DATA_VOLUME_PATH: $WERCKER_SOURCE_DIR/benchflow-experiment-manager/src/test/resources/docker-compose/mongo-data
@@ -130,9 +130,9 @@ build-benchflow-experiment-manager:
         MINIO_ACCESS_KEY: minio
         MINIO_SECRET_KEY: minio123
   steps:
-    # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
+    # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one.
     - xenoterracide/maven:
-        goals: verify
+        goals: clean post-clean process-sources test package verify
         args: -f $WERCKER_SOURCE_DIR/benchflow-experiment-manager
     - script:
         # NOTE: we also copy devops files, because they are needed in subsequent steps
@@ -165,7 +165,7 @@ build-benchflow-test-manager:
       id: mongo:3.4.2
       ports:
         - "27017:27017"
-      volume: 
+      volume:
         - "$WERCKER_SOURCE_DIR/benchflow-test-manager/src/test/resources/docker-compose/mongo-data:/data/db:rw"
       env:
         MONGO_DATA_VOLUME_PATH: $WERCKER_SOURCE_DIR/benchflow-test-manager/src/test/resources/docker-compose/mongo-data
@@ -179,9 +179,11 @@ build-benchflow-test-manager:
         MINIO_ACCESS_KEY: minio
         MINIO_SECRET_KEY: minio123
   steps:
-    # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
+    # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one.
     - xenoterracide/maven:
-        goals: verify
+        # We explicitly call all the phases in which we hook build activities
+        goals: clean post-clean process-sources test package verify
+        # Add -X for debugging
         args: -f $WERCKER_SOURCE_DIR/benchflow-test-manager
     - script:
         # NOTE: we also copy devops files, because they are needed in subsequent steps
@@ -204,9 +206,9 @@ build-benchflow-test-manager:
 # build-benchflow-driver-maker:
 #   box: maven:3.3.9-jdk-8
 #   steps:
-#     # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
+#     # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one.
 #     - xenoterracide/maven:
-#         goals: verify
+#         goals: clean post-clean process-sources test package verify
 #         args: -f $WERCKER_SOURCE_DIR/benchflow-driver-maker
 #     - script:
 #         # NOTE: we also copy devops files, because they are needed in subsequent steps
@@ -236,7 +238,7 @@ build-benchflow-test-manager:
   #            for the code to be used when building the layers they need
 # NOTE: Base images have version defined manually and dictated by the version set to chaperone,
 #       because currently no matter what we update we start the build from the chaperone images
-#       by updating the version in docker-images/base-images/chaperone/setup/version.inc, that 
+#       by updating the version in docker-images/base-images/chaperone/setup/version.inc, that
 #       triggers a rebuild of the image, so that we can reference to the new version in dependent images
 #       given that now they are always build in a pipelines starting with build-base-images-chaperone-binaries
 # ADDITIONAL PERSONAL NOTE: They have to happen in folders, so we can actually control updates (or not, if we care
@@ -245,7 +247,7 @@ build-benchflow-test-manager:
 # DECIDE: If migrate to the following image at some point: https://github.com/phusion/baseimage-docker
 build-test-base-images-chaperone:
   # See: https://github.com/wercker/wercker/issues/262
-  box: 
+  box:
     id: alpine:3.5
     cmd: /bin/sh
   steps:
@@ -258,14 +260,14 @@ build-test-base-images-chaperone:
           source $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-combined-layers/build-chaperone-binaries-and-image.sh
 
 # FOR: the following pipelines
-# Starting with test-build-, instead of build-, because it is chained in a workflow with 
+# Starting with test-build-, instead of build-, because it is chained in a workflow with
 # build-base-images-chaperone and CI scripts search for pipelines starting with build-
 # when it is time to build something, so we use build- only if it is the first pipeline in a workflow
 # We do this to simplify the build scripts, even though we reduce flexibility, for now
 
 test-build-base-images-base:
   # See: https://github.com/wercker/wercker/issues/262
-  box: 
+  box:
     id: alpine:3.5
     cmd: /bin/sh
   steps:
@@ -279,7 +281,7 @@ test-build-base-images-base:
 
 test-build-base-images-base-dns:
   # See: https://github.com/wercker/wercker/issues/262
-  box: 
+  box:
     id: alpine:3.5
     cmd: /bin/sh
   steps:
@@ -293,7 +295,7 @@ test-build-base-images-base-dns:
 
 test-build-base-images-base-envconsul:
   # See: https://github.com/wercker/wercker/issues/262
-  box: 
+  box:
     id: alpine:3.5
     cmd: /bin/sh
   steps:
@@ -307,7 +309,7 @@ test-build-base-images-base-envconsul:
 
 test-build-base-images-base-java8:
   # See: https://github.com/wercker/wercker/issues/262
-  box: 
+  box:
     id: alpine:3.5
     cmd: /bin/sh
   steps:
@@ -334,7 +336,7 @@ deploy-benchflow-dsl:
     - install-packages:
         packages: jq curl
     - script:
-        name: Generate the Release Tag    
+        name: Generate the Release Tag
         cwd: ./devops
         # we need source here so the exported variables in the script are actually available in the next step
         code: source generate-commit-specific-tag.sh
@@ -378,7 +380,7 @@ deploy-benchflow-minio-client:
     - install-packages:
         packages: jq curl
     - script:
-        name: Generate the Release Tag    
+        name: Generate the Release Tag
         cwd: ./devops
         # we need source here so the exported variables in the script are actually available in the next step
         code: source generate-commit-specific-tag.sh
@@ -401,7 +403,7 @@ deploy-benchflow-minio-client:
 ###########################################################
 deploy-benchflow-experiment-manager:
   # See: https://github.com/wercker/wercker/issues/262
-  box: 
+  box:
     id: alpine:3.5
     cmd: /bin/sh
     # env:
@@ -471,7 +473,7 @@ deploy-benchflow-experiment-manager:
 ###########################################################
 deploy-benchflow-test-manager:
   # See: https://github.com/wercker/wercker/issues/262
-  box: 
+  box:
     id: alpine:3.5
     cmd: /bin/sh
     # env:
@@ -557,13 +559,56 @@ deploy-benchflow-test-manager:
 
 ###########################################################
 # DRAFT
+# Pipeline used to package the Docker Image and deploy on the Docker Hub: benchflow-client
+###########################################################
+build-and-deploy-benchflow-client:
+  # See: https://github.com/wercker/wercker/issues/262
+  box: 
+    id: alpine:3.5
+    cmd: /bin/sh
+  steps:
+    - script:
+        name: Build and Configure BenchFlow Client
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Install the BenchFlow Client and its Dependencies
+          cd $WERCKER_SOURCE_DIR/benchflow-client
+          source build-image.sh
+    # TODO: understand how to make it work (the variable is not set in the docker-push steps)
+    # - script:
+    #     name: Generate Custom Deployment Tag
+    #     code: source $WERCKER_SOURCE_DIR/devops/generate-commit-specific-tag.sh
+    - script:
+        name: Cleanup the Image
+        code: |
+          source $WERCKER_SOURCE_DIR/devops/cleanup-wercker-build.sh
+    # - internal/shell
+    # push container as-is
+    - internal/docker-push:
+        author: Vincenzo FERME <info@vincenzoferme.it>
+        disable-sync: false
+        repository: benchflow/client
+        email: $DOCKER_HUB_EMAIL
+        username: $DOCKER_HUB_USERNAME
+        password: $DOCKER_HUB_PASSWORD
+        # NOTE: first we push the commit specific image, then the image for the branch
+        # NOTE: Here we are supposed to use the tag obtained from "Generate Custom Deployment Tag"
+        # BUT there are many issues with it because alpine does not make variables available at this step
+        # as discussed: http://devcenter.wercker.com/docs/faq/alpine-faq, https://github.com/wercker/wercker/issues/226
+        # ALTERNATIVE: switch to ubuntu, or wait for a fix
+        # NOW: We just use the WERCKER_GIT_COMMIT that is made available from the beginning
+        tag: ${WERCKER_GIT_COMMIT},${WERCKER_GIT_BRANCH}
+
+###########################################################
+# DRAFT
 # Pipeline used to build and deploy on Docker Hub: docker-images/base-images/chaperone
 # See: docker-images/base-images/chaperone/README.md
 ###########################################################
 
 # package-and-deploy-base-images-chaperone:
 #   # See: https://github.com/wercker/wercker/issues/262
-#   box: 
+#   box:
 #     id: alpine:3.5
 #     cmd: /bin/sh
 #   steps:
@@ -606,12 +651,12 @@ deploy-benchflow-test-manager:
 
 # NOTE: it merges the code to build chaperone image, because of:
 # https://github.com/garywiz/chaperone-docker/issues/5 AND
-# building the image by ourself (see package-and-deploy-base-images-chaperone) 
-# also does not solve the issue unless we change the settings of the same, 
+# building the image by ourself (see package-and-deploy-base-images-chaperone)
+# also does not solve the issue unless we change the settings of the same,
 # that we would avoid for now
 # NOTE: Since for now we have to add chaperone every time, the builds are started in
 #       parallel after the build of the chaperone binaries that control the build and version
 # TODO: Monitor https://github.com/garywiz/chaperone-docker/issues/5
-# Starting with package-, instead of build-, because it is chained in a workflow with 
+# Starting with package-, instead of build-, because it is chained in a workflow with
 # build-base-images-chaperone-binaries and CI scripts search for pipelines starting with build-
 # when it is time to build something, so we use build- only if it is the first pipeline in a workflow

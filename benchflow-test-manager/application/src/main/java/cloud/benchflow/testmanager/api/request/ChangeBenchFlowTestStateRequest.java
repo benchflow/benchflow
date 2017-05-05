@@ -5,28 +5,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotNull;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 16.02.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 16.02.17. */
 public class ChangeBenchFlowTestStateRequest {
 
-    @NotNull
-    @JsonProperty
-    BenchFlowTestModel.BenchFlowTestState state;
+  @NotNull @JsonProperty
+  private BenchFlowTestModel.BenchFlowTestState state;
 
-    public ChangeBenchFlowTestStateRequest() {
-    }
+  public ChangeBenchFlowTestStateRequest() {}
 
-    public ChangeBenchFlowTestStateRequest(BenchFlowTestModel.BenchFlowTestState state) {
-        this.state = state;
-    }
+  public ChangeBenchFlowTestStateRequest(BenchFlowTestModel.BenchFlowTestState state) {
+    this.state = state;
+  }
 
-    public BenchFlowTestModel.BenchFlowTestState getState() {
-        return state;
-    }
+  public BenchFlowTestModel.BenchFlowTestState getState() {
+    return state;
+  }
 
-    public void setState(BenchFlowTestModel.BenchFlowTestState state) {
-        this.state = state;
-    }
+  public void setState(BenchFlowTestModel.BenchFlowTestState state) {
+    this.state = state;
+  }
 }

@@ -8,13 +8,10 @@ import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidTestArchiveWebException;
-import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
-import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
-import cloud.benchflow.testmanager.services.external.MinioService;
-import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
+import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,179 +22,169 @@ import org.mockito.Mockito;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
-import java.util.concurrent.ExecutorService;
 
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
 import static cloud.benchflow.testmanager.helpers.TestConstants.*;
-import static cloud.benchflow.testmanager.helpers.TestConstants.TEST_USER_NAME;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.COMPLETED;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.RUNNING;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 15.02.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 15.02.17. */
 public class BenchFlowTestResourceTest {
 
-    // mocks
-    private static final ExecutorService executorServiceMock = mock(ExecutorService.class);
-    private MinioService minioServiceMock = mock(MinioService.class);
-    private BenchFlowTestModelDAO testModelDAOMock = mock(BenchFlowTestModelDAO.class);
-    private BenchFlowExperimentModelDAO experimentModelDAOMock = mock(BenchFlowExperimentModelDAO.class);
-    private UserDAO userDAOMock = mock(UserDAO.class);
-    private BenchFlowExperimentManagerService experimentManagerServiceMock = mock(BenchFlowExperimentManagerService.class);
+  @Rule public ExpectedException exception = ExpectedException.none();
+  // mocks
+  private BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
+  private UserDAO userDAOMock = Mockito.mock(UserDAO.class);
+  private BenchFlowTestTaskController testTaskController =
+      Mockito.mock(BenchFlowTestTaskController.class);
+  private BenchFlowTestResource resource;
+  private ChangeBenchFlowTestStateRequest request;
 
-    private BenchFlowTestResource resource;
-    private ChangeBenchFlowTestStateRequest request;
+  @Before
+  public void setUp() throws Exception {
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+    resource = new BenchFlowTestResource(testModelDAOMock, userDAOMock, testTaskController);
+    request = new ChangeBenchFlowTestStateRequest();
+  }
 
+  @Test
+  public void runBenchFlowTestEmptyRequest() throws Exception {
 
-    @Before
-    public void setUp() throws Exception {
+    exception.expect(WebApplicationException.class);
+    exception.expectMessage(String.valueOf(Response.Status.BAD_REQUEST.getStatusCode()));
 
-        resource = new BenchFlowTestResource(executorServiceMock, minioServiceMock, testModelDAOMock, experimentModelDAOMock, userDAOMock, experimentManagerServiceMock);
-        request = new ChangeBenchFlowTestStateRequest();
-    }
+    resource.runBenchFlowTest(TEST_USER_NAME, null);
+  }
 
-    @Test
-    public void runBenchFlowTestEmptyRequest() throws Exception {
+  @Test
+  public void runBenchFlowTestValid() throws Exception {
 
-        exception.expect(WebApplicationException.class);
-        exception.expectMessage(String.valueOf(Response.Status.BAD_REQUEST.getStatusCode()));
+    InputStream expArchive = TestArchives.getValidTestArchive();
 
-        resource.runBenchFlowTest(TEST_USER_NAME, null);
+    String expectedTestID =
+        TEST_USER_NAME + MODEL_ID_DELIMITER + VALID_BENCHFLOW_TEST_NAME + MODEL_ID_DELIMITER + 0;
 
-    }
+    Mockito.doReturn(expectedTestID)
+        .when(testModelDAOMock)
+        .addTestModel(VALID_BENCHFLOW_TEST_NAME, BenchFlowConstants.BENCHFLOW_USER);
 
-    @Test
-    public void runBenchFlowTestValid() throws Exception {
+    RunBenchFlowTestResponse response = resource.runBenchFlowTest(TEST_USER_NAME, expArchive);
 
-        InputStream expArchive = TestArchives.getValidTestArchive();
+    Assert.assertTrue(response.getTestID().contains(VALID_BENCHFLOW_TEST_NAME));
+  }
 
-        String expectedTestID = TEST_USER_NAME + MODEL_ID_DELIMITER + TestConstants.VALID_BENCHFLOW_TEST_NAME + MODEL_ID_DELIMITER + 1;
+  @Test
+  public void runInvalidBenchFlowTest() throws Exception {
 
-        Mockito.doReturn(expectedTestID).when(testModelDAOMock).addTestModel(TestConstants.VALID_BENCHFLOW_TEST_NAME, BenchFlowConstants.BENCHFLOW_USER);
+    InputStream expArchive = TestArchives.getNoDefinitionTestArchive();
 
-        RunBenchFlowTestResponse response = resource.runBenchFlowTest(TEST_USER_NAME, expArchive);
+    exception.expect(InvalidTestArchiveWebException.class);
 
-        Assert.assertTrue(response.getTestID().contains(VALID_BENCHFLOW_TEST_NAME));
+    resource.runBenchFlowTest(TEST_USER_NAME, expArchive);
+  }
 
-        verify(executorServiceMock, times(1)).submit(Mockito.any(Runnable.class));
+  @Test
+  public void changeBenchFlowTestState() throws Exception {
 
-    }
+    Mockito.doReturn(RUNNING).when(testModelDAOMock).setTestState(VALID_BENCHFLOW_TEST_ID, RUNNING);
+    Mockito.doReturn(TERMINATED)
+        .when(testModelDAOMock)
+        .setTestState(VALID_BENCHFLOW_TEST_ID, TERMINATED);
 
-    @Test
-    public void runInvalidBenchFlowTest() throws Exception {
+    request.setState(RUNNING);
 
-        InputStream expArchive = TestArchives.getNoDefinitionTestArchive();
+    String[] testIDArray = VALID_BENCHFLOW_TEST_ID.split(MODEL_ID_DELIMITER_REGEX);
 
-        exception.expect(InvalidTestArchiveWebException.class);
+    String username = testIDArray[0];
+    String testName = testIDArray[1];
+    int testNumber = Integer.parseInt(testIDArray[2]);
 
-        resource.runBenchFlowTest(TEST_USER_NAME, expArchive);
-
-    }
-
-    @Test
-    public void changeBenchFlowTestState() throws Exception {
-
-        Mockito.doReturn(RUNNING).when(testModelDAOMock).setTestState(VALID_BENCHFLOW_TEST_ID, RUNNING);
-        Mockito.doReturn(COMPLETED).when(testModelDAOMock).setTestState(VALID_BENCHFLOW_TEST_ID, COMPLETED);
-
-        request.setState(RUNNING);
-
-        String[] testIDArray = VALID_BENCHFLOW_TEST_ID.split(MODEL_ID_DELIMITER_REGEX);
-
-        String username = testIDArray[0];
-        String testName = testIDArray[1];
-        int testNumber = Integer.parseInt(testIDArray[2]);
-
-        ChangeBenchFlowTestStateResponse response = resource.changeBenchFlowTestState(username, testName, testNumber, request);
-
-        Assert.assertNotNull(response);
-        Assert.assertEquals(RUNNING, response.getState());
-
-
-        request.setState(COMPLETED);
-
-        response = resource.changeBenchFlowTestState(username, testName, testNumber, request);
-
-        Assert.assertNotNull(response);
-        Assert.assertEquals(COMPLETED, response.getState());
-
-    }
-
-    @Test
-    public void changeBenchFlowTestStateInvalid() throws Exception {
-
-        request.setState(RUNNING);
-
-        Mockito.doThrow(BenchFlowTestIDDoesNotExistException.class).when(testModelDAOMock).setTestState(
-                VALID_BENCHFLOW_TEST_ID,
-                RUNNING);
-
-        exception.expect(InvalidBenchFlowTestIDWebException.class);
-
-        String[] testIDArray = VALID_BENCHFLOW_TEST_ID.split(MODEL_ID_DELIMITER_REGEX);
-
-        String username = testIDArray[0];
-        String testName = testIDArray[1];
-        int testNumber = Integer.parseInt(testIDArray[2]);
-
+    ChangeBenchFlowTestStateResponse response =
         resource.changeBenchFlowTestState(username, testName, testNumber, request);
 
-    }
+    Assert.assertNotNull(response);
+    Assert.assertEquals(RUNNING, response.getState());
 
-    @Test
-    public void getBenchFlowTestStatusInValid() throws Exception {
+    request.setState(TERMINATED);
 
-        String testID = INVALID_BENCHFLOW_TEST_ID;
+    response = resource.changeBenchFlowTestState(username, testName, testNumber, request);
 
-        doThrow(BenchFlowTestIDDoesNotExistException.class).when(testModelDAOMock).getTestModel(testID);
+    Assert.assertNotNull(response);
+    Assert.assertEquals(TERMINATED, response.getState());
+  }
 
-        exception.expect(InvalidBenchFlowTestIDWebException.class);
+  @Test
+  public void changeBenchFlowTestStateInvalid() throws Exception {
 
-        String[] testIDArray = INVALID_BENCHFLOW_TEST_ID.split(MODEL_ID_DELIMITER_REGEX);
+    request.setState(RUNNING);
 
-        String username = testIDArray[0];
-        String testName = testIDArray[1];
-        int testNumber = Integer.parseInt(testIDArray[2]);
+    Mockito.doThrow(BenchFlowTestIDDoesNotExistException.class)
+        .when(testModelDAOMock)
+        .setTestState(VALID_BENCHFLOW_TEST_ID, RUNNING);
 
-        resource.getBenchFlowTestStatus(username, testName, testNumber);
+    exception.expect(InvalidBenchFlowTestIDWebException.class);
 
-        verify(testModelDAOMock, times(1)).getTestModel(testID);
+    String[] testIDArray = VALID_BENCHFLOW_TEST_ID.split(MODEL_ID_DELIMITER_REGEX);
 
-    }
+    String username = testIDArray[0];
+    String testName = testIDArray[1];
+    int testNumber = Integer.parseInt(testIDArray[2]);
 
-    @Test
-    public void getBenchFlowTestStatusValid() throws Exception {
+    resource.changeBenchFlowTestState(username, testName, testNumber, request);
+  }
 
-        String benchFlowTestName = TestConstants.VALID_BENCHFLOW_TEST_NAME;
+  @Test
+  public void getBenchFlowTestStatusInValid() throws Exception {
 
-        String expectedTestID = TestConstants.TEST_USER_NAME + BenchFlowConstants.MODEL_ID_DELIMITER + benchFlowTestName + BenchFlowConstants.MODEL_ID_DELIMITER + 1;
+    String testID = INVALID_BENCHFLOW_TEST_ID;
 
-        doReturn(new BenchFlowTestModel(TestConstants.TEST_USER, benchFlowTestName, 1)).when(
-                testModelDAOMock).getTestModel(expectedTestID);
+    Mockito.doThrow(BenchFlowTestIDDoesNotExistException.class)
+        .when(testModelDAOMock)
+        .getTestModel(testID);
 
-        String[] testIDArray = expectedTestID.split(MODEL_ID_DELIMITER_REGEX);
+    exception.expect(InvalidBenchFlowTestIDWebException.class);
 
-        String username = testIDArray[0];
-        String testName = testIDArray[1];
-        int testNumber = Integer.parseInt(testIDArray[2]);
+    String[] testIDArray = INVALID_BENCHFLOW_TEST_ID.split(MODEL_ID_DELIMITER_REGEX);
 
-        BenchFlowTestModel response = resource.getBenchFlowTestStatus(username, testName, testNumber);
+    String username = testIDArray[0];
+    String testName = testIDArray[1];
+    int testNumber = Integer.parseInt(testIDArray[2]);
 
-        verify(testModelDAOMock, times(1)).getTestModel(expectedTestID);
+    resource.getBenchFlowTestStatus(username, testName, testNumber);
 
-        // TODO - decide what status should contain and make assertions accordingly
+    Mockito.verify(testModelDAOMock, Mockito.times(1)).getTestModel(testID);
+  }
 
-        Assert.assertNotNull(response);
-        Assert.assertEquals(expectedTestID, response.getId());
+  @Test
+  public void getBenchFlowTestStatusValid() throws Exception {
 
-    }
+    String benchFlowTestName = VALID_BENCHFLOW_TEST_NAME;
+
+    String expectedTestID =
+        TEST_USER_NAME
+            + BenchFlowConstants.MODEL_ID_DELIMITER
+            + benchFlowTestName
+            + BenchFlowConstants.MODEL_ID_DELIMITER
+            + 1;
+
+    Mockito.doReturn(new BenchFlowTestModel(TEST_USER, benchFlowTestName, 1))
+        .when(testModelDAOMock)
+        .getTestModel(expectedTestID);
+
+    String[] testIDArray = expectedTestID.split(MODEL_ID_DELIMITER_REGEX);
+
+    String username = testIDArray[0];
+    String testName = testIDArray[1];
+    int testNumber = Integer.parseInt(testIDArray[2]);
+
+    BenchFlowTestModel response = resource.getBenchFlowTestStatus(username, testName, testNumber);
+
+    Mockito.verify(testModelDAOMock, Mockito.times(1)).getTestModel(expectedTestID);
+
+    // TODO - decide what status should contain and make assertions accordingly
+
+    Assert.assertNotNull(response);
+    Assert.assertEquals(expectedTestID, response.getId());
+  }
 }

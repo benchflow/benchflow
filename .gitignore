@@ -95,8 +95,8 @@ typings/
 .env
 scalastyle-output.xml
 
-# external jars downloaded during mvn clean
-external/
-
-# mongo data files for docker compose
+# MongoDB test data
 mongo-data/
+
+# Downloaded external libraries
+external/
