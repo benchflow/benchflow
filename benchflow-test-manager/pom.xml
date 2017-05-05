@@ -149,8 +149,8 @@
 
             <!-- needed for Faban Responses class-->
             <dependency>
-                <groupId>cloud.benchflow.faban</groupId>
-                <artifactId>client</artifactId>
+                <groupId>cloud.benchflow</groupId>
+                <artifactId>faban-client</artifactId>
                 <version>${benchflow-faban-client.version}</version>
             </dependency>
 

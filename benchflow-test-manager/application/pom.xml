@@ -65,8 +65,8 @@
         </dependency>
 
         <dependency>
-            <groupId>cloud.benchflow.faban</groupId>
-            <artifactId>client</artifactId>
+            <groupId>cloud.benchflow</groupId>
+            <artifactId>faban-client</artifactId>
         </dependency>
 
     </dependencies>
