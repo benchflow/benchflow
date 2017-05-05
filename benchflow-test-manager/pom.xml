@@ -146,7 +146,7 @@
                 <artifactId>benchflow-dsl</artifactId>
                 <version>${benchflow-dsl.version}</version>
             </dependency>
-            
+
             <!-- needed for Faban Responses class-->
             <dependency>
                 <groupId>cloud.benchflow.faban</groupId>

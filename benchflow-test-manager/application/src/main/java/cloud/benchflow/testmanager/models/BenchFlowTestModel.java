@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.READY;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.START;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.*;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16. */
 @Entity
@@ -46,6 +47,8 @@ public class BenchFlowTestModel {
   private Date start = new Date();
   private Date lastModified = new Date();
   private BenchFlowTestState state;
+  private TestRunningState runningState;
+  private TestTerminatedState terminatedState;
   @Reference private Set<BenchFlowExperimentModel> experiments = new HashSet<>();
 
   @JsonIgnore private ExplorationModel explorationModel = new ExplorationModel();
@@ -69,6 +72,7 @@ public class BenchFlowTestModel {
     this.hashedID = this.id;
 
     this.state = START;
+    this.runningState = DETERMINE_EXPLORATION_STRATEGY;
   }
 
   @PrePersist
@@ -106,6 +110,22 @@ public class BenchFlowTestModel {
 
   public void setState(BenchFlowTestState state) {
     this.state = state;
+  }
+
+  public TestRunningState getRunningState() {
+    return runningState;
+  }
+
+  public void setRunningState(TestRunningState runningState) {
+    this.runningState = runningState;
+  }
+
+  public TestTerminatedState getTerminatedState() {
+    return terminatedState;
+  }
+
+  public void setTerminatedState(TestTerminatedState terminatedState) {
+    this.terminatedState = terminatedState;
   }
 
   public void addExperimentModel(BenchFlowExperimentModel experimentModel) {
@@ -147,5 +167,21 @@ public class BenchFlowTestModel {
     WAITING,
     RUNNING,
     TERMINATED
+  }
+
+  public enum TestRunningState {
+    DETERMINE_EXPLORATION_STRATEGY,
+    ADD_STORED_KNOWLEDGE,
+    DETERMINE_EXECUTE_EXPERIMENTS,
+    HANDLE_EXPERIMENT_RESULT,
+    DERIVE_PREDICTION_FUNCTION,
+    VALIDATE_PREDICTION_FUNCTION,
+    REMOVE_NON_REACHABLE_EXPERIMENTS
+  }
+
+  public enum TestTerminatedState {
+    PARTIALLY_COMPLETE,
+    COMPLETED_WITH_FAILURE,
+    GOAL_REACHED
   }
 }

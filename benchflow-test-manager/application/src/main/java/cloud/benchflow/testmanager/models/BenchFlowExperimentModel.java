@@ -11,29 +11,23 @@ import java.util.Map;
 
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16. */
 @Entity
 @Indexes({
-    @Index(
-        options = @IndexOptions(),
-        fields = {@Field(value = "hashedID", type = IndexType.HASHED)}
-    )
+  @Index(
+    options = @IndexOptions(),
+    fields = {@Field(value = "hashedID", type = IndexType.HASHED)}
+  )
 })
 public class BenchFlowExperimentModel {
 
   public static final String ID_FIELD_NAME = "id";
   public static final String HASHED_ID_FIELD_NAME = "hashedID";
-  @Id
-  private String id;
+  @Id private String id;
   // used for potential sharding in the future
-  @JsonIgnore
-  private String hashedID;
-  @JsonIgnore
-  private String testID;
-  @JsonIgnore
-  private long number;
+  @JsonIgnore private String hashedID;
+  @JsonIgnore private String testID;
+  @JsonIgnore private long number;
   private Date start = new Date();
   private Date lastModified = new Date();
   private BenchFlowExperimentState state;

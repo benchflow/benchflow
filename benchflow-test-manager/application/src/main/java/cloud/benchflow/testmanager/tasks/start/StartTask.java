@@ -83,8 +83,6 @@ public class StartTask implements Runnable {
         explorationModelDAO.setWorkloadUserSpace(testID, workloadUserSpace);
       }
 
-      setExperimentSelectionStrategy(test);
-
     } catch (BenchFlowDeserializationException | BenchFlowTestIDDoesNotExistException e) {
       // should not happen since it has already been tested/added
       logger.error("should not happen");
@@ -93,8 +91,8 @@ public class StartTask implements Runnable {
 
     logger.info("completed: " + testID);
 
-    // submit the new test
-    testTaskController.startComplete(testID);
+    // send the test to the controller
+    testTaskController.handleTestState(testID);
   }
 
   public static List<Integer> generateExplorationSpace(BenchFlowTest test) {
@@ -126,21 +124,5 @@ public class StartTask implements Runnable {
     }
 
     return null;
-  }
-
-  private void setExperimentSelectionStrategy(BenchFlowTest test) {
-
-    // TODO - read this from BenchFlowTest
-
-    ExperimentSelectionStrategy.Type selectionStrategyType =
-        ExperimentSelectionStrategy.Type.COMPLETE_SELECTION;
-
-    try {
-      explorationModelDAO.setExperimentSelectionStrategy(testID, selectionStrategyType);
-    } catch (BenchFlowTestIDDoesNotExistException e) {
-      // should not happen since it has already been added
-      logger.error("should not happen");
-      e.printStackTrace();
-    }
   }
 }

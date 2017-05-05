@@ -14,9 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17. */
 public class BenchFlowExperimentModelDAO extends DAO {
 
   // TODO - this is also stored in the model?? read it directly from the model
@@ -34,9 +32,7 @@ public class BenchFlowExperimentModelDAO extends DAO {
 
   /**
    * @param testID
-   *
    * @return
-   *
    * @throws BenchFlowTestIDDoesNotExistException
    */
   public synchronized String addExperiment(String testID)
@@ -63,9 +59,7 @@ public class BenchFlowExperimentModelDAO extends DAO {
 
   /**
    * @param experimentID
-   *
    * @return
-   *
    * @throws BenchFlowExperimentIDDoesNotExistException
    */
   private synchronized BenchFlowExperimentModel getExperiment(String experimentID)
@@ -91,7 +85,6 @@ public class BenchFlowExperimentModelDAO extends DAO {
   /**
    * @param experimentID
    * @param state
-   *
    * @throws BenchFlowExperimentIDDoesNotExistException
    */
   public synchronized void setExperimentState(
@@ -114,7 +107,6 @@ public class BenchFlowExperimentModelDAO extends DAO {
    * @param experimentID
    * @param trialNUmber
    * @param status
-   *
    * @throws BenchFlowTestIDDoesNotExistException
    */
   public synchronized void addTrialStatus(
@@ -140,9 +132,7 @@ public class BenchFlowExperimentModelDAO extends DAO {
   /**
    * @param experimentID
    * @param trialNumber
-   *
    * @return
-   *
    * @throws BenchFlowExperimentIDDoesNotExistException
    */
   public synchronized RunStatus.Code getTrialStatus(String experimentID, long trialNumber)

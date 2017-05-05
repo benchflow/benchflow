@@ -12,9 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17. */
 public class UserDAO extends DAO {
 
   private static Logger logger = LoggerFactory.getLogger(UserDAO.class.getSimpleName());
@@ -41,9 +39,7 @@ public class UserDAO extends DAO {
     return user;
   }
 
-  /**
-   * @param username
-   */
+  /** @param username */
   public synchronized void removeUser(String username) {
 
     logger.info("removeUser: " + username);
