@@ -1,0 +1,146 @@
+#!/bin/bash
+#
+# Run benchflow-client in a container:
+#   benchflow <command>
+# 
+# Run benchflow-client in a container setting the version of the client:
+#   VERSION=<version> benchflow <command>
+#
+# This script will attempt to mirror the host paths by using volumes for the
+# following paths:
+#   * $(pwd)
+#
+# set -ex
+set -e
+
+
+#-----Image details-----#
+# 
+VERSION=${VERSION:-"devel"}
+IMAGE="benchflow/client:$VERSION"
+#-----Image details-----#
+
+#-----Shared variables-----#
+CURRENT_FOLDER="$(pwd)"
+# REMOVED: virtualbox support
+# IS_SHARED_VOLUME=false
+# Setup volume mounts for the benchflow client config and context
+VOLUMES="-v $CURRENT_FOLDER:$CURRENT_FOLDER"
+#-----Shared variables-----#
+
+#-----Environment variables-----#
+ENV_EXP="-e EXPERIMENTS_MANAGER_ADDRESS=$EXPERIMENTS_MANAGER_ADDRESS"
+ENV_DM="-e DRIVERS_MAKER_ADDRESS=$DRIVERS_MAKER_ADDRESS"
+ENV_C_ADD="-e CASSANDRA_IP=$CASSANDRA_IP"
+ENV_C_PORT="-e CASSANDRA_PORT=$CASSANDRA_PORT"
+#-----Environment variables-----#
+
+#-----Set the correct tools if we are on OSX-----#
+# DESCRIPTION OF PROBLEM: Implementations of sed, readlink, zcat, etc. are different on OS X and Linux.
+# SOURCE: https://gist.github.com/bittner/5436f3dc011d43ab7551
+
+# cross-OS compatibility (greadlink, gsed, zcat are GNU implementations for OS X)
+[[ `uname` == 'Darwin' ]] && {
+  which greadlink gsed gzcat > /dev/null && {
+    export PATH=/usr/local/opt/coreutils/libexec/gnubin:$PATH
+  } || {
+    echo 'ERROR: GNU utils required for Mac. You may use homebrew to install them: brew install coreutils gnu-sed'
+    exit 1
+  }
+}
+#-----Set the correct tools if we are on OSX-----#
+
+function resolve_path()
+{
+  local resolved=$(eval "readlink -f "$1"")
+  if [[ -e "$resolved" ]]
+  then
+    echo "$resolved"  
+  else
+    echo "$1"
+  fi
+}  
+
+RESOLVEDARGS=()
+for var in "$@"
+do
+  resolved=$(resolve_path "$var")
+  len=${#RESOLVEDARGS[@]}
+  RESOLVEDARGS["$len"]="$resolved"
+done
+
+# REMOVED: virtualbox support
+#----- Detect if we are in VirtualBox Shared Volume-----#
+# There is currently an issue when passing to Docker a volume that is shared with
+# the host operating system by VirtualBox. You end up sharing previous version of
+# files as discussed on the following and linked issue: https://github.com/benchflow/client/issues/7
+# shared_volumes=($(mount | grep vboxsf | cut -d " " -f 3))
+
+# for var in "${shared_volumes[@]}"
+# do
+#   if [[ $CURRENT_FOLDER == "${var}"* ]]
+#   then
+#      IS_SHARED_VOLUME=true
+#      break
+#   fi
+# done
+#-----Detect if we are in VirtualBox Shared Volume-----#
+
+#-----Determine if we are using a command that requires data-----#
+REQUIRES_DATA=false
+if [[ ! -z "$1" ]] # && ( [[ "build" == "$1" ]] || [[ "debug" == "$1" ]] || [[ "run" == "$1" ]] )
+then
+  if [[ "build" == "$1" ]]
+  then
+     #context is the folder we pass to build
+     CONTEXT=${RESOLVEDARGS[1]}
+     REQUIRES_DATA=true
+  elif ( [[ "run" == "$1" ]] || [[ "debug" == "$1" ]] )
+  then
+    #context is the parent directory of the file
+    CONTEXT="$(dirname ${RESOLVEDARGS[1]})"
+    REQUIRES_DATA=true
+  fi
+fi
+#-----Determine if we are using a command that requires data-----#
+
+if [[ $@ == "update" ]]
+then
+  #TODO: update the "benchflow" command only if it has been updated in the repo
+  #TODO: set the "benchflow" command version and pass it to the next line
+  #TODO: check if sudo, if not ask for sudo command so that we enable the execution of getBenchFlow.sh
+  #that requires sudo and with the current command it cannot get the password as input
+  #CURRENTLY: just print the sudo message and ask for sudo password if not already available
+  echo "Updating the 'benchflow' command requires sudo privileges"
+  sudo true
+
+  bash <(wget -qO- https://raw.githubusercontent.com/benchflow/benchflow/$VERSION/getBenchFlow.sh | sh | bash /dev/stdin -f)
+  exec docker pull $IMAGE
+else
+  if [[ "$REQUIRES_DATA" = false ]]
+  then
+    # echo "docker run --rm -ti $ENV_EXP $ENV_DM $ENV_C_ADD $ENV_C_PORT $IMAGE benchflow $@"
+    exec docker run --rm -ti $ENV_EXP $ENV_DM $ENV_C_ADD $ENV_C_PORT $IMAGE benchflow $@
+  # REMOVED: virtualbox support
+  # elif [[ "$IS_SHARED_VOLUME" = true ]]
+  # VirtualBox shared volume workaround.
+  # We rely on Data Volume Containers (dvc) by copying the current folder data in a dvc
+  # created on the fly. Then we pass it to the benchflow-client using "--volumes-from"
+  # then
+  #   set +e #Disable the "exit immediately" option
+	 #  # DATA_VOLUME="-v $CURRENT_FOLDER"
+  #   DATA_VOLUME="-v $CONTEXT" # the data volume is the context directory (either the benchmark dir or the parent dir of a file) 
+	 #  DESTINATION_PATH="$(dirname $CONTEXT)"
+  #   WORKING_DIR="$(pwd)" # we keep the same working directory to resolve relative paths
+	 #  docker create $DATA_VOLUME --name benchflow_client_datavolume $IMAGE /bin/true 1>&- 2>&-
+	 #  docker cp $CONTEXT benchflow_client_datavolume:$DESTINATION_PATH 1>&- 2>&-
+	 #  docker run --rm -ti --volumes-from benchflow_client_datavolume $ENV_EXP $ENV_DM $ENV_C_ADD $ENV_C_PORT -w $WORKING_DIR $IMAGE benchflow $@
+	 #  docker cp benchflow_client_datavolume:$CONTEXT $DESTINATION_PATH
+	 #  docker rm -f -v benchflow_client_datavolume 1>&- 2>&-
+	 #  set -e #Enable the "exit immediately" option
+  else
+    # echo "docker run --rm -ti $VOLUMES $ENV_EXP $ENV_DM $ENV_C_ADD $ENV_C_PORT -w $CURRENT_FOLDER $IMAGE benchflow $@"
+    exec docker run --rm -ti $VOLUMES $ENV_EXP $ENV_DM $ENV_C_ADD $ENV_C_PORT -w $CURRENT_FOLDER $IMAGE benchflow $@
+ 
+  fi
+fi
