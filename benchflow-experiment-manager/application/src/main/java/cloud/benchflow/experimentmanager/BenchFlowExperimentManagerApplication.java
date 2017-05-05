@@ -8,6 +8,7 @@ import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.tasks.ExperimentTaskController;
 import cloud.benchflow.faban.client.FabanClient;
+import com.mongodb.MongoClient;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
 import io.dropwizard.Application;
@@ -62,10 +63,14 @@ public class BenchFlowExperimentManagerApplication extends Application<BenchFlow
                 .using(configuration.getJerseyClientConfiguration())
                 .build(environment.getName());
 
+        MongoClient mongoClient = configuration.getMongoDBFactory().build();
+
         // services
         ExecutorService experimentTaskExecutorService = configuration.getExperimentTaskExecutorFactory().build(environment);
         ExecutorService trialTaskExecutorService = configuration.getTrialTaskExecutorFactory().build(environment);
-        BenchFlowExperimentModelDAO experimentModelDAO = new BenchFlowExperimentModelDAO(configuration.getMongoDBFactory().build());
+
+        BenchFlowExperimentModelDAO experimentModelDAO = new BenchFlowExperimentModelDAO(mongoClient);
+
         MinioService minioService = configuration.getMinioServiceFactory().build();
         FabanClient fabanClient = configuration.getFabanServiceFactory().build();
         DriversMakerService driversMakerService = configuration.getDriversMakerServiceFactory().build(client);

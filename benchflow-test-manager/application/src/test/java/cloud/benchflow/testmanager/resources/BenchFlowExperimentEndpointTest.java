@@ -3,8 +3,9 @@ package cloud.benchflow.testmanager.resources;
 import cloud.benchflow.testmanager.api.request.BenchFlowExperimentStateRequest;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.helpers.TestConstants;
+import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
-import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus;
+import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.TerminatedState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
@@ -47,7 +48,7 @@ public class BenchFlowExperimentEndpointTest {
 
     BenchFlowExperimentStateRequest request =
         new BenchFlowExperimentStateRequest(
-            BenchFlowExperimentState.TERMINATED, BenchFlowExperimentStatus.COMPLETED);
+            BenchFlowExperimentState.TERMINATED, TerminatedState.COMPLETED);
 
     Response response =
         resources

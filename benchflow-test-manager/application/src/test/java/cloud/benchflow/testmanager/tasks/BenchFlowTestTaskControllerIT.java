@@ -32,7 +32,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState.TERMINATED;
-import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus.COMPLETED;
+import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.TerminatedState.COMPLETED;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-27 */
 public class BenchFlowTestTaskControllerIT extends DockerComposeIT {
@@ -90,7 +90,7 @@ public class BenchFlowTestTaskControllerIT extends DockerComposeIT {
             invocationOnMock -> {
               String experimentID = (String) invocationOnMock.getArguments()[0];
 
-              experimentModelDAO.setExperimentState(experimentID, TERMINATED, COMPLETED);
+              experimentModelDAO.setExperimentState(experimentID, TERMINATED, null, COMPLETED);
 
               String testID = BenchFlowConstants.getTestIDFromExperimentID(experimentID);
               testTaskController.handleTestState(testID);

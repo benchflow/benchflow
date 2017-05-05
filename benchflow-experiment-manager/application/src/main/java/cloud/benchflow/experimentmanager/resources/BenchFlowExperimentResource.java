@@ -78,7 +78,7 @@ public class BenchFlowExperimentResource {
 
         try {
 
-            BenchFlowExperimentModel.BenchFlowExperimentState state = experimentModelDAO.getExperimentModelState(experimentID);
+            BenchFlowExperimentModel.BenchFlowExperimentState state = experimentModelDAO.getExperimentState(experimentID);
 
             return new BenchFlowExperimentStateResponse(state);
 
@@ -104,7 +104,7 @@ public class BenchFlowExperimentResource {
 
         // TODO - inform the controller about changing state (don't do it here)
 
-        BenchFlowExperimentModel.BenchFlowExperimentState state = experimentModelDAO.setExperimentModelState(
+        BenchFlowExperimentModel.BenchFlowExperimentState state = experimentModelDAO.setExperimentState(
                 experimentID,
                 stateRequest.getState()
         );

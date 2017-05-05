@@ -17,6 +17,7 @@ import org.mockito.Mockito;
 
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
 import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.*;
+import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.TerminatedState.COMPLETED;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-17 */
 public class BenchFlowExperimentResourceTest {
@@ -48,7 +49,7 @@ public class BenchFlowExperimentResourceTest {
     String experimentID = TestConstants.BENCHFLOW_EXPERIMENT_ID;
 
     request.setState(BenchFlowExperimentState.TERMINATED);
-    request.setStatus(BenchFlowExperimentStatus.COMPLETED);
+    request.setTerminatedState(COMPLETED);
 
     String[] experimentIDArray = experimentID.split(MODEL_ID_DELIMITER_REGEX);
     String username = experimentIDArray[0];
@@ -63,7 +64,11 @@ public class BenchFlowExperimentResourceTest {
     resource.setExperimentState(username, testName, testNumber, experimentNumber, request);
 
     Mockito.verify(experimentModelDAOMock, Mockito.times(1))
-        .setExperimentState(experimentID, request.getState(), request.getStatus());
+        .setExperimentState(
+            experimentID,
+            request.getState(),
+            request.getRunningState(),
+            request.getTerminatedState());
 
     Mockito.verify(testModelDAOMock, Mockito.times(1))
         .getTestState(BenchFlowConstants.getTestIDFromExperimentID(experimentID));

@@ -9,7 +9,8 @@ import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNot
 import cloud.benchflow.experimentmanager.exceptions.TrialIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
-import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.RunningState;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.TerminatedState;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
@@ -89,9 +90,9 @@ public class ExperimentRunningTask extends CancellableTask {
                     break;
                 }
 
-                // set the state = RUNNING and status = NEW_TRIAL for the experiment
-                experimentModelDAO.setExperimentModelStatus(experimentID, BenchFlowExperimentState.RUNNING, BenchFlowExperimentStatus.NEW_TRIAL);
-                testManagerService.setExperimentState(experimentID, BenchFlowExperimentState.RUNNING, BenchFlowExperimentStatus.NEW_TRIAL);
+                // set the state = RUNNING and status = EXECUTE_NEW_TRIAL for the experiment
+                experimentModelDAO.setRunningState(experimentID, RunningState.EXECUTE_NEW_TRIAL);
+                testManagerService.setExperimentRunningState(experimentID, RunningState.EXECUTE_NEW_TRIAL);
 
                 // add trial to experiment
                 String trialID = experimentModelDAO.addTrial(experimentID, trialNumber);
@@ -128,8 +129,8 @@ public class ExperimentRunningTask extends CancellableTask {
                         if (retries > 0) {
 
                             // if there was a FAILURE and we have not finished all retries
-                            experimentModelDAO.setExperimentModelStatus(experimentID, BenchFlowExperimentState.RUNNING, BenchFlowExperimentStatus.RE_EXECUTE_TRIAL);
-                            testManagerService.setExperimentState(experimentID, BenchFlowExperimentState.RUNNING, BenchFlowExperimentStatus.RE_EXECUTE_TRIAL);
+                            experimentModelDAO.setRunningState(experimentID, RunningState.RE_EXECUTE_TRIAL);
+                            testManagerService.setExperimentRunningState(experimentID, RunningState.RE_EXECUTE_TRIAL);
 
                             retries--;
 
@@ -161,11 +162,15 @@ public class ExperimentRunningTask extends CancellableTask {
             }
 
             if (isCanceled.booleanValue()) {
-                experimentModelDAO.setExperimentModelStatus(experimentID, BenchFlowExperimentState.TERMINATED, BenchFlowExperimentStatus.ABORTED);
-                testManagerService.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED, BenchFlowExperimentStatus.ABORTED);
+
+                experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED);
+                experimentModelDAO.setTerminatedState(experimentID, TerminatedState.ABORTED);
+                testManagerService.setExperimentTerminatedState(experimentID, TerminatedState.ABORTED);
+
             } else {
-                experimentModelDAO.setExperimentModelStatus(experimentID, BenchFlowExperimentState.TERMINATED, BenchFlowExperimentStatus.COMPLETED);
-                testManagerService.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED, BenchFlowExperimentStatus.COMPLETED);
+
+                experimentModelDAO.setTerminatedState(experimentID, TerminatedState.COMPLETED);
+                testManagerService.setExperimentTerminatedState(experimentID, TerminatedState.COMPLETED);
             }
 
 

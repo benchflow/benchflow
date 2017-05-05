@@ -87,7 +87,10 @@ public class BenchFlowExperimentResource {
 
     try {
       experimentModelDAO.setExperimentState(
-          experimentID, stateRequest.getState(), stateRequest.getStatus());
+          experimentID,
+          stateRequest.getState(),
+          stateRequest.getRunningState(),
+          stateRequest.getTerminatedState());
     } catch (BenchFlowExperimentIDDoesNotExistException e) {
       throw new InvalidTrialIDWebException();
     }
@@ -97,7 +100,7 @@ public class BenchFlowExperimentResource {
       testTaskController.handleTestState(testID);
     }
 
-    // we ignore other states since we are only concerned if the experiment has terminated
+    // for now we ignore other states since we are only concerned if the experiment has terminated
 
   }
 }

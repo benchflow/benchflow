@@ -14,9 +14,7 @@ import java.util.concurrent.*;
 
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState.GOAL_REACHED;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20 */
 public class BenchFlowTestTaskController {
 
   private static Logger logger =
@@ -47,13 +45,11 @@ public class BenchFlowTestTaskController {
 
       switch (testState) {
         case START:
-
           setNextTestState(testID, BenchFlowTestState.READY);
 
           break;
 
         case READY:
-
           setNextTestState(testID, BenchFlowTestState.RUNNING);
 
           break;
@@ -85,7 +81,8 @@ public class BenchFlowTestTaskController {
     }
   }
 
-  private void setNextTestState(String testID, BenchFlowTestState running) throws BenchFlowTestIDDoesNotExistException {
+  private void setNextTestState(String testID, BenchFlowTestState running)
+      throws BenchFlowTestIDDoesNotExistException {
     // change state to running
     testModelDAO.setTestState(testID, running);
 

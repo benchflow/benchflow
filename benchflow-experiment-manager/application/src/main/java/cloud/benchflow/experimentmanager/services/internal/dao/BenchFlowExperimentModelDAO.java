@@ -4,7 +4,7 @@ import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.exceptions.TrialIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
-import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.RunningState;
 import cloud.benchflow.experimentmanager.models.TrialModel;
 import cloud.benchflow.faban.client.responses.RunStatus;
 import com.mongodb.MongoClient;
@@ -64,9 +64,9 @@ public class BenchFlowExperimentModelDAO {
 
     }
 
-    public synchronized BenchFlowExperimentState getExperimentModelState(String experimentID) throws BenchFlowExperimentIDDoesNotExistException {
+    public synchronized BenchFlowExperimentState getExperimentState(String experimentID) throws BenchFlowExperimentIDDoesNotExistException {
 
-        logger.info("getExperimentModelState: " + experimentID);
+        logger.info("getExperimentState: " + experimentID);
 
         BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
 
@@ -78,9 +78,9 @@ public class BenchFlowExperimentModelDAO {
 
     }
 
-    public synchronized BenchFlowExperimentState setExperimentModelState(String experimentID, BenchFlowExperimentState state) {
+    public synchronized BenchFlowExperimentState setExperimentState(String experimentID, BenchFlowExperimentState state) {
 
-        logger.info("setExperimentModelState: " + experimentID + " to " + state.name());
+        logger.info("setExperimentRunningState: " + experimentID + " to " + state.name());
 
         BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
 
@@ -96,9 +96,9 @@ public class BenchFlowExperimentModelDAO {
 
     }
 
-    public synchronized BenchFlowExperimentStatus getExperimentModelStatus(String experimentID) throws BenchFlowExperimentIDDoesNotExistException {
+    public synchronized RunningState getRunningState(String experimentID) throws BenchFlowExperimentIDDoesNotExistException {
 
-        logger.info("getExperimentModelState: " + experimentID);
+        logger.info("getExperimentState: " + experimentID);
 
         BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
 
@@ -106,15 +106,13 @@ public class BenchFlowExperimentModelDAO {
             throw new BenchFlowExperimentIDDoesNotExistException();
         }
 
-        return experimentModel.getStatus();
+        return experimentModel.getRunningState();
 
     }
 
-    public synchronized BenchFlowExperimentState setExperimentModelStatus(String experimentID, BenchFlowExperimentState state, BenchFlowExperimentStatus status) {
+    public synchronized BenchFlowExperimentState setRunningState(String experimentID, RunningState state) {
 
-        // a status is always associated with a state
-
-        logger.info("setExperimentModelStatus: " + experimentID + " state: " + state.name() + " status: " + status.name());
+        logger.info("setRunningState: " + experimentID + " state: " + state.name());
 
         BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
 
@@ -122,12 +120,43 @@ public class BenchFlowExperimentModelDAO {
             return null;
         }
 
-        experimentModel.setState(state);
-        experimentModel.setStatus(status);
+        experimentModel.setRunningState(state);
 
         datastore.save(experimentModel);
 
         return experimentModel.getState();
+
+    }
+
+    public synchronized BenchFlowExperimentModel.TerminatedState getTerminatedState(String experimentID) throws BenchFlowExperimentIDDoesNotExistException {
+
+        logger.info("getTerminatedState: " + experimentID);
+
+        BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
+
+        if (experimentModel == null) {
+            throw new BenchFlowExperimentIDDoesNotExistException();
+        }
+
+        return experimentModel.getTerminatedState();
+
+    }
+
+    public synchronized BenchFlowExperimentModel.TerminatedState setTerminatedState(String experimentID, BenchFlowExperimentModel.TerminatedState state) {
+
+        logger.info("setTerminatedState: " + experimentID + " state: " + state.name());
+
+        BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
+
+        if (experimentModel == null) {
+            return null;
+        }
+
+        experimentModel.setTerminatedState(state);
+
+        datastore.save(experimentModel);
+
+        return experimentModel.getTerminatedState();
 
     }
 

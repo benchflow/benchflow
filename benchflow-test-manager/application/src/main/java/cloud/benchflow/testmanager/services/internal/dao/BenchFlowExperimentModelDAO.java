@@ -5,7 +5,8 @@ import cloud.benchflow.testmanager.exceptions.BenchFlowExperimentIDDoesNotExistE
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
-import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus;
+import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.RunningState;
+import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.TerminatedState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import com.mongodb.MongoClient;
 import org.mongodb.morphia.query.Query;
@@ -88,7 +89,10 @@ public class BenchFlowExperimentModelDAO extends DAO {
    * @throws BenchFlowExperimentIDDoesNotExistException
    */
   public synchronized void setExperimentState(
-      String experimentID, BenchFlowExperimentState state, BenchFlowExperimentStatus status)
+      String experimentID,
+      BenchFlowExperimentState state,
+      RunningState runningState,
+      TerminatedState terminatedState)
       throws BenchFlowExperimentIDDoesNotExistException {
 
     logger.info("setExperimentState: " + experimentID + " : " + state.name());
@@ -98,7 +102,8 @@ public class BenchFlowExperimentModelDAO extends DAO {
     experimentModel = getExperiment(experimentID);
 
     experimentModel.setState(state);
-    experimentModel.setStatus(status);
+    experimentModel.setRunningState(runningState);
+    experimentModel.setTerminatedState(terminatedState);
 
     datastore.save(experimentModel);
   }
