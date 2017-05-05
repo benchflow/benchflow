@@ -557,6 +557,49 @@ deploy-benchflow-test-manager:
 
 ###########################################################
 # DRAFT
+# Pipeline used to package the Docker Image and deploy on the Docker Hub: benchflow-client
+###########################################################
+build-and-deploy-benchflow-client:
+  # See: https://github.com/wercker/wercker/issues/262
+  box: 
+    id: alpine:3.5
+    cmd: /bin/sh
+  steps:
+    - script:
+        name: Build and Configure BenchFlow Client
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Install the BenchFlow Client and its Dependencies
+          cd $WERCKER_SOURCE_DIR/benchflow-client
+          source build-image.sh
+    # TODO: understand how to make it work (the variable is not set in the docker-push steps)
+    # - script:
+    #     name: Generate Custom Deployment Tag
+    #     code: source $WERCKER_SOURCE_DIR/devops/generate-commit-specific-tag.sh
+    - script:
+        name: Cleanup the Image
+        code: |
+          source $WERCKER_SOURCE_DIR/devops/cleanup-wercker-build.sh
+    - internal/shell
+    # push container as-is
+    - internal/docker-push:
+        author: Vincenzo FERME <info@vincenzoferme.it>
+        disable-sync: false
+        repository: benchflow/client
+        email: $DOCKER_HUB_EMAIL
+        username: $DOCKER_HUB_USERNAME
+        password: $DOCKER_HUB_PASSWORD
+        # NOTE: first we push the commit specific image, then the image for the branch
+        # NOTE: Here we are supposed to use the tag obtained from "Generate Custom Deployment Tag"
+        # BUT there are many issues with it because alpine does not make variables available at this step
+        # as discussed: http://devcenter.wercker.com/docs/faq/alpine-faq, https://github.com/wercker/wercker/issues/226
+        # ALTERNATIVE: switch to ubuntu, or wait for a fix
+        # NOW: We just use the WERCKER_GIT_COMMIT that is made available from the beginning
+        tag: ${WERCKER_GIT_COMMIT},${WERCKER_GIT_BRANCH}
+
+###########################################################
+# DRAFT
 # Pipeline used to build and deploy on Docker Hub: docker-images/base-images/chaperone
 # See: docker-images/base-images/chaperone/README.md
 ###########################################################
