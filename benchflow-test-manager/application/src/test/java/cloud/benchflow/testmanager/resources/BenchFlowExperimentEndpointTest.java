@@ -1,10 +1,8 @@
 package cloud.benchflow.testmanager.resources;
 
-import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.api.request.BenchFlowExperimentStateRequest;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.helpers.TestConstants;
-import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
@@ -13,7 +11,6 @@ import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;

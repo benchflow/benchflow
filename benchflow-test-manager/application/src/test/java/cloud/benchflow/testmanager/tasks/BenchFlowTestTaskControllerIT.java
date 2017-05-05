@@ -7,9 +7,6 @@ import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfigurat
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.helpers.TestFiles;
-import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
-import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
-import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
@@ -34,8 +31,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState.*;
-import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus.*;
+import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState.TERMINATED;
+import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus.COMPLETED;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-27 */
 public class BenchFlowTestTaskControllerIT extends DockerComposeIT {

@@ -8,7 +8,6 @@ import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidTestArchiveWebException;
-import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
@@ -27,25 +26,20 @@ import java.io.InputStream;
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
 import static cloud.benchflow.testmanager.helpers.TestConstants.*;
-import static cloud.benchflow.testmanager.helpers.TestConstants.TEST_USER_NAME;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.RUNNING;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 15.02.17. */
 public class BenchFlowTestResourceTest {
 
+  @Rule public ExpectedException exception = ExpectedException.none();
   // mocks
-  private BenchFlowTestModelDAO testModelDAOMock = mock(BenchFlowTestModelDAO.class);
-  private UserDAO userDAOMock = mock(UserDAO.class);
-  private BenchFlowTestTaskController testTaskController = mock(BenchFlowTestTaskController.class);
-
+  private BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
+  private UserDAO userDAOMock = Mockito.mock(UserDAO.class);
+  private BenchFlowTestTaskController testTaskController =
+      Mockito.mock(BenchFlowTestTaskController.class);
   private BenchFlowTestResource resource;
   private ChangeBenchFlowTestStateRequest request;
-
-  @Rule public ExpectedException exception = ExpectedException.none();
 
   @Before
   public void setUp() throws Exception {
@@ -69,15 +63,11 @@ public class BenchFlowTestResourceTest {
     InputStream expArchive = TestArchives.getValidTestArchive();
 
     String expectedTestID =
-        TEST_USER_NAME
-            + MODEL_ID_DELIMITER
-            + TestConstants.VALID_BENCHFLOW_TEST_NAME
-            + MODEL_ID_DELIMITER
-            + 0;
+        TEST_USER_NAME + MODEL_ID_DELIMITER + VALID_BENCHFLOW_TEST_NAME + MODEL_ID_DELIMITER + 0;
 
     Mockito.doReturn(expectedTestID)
         .when(testModelDAOMock)
-        .addTestModel(TestConstants.VALID_BENCHFLOW_TEST_NAME, BenchFlowConstants.BENCHFLOW_USER);
+        .addTestModel(VALID_BENCHFLOW_TEST_NAME, BenchFlowConstants.BENCHFLOW_USER);
 
     RunBenchFlowTestResponse response = resource.runBenchFlowTest(TEST_USER_NAME, expArchive);
 
@@ -149,7 +139,9 @@ public class BenchFlowTestResourceTest {
 
     String testID = INVALID_BENCHFLOW_TEST_ID;
 
-    doThrow(BenchFlowTestIDDoesNotExistException.class).when(testModelDAOMock).getTestModel(testID);
+    Mockito.doThrow(BenchFlowTestIDDoesNotExistException.class)
+        .when(testModelDAOMock)
+        .getTestModel(testID);
 
     exception.expect(InvalidBenchFlowTestIDWebException.class);
 
@@ -161,22 +153,22 @@ public class BenchFlowTestResourceTest {
 
     resource.getBenchFlowTestStatus(username, testName, testNumber);
 
-    verify(testModelDAOMock, times(1)).getTestModel(testID);
+    Mockito.verify(testModelDAOMock, Mockito.times(1)).getTestModel(testID);
   }
 
   @Test
   public void getBenchFlowTestStatusValid() throws Exception {
 
-    String benchFlowTestName = TestConstants.VALID_BENCHFLOW_TEST_NAME;
+    String benchFlowTestName = VALID_BENCHFLOW_TEST_NAME;
 
     String expectedTestID =
-        TestConstants.TEST_USER_NAME
+        TEST_USER_NAME
             + BenchFlowConstants.MODEL_ID_DELIMITER
             + benchFlowTestName
             + BenchFlowConstants.MODEL_ID_DELIMITER
             + 1;
 
-    doReturn(new BenchFlowTestModel(TestConstants.TEST_USER, benchFlowTestName, 1))
+    Mockito.doReturn(new BenchFlowTestModel(TEST_USER, benchFlowTestName, 1))
         .when(testModelDAOMock)
         .getTestModel(expectedTestID);
 
@@ -188,7 +180,7 @@ public class BenchFlowTestResourceTest {
 
     BenchFlowTestModel response = resource.getBenchFlowTestStatus(username, testName, testNumber);
 
-    verify(testModelDAOMock, times(1)).getTestModel(expectedTestID);
+    Mockito.verify(testModelDAOMock, Mockito.times(1)).getTestModel(expectedTestID);
 
     // TODO - decide what status should contain and make assertions accordingly
 

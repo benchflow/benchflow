@@ -1,7 +1,6 @@
 package cloud.benchflow.testmanager.strategy.selection;
 
 import cloud.benchflow.dsl.BenchFlowDSL;
-import cloud.benchflow.dsl.definition.BenchFlowExperiment;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;

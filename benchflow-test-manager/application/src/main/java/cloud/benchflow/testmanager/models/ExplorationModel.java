@@ -13,10 +13,6 @@ public class ExplorationModel {
 
   private ExperimentSelectionStrategy.Type experimentSelectionType;
 
-  public ExplorationModel() {
-    // empty constructor for Morphia
-  }
-
   public List<Integer> getWorkloadUsersSpace() {
     return workloadUsersSpace;
   }

@@ -1,15 +1,16 @@
 package cloud.benchflow.testmanager;
 
-import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
 import com.mongodb.ServerAddress;
 import com.palantir.docker.compose.DockerComposeRule;
 import com.palantir.docker.compose.connection.DockerMachine;
 import com.palantir.docker.compose.connection.DockerPort;
 import com.palantir.docker.compose.connection.waiting.HealthChecks;
 import org.apache.commons.io.FileUtils;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,44 +21,36 @@ import java.io.IOException;
  */
 public class DockerComposeIT {
 
+  protected static String MINIO_ACCESS_KEY = getEnvOrDefault("MINIO_ACCESS_KEY", "minio");
+  protected static String MINIO_SECRET_KEY = getEnvOrDefault("MINIO_SECRET_KEY", "minio123");
+  protected static DockerPort MONGO_CONTAINER;
+  protected static DockerPort MINIO_CONTAINER;
+  protected static MongoClient mongoClient;
   private static String MONGO_NAME = getEnvOrDefault("MONGO_NAME", "mongo");
   private static String MONGO_HOST = getEnvOrDefault("MONGO_PORT_27017_TCP_ADDR", "localhost");
   private static int MONGO_PORT =
       Integer.valueOf(getEnvOrDefault("MONGO_PORT_27017_TCP_PORT", "27017"));
   private static String MONGO_TAG = getEnvOrDefault("MONGO_TAG", "3.4.2");
-
   private static String MINIO_NAME = getEnvOrDefault("MINIO_NAME", "minio");
   private static String MINIO_HOST = getEnvOrDefault("MINIO_PORT_9000_TCP_ADDR", "localhost");
   private static int MINIO_PORT =
       Integer.valueOf(getEnvOrDefault("MINIO_PORT_9000_TCP_PORT", "9000"));
-  protected static String MINIO_ACCESS_KEY = getEnvOrDefault("MINIO_ACCESS_KEY", "minio");
-  protected static String MINIO_SECRET_KEY = getEnvOrDefault("MINIO_SECRET_KEY", "minio123");
   private static String MINIO_TAG = getEnvOrDefault("MINIO_TAG", "RELEASE.2017-02-16T01-47-30Z");
-
   private static String LOCAL_MONGO_DATA_VOLUME_PATH =
       System.getProperty("user.dir") + "/src/test/resources/docker-compose/mongo-data";
   private static String MONGO_DATA_VOLUME_PATH =
       getEnvOrDefault("MONGO_DATA_VOLUME_PATH", LOCAL_MONGO_DATA_VOLUME_PATH);
-
   private static String LOCAL_DOCKER_COMPOSE_PATH =
       "src/test/resources/docker-compose/docker-compose.yml";
-
-  protected static DockerPort MONGO_CONTAINER;
-  protected static DockerPort MINIO_CONTAINER;
-
   // boolean to keep track if we are running in Continuous Integration or not
   // by relying on the CI env variable
   // IMPORTANT: needs to be executed before setupDockerMachineIfLocal() and setupDockerComposeIfLocal(),
   // otherwise it is always false
   private static boolean inLocal = System.getenv("CI") == null;
-
   // dockerComposeRule and dockerMachine are used only when executing the local workflow
   // IMPORTANT: needs to be executed before setupDockerComposeIfLocal()
   private static final DockerMachine dockerMachine = setupDockerMachineIfLocal();
-
   @ClassRule public static DockerComposeRule dockerComposeRule = setupDockerComposeIfLocal();
-
-  protected static MongoClient mongoClient;
 
   // this seems to happen every time an IT test is executed but the variable assignment of the above variables survive
   @BeforeClass
