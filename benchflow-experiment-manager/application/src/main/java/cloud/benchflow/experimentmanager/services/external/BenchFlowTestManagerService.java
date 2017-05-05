@@ -16,16 +16,14 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 05.03.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 05.03.17. */
 public class BenchFlowTestManagerService {
 
   public static final String TRIAL_STATUS_PATH = "/status";
   public static final String EXPERIMENT_STATE_PATH = "/state";
 
-  private Logger logger = LoggerFactory.getLogger(BenchFlowTestManagerService.class.getSimpleName());
+  private Logger logger =
+      LoggerFactory.getLogger(BenchFlowTestManagerService.class.getSimpleName());
 
   private WebTarget testManagerTarget;
 
@@ -41,11 +39,12 @@ public class BenchFlowTestManagerService {
     SubmitTrialStatusRequest trialStatusRequest = new SubmitTrialStatusRequest();
     trialStatusRequest.setStatus(statusCode);
 
-    Response response = testManagerTarget
-        .path(BenchFlowConstants.getPathFromTrialID(trialID))
-        .path(TRIAL_STATUS_PATH)
-        .request()
-        .put(Entity.entity(trialStatusRequest, MediaType.APPLICATION_JSON));
+    Response response =
+        testManagerTarget
+            .path(BenchFlowConstants.getPathFromTrialID(trialID))
+            .path(TRIAL_STATUS_PATH)
+            .request()
+            .put(Entity.entity(trialStatusRequest, MediaType.APPLICATION_JSON));
 
     if (response.getStatus() != Response.Status.NO_CONTENT.getStatusCode()) {
 
@@ -54,44 +53,48 @@ public class BenchFlowTestManagerService {
     } else {
       logger.info("submitTrialStatus: successfully connected");
     }
-
-
   }
 
   public void setExperimentRunningState(String experimentID, RunningState runningState) {
 
-    logger.info("setExperimentRunningState for " + experimentID + " runningState: " + runningState.name());
+    logger.info(
+        "setExperimentRunningState for " + experimentID + " runningState: " + runningState.name());
 
-    BenchFlowExperimentStateRequest stateRequest = new BenchFlowExperimentStateRequest(BenchFlowExperimentState.RUNNING, runningState);
-
-    setExperimentState(experimentID, stateRequest);
-
-  }
-
-  public void setExperimentTerminatedState(String experimentID, BenchFlowExperimentModel.TerminatedState terminatedState) {
-
-    logger.info("setExperimentRunningState for " + experimentID + " terminatedState: " + terminatedState.name());
-
-    BenchFlowExperimentStateRequest stateRequest = new BenchFlowExperimentStateRequest(BenchFlowExperimentState.TERMINATED, terminatedState);
+    BenchFlowExperimentStateRequest stateRequest =
+        new BenchFlowExperimentStateRequest(BenchFlowExperimentState.RUNNING, runningState);
 
     setExperimentState(experimentID, stateRequest);
-
   }
 
-  private void setExperimentState(String experimentID, BenchFlowExperimentStateRequest stateRequest) {
+  public void setExperimentTerminatedState(
+      String experimentID, BenchFlowExperimentModel.TerminatedState terminatedState) {
 
-    Response response = testManagerTarget
-        .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
-        .path(EXPERIMENT_STATE_PATH)
-        .request()
-        .put(Entity.entity(stateRequest, MediaType.APPLICATION_JSON));
+    logger.info(
+        "setExperimentRunningState for "
+            + experimentID
+            + " terminatedState: "
+            + terminatedState.name());
+
+    BenchFlowExperimentStateRequest stateRequest =
+        new BenchFlowExperimentStateRequest(BenchFlowExperimentState.TERMINATED, terminatedState);
+
+    setExperimentState(experimentID, stateRequest);
+  }
+
+  private void setExperimentState(
+      String experimentID, BenchFlowExperimentStateRequest stateRequest) {
+
+    Response response =
+        testManagerTarget
+            .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
+            .path(EXPERIMENT_STATE_PATH)
+            .request()
+            .put(Entity.entity(stateRequest, MediaType.APPLICATION_JSON));
 
     if (response.getStatus() != Response.Status.NO_CONTENT.getStatusCode()) {
       logger.error("setExperimentRunningState: error connecting - " + response.getStatus());
     } else {
       logger.info("setExperimentRunningState: successfully connected");
     }
-
   }
-
 }

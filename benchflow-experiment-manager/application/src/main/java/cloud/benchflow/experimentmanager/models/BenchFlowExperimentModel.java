@@ -7,18 +7,19 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 2017-03-23
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-03-23 */
 @Entity
-@Indexes( {@Index(options = @IndexOptions(), fields = {@Field(value = "hashedID", type = IndexType.HASHED)})})
+@Indexes({
+  @Index(
+    options = @IndexOptions(),
+    fields = {@Field(value = "hashedID", type = IndexType.HASHED)}
+  )
+})
 public class BenchFlowExperimentModel {
 
   public static final String ID_FIELD_NAME = "id";
   public static final String HASHED_ID_FIELD_NAME = "hashedID";
-  @Id
-  private String id;
+  @Id private String id;
   // used for potential sharding in the future
   private String hashedID;
   private Date start = new Date();
@@ -26,8 +27,7 @@ public class BenchFlowExperimentModel {
   private BenchFlowExperimentState state;
   private RunningState runningState;
   private TerminatedState terminatedState;
-  @Reference
-  private List<TrialModel> trials = new ArrayList<>();
+  @Reference private List<TrialModel> trials = new ArrayList<>();
 
   BenchFlowExperimentModel() {
     // Empty constructor for MongoDB + Morphia
@@ -40,7 +40,6 @@ public class BenchFlowExperimentModel {
     this.hashedID = this.id;
     this.state = BenchFlowExperimentState.START;
     this.runningState = RunningState.EXECUTE_NEW_TRIAL;
-
   }
 
   @PrePersist
@@ -87,7 +86,6 @@ public class BenchFlowExperimentModel {
   public void addTrial(TrialModel trialModel) {
 
     trials.add(trialModel);
-
   }
 
   public enum BenchFlowExperimentState {

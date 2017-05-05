@@ -14,88 +14,78 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 2017-04-19
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
 public class ExperimentTaskController {
 
-    private static Logger logger = LoggerFactory.getLogger(ExperimentTaskController.class.getSimpleName());
-    private ConcurrentMap<String, CancellableTask> experimentTasks = new ConcurrentHashMap<>();
+  private static Logger logger =
+      LoggerFactory.getLogger(ExperimentTaskController.class.getSimpleName());
+  private ConcurrentMap<String, CancellableTask> experimentTasks = new ConcurrentHashMap<>();
 
-    private MinioService minio;
-    private BenchFlowExperimentModelDAO experimentModelDAO;
-    private FabanClient faban;
-    private DriversMakerService driversMaker;
-    private BenchFlowTestManagerService testManagerService;
-    private ExecutorService experimentTaskExecutorService;
-    private int submitRetries;
+  private MinioService minio;
+  private BenchFlowExperimentModelDAO experimentModelDAO;
+  private FabanClient faban;
+  private DriversMakerService driversMaker;
+  private BenchFlowTestManagerService testManagerService;
+  private ExecutorService experimentTaskExecutorService;
+  private int submitRetries;
 
-    public ExperimentTaskController(MinioService minio, BenchFlowExperimentModelDAO experimentModelDAO, FabanClient faban, DriversMakerService driversMaker, BenchFlowTestManagerService testManagerService, ExecutorService experimentTaskExecutorService, int submitRetries) {
-        this.minio = minio;
-        this.experimentModelDAO = experimentModelDAO;
-        this.faban = faban;
-        this.driversMaker = driversMaker;
-        this.testManagerService = testManagerService;
-        this.experimentTaskExecutorService = experimentTaskExecutorService;
-        this.submitRetries = submitRetries;
+  public ExperimentTaskController(
+      MinioService minio,
+      BenchFlowExperimentModelDAO experimentModelDAO,
+      FabanClient faban,
+      DriversMakerService driversMaker,
+      BenchFlowTestManagerService testManagerService,
+      ExecutorService experimentTaskExecutorService,
+      int submitRetries) {
+    this.minio = minio;
+    this.experimentModelDAO = experimentModelDAO;
+    this.faban = faban;
+    this.driversMaker = driversMaker;
+    this.testManagerService = testManagerService;
+    this.experimentTaskExecutorService = experimentTaskExecutorService;
+    this.submitRetries = submitRetries;
+  }
+
+  public synchronized void submitExperiment(String experimentID) {
+
+    logger.info("submitExperiment: " + experimentID);
+
+    if (experimentTasks.containsKey(experimentID)) {
+      // TODO - throw exception?
+      logger.info("submitExperiment: experiment already submitted");
+
+      return;
     }
 
-    synchronized public void submitExperiment(String experimentID) {
+    ExperimentReadyTask readyTask =
+        new ExperimentReadyTask(
+            experimentID, this, experimentModelDAO, minio, faban, driversMaker, testManagerService);
 
-        logger.info("submitExperiment: " + experimentID);
+    // TODO - should go into a stateless queue (so that we can recover)
+    // (for now) only allows one experiment at a time (poolSize == 1)
+    experimentTaskExecutorService.submit(readyTask);
 
-        if (experimentTasks.containsKey(experimentID)) {
-            // TODO - throw exception?
-            logger.info("submitExperiment: experiment already submitted");
+    experimentTasks.put(experimentID, readyTask);
+  }
 
-            return;
-        }
+  public synchronized void runExperiment(String experimentID) {
 
-        ExperimentReadyTask readyTask = new ExperimentReadyTask(
-                experimentID,
-                this,
-                experimentModelDAO,
-                minio,
-                faban,
-                driversMaker,
-                testManagerService
-        );
+    logger.info("runExperiment: " + experimentID);
 
-        // TODO - should go into a stateless queue (so that we can recover)
-        // (for now) only allows one experiment at a time (poolSize == 1)
-        experimentTaskExecutorService.submit(readyTask);
+    if (!experimentTasks.containsKey(experimentID)) {
+      // TODO - throw exception?
+      logger.info("runExperiment: experiment has to be submitted first");
 
-        experimentTasks.put(experimentID, readyTask);
-
+      return;
     }
 
-    synchronized public void runExperiment(String experimentID) {
+    ExperimentRunningTask runningTask =
+        new ExperimentRunningTask(
+            experimentID, testManagerService, minio, faban, experimentModelDAO, submitRetries);
 
-        logger.info("runExperiment: " + experimentID);
+    experimentTaskExecutorService.submit(runningTask);
 
-        if (!experimentTasks.containsKey(experimentID)) {
-            // TODO - throw exception?
-            logger.info("runExperiment: experiment has to be submitted first");
-
-            return;
-        }
-
-        ExperimentRunningTask runningTask = new ExperimentRunningTask(
-                experimentID,
-                testManagerService,
-                minio,
-                faban,
-                experimentModelDAO,
-                submitRetries
-        );
-
-        experimentTaskExecutorService.submit(runningTask);
-
-        // replace previous task
-        experimentTasks.put(experimentID, runningTask);
-
-    }
-
-
+    // replace previous task
+    experimentTasks.put(experimentID, runningTask);
+  }
 }

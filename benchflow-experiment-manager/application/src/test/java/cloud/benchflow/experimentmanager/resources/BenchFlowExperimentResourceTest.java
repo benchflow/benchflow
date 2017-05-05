@@ -17,76 +17,64 @@ import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MOD
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 2017-04-13
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-13 */
 public class BenchFlowExperimentResourceTest {
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+  @Rule public ExpectedException exception = ExpectedException.none();
 
+  private MinioService minioMock = mock(MinioService.class);
+  private BenchFlowExperimentModelDAO experimentModelDAO = mock(BenchFlowExperimentModelDAO.class);
+  private ExperimentTaskController experimentTaskController = mock(ExperimentTaskController.class);
 
-    private MinioService minioMock = mock(MinioService.class);
-    private BenchFlowExperimentModelDAO experimentModelDAO = mock(BenchFlowExperimentModelDAO.class);
-    private ExperimentTaskController experimentTaskController = mock(ExperimentTaskController.class);
+  private BenchFlowExperimentResource experimentResource;
 
-    private BenchFlowExperimentResource experimentResource;
+  @Before
+  public void setUp() throws Exception {
 
-    @Before
-    public void setUp() throws Exception {
+    int submitRetries = 1;
 
-        int submitRetries = 1;
+    experimentResource =
+        new BenchFlowExperimentResource(minioMock, experimentModelDAO, experimentTaskController);
+  }
 
-        experimentResource = new BenchFlowExperimentResource(
-                minioMock,
-                experimentModelDAO,
-                experimentTaskController
-        );
+  @Test
+  public void validRequest() throws Exception {
 
-    }
+    String experimentID = TestConstants.BENCHFLOW_EXPERIMENT_ID;
 
-    @Test
-    public void validRequest() throws Exception {
+    Mockito.doReturn(true).when(minioMock).isValidExperimentID(experimentID);
 
-        String experimentID = TestConstants.BENCHFLOW_EXPERIMENT_ID;
+    String[] experimentIDArray = experimentID.split(MODEL_ID_DELIMITER_REGEX);
+    String username = experimentIDArray[0];
+    String testName = experimentIDArray[1];
+    int testNumber = Integer.parseInt(experimentIDArray[2]);
+    int experimentNumber = Integer.parseInt(experimentIDArray[3]);
 
-        Mockito.doReturn(true).when(minioMock).isValidExperimentID(experimentID);
+    experimentResource.runBenchFlowExperiment(username, testName, testNumber, experimentNumber);
 
-        String[] experimentIDArray = experimentID.split(MODEL_ID_DELIMITER_REGEX);
-        String username = experimentIDArray[0];
-        String testName = experimentIDArray[1];
-        int testNumber = Integer.parseInt(experimentIDArray[2]);
-        int experimentNumber = Integer.parseInt(experimentIDArray[3]);
+    Mockito.verify(experimentTaskController, times(1)).submitExperiment(experimentID);
+    Mockito.verify(minioMock, times(1)).isValidExperimentID(experimentID);
+  }
 
-        experimentResource.runBenchFlowExperiment(username, testName, testNumber, experimentNumber);
+  @Test
+  public void invalidExperimentID() throws Exception {
 
-        Mockito.verify(experimentTaskController, times(1)).submitExperiment(experimentID);
-        Mockito.verify(minioMock, times(1)).isValidExperimentID(experimentID);
+    String experimentID = TestConstants.INVALID_BENCHFLOW_EXPERIMENT_ID;
 
-    }
+    Mockito.doReturn(false).when(minioMock).isValidExperimentID(experimentID);
 
-    @Test
-    public void invalidExperimentID() throws Exception {
+    String[] experimentIDArray = experimentID.split(MODEL_ID_DELIMITER_REGEX);
+    String username = experimentIDArray[0];
+    String testName = experimentIDArray[1];
+    int testNumber = Integer.parseInt(experimentIDArray[2]);
+    int experimentNumber = Integer.parseInt(experimentIDArray[3]);
 
-        String experimentID = TestConstants.INVALID_BENCHFLOW_EXPERIMENT_ID;
+    exception.expect(WebApplicationException.class);
+    exception.expectMessage(BenchFlowConstants.INVALID_EXPERIMENT_ID_MESSAGE);
 
-        Mockito.doReturn(false).when(minioMock).isValidExperimentID(experimentID);
+    experimentResource.runBenchFlowExperiment(username, testName, testNumber, experimentNumber);
 
-        String[] experimentIDArray = experimentID.split(MODEL_ID_DELIMITER_REGEX);
-        String username = experimentIDArray[0];
-        String testName = experimentIDArray[1];
-        int testNumber = Integer.parseInt(experimentIDArray[2]);
-        int experimentNumber = Integer.parseInt(experimentIDArray[3]);
-
-        exception.expect(WebApplicationException.class);
-        exception.expectMessage(BenchFlowConstants.INVALID_EXPERIMENT_ID_MESSAGE);
-
-        experimentResource.runBenchFlowExperiment(username, testName, testNumber, experimentNumber);
-
-        Mockito.verify(experimentTaskController, times(0)).submitExperiment(experimentID);
-        Mockito.verify(minioMock, times(1)).isValidExperimentID(experimentID);
-
-    }
-
+    Mockito.verify(experimentTaskController, times(0)).submitExperiment(experimentID);
+    Mockito.verify(minioMock, times(1)).isValidExperimentID(experimentID);
+  }
 }

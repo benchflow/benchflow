@@ -8,31 +8,25 @@ import javax.validation.constraints.NotNull;
 
 import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.RunningState;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 27.02.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 27.02.17. */
 public class BenchFlowExperimentStateRequest {
 
-  @NotNull
-  @JsonProperty
-  private BenchFlowExperimentState state;
+  @NotNull @JsonProperty private BenchFlowExperimentState state;
 
-  @JsonProperty
-  private RunningState runningState;
+  @JsonProperty private RunningState runningState;
 
-  @JsonProperty
-  private TerminatedState terminatedState;
+  @JsonProperty private TerminatedState terminatedState;
 
-  public BenchFlowExperimentStateRequest() {
-  }
+  public BenchFlowExperimentStateRequest() {}
 
-  public BenchFlowExperimentStateRequest(BenchFlowExperimentState state, RunningState runningState) {
+  public BenchFlowExperimentStateRequest(
+      BenchFlowExperimentState state, RunningState runningState) {
     this.state = state;
     this.runningState = runningState;
   }
 
-  public BenchFlowExperimentStateRequest(BenchFlowExperimentState state, TerminatedState terminatedState) {
+  public BenchFlowExperimentStateRequest(
+      BenchFlowExperimentState state, TerminatedState terminatedState) {
     this.state = state;
     this.terminatedState = terminatedState;
   }

@@ -11,6 +11,7 @@
 
     <properties>
         <main.basedir>${project.basedir}${file.separator}..</main.basedir>
+        <root.project.basedir>${project.basedir}/../../</root.project.basedir>
     </properties>
 
     <dependencies>

@@ -30,10 +30,7 @@ import java.util.Collection;
 
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 2017-04-19
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
 public class ExperimentReadyTask extends CancellableTask {
 
   private static final String TEMP_DIR = "./tmp";
@@ -50,7 +47,14 @@ public class ExperimentReadyTask extends CancellableTask {
   private DriversMakerService driversMakerService;
   private BenchFlowTestManagerService testManagerService;
 
-  public ExperimentReadyTask(String experimentID, ExperimentTaskController experimentTaskController, BenchFlowExperimentModelDAO experimentModelDAO, MinioService minioService, FabanClient fabanClient, DriversMakerService driversMakerService, BenchFlowTestManagerService testManagerService) {
+  public ExperimentReadyTask(
+      String experimentID,
+      ExperimentTaskController experimentTaskController,
+      BenchFlowExperimentModelDAO experimentModelDAO,
+      MinioService minioService,
+      FabanClient fabanClient,
+      DriversMakerService driversMakerService,
+      BenchFlowTestManagerService testManagerService) {
     this.experimentID = experimentID;
     this.experimentTaskController = experimentTaskController;
     this.experimentModelDAO = experimentModelDAO;
@@ -70,9 +74,12 @@ public class ExperimentReadyTask extends CancellableTask {
     try {
 
       // get the BenchFlowExperimentDefinition from minio
-      String experimentYamlString = IOUtils.toString(minioService.getExperimentDefinition(experimentID), StandardCharsets.UTF_8);
+      String experimentYamlString =
+          IOUtils.toString(
+              minioService.getExperimentDefinition(experimentID), StandardCharsets.UTF_8);
 
-      BenchFlowExperiment experiment = BenchFlowDSL.experimentFromExperimentYaml(experimentYamlString);
+      BenchFlowExperiment experiment =
+          BenchFlowDSL.experimentFromExperimentYaml(experimentYamlString);
 
       int nTrials = experiment.configuration().terminationCriteria().get().experiment().number();
 
@@ -81,13 +88,15 @@ public class ExperimentReadyTask extends CancellableTask {
 
       // convert to old version and save to minio, and also a new experimentID to send to DriversMaker
       // generate DriversMaker compatible files on minio
-      DriversMakerCompatibleID driversMakerCompatibleID = new DriversMakerCompatibleID(experimentID);
+      DriversMakerCompatibleID driversMakerCompatibleID =
+          new DriversMakerCompatibleID(experimentID);
 
       String driversMakerExperimentID = driversMakerCompatibleID.getDriversMakerExperimentID();
       String experimentName = driversMakerCompatibleID.getExperimentName();
       long experimentNumber = driversMakerCompatibleID.getExperimentNumber();
 
-      saveDriversMakerCompatibleFilesOnMinio(experiment, driversMakerExperimentID, experimentNumber);
+      saveDriversMakerCompatibleFilesOnMinio(
+          experiment, driversMakerExperimentID, experimentNumber);
 
       // generate benchmark from DriversMaker (one per experiment)
       // TODO - is driversMakerService responsible to generate the trialIDs, otherwise I think we should just pass the trialID to the driversMakerService
@@ -96,10 +105,13 @@ public class ExperimentReadyTask extends CancellableTask {
 
       // DEPLOY TO FABAN
       // get the generated benchflow-benchmark.jar from minioService and save to disk so that it can be sent
-      InputStream fabanBenchmark = minioService.getDriversMakerGeneratedBenchmark(driversMakerExperimentID, experimentNumber);
+      InputStream fabanBenchmark =
+          minioService.getDriversMakerGeneratedBenchmark(
+              driversMakerExperimentID, experimentNumber);
 
       // TODO - should this be a method (part of Faban Client?)
-      String fabanExperimentId = experimentID.replace(MODEL_ID_DELIMITER, BenchFlowConstants.FABAN_ID_DELIMITER);
+      String fabanExperimentId =
+          experimentID.replace(MODEL_ID_DELIMITER, BenchFlowConstants.FABAN_ID_DELIMITER);
 
       // store on disk because there are issues sending InputStream directly
       java.nio.file.Path benchmarkPath =
@@ -111,7 +123,8 @@ public class ExperimentReadyTask extends CancellableTask {
 
       // deploy experiment to Faban
       fabanClient.deploy(benchmarkPath.toFile());
-      logger.info("deployed benchmark to Faban: " + fabanExperimentId); // TODO - move this into fabanClient
+      logger.info(
+          "deployed benchmark to Faban: " + fabanExperimentId); // TODO - move this into fabanClient
 
       // remove file that was sent to fabanClient
       FileUtils.forceDelete(benchmarkPath.toFile());
@@ -121,10 +134,10 @@ public class ExperimentReadyTask extends CancellableTask {
         experimentTaskController.runExperiment(experimentID);
       }
 
-
     } catch (IOException e) {
 
-      logger.error("could not read experiment definition for " + experimentID + " : " + e.getMessage());
+      logger.error(
+          "could not read experiment definition for " + experimentID + " : " + e.getMessage());
       experimentModelDAO.setTerminatedState(experimentID, TerminatedState.ERROR);
       testManagerService.setExperimentTerminatedState(experimentID, TerminatedState.ERROR);
       e.printStackTrace();
@@ -141,26 +154,32 @@ public class ExperimentReadyTask extends CancellableTask {
       // TODO - handle me
       e.printStackTrace();
     }
-
-
   }
 
-  private void saveDriversMakerCompatibleFilesOnMinio(BenchFlowExperiment experiment, String driversMakerExperimentID, long experimentNumber) {
+  private void saveDriversMakerCompatibleFilesOnMinio(
+      BenchFlowExperiment experiment, String driversMakerExperimentID, long experimentNumber) {
 
     // convert to previous version
-    String oldExperimentDefinitionYaml = DemoConverter.convertExperimentToPreviousYamlString(experiment);
-    InputStream definitionInputStream = IOUtils.toInputStream(oldExperimentDefinitionYaml, StandardCharsets.UTF_8);
+    String oldExperimentDefinitionYaml =
+        DemoConverter.convertExperimentToPreviousYamlString(experiment);
+    InputStream definitionInputStream =
+        IOUtils.toInputStream(oldExperimentDefinitionYaml, StandardCharsets.UTF_8);
 
-    minioService.copyExperimentDefintionForDriversMaker(driversMakerExperimentID, experimentNumber, definitionInputStream);
-    minioService.copyDeploymentDescriptorForDriversMaker(experimentID, driversMakerExperimentID, experimentNumber);
+    minioService.copyExperimentDefintionForDriversMaker(
+        driversMakerExperimentID, experimentNumber, definitionInputStream);
+    minioService.copyDeploymentDescriptorForDriversMaker(
+        experimentID, driversMakerExperimentID, experimentNumber);
 
     // convert to Java compatible type
-    Collection<Workload> workloadCollection = JavaConverters.asJavaCollectionConverter(experiment.workload().values()).asJavaCollection();
+    Collection<Workload> workloadCollection =
+        JavaConverters.asJavaCollectionConverter(experiment.workload().values()).asJavaCollection();
 
     for (Workload workload : workloadCollection) {
 
-      for (String operationName : JavaConverters.asJavaCollectionConverter(workload.operations()).asJavaCollection()) {
-        minioService.copyExperimentBPMNModelForDriversMaker(experimentID, driversMakerExperimentID, operationName);
+      for (String operationName :
+          JavaConverters.asJavaCollectionConverter(workload.operations()).asJavaCollection()) {
+        minioService.copyExperimentBPMNModelForDriversMaker(
+            experimentID, driversMakerExperimentID, operationName);
       }
     }
   }

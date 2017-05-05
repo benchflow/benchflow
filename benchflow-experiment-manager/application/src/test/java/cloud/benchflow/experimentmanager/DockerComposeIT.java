@@ -17,8 +17,7 @@ import java.io.IOException;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch)
- * @author Vincenzo Ferme (fermevincenzo@gmail.com)
- *         created on 02.03.17.
+ * @author Vincenzo Ferme (fermevincenzo@gmail.com) created on 02.03.17.
  */
 public class DockerComposeIT {
 
@@ -51,8 +50,7 @@ public class DockerComposeIT {
   // dockerComposeRule and dockerMachine are used only when executing the local workflow
   // IMPORTANT: needs to be executed before setupDockerComposeIfLocal()
   private static final DockerMachine dockerMachine = setupDockerMachineIfLocal();
-  @ClassRule
-  public static DockerComposeRule dockerComposeRule = setupDockerComposeIfLocal();
+  @ClassRule public static DockerComposeRule dockerComposeRule = setupDockerComposeIfLocal();
 
   // this seems to happen every time an IT test is executed but the variable assignment of the above variables survive
   @BeforeClass
