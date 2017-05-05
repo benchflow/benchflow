@@ -45,15 +45,21 @@ public final class TaskExecutorFactory {
     this.maxThreads = maxThreads;
   }
 
+  /**
+   * Build executor service.
+   *
+   * @param environment application environment
+   * @return ExecutorService
+   */
   public ExecutorService build(Environment environment) {
 
-    int CPUs = Runtime.getRuntime().availableProcessors();
+    int processors = Runtime.getRuntime().availableProcessors();
 
     return environment
         .lifecycle()
         .executorService("task-%d")
-        .minThreads(minThreads * CPUs)
-        .maxThreads(maxThreads * CPUs)
+        .minThreads(minThreads * processors)
+        .maxThreads(maxThreads * processors)
         .keepAliveTime(Duration.seconds(60))
         .workQueue(new SynchronousQueue<>())
         .threadFactory(new DaemonThreadFactory())
@@ -62,7 +68,7 @@ public final class TaskExecutorFactory {
   }
 
   /** See http://dev.bizo.com/2014/06/cached-thread-pool-considered-harmlful.html */
-  public class DaemonThreadFactory implements ThreadFactory {
+  private class DaemonThreadFactory implements ThreadFactory {
 
     private AtomicInteger count = new AtomicInteger();
 

@@ -38,7 +38,11 @@ public class MongoDBFactory {
     this.port = port;
   }
 
-  /** @return */
+  /**
+   * Build mongo client.
+   *
+   * @return MongoClient
+   */
   public MongoClient build() {
 
     ServerAddress serverAddress = new ServerAddress(host, port);

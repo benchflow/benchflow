@@ -32,6 +32,8 @@ public class BenchFlowTestArchiveExtractor {
       entry -> entryMatches.test(entry, deploymentDescriptorRegEx);
 
   /**
+   * Extract test definition as a string.
+   *
    * @param benchFlowTestArchive test bundle zip
    * @return test definition String
    * @throws IOException if test definition cannot be found
@@ -44,6 +46,8 @@ public class BenchFlowTestArchiveExtractor {
   }
 
   /**
+   * Extract test definition as an input stream.
+   *
    * @param benchFlowTestArchive test bundle zip
    * @return test definition InputStream
    * @throws IOException if test definition cannot be found
@@ -57,6 +61,8 @@ public class BenchFlowTestArchiveExtractor {
   }
 
   /**
+   * Extract deployment descriptor as an input stream.
+   *
    * @param benchFlowTestArchive test bundle zip
    * @return deployment descriptor InputStream
    * @throws IOException if deployment descriptor cannot be found
@@ -70,6 +76,8 @@ public class BenchFlowTestArchiveExtractor {
   }
 
   /**
+   * Extract deployment descriptor as a string.
+   *
    * @param benchFlowTestArchive test bundle zip
    * @return deployment descriptor String
    * @throws IOException if deployment descriptor cannot be found
@@ -107,6 +115,8 @@ public class BenchFlowTestArchiveExtractor {
   }
 
   /**
+   * Extract BPMN models.
+   *
    * @param benchFlowTestArchive test bundle zip
    * @return Map with BPMN model filename and InputStream
    * @throws IOException if file cannot be found

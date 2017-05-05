@@ -4,10 +4,7 @@ import cloud.benchflow.testmanager.exceptions.UserIDAlreadyExistsException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestNumber;
 import cloud.benchflow.testmanager.models.User;
-import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import com.mongodb.MongoClient;
-import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +12,9 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17.
+ */
 public class UserDAO extends DAO {
 
   private static Logger logger = LoggerFactory.getLogger(UserDAO.class.getSimpleName());
@@ -33,14 +32,18 @@ public class UserDAO extends DAO {
 
     User user = new User(username);
 
-    if (datastore.get(user) != null) throw new UserIDAlreadyExistsException();
+    if (datastore.get(user) != null) {
+      throw new UserIDAlreadyExistsException();
+    }
 
     datastore.save(user);
 
     return user;
   }
 
-  /** @param username */
+  /**
+   * @param username
+   */
   public synchronized void removeUser(String username) {
 
     logger.info("removeUser: " + username);

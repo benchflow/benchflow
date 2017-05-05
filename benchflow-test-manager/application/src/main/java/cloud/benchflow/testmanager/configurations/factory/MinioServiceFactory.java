@@ -45,6 +45,8 @@ public class MinioServiceFactory {
   }
 
   /**
+   * Build minio service client.
+   *
    * @return MinioService
    * @throws InvalidPortException if port is not open
    * @throws InvalidEndpointException if endpoint does not exist

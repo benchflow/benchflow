@@ -106,7 +106,9 @@ public class BenchFlowTestResource {
       String testDefinitionYamlString =
           BenchFlowTestArchiveExtractor.extractBenchFlowTestDefinitionString(archiveZipInputStream);
 
-      if (testDefinitionYamlString == null) throw new InvalidTestArchiveException();
+      if (testDefinitionYamlString == null) {
+        throw new InvalidTestArchiveException();
+      }
 
       BenchFlowTest benchFlowTest = BenchFlowDSL.testFromYaml(testDefinitionYamlString);
 

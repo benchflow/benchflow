@@ -249,10 +249,6 @@ public class MinioService {
     removeObject(objectName);
   }
 
-  /**
-   * @param inputStream
-   * @param objectName
-   */
   private void putInputStreamObject(InputStream inputStream, String objectName) {
 
     logger.info("putInputStreamObject: " + objectName);
@@ -277,10 +273,6 @@ public class MinioService {
     }
   }
 
-  /**
-   * @param objectName
-   * @return
-   */
   private InputStream getInputStreamObject(String objectName) {
 
     logger.info("getInputStreamObject: " + objectName);

@@ -25,6 +25,8 @@ public class ExperimentManagerServiceFactory {
   }
 
   /**
+   * Build experiment-manager service client.
+   *
    * @param config application configuration
    * @param environment application environment
    * @return BenchFlowExperimentManagerService
