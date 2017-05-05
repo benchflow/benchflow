@@ -38,8 +38,6 @@ public class DetermineExplorationStrategyTask implements Runnable {
 
       explorationModelDAO.setExperimentSelectionStrategy(testID, selectionStrategyType);
 
-      testTaskController.handleTestState(testID);
-
     } catch (BenchFlowTestIDDoesNotExistException e) {
       // should not happen since it has already been added
       logger.error("should not happen");

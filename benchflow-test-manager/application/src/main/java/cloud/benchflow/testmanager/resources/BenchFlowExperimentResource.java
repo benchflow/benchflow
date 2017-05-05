@@ -4,9 +4,13 @@ import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.api.request.BenchFlowExperimentStateRequest;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
+import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
+import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidTrialIDWebException;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
+import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
+import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import io.swagger.annotations.Api;
 import org.slf4j.Logger;
@@ -28,19 +32,23 @@ public class BenchFlowExperimentResource {
       LoggerFactory.getLogger(BenchFlowExperimentResource.class.getSimpleName());
 
   private final BenchFlowExperimentModelDAO experimentModelDAO;
+  private final BenchFlowTestModelDAO testModelDAO;
   private final BenchFlowTestTaskController testTaskController;
 
   public BenchFlowExperimentResource() {
     this.testTaskController = BenchFlowTestManagerApplication.getTestTaskController();
     this.experimentModelDAO = BenchFlowTestManagerApplication.getExperimentModelDAO();
+    this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
   }
 
   /* used for testing */
   public BenchFlowExperimentResource(
       BenchFlowExperimentModelDAO experimentModelDAO,
-      BenchFlowTestTaskController testTaskController) {
+      BenchFlowTestTaskController testTaskController,
+      BenchFlowTestModelDAO testModelDAO) {
     this.experimentModelDAO = experimentModelDAO;
     this.testTaskController = testTaskController;
+    this.testModelDAO = testModelDAO;
   }
 
   @PUT
@@ -63,6 +71,20 @@ public class BenchFlowExperimentResource {
             + " : "
             + stateRequest.getState().name());
 
+    String testID = BenchFlowConstants.getTestIDFromExperimentID(experimentID);
+
+    try {
+
+      BenchFlowTestModel.BenchFlowTestState testState = testModelDAO.getTestState(testID);
+
+      if (testState != BenchFlowTestModel.BenchFlowTestState.RUNNING) {
+        throw new WebApplicationException("test not running");
+      }
+
+    } catch (BenchFlowTestIDDoesNotExistException e) {
+      throw new InvalidBenchFlowTestIDWebException();
+    }
+
     try {
       experimentModelDAO.setExperimentState(
           experimentID, stateRequest.getState(), stateRequest.getStatus());
@@ -72,7 +94,10 @@ public class BenchFlowExperimentResource {
 
     if (stateRequest.getState() == BenchFlowExperimentModel.BenchFlowExperimentState.TERMINATED) {
 
-      testTaskController.handleExperimentResult(experimentID);
+      testTaskController.handleTestState(testID);
     }
+
+    // we ignore other states since we are only concerned if the experiment has terminated
+
   }
 }

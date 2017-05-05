@@ -7,7 +7,9 @@ import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus;
+import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
+import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Assert;
@@ -27,18 +29,24 @@ public class BenchFlowExperimentEndpointTest {
       Mockito.mock(BenchFlowExperimentModelDAO.class);
   private static BenchFlowTestTaskController testTaskControllerMock =
       Mockito.mock(BenchFlowTestTaskController.class);
+  private static BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
 
   @ClassRule
   public static final ResourceTestRule resources =
       ResourceTestRule.builder()
           .addResource(
-              new BenchFlowExperimentResource(experimentModelDAOMock, testTaskControllerMock))
+              new BenchFlowExperimentResource(
+                  experimentModelDAOMock, testTaskControllerMock, testModelDAOMock))
           .build();
 
   @Test
   public void submitExperimentState() throws Exception {
 
     String experimentID = TestConstants.VALID_EXPERIMENT_ID;
+
+    Mockito.doReturn(BenchFlowTestModel.BenchFlowTestState.RUNNING)
+        .when(testModelDAOMock)
+        .getTestState(BenchFlowConstants.getTestIDFromExperimentID(experimentID));
 
     BenchFlowExperimentStateRequest request =
         new BenchFlowExperimentStateRequest(

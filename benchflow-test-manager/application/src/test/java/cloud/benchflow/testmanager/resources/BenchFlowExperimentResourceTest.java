@@ -1,10 +1,13 @@
 package cloud.benchflow.testmanager.resources;
 
 import cloud.benchflow.testmanager.api.request.BenchFlowExperimentStateRequest;
+import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
+import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
+import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,13 +29,16 @@ public class BenchFlowExperimentResourceTest {
       Mockito.mock(BenchFlowExperimentModelDAO.class);
   private BenchFlowTestTaskController testTaskControllerMock =
       Mockito.mock(BenchFlowTestTaskController.class);
+  private BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
 
   @Rule public ExpectedException exception = ExpectedException.none();
 
   @Before
   public void setUp() throws Exception {
 
-    resource = new BenchFlowExperimentResource(experimentModelDAOMock, testTaskControllerMock);
+    resource =
+        new BenchFlowExperimentResource(
+            experimentModelDAOMock, testTaskControllerMock, testModelDAOMock);
     request = new BenchFlowExperimentStateRequest();
   }
 
@@ -50,10 +56,17 @@ public class BenchFlowExperimentResourceTest {
     int testNumber = Integer.parseInt(experimentIDArray[2]);
     int experimentNumber = Integer.parseInt(experimentIDArray[3]);
 
+    Mockito.doReturn(BenchFlowTestModel.BenchFlowTestState.RUNNING)
+        .when(testModelDAOMock)
+        .getTestState(BenchFlowConstants.getTestIDFromExperimentID(experimentID));
+
     resource.setExperimentState(username, testName, testNumber, experimentNumber, request);
 
     Mockito.verify(experimentModelDAOMock, Mockito.times(1))
         .setExperimentState(experimentID, request.getState(), request.getStatus());
+
+    Mockito.verify(testModelDAOMock, Mockito.times(1))
+        .getTestState(BenchFlowConstants.getTestIDFromExperimentID(experimentID));
   }
 
   @Test

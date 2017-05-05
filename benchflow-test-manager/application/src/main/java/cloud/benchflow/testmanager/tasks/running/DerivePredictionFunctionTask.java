@@ -13,12 +13,8 @@ public class DerivePredictionFunctionTask implements Runnable {
 
   private final String testID;
 
-  // services
-  private final BenchFlowTestTaskController testTaskController;
-
   public DerivePredictionFunctionTask(String testID) {
     this.testID = testID;
-    this.testTaskController = BenchFlowTestManagerApplication.getTestTaskController();
   }
 
   @Override
@@ -28,6 +24,5 @@ public class DerivePredictionFunctionTask implements Runnable {
 
     // TODO - derive prediction function
 
-    testTaskController.handleTestState(testID);
   }
 }

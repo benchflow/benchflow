@@ -3,23 +3,19 @@ package cloud.benchflow.testmanager.tasks;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
+import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState;
-import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.strategy.selection.CompleteSelectionStrategy;
-import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
-import cloud.benchflow.testmanager.tasks.running.AddStoredKnowledgeTask;
-import cloud.benchflow.testmanager.tasks.running.DerivePredictionFunctionTask;
-import cloud.benchflow.testmanager.tasks.running.DetermineExecuteExperimentsTask;
-import cloud.benchflow.testmanager.tasks.running.DetermineExplorationStrategyTask;
+import cloud.benchflow.testmanager.tasks.running.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.*;
+
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState.GOAL_REACHED;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20 */
 public class BenchFlowTestTaskController {
@@ -27,16 +23,14 @@ public class BenchFlowTestTaskController {
   private static Logger logger =
       LoggerFactory.getLogger(BenchFlowTestTaskController.class.getSimpleName());
 
-  private ConcurrentMap<String, Runnable> testTasks = new ConcurrentHashMap<>();
+  private ConcurrentMap<String, Future> testTasks = new ConcurrentHashMap<>();
 
   private ExecutorService taskExecutorService;
   private BenchFlowTestModelDAO testModelDAO;
-  private ExplorationModelDAO explorationModelDAO;
 
   public BenchFlowTestTaskController(ExecutorService taskExecutorService) {
     this.taskExecutorService = taskExecutorService;
     this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
-    this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
   }
 
   // used for testing
@@ -49,6 +43,8 @@ public class BenchFlowTestTaskController {
     try {
 
       BenchFlowTestState testState = testModelDAO.getTestState(testID);
+
+      logger.info("handleTestState for " + testID + " with state " + testState.name());
 
       switch (testState) {
         case START:
@@ -82,8 +78,8 @@ public class BenchFlowTestTaskController {
           break;
 
         case TERMINATED:
-
           // test already executed
+          logger.info("Test already executed. Nothing to do.");
           break;
 
         default:
@@ -102,46 +98,49 @@ public class BenchFlowTestTaskController {
 
       TestRunningState testRunningState = testModelDAO.getTestRunningState(testID);
 
+      logger.info(
+          "handleTestRunningState for " + testID + " with state " + testRunningState.name());
+
       switch (testRunningState) {
         case DETERMINE_EXPLORATION_STRATEGY:
-          testModelDAO.setTestRunningState(testID, TestRunningState.ADD_STORED_KNOWLEDGE);
-
           determineExplorationStrategy(testID);
 
           break;
 
         case ADD_STORED_KNOWLEDGE:
-          testModelDAO.setTestRunningState(testID, TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS);
-
           addStoredKnowledge(testID);
 
           break;
 
         case DETERMINE_EXECUTE_EXPERIMENTS:
-          testModelDAO.setTestRunningState(testID, TestRunningState.HANDLE_EXPERIMENT_RESULT);
-
           determineAndExecuteExperiments(testID);
 
           break;
 
         case HANDLE_EXPERIMENT_RESULT:
+          handleExperimentResult(testID);
 
-          // this is handled separately in handleExperimentResult as
-          // it is per experiment
+          break;
+
+        case VALIDATE_TERMINATION_CRITERIA:
+          validateTerminationCriteria(testID);
 
           break;
 
         case DERIVE_PREDICTION_FUNCTION:
           testModelDAO.setTestRunningState(testID, TestRunningState.VALIDATE_PREDICTION_FUNCTION);
-
           derivePredictionFunction(testID);
 
           break;
 
         case VALIDATE_PREDICTION_FUNCTION:
+          validatePredictionFunction(testID);
+
           break;
 
         case REMOVE_NON_REACHABLE_EXPERIMENTS:
+          removeNonReachableExperiments(testID);
+
           break;
 
         default:
@@ -159,10 +158,13 @@ public class BenchFlowTestTaskController {
 
     DetermineExplorationStrategyTask task = new DetermineExplorationStrategyTask(testID);
 
-    // replace task
-    testTasks.put(testID, task);
+    // TODO - should go into a stateless queue (so that we can recover)
+    Future<?> future = taskExecutorService.submit(task);
 
-    taskExecutorService.submit(task);
+    // replace with new task
+    testTasks.put(testID, future);
+
+    waitForRunningTaskToComplete(testID, future, TestRunningState.ADD_STORED_KNOWLEDGE);
   }
 
   private void addStoredKnowledge(String testID) {
@@ -171,10 +173,13 @@ public class BenchFlowTestTaskController {
 
     AddStoredKnowledgeTask task = new AddStoredKnowledgeTask(testID);
 
-    // replace task
-    testTasks.put(testID, task);
+    // TODO - should go into a stateless queue (so that we can recover)
+    Future<?> future = taskExecutorService.submit(task);
 
-    taskExecutorService.submit(task);
+    // replace with new task
+    testTasks.put(testID, future);
+
+    waitForRunningTaskToComplete(testID, future, TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS);
   }
 
   private void determineAndExecuteExperiments(String testID) {
@@ -183,11 +188,22 @@ public class BenchFlowTestTaskController {
 
     DetermineExecuteExperimentsTask task = new DetermineExecuteExperimentsTask(testID);
 
-    // replace with new task
-    testTasks.put(testID, task);
-
     // TODO - should go into a stateless queue (so that we can recover)
-    taskExecutorService.submit(task);
+    Future<?> future = taskExecutorService.submit(task);
+
+    // replace with new task
+    testTasks.put(testID, future);
+
+    // we don't wait for the task to complete since the experiment-manager
+    // will send the result
+    try {
+
+      testModelDAO.setTestRunningState(testID, TestRunningState.HANDLE_EXPERIMENT_RESULT);
+
+    } catch (BenchFlowTestIDDoesNotExistException e) {
+      // should not happen since it was added earlier
+      logger.error("test ID does not exist - should not happen");
+    }
   }
 
   private void derivePredictionFunction(String testID) {
@@ -196,74 +212,171 @@ public class BenchFlowTestTaskController {
 
     DerivePredictionFunctionTask task = new DerivePredictionFunctionTask(testID);
 
-    // replace with new task
-    testTasks.put(testID, task);
-
     // TODO - should go into a stateless queue (so that we can recover)
-    taskExecutorService.submit(task);
+    Future<?> future = taskExecutorService.submit(task);
+
+    // replace with new task
+    testTasks.put(testID, future);
+
+    waitForRunningTaskToComplete(testID, future, TestRunningState.VALIDATE_PREDICTION_FUNCTION);
   }
 
-  /**
-   * Handles the result after experiment execution.
-   *
-   * @param experimentID ID of the experiment
-   */
-  public synchronized void handleExperimentResult(String experimentID) {
+  private void validatePredictionFunction(String testID) {
 
-    logger.info("handleExperimentResult for experimentID: " + experimentID);
+    logger.info("validatePredictionFunction with testID: " + testID);
 
-    String testID = BenchFlowConstants.getTestIDFromExperimentID(experimentID);
+    ValidatePredictionFunctionTask task = new ValidatePredictionFunctionTask(testID);
+
+    // TODO - should go into a stateless queue (so that we can recover)
+    Future<Boolean> future = taskExecutorService.submit(task);
+
+    // replace with new task
+    testTasks.put(testID, future);
 
     try {
 
-      BenchFlowTestState state = testModelDAO.getTestState(testID);
+      boolean acceptablePredictionError = future.get();
 
-      if (state != BenchFlowTestState.RUNNING) {
-        logger.info("test not running");
-        return;
+      if (acceptablePredictionError) {
+
+        testModelDAO.setTestState(testID, BenchFlowTestState.TERMINATED);
+        testModelDAO.setTestTerminatedState(testID, GOAL_REACHED);
+
+        // no need to execute further
+        testTasks.remove(testID);
+
+      } else {
+
+        testModelDAO.setTestRunningState(testID, TestRunningState.REMOVE_NON_REACHABLE_EXPERIMENTS);
+
+        handleTestState(testID);
       }
 
-      ExperimentSelectionStrategy.Type selectionType =
-          explorationModelDAO.getExperimentSelectionStrategyType(testID);
+    } catch (InterruptedException | ExecutionException e) {
+      // TODO - handle  properly
+      e.printStackTrace();
+    } catch (BenchFlowTestIDDoesNotExistException e) {
+      // should not happen since it was added earlier
+      logger.error("test ID does not exist - should not happen");
+    }
+  }
 
-      switch (selectionType) {
+  private void removeNonReachableExperiments(String testID) {
+
+    logger.info("removeNonReachableExperiments with testID: " + testID);
+
+    RemoveNonReachableExperimentsTask task = new RemoveNonReachableExperimentsTask(testID);
+
+    // TODO - should go into a stateless queue (so that we can recover)
+    Future<?> future = taskExecutorService.submit(task);
+
+    // replace with new task
+    testTasks.put(testID, future);
+
+    waitForRunningTaskToComplete(testID, future, TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS);
+  }
+
+  private void validateTerminationCriteria(String testID) {
+
+    logger.info("validateTerminationCriteria with testID: " + testID);
+
+    ValidateTerminationCriteria task = new ValidateTerminationCriteria(testID);
+
+    // TODO - should go into a stateless queue (so that we can recover)
+    Future<Boolean> future = taskExecutorService.submit(task);
+
+    // replace with new task
+    testTasks.put(testID, future);
+
+    try {
+      boolean testComplete = future.get();
+
+      if (testComplete) {
+
+        testModelDAO.setTestState(testID, BenchFlowTestModel.BenchFlowTestState.TERMINATED);
+        testModelDAO.setTestTerminatedState(testID, GOAL_REACHED);
+
+        testTasks.remove(testID);
+
+      } else {
+
+        // update the running state
+        testModelDAO.setTestRunningState(
+            testID, BenchFlowTestModel.TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS);
+
+        // run the next state
+        handleTestState(testID);
+      }
+
+    } catch (InterruptedException | ExecutionException e) {
+      // TODO - handle  properly
+      e.printStackTrace();
+    } catch (BenchFlowTestIDDoesNotExistException e) {
+      // should not happen since it was added earlier
+      logger.error("test ID does not exist - should not happen");
+    }
+  }
+
+  private synchronized void handleExperimentResult(String testID) {
+
+    logger.info("handleExperimentResult with testID: " + testID);
+
+    HandleExperimentResultTask task = new HandleExperimentResultTask(testID);
+
+    // TODO - should go into a stateless queue (so that we can recover)
+    Future<HandleExperimentResultTask.Result> future = taskExecutorService.submit(task);
+
+    // replace with new task
+    testTasks.put(testID, future);
+
+    try {
+
+      HandleExperimentResultTask.Result result = future.get();
+
+      switch (result) {
         case COMPLETE_SELECTION:
-          handleCompleteSelectionStrategyResult(testID);
+          testModelDAO.setTestRunningState(testID, TestRunningState.VALIDATE_TERMINATION_CRITERIA);
+
+          handleTestState(testID);
 
           break;
 
-          // TODO - other cases: should be delegated to a task that interacts with other services
+        case CAN_REACH_GOAL:
+          // TODO
+          break;
+
+        case CANNOT_REACH_GOAL:
+          // TODO
+          break;
+
         default:
           break;
       }
 
-    } catch (BenchFlowTestIDDoesNotExistException e) {
+    } catch (InterruptedException | ExecutionException e) {
+      // TODO - handle  properly
       e.printStackTrace();
+    } catch (BenchFlowTestIDDoesNotExistException e) {
+      // should not happen since it was added earlier
+      logger.error("test ID does not exist - should not happen");
     }
   }
 
-  private void handleCompleteSelectionStrategyResult(String testID)
-      throws BenchFlowTestIDDoesNotExistException {
+  private void waitForRunningTaskToComplete(
+      String testID, Future future, TestRunningState nextState) {
 
-    CompleteSelectionStrategy completeSelectionStrategy =
-        (CompleteSelectionStrategy) explorationModelDAO.getExperimentSelectionStrategy(testID);
+    try {
 
-    boolean testComplete = completeSelectionStrategy.isTestComplete(testID);
-
-    if (testComplete) {
-
-      testModelDAO.setTestState(testID, BenchFlowTestState.TERMINATED);
-      testModelDAO.setTestTerminatedState(testID, TestTerminatedState.GOAL_REACHED);
-
-      testTasks.remove(testID);
-
-    } else {
-
-      // update the running state
-      testModelDAO.setTestRunningState(testID, TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS);
-
-      // run the next state
+      future.get();
+      testModelDAO.setTestRunningState(testID, nextState);
       handleTestState(testID);
+
+    } catch (InterruptedException | ExecutionException e) {
+      // TODO - handle  properly
+      e.printStackTrace();
+    } catch (BenchFlowTestIDDoesNotExistException e) {
+      // should not happen since it was added earlier
+      logger.error("test ID does not exist - should not happen");
     }
   }
 

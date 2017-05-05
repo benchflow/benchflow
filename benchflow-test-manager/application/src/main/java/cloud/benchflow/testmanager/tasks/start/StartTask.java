@@ -75,6 +75,7 @@ public class StartTask implements Runnable {
         (fileName, inputStream) -> minioService.saveTestBPMNModel(testID, fileName, inputStream));
 
     try {
+
       BenchFlowTest test = BenchFlowDSL.testFromYaml(testDefinitionYamlString);
 
       List<Integer> workloadUserSpace = generateExplorationSpace(test);

@@ -4,11 +4,16 @@ import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.DockerComposeIT;
 import cloud.benchflow.testmanager.archive.TestArchives;
 import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfiguration;
+import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.helpers.TestFiles;
+import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
+import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
+import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
+import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import cloud.benchflow.testmanager.tasks.start.StartTask;
@@ -29,6 +34,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState.*;
+import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus.*;
+
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-27 */
 public class BenchFlowTestTaskControllerIT extends DockerComposeIT {
 
@@ -48,6 +56,7 @@ public class BenchFlowTestTaskControllerIT extends DockerComposeIT {
 
   private BenchFlowTestTaskController testTaskController;
   private BenchFlowTestModelDAO testModelDAO;
+  private BenchFlowExperimentModelDAO experimentModelDAO;
   private UserDAO userDAO;
   private BenchFlowExperimentManagerService experimentManagerService;
   private ExecutorService executorService;
@@ -60,6 +69,7 @@ public class BenchFlowTestTaskControllerIT extends DockerComposeIT {
 
     userDAO = BenchFlowTestManagerApplication.getUserDAO();
     testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
+    experimentModelDAO = BenchFlowTestManagerApplication.getExperimentModelDAO();
     experimentManagerService =
         Mockito.spy(BenchFlowTestManagerApplication.getExperimentManagerService());
     BenchFlowTestManagerApplication.setExperimentManagerService(experimentManagerService);
@@ -82,7 +92,11 @@ public class BenchFlowTestTaskControllerIT extends DockerComposeIT {
     Mockito.doAnswer(
             invocationOnMock -> {
               String experimentID = (String) invocationOnMock.getArguments()[0];
-              testTaskController.handleExperimentResult(experimentID);
+
+              experimentModelDAO.setExperimentState(experimentID, TERMINATED, COMPLETED);
+
+              String testID = BenchFlowConstants.getTestIDFromExperimentID(experimentID);
+              testTaskController.handleTestState(testID);
 
               countDownLatch.countDown();
 
