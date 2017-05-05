@@ -581,7 +581,7 @@ build-and-deploy-benchflow-client:
         name: Cleanup the Image
         code: |
           source $WERCKER_SOURCE_DIR/devops/cleanup-wercker-build.sh
-    - internal/shell
+    # - internal/shell
     # push container as-is
     - internal/docker-push:
         author: Vincenzo FERME <info@vincenzoferme.it>
