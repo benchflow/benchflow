@@ -94,3 +94,9 @@ typings/
 # dotenv environment variables file
 .env
 scalastyle-output.xml
+
+# external jars downloaded during mvn clean
+external/
+
+# mongo data files for docker compose
+mongo-data/
