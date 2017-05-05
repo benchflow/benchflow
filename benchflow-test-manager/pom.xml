@@ -38,6 +38,8 @@
         <benchflow-dsl.project.name>benchflow-dsl</benchflow-dsl.project.name>
         <benchflow-dsl-jar.version>feature-dsl-demo-conversion_046e8d</benchflow-dsl-jar.version>
         <benchflow-dsl.version>0.1.0</benchflow-dsl.version>
+        <benchflow-faban-client.project.name>benchflow-faban-client</benchflow-faban-client.project.name>
+        <benchflow-faban-client-jar.version>devel_ad148a</benchflow-faban-client-jar.version>
         <benchflow-faban-client.version>0.1.0</benchflow-faban-client.version>
         <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
         <maven-shade-plugin.verion>2.4.3</maven-shade-plugin.verion>
@@ -144,8 +146,7 @@
                 <artifactId>benchflow-dsl</artifactId>
                 <version>${benchflow-dsl.version}</version>
             </dependency>
-
-            <!-- TODO: move to the central repo release -->
+            
             <!-- needed for Faban Responses class-->
             <dependency>
                 <groupId>cloud.benchflow.faban</groupId>
@@ -177,7 +178,6 @@
                                 <outputFileName>${benchflow-dsl.project.name}_${benchflow-dsl-jar.version}.jar</outputFileName>
                             </configuration>
                         </execution>
-                        <!-- TODO: move to the central repo release -->
                         <execution>
                             <id>download-faban-client</id>
                             <phase>clean</phase>
@@ -185,10 +185,10 @@
                                 <goal>wget</goal>
                             </goals>
                             <configuration>
-                                <url>https://github.com/benchflow/faban-client/releases/download/v-dev/benchflow-faban-client.jar</url>
+                                <url>https://dl.bintray.com/benchflow/benchflow-maven/${benchflow-faban-client.project.name}_${benchflow-faban-client-jar.version}.jar</url>
                                 <unpack>false</unpack>
                                 <outputDirectory>${main.basedir}/external</outputDirectory>
-                                <outputFileName>benchflow-faban-client.jar</outputFileName>
+                                <outputFileName>${benchflow-faban-client.project.name}_${benchflow-faban-client-jar.version}.jar</outputFileName>
                             </configuration>
                         </execution>
                     </executions>
@@ -226,10 +226,10 @@
                         <id>benchflow-faban-client</id>
                         <phase>post-clean</phase>
                         <configuration>
-                            <file>${main.basedir}/external/benchflow-faban-client.jar</file>
+                            <file>${main.basedir}/external/${benchflow-faban-client.project.name}_${benchflow-faban-client-jar.version}.jar</file>
                             <repositoryLayout>default</repositoryLayout>
-                            <groupId>cloud.benchflow.faban</groupId>
-                            <artifactId>client</artifactId>
+                            <groupId>cloud.benchflow</groupId>
+                            <artifactId>faban-client</artifactId>
                             <version>${benchflow-faban-client.version}</version>
                             <packaging>jar</packaging>
                             <generatePom>true</generatePom>
