@@ -201,6 +201,41 @@ build-benchflow-test-manager:
 
 ###########################################################
 # DRAFT
+# Pipeline used to build: benchflow-data-manager
+###########################################################
+# NOTE: We were relying on docker-compose for Integration Testing, but in Wercker
+# it is not possible to interact with the docker daemon to start containers:
+#   - See: http://devcenter.wercker.com/docs/faq/can-i-run-docker-commands, https://github.com/wercker/wercker/issues/63, http://devcenter.wercker.com/docs/faq/can-i-build-dockerfiles
+# We did some attempts in installing docker in docker and relying on it, but without success
+# Wercker relies on services instead: http://devcenter.wercker.com/docs/services#hs_cos_wrapper_name and we moved to services
+# waiting for the possibility, maybe, to use docker-compose that gives developers more control
+build-benchflow-data-manager:
+  box: maven:3.3.9-jdk-8
+  # services:
+    # TODO: We first need to migrate the tests to the project standard (see https://github.com/benchflow/benchflow/issues/293)
+  steps:
+    # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one.
+    - xenoterracide/maven:
+        # We explicitly call all the phases in which we hook build activities
+        goals: clean post-clean process-sources test package verify
+        # Add -X for debugging
+        args: -f $WERCKER_SOURCE_DIR/benchflow-data-manager
+    - script:
+        # NOTE: we also copy devops files, because they are needed in subsequent steps
+        # NOTE: we also need docker-images (from the root for compatibility of paths) here for the subsequent steps
+        name: Copy benchflow-data-manager, devops, and base-images-layers to WERCKER_OUTPUT_DIR
+        code: |
+          mkdir -p $WERCKER_OUTPUT_DIR/benchflow-data-manager/target
+          cp $WERCKER_SOURCE_DIR/benchflow-data-manager/target/benchflow-data-manager.jar $WERCKER_OUTPUT_DIR/benchflow-data-manager/target/
+          cp $WERCKER_SOURCE_DIR/benchflow-data-manager/configuration.yml $WERCKER_OUTPUT_DIR/benchflow-data-manager
+          cp $WERCKER_SOURCE_DIR/benchflow-data-manager/build-image.sh $WERCKER_OUTPUT_DIR/benchflow-data-manager
+          mkdir -p $WERCKER_OUTPUT_DIR/benchflow-data-manager/services/
+          cp -Rf $WERCKER_SOURCE_DIR/benchflow-data-manager/services/* $WERCKER_OUTPUT_DIR/benchflow-data-manager/services/
+          cp -a $WERCKER_SOURCE_DIR/devops $WERCKER_OUTPUT_DIR
+          cp -a $WERCKER_SOURCE_DIR/docker-images $WERCKER_OUTPUT_DIR
+
+###########################################################
+# DRAFT
 # Pipeline used to build: benchflow-driver-maker
 ###########################################################
 # build-benchflow-driver-maker:
@@ -536,6 +571,62 @@ deploy-benchflow-test-manager:
 #   -e "MINIO_ADDRESS=$(MINIO_ADDRESS)" \
 #   -p 8080:8080 --link=$(DBNAME) --username $(REPONAME) $(DOCKERIMAGENAME):$(VERSION)
 
+###########################################################
+# DRAFT
+# Pipeline used to package the Docker Image and deploy on the Docker Hub: benchflow-data-manager
+###########################################################
+deploy-benchflow-data-manager:
+  # See: https://github.com/wercker/wercker/issues/262
+  box:
+    id: alpine:3.5
+    cmd: /bin/sh
+    # env:
+    #   DOCKER_IMAGE_CUSTOM_TAG: ${WERCKER_GIT_BRANCH}_${WERCKER_GIT_COMMIT}
+  steps:
+    - script:
+        name: Build Base Layers
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Build needed base layers
+          source $WERCKER_SOURCE_DIR/docker-images/base-images-layers/base-combined-layers/build-chaperone-binaries-and-image-and-base-dns-envconsul-java8-layers.sh
+    - script:
+        name: Build and Configure BenchFlow Data Manager Image
+        # NOTE: Due to the need of the cmd: /bin/sh command above
+        #       We need to use source here, so we get the code executed in the current shell
+        code: |
+          # Add the BenchFlow Data Manager Service and Configure it
+          cd $WERCKER_SOURCE_DIR/benchflow-data-manager
+          source build-image.sh
+    # TODO: understand how to make it work (the variable is not set in the docker-push steps)
+    # - script:
+    #     name: Generate Custom Deployment Tag
+    #     code: source $WERCKER_SOURCE_DIR/devops/generate-commit-specific-tag.sh
+    - script:
+        name: Cleanup the Image and set Custom Tag
+        code: |
+          source $WERCKER_SOURCE_DIR/devops/cleanup-wercker-build.sh
+    # push container as-is
+    - internal/docker-push:
+        author: Vincenzo FERME <info@vincenzoferme.it>
+        disable-sync: false
+        repository: benchflow/data-manager
+        email: $DOCKER_HUB_EMAIL
+        username: $DOCKER_HUB_USERNAME
+        password: $DOCKER_HUB_PASSWORD
+        # NOTE: first we push the commit specific image, then the image for the branch
+        # NOTE: Here we are supposed to use the tag obtained from "Generate Custom Deployment Tag"
+        # BUT there are many issues with it because alpine does not make variables available at this step
+        # as discussed: http://devcenter.wercker.com/docs/faq/alpine-faq, https://github.com/wercker/wercker/issues/226
+        # ALTERNATIVE: switch to ubuntu, or wait for a fix
+        # NOW: We just use the WERCKER_GIT_COMMIT that is made available from the beginning
+        tag: ${WERCKER_GIT_COMMIT},${WERCKER_GIT_BRANCH}
+        ports: "8080"
+        # _CHAP_OPTIONS - Used instead entrypoint args so that any default can be overridden by CMD
+        # Separating by , it is not working, and also placing variables in "" (http://devcenter.wercker.com/docs/steps/internal-steps#docker-push)
+        # the only approach that work is the following one
+        env: _CHAP_OPTIONS='--config apps/chaperone.d --default-home / --user runapps' ENVCONSUL_CONFIG=/envconsul
+        entrypoint: "/usr/local/bin/chaperone"
 
 ###########################################################
 # ATTEMPS
