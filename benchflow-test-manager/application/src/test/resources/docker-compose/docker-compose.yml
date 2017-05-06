@@ -6,6 +6,8 @@ services:
       - "27017:27017"
     volumes:
       - ${MONGO_DATA_VOLUME}:/data/db
+    networks:
+      - benchflow-test-manager
 
   minio:
     image: minio/minio:${MINIO_TAG}
@@ -15,3 +17,9 @@ services:
           MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
           MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
     command: server /export
+    networks:
+      - benchflow-test-manager
+
+networks:
+  benchflow-test-manager:
+    driver: bridge

@@ -10,4 +10,9 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>api</artifactId>
 
+    <properties>
+        <main.basedir>${project.basedir}${file.separator}..</main.basedir>
+        <root.project.basedir>${project.basedir}/../../</root.project.basedir>
+    </properties>
+
 </project>

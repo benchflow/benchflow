@@ -11,6 +11,7 @@
 
     <properties>
         <main.basedir>${project.basedir}${file.separator}..</main.basedir>
+        <root.project.basedir>${project.basedir}/../../</root.project.basedir>
     </properties>
 
     <dependencies>
@@ -65,7 +66,7 @@
 
         <dependency>
             <groupId>cloud.benchflow</groupId>
-            <artifactId>benchflow-faban-client</artifactId>
+            <artifactId>faban-client</artifactId>
         </dependency>
 
     </dependencies>

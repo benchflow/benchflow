@@ -241,11 +241,17 @@ do
 	     "benchflow-minio-client")
 	     branch_name_pipeline_id=$WERCKER_BENCHFLOW_MINIO_CLIENT_PIPELINE_ID
 	     ;;
+	     "benchflow-faban-client")
+	     branch_name_pipeline_id=$WERCKER_BENCHFLOW_FABAN_CLIENT_PIPELINE_ID
+	     ;;
 	     "benchflow-experiment-manager")
 	     branch_name_pipeline_id=$WERCKER_BENCHFLOW_EXPERIMENT_MANAGER_PIPELINE_ID
 	     ;;
 	     "benchflow-test-manager")
 	     branch_name_pipeline_id=$WERCKER_BENCHFLOW_TEST_MANAGER_PIPELINE_ID
+	     ;;
+	     "benchflow-client")
+	     branch_name_pipeline_id=$WERCKER_BENCHFLOW_CLIENT_PIPELINE_ID
 	     ;;
 			 *)
 	     echo "No build pipeline defined for the current folder"

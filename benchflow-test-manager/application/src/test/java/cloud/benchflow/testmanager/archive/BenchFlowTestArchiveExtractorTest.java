@@ -8,53 +8,48 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 16.02.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 16.02.17. */
 public class BenchFlowTestArchiveExtractorTest {
-    @Before
-    public void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {}
 
-    }
+  @Test
+  public void extractBenchFlowTestDefinition() throws Exception {
 
-    @Test
-    public void extractBenchFlowTestDefinition() throws Exception {
+    String ptDefinition =
+        BenchFlowTestArchiveExtractor.extractBenchFlowTestDefinitionString(
+            TestArchives.getInValidTestArchiveZip());
 
-        String ptDefinition = BenchFlowTestArchiveExtractor.extractBenchFlowTestDefinitionString(
-                TestArchives.getInValidTestArchiveZip());
+    Assert.assertNotNull(ptDefinition);
 
-        Assert.assertNotNull(ptDefinition);
+    Assert.assertTrue(ptDefinition.contains("version:"));
+  }
 
-        Assert.assertTrue(ptDefinition.contains("version:"));
+  @Test
+  public void extractDeploymentDescriptor() throws Exception {
 
-    }
+    InputStream deploymentDescriptorInputStream =
+        BenchFlowTestArchiveExtractor.extractDeploymentDescriptorInputStream(
+            TestArchives.getValidTestArchiveZip());
 
-    @Test
-    public void extractDeploymentDescriptor() throws Exception {
+    Assert.assertNotNull(deploymentDescriptorInputStream);
 
-        InputStream deploymentDescriptorInputStream = BenchFlowTestArchiveExtractor.extractDeploymentDescriptorInputStream(
-                TestArchives.getValidTestArchiveZip());
+    String deploymentDescriptorString =
+        org.apache.commons.io.IOUtils.toString(
+            deploymentDescriptorInputStream, StandardCharsets.UTF_8.name());
 
-        Assert.assertNotNull(deploymentDescriptorInputStream);
+    Assert.assertTrue(deploymentDescriptorString.contains("version:"));
+  }
 
-        String deploymentDescriptorString = org.apache.commons.io.IOUtils.toString(deploymentDescriptorInputStream,
-                                                                                   StandardCharsets.UTF_8.name());
+  @Test
+  public void extractBPMNModels() throws Exception {
 
-        Assert.assertTrue(deploymentDescriptorString.contains("version:"));
+    int numberOfModels = TestArchives.BPMN_MODELS_COUNT;
 
-    }
+    Map<String, InputStream> bpmnModels =
+        BenchFlowTestArchiveExtractor.extractBPMNModelInputStreams(
+            TestArchives.getValidTestArchiveZip());
 
-    @Test
-    public void extractBPMNModels() throws Exception {
-
-        int numberOfModels = TestArchives.BPMN_MODELS_COUNT;
-
-        Map<String, InputStream> bpmnModels = BenchFlowTestArchiveExtractor.extractBPMNModelInputStreams(
-                TestArchives.getValidTestArchiveZip());
-
-        Assert.assertEquals(numberOfModels, bpmnModels.size());
-
-    }
-
+    Assert.assertEquals(numberOfModels, bpmnModels.size());
+  }
 }
