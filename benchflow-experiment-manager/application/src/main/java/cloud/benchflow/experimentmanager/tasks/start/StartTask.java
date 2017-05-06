@@ -1,10 +1,11 @@
-package cloud.benchflow.experimentmanager.tasks.experiment;
+package cloud.benchflow.experimentmanager.tasks.start;
 
 import cloud.benchflow.dsl.BenchFlowDSL;
 import cloud.benchflow.dsl.definition.BenchFlowExperiment;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.dsl.definition.workload.Workload;
 import cloud.benchflow.dsl.demo.DemoConverter;
+import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.TerminatedState;
@@ -31,37 +32,30 @@ import java.util.Collection;
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
-public class ExperimentReadyTask extends CancellableTask {
+public class StartTask extends CancellableTask {
 
   private static final String TEMP_DIR = "./tmp";
   private static final String BENCHMARK_FILE_ENDING = ".jar";
 
-  private static Logger logger = LoggerFactory.getLogger(ExperimentReadyTask.class.getSimpleName());
+  private static Logger logger = LoggerFactory.getLogger(StartTask.class.getSimpleName());
 
   private String experimentID;
 
-  private ExperimentTaskController experimentTaskController;
   private BenchFlowExperimentModelDAO experimentModelDAO;
   private MinioService minioService;
   private FabanClient fabanClient;
   private DriversMakerService driversMakerService;
   private BenchFlowTestManagerService testManagerService;
 
-  public ExperimentReadyTask(
-      String experimentID,
-      ExperimentTaskController experimentTaskController,
-      BenchFlowExperimentModelDAO experimentModelDAO,
-      MinioService minioService,
-      FabanClient fabanClient,
-      DriversMakerService driversMakerService,
-      BenchFlowTestManagerService testManagerService) {
+  public StartTask(String experimentID) {
+
     this.experimentID = experimentID;
-    this.experimentTaskController = experimentTaskController;
-    this.experimentModelDAO = experimentModelDAO;
-    this.minioService = minioService;
-    this.fabanClient = fabanClient;
-    this.driversMakerService = driversMakerService;
-    this.testManagerService = testManagerService;
+
+    this.experimentModelDAO = BenchFlowExperimentManagerApplication.getExperimentModelDAO();
+    this.minioService = BenchFlowExperimentManagerApplication.getMinioService();
+    this.fabanClient = BenchFlowExperimentManagerApplication.getFabanClient();
+    this.driversMakerService = BenchFlowExperimentManagerApplication.getDriversMakerService();
+    this.testManagerService = BenchFlowExperimentManagerApplication.getTestManagerService();
   }
 
   @Override
@@ -128,11 +122,6 @@ public class ExperimentReadyTask extends CancellableTask {
 
       // remove file that was sent to fabanClient
       FileUtils.forceDelete(benchmarkPath.toFile());
-
-      // schedule experiment execution
-      if (!isCanceled.booleanValue()) {
-        experimentTaskController.runExperiment(experimentID);
-      }
 
     } catch (IOException e) {
 

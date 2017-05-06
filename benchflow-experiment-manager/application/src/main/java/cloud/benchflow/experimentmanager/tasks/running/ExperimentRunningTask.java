@@ -1,13 +1,13 @@
-package cloud.benchflow.experimentmanager.tasks.experiment;
+package cloud.benchflow.experimentmanager.tasks.running;
 
 import cloud.benchflow.dsl.BenchFlowDSL;
 import cloud.benchflow.dsl.definition.BenchFlowExperiment;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
+import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.exceptions.TrialIDDoesNotExistException;
-import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.RunningState;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.TerminatedState;
@@ -51,19 +51,15 @@ public class ExperimentRunningTask extends CancellableTask {
 
   private BenchFlowExperimentModelDAO experimentModelDAO;
 
-  public ExperimentRunningTask(
-      String experimentID,
-      BenchFlowTestManagerService testManagerService,
-      MinioService minioService,
-      FabanClient fabanClient,
-      BenchFlowExperimentModelDAO experimentModelDAO,
-      int submitRetries) {
+  public ExperimentRunningTask(String experimentID, int submitRetries) {
+
     this.experimentID = experimentID;
-    this.testManagerService = testManagerService;
-    this.minioService = minioService;
-    this.fabanClient = fabanClient;
-    this.experimentModelDAO = experimentModelDAO;
     this.submitRetries = submitRetries;
+
+    this.testManagerService = BenchFlowExperimentManagerApplication.getTestManagerService();
+    this.minioService = BenchFlowExperimentManagerApplication.getMinioService();
+    this.fabanClient = BenchFlowExperimentManagerApplication.getFabanClient();
+    this.experimentModelDAO = BenchFlowExperimentManagerApplication.getExperimentModelDAO();
   }
 
   @Override
@@ -185,6 +181,7 @@ public class ExperimentRunningTask extends CancellableTask {
 
       } else {
 
+        experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED);
         experimentModelDAO.setTerminatedState(experimentID, TerminatedState.COMPLETED);
         testManagerService.setExperimentTerminatedState(experimentID, TerminatedState.COMPLETED);
       }

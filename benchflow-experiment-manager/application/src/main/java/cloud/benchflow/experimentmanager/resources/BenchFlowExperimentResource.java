@@ -1,5 +1,6 @@
 package cloud.benchflow.experimentmanager.resources;
 
+import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.api.request.BenchFlowExperimentStateRequest;
 import cloud.benchflow.experimentmanager.api.response.BenchFlowExperimentStateResponse;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
@@ -36,6 +37,14 @@ public class BenchFlowExperimentResource {
   private BenchFlowExperimentModelDAO experimentModelDAO;
   private ExperimentTaskController experimentTaskController;
 
+  public BenchFlowExperimentResource() {
+    this.minio = BenchFlowExperimentManagerApplication.getMinioService();
+    this.experimentModelDAO = BenchFlowExperimentManagerApplication.getExperimentModelDAO();
+    this.experimentTaskController =
+        BenchFlowExperimentManagerApplication.getExperimentTaskController();
+  }
+
+  // only used for testing with mocks
   public BenchFlowExperimentResource(
       MinioService minio,
       BenchFlowExperimentModelDAO experimentModelDAO,
@@ -68,7 +77,10 @@ public class BenchFlowExperimentResource {
           BenchFlowConstants.INVALID_EXPERIMENT_ID_MESSAGE, Response.Status.PRECONDITION_FAILED);
     }
 
-    experimentTaskController.submitExperiment(experimentID);
+    experimentModelDAO.addExperiment(experimentID);
+
+    // execute in separate thread so we can return
+    new Thread(() -> experimentTaskController.handleExperimentState(experimentID)).start();
   }
 
   @GET

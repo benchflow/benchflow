@@ -22,6 +22,10 @@ public class BenchFlowTestTaskController {
 
   private ConcurrentMap<String, Future> testTasks = new ConcurrentHashMap<>();
 
+  // TODO - running queue (1 element)
+
+  // TODO - ready queue
+
   private ExecutorService taskExecutorService;
   private BenchFlowTestModelDAO testModelDAO;
 
@@ -51,6 +55,7 @@ public class BenchFlowTestTaskController {
 
         case READY:
           setNextTestState(testID, BenchFlowTestState.RUNNING);
+          // TODO - put test in shared (with dispatcher) ready queue
 
           break;
 
@@ -67,6 +72,7 @@ public class BenchFlowTestTaskController {
           break;
 
         case TERMINATED:
+          // TODO - remove test from running queue so dispatcher can run next test
           // test already executed
           logger.info("Test already executed. Nothing to do.");
           break;
@@ -81,10 +87,10 @@ public class BenchFlowTestTaskController {
     }
   }
 
-  private void setNextTestState(String testID, BenchFlowTestState running)
+  private void setNextTestState(String testID, BenchFlowTestState testState)
       throws BenchFlowTestIDDoesNotExistException {
-    // change state to running
-    testModelDAO.setTestState(testID, running);
+    // change state to testState
+    testModelDAO.setTestState(testID, testState);
 
     handleTestState(testID);
   }

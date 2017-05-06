@@ -7,11 +7,13 @@ import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
 import cloud.benchflow.experimentmanager.helpers.MinioTestData;
 import cloud.benchflow.experimentmanager.helpers.TestConstants;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.faban.client.FabanClient;
+import cloud.benchflow.faban.client.responses.DeployStatus;
 import cloud.benchflow.faban.client.responses.RunId;
 import cloud.benchflow.faban.client.responses.RunStatus;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
@@ -19,12 +21,11 @@ import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
@@ -34,16 +35,19 @@ import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static org.junit.Assert.*;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
 public class ExperimentTaskControllerIT extends DockerComposeIT {
 
   private static final int TEST_PORT = 8080;
   private static final String TEST_ADDRESS = "localhost:" + TEST_PORT;
+
+  // TODO - this test is pretty much the same as the BenchFlowExperimentManagerApplictionIT so
+  // TODO - we should consider how to remove redundancy
 
   @Rule
   public final DropwizardAppRule<BenchFlowExperimentManagerConfiguration> RULE =
@@ -69,83 +73,65 @@ public class ExperimentTaskControllerIT extends DockerComposeIT {
 
   private ExperimentTaskController experimentTaskController;
   private ExecutorService experimentTaskExecutorServer;
+  private BenchFlowExperimentModelDAO experimentModelDAO;
 
   @Before
   public void setUp() throws Exception {
 
-    BenchFlowExperimentManagerConfiguration configuration = RULE.getConfiguration();
-    Environment environment = RULE.getEnvironment();
-
     DriversMakerCompatibleID driversMakerCompatibleID = new DriversMakerCompatibleID(experimentID);
 
-    Client client =
-        new JerseyClientBuilder(environment)
-            .using(configuration.getJerseyClientConfiguration())
-            .build("experiment-manager-test");
-
-    BenchFlowExperimentModelDAO experimentModelDAO =
-        new BenchFlowExperimentModelDAO(configuration.getMongoDBFactory().build());
+    experimentModelDAO = BenchFlowExperimentManagerApplication.getExperimentModelDAO();
 
     // spy on minio to return files saved by other services
-    MinioService minioService = Mockito.spy(configuration.getMinioServiceFactory().build());
+    MinioService minioServiceSpy = Mockito.spy(BenchFlowExperimentManagerApplication.getMinioService());
+    BenchFlowExperimentManagerApplication.setMinioService(minioServiceSpy);
+
+    // set faban client as mock
+    BenchFlowExperimentManagerApplication.setFabanClient(fabanClientMock);
+
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperimentDefinition())
-        .when(minioService)
+        .when(minioServiceSpy)
         .getExperimentDefinition(experimentID);
     Mockito.doReturn(MinioTestData.getDeploymentDescriptor())
-        .when(minioService)
+        .when(minioServiceSpy)
         .getExperimentDeploymentDescriptor(experimentID);
     Mockito.doReturn(MinioTestData.get11ParallelStructuredModel())
-        .when(minioService)
+        .when(minioServiceSpy)
         .getExperimentBPMNModel(experimentID, MinioTestData.BPM_MODEL_11_PARALLEL_NAME);
     Mockito.doReturn(MinioTestData.getGeneratedBenchmark())
-        .when(minioService)
+        .when(minioServiceSpy)
         .getDriversMakerGeneratedBenchmark(
             driversMakerCompatibleID.getDriversMakerExperimentID(),
             driversMakerCompatibleID.getExperimentNumber());
     Mockito.doReturn(MinioTestData.getFabanConfiguration())
-        .when(minioService)
+        .when(minioServiceSpy)
         .getDriversMakerGeneratedFabanConfiguration(
             driversMakerCompatibleID.getDriversMakerExperimentID(),
             driversMakerCompatibleID.getExperimentNumber(),
             1);
 
     Mockito.doNothing()
-        .when(minioService)
+        .when(minioServiceSpy)
         .copyDeploymentDescriptorForDriversMaker(
             experimentID,
             driversMakerCompatibleID.getDriversMakerExperimentID(),
             driversMakerCompatibleID.getExperimentNumber());
     Mockito.doNothing()
-        .when(minioService)
+        .when(minioServiceSpy)
         .copyExperimentBPMNModelForDriversMaker(
             Mockito.matches(experimentID),
             Mockito.matches(driversMakerCompatibleID.getDriversMakerExperimentID()),
             Mockito.any(String.class));
     Mockito.doNothing()
-        .when(minioService)
+        .when(minioServiceSpy)
         .copyExperimentDefintionForDriversMaker(
             Mockito.matches(driversMakerCompatibleID.getDriversMakerExperimentID()),
             Mockito.eq(driversMakerCompatibleID.getExperimentNumber()),
             Mockito.any(InputStream.class));
 
-    DriversMakerService driversMakerService =
-        configuration.getDriversMakerServiceFactory().build(client);
-    BenchFlowTestManagerService testManagerService =
-        configuration.getTestManagerServiceFactory().build(client);
-    experimentTaskExecutorServer =
-        configuration.getExperimentTaskExecutorFactory().build(environment);
+    experimentTaskController = BenchFlowExperimentManagerApplication.getExperimentTaskController();
 
-    int submitRetries = configuration.getFabanServiceFactory().getSubmitRetries();
-
-    experimentTaskController =
-        new ExperimentTaskController(
-            minioService,
-            experimentModelDAO,
-            fabanClientMock,
-            driversMakerService,
-            testManagerService,
-            experimentTaskExecutorServer,
-            submitRetries);
+    experimentTaskExecutorServer = experimentTaskController.getExperimentTaskExecutorService();
   }
 
   @Test
@@ -175,18 +161,29 @@ public class ExperimentTaskControllerIT extends DockerComposeIT {
                     + BenchFlowTestManagerService.EXPERIMENT_STATE_PATH))
             .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
 
+    Mockito.doReturn(new DeployStatus(201)).when(fabanClientMock).deploy(Mockito.any());
+
     Mockito.doReturn(runId)
         .when(fabanClientMock)
         .submit(Mockito.anyString(), Mockito.anyString(), Mockito.any(File.class));
 
+    Mockito.doReturn(new RunStatus("COMPLETED", runId))
+        .when(fabanClientMock)
+        .status(runId);
+
     Mockito.doReturn(status).when(fabanClientMock).status(runId);
 
-    experimentTaskController.submitExperiment(experimentID);
+    experimentModelDAO.addExperiment(experimentID);
+
+    experimentTaskController.handleExperimentState(experimentID);
 
     // wait for tasks to finish
     experimentTaskExecutorServer.awaitTermination(1, TimeUnit.SECONDS);
 
-    // TODO - assert that right methods have been called
+    Assert.assertEquals(
+        BenchFlowExperimentState.TERMINATED, experimentModelDAO.getExperimentState(experimentID));
 
+    Assert.assertEquals(
+        TerminatedState.COMPLETED, experimentModelDAO.getTerminatedState(experimentID));
   }
 }

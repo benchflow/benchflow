@@ -1,7 +1,6 @@
 package cloud.benchflow.experimentmanager.demo;
 
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
-import cloud.benchflow.experimentmanager.tasks.experiment.ExperimentReadyTask;
 
 /**
  * NOTE: This class is to be removed when driver-maker updates its minio interaction

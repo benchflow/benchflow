@@ -14,27 +14,25 @@ import org.mockito.Mockito;
 import javax.ws.rs.WebApplicationException;
 
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-13 */
 public class BenchFlowExperimentResourceTest {
 
   @Rule public ExpectedException exception = ExpectedException.none();
 
-  private MinioService minioMock = mock(MinioService.class);
-  private BenchFlowExperimentModelDAO experimentModelDAO = mock(BenchFlowExperimentModelDAO.class);
-  private ExperimentTaskController experimentTaskController = mock(ExperimentTaskController.class);
+  private MinioService minioMock = Mockito.mock(MinioService.class);
+  private BenchFlowExperimentModelDAO experimentModelDAOMock =
+      Mockito.mock(BenchFlowExperimentModelDAO.class);
+  private ExperimentTaskController experimentTaskControllerMock =
+      Mockito.mock(ExperimentTaskController.class);
 
   private BenchFlowExperimentResource experimentResource;
 
   @Before
   public void setUp() throws Exception {
-
-    int submitRetries = 1;
-
     experimentResource =
-        new BenchFlowExperimentResource(minioMock, experimentModelDAO, experimentTaskController);
+        new BenchFlowExperimentResource(
+            minioMock, experimentModelDAOMock, experimentTaskControllerMock);
   }
 
   @Test
@@ -52,8 +50,9 @@ public class BenchFlowExperimentResourceTest {
 
     experimentResource.runBenchFlowExperiment(username, testName, testNumber, experimentNumber);
 
-    Mockito.verify(experimentTaskController, times(1)).submitExperiment(experimentID);
-    Mockito.verify(minioMock, times(1)).isValidExperimentID(experimentID);
+    Mockito.verify(experimentTaskControllerMock, Mockito.times(1))
+        .handleExperimentState(experimentID);
+    Mockito.verify(minioMock, Mockito.times(1)).isValidExperimentID(experimentID);
   }
 
   @Test
@@ -74,7 +73,8 @@ public class BenchFlowExperimentResourceTest {
 
     experimentResource.runBenchFlowExperiment(username, testName, testNumber, experimentNumber);
 
-    Mockito.verify(experimentTaskController, times(0)).submitExperiment(experimentID);
-    Mockito.verify(minioMock, times(1)).isValidExperimentID(experimentID);
+    Mockito.verify(experimentTaskControllerMock, Mockito.times(0))
+        .handleExperimentState(experimentID);
+    Mockito.verify(minioMock, Mockito.times(1)).isValidExperimentID(experimentID);
   }
 }

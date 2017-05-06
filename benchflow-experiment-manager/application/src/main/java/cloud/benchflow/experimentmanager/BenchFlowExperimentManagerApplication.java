@@ -29,8 +29,58 @@ public class BenchFlowExperimentManagerApplication
   private Logger logger =
       LoggerFactory.getLogger(BenchFlowExperimentManagerApplication.class.getSimpleName());
 
+  private static BenchFlowExperimentModelDAO experimentModelDAO;
+  private static MinioService minioService;
+  private static FabanClient fabanClient;
+  private static DriversMakerService driversMakerService;
+  private static BenchFlowTestManagerService testManagerService;
+  private static ExperimentTaskController experimentTaskController;
+
   public static void main(String[] args) throws Exception {
     new BenchFlowExperimentManagerApplication().run(args);
+  }
+
+  public static BenchFlowExperimentModelDAO getExperimentModelDAO() {
+    return experimentModelDAO;
+  }
+
+  public static MinioService getMinioService() {
+    return minioService;
+  }
+
+  public static FabanClient getFabanClient() {
+    return fabanClient;
+  }
+
+  public static DriversMakerService getDriversMakerService() {
+    return driversMakerService;
+  }
+
+  public static BenchFlowTestManagerService getTestManagerService() {
+    return testManagerService;
+  }
+
+  public static ExperimentTaskController getExperimentTaskController() {
+    return experimentTaskController;
+  }
+
+  // used for testing to insert mock/spy object
+  public static void setFabanClient(FabanClient fabanClient) {
+    BenchFlowExperimentManagerApplication.fabanClient = fabanClient;
+  }
+
+  // used for testing to insert mock/spy object
+  public static void setDriversMakerService(DriversMakerService driversMakerService) {
+    BenchFlowExperimentManagerApplication.driversMakerService = driversMakerService;
+  }
+
+  // used for testing to insert mock/spy object
+  public static void setTestManagerService(BenchFlowTestManagerService testManagerService) {
+    BenchFlowExperimentManagerApplication.testManagerService = testManagerService;
+  }
+
+  public static void setMinioService(MinioService minioService) {
+    BenchFlowExperimentManagerApplication.minioService = minioService;
   }
 
   @Override
@@ -78,33 +128,24 @@ public class BenchFlowExperimentManagerApplication
     ExecutorService trialTaskExecutorService =
         configuration.getTrialTaskExecutorFactory().build(environment);
 
-    BenchFlowExperimentModelDAO experimentModelDAO = new BenchFlowExperimentModelDAO(mongoClient);
+    experimentModelDAO = new BenchFlowExperimentModelDAO(mongoClient);
 
-    MinioService minioService = configuration.getMinioServiceFactory().build();
-    FabanClient fabanClient = configuration.getFabanServiceFactory().build();
-    DriversMakerService driversMakerService =
-        configuration.getDriversMakerServiceFactory().build(client);
-    BenchFlowTestManagerService testManagerService =
-        configuration.getTestManagerServiceFactory().build(client);
+    minioService = configuration.getMinioServiceFactory().build();
+    fabanClient = configuration.getFabanServiceFactory().build();
+    driversMakerService = configuration.getDriversMakerServiceFactory().build(client);
+    testManagerService = configuration.getTestManagerServiceFactory().build(client);
 
     int submitRetries = configuration.getFabanServiceFactory().getSubmitRetries();
 
-    ExperimentTaskController experimentTaskController =
-        new ExperimentTaskController(
-            minioService,
-            experimentModelDAO,
-            fabanClient,
-            driversMakerService,
-            testManagerService,
-            experimentTaskExecutorService,
-            submitRetries);
+    // ensure it is last so other services have been assigned
+    experimentTaskController =
+        new ExperimentTaskController(experimentTaskExecutorService, submitRetries);
 
     // make sure a bucket exists
     minioService.initializeBuckets();
 
     // instantiate resources
-    BenchFlowExperimentResource experimentResource =
-        new BenchFlowExperimentResource(minioService, experimentModelDAO, experimentTaskController);
+    BenchFlowExperimentResource experimentResource = new BenchFlowExperimentResource();
 
     // TODO - health checks for all services
     //        final TemplateHealthCheck healthCheck =
