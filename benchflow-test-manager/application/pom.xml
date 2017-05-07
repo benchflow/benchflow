@@ -11,7 +11,10 @@
 
     <properties>
         <main.basedir>${project.basedir}${file.separator}..</main.basedir>
+        <this.project.basedir>${project.basedir}/..</this.project.basedir>
         <root.project.basedir>${project.basedir}/../../</root.project.basedir>
+        <swagger-codegen-maven-plugin.version>2.2.2</swagger-codegen-maven-plugin.version>
+        <swagger-maven-plugin.version>3.1.4</swagger-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -70,5 +73,81 @@
         </dependency>
 
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.kongchen</groupId>
+                <artifactId>swagger-maven-plugin</artifactId>
+                <version>${swagger-maven-plugin.version}</version>
+                <configuration>
+                    <apiSources>
+                        <apiSource>
+                            <springmvc>false</springmvc>
+                            <locations>
+                                <location>cloud.benchflow.testmanager.resources</location>
+                            </locations>
+                            <swaggerApiReader>com.github.kongchen.swagger.docgen.reader.JaxrsReader</swaggerApiReader>
+                            <schemes>
+                                <scheme>http</scheme>
+                            </schemes>
+                            <info>
+                                <title>BenchFlow Test Manager</title>
+                                <version>v1</version>
+                                <!-- use markdown here because I'm using markdown for output,
+                                if you need to use html or other markup language, you need to use your target language,
+                                 and note escape your description for xml -->
+                                <description>
+                                    This is a sample description.
+                                </description>
+                                <termsOfService>
+                                    https://github.com/benchflow/benchflow
+                                </termsOfService>
+
+                                <license>
+                                    <url>https://github.com/benchflow/benchflow/blob/devel/LICENSE</url>
+                                    <name>RTL 1.5</name>
+                                </license>
+                            </info>
+                            <outputPath>${this.project.basedir}/api/generated</outputPath>
+                            <outputFormats>yaml</outputFormats>
+                            <swaggerDirectory>${this.project.basedir}/api/generated</swaggerDirectory>
+                            <swaggerFileName>benchflow-test-manager-api</swaggerFileName>
+                            <jsonExampleValues>true</jsonExampleValues>
+                        </apiSource>
+                    </apiSources>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>swagger-api</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-codegen-maven-plugin</artifactId>
+                <version>${swagger-codegen-maven-plugin.version}</version>
+                <configuration>
+                    <inputSpec>${this.project.basedir}/api/generated/benchflow-test-manager-api.yaml</inputSpec>
+                    <language>java</language>
+                    <configOptions>
+                        <sourceFolder>src/cloud/benchflow/benchflow-test-manager-api/java/main</sourceFolder>
+                    </configOptions>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>swagger-codegen</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
