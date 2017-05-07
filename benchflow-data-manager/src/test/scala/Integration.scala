@@ -16,6 +16,7 @@ import cloud.benchflow.datamanager.core.backupstorage.{ BackupFile, BackupStorag
 import cloud.benchflow.datamanager.core.datarepository.cassandra.{ Cassandra, CassandraFromConfig }
 import cloud.benchflow.datamanager.core.datarepository.objectstorage.{ ExperimentObjectStorage, ObjectStat }
 import cloud.benchflow.datamanager.service.resources.RootResource
+import cloud.benchflow.datamanager.service.api.Job
 
 class IntegrationTests
     extends WordSpecLike
@@ -110,6 +111,9 @@ class IntegrationTests
        */
       val result =
         application.backup(experimentId)
+
+      result.getId should be(0)
+      result.getBackupId.get should be(0)
 
       TestBackupStorage
         .listFiles(0, "minio")

@@ -1,12 +1,16 @@
 package cloud.benchflow.datamanager.core
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
 
 import akka.actor.{ Actor, ActorRef, ActorSystem, Props, actorRef2Scala }
 import akka.stream.Materializer
 import akka.util.Timeout
 import akka.util.Timeout.durationToTimeout
+import akka.pattern.ask
 
+import cloud.benchflow.datamanager.core.BackupMonitor._
 import cloud.benchflow.datamanager.core.BackuperActor.{ Backup, Restore }
 import cloud.benchflow.datamanager.core.backuper.{ CassandraBackuper, MinioBackuper }
 import cloud.benchflow.datamanager.core.backupstorage.BackupStorage
@@ -20,43 +24,54 @@ import javax.inject.Inject
  * and reports progress to the monitor
  */
 trait Backuper {
+  val serviceName: String
   val monitor: ActorRef
-  def backup(experimentId: String, backupId: Long): Unit
-  def restore(backupId: Long): Unit
+  def backup(experimentId: String, backupId: Long, jobId: Long): Unit
+  def restore(backupId: Long, jobId: Long): Unit
 }
 
 class BackupManager(
     val cassandra: Cassandra,
     googleDrive: BackupStorage,
     val minio: ExperimentFileStorage)(implicit system: ActorSystem, materializer: Materializer) {
-  implicit val timeout: Timeout = 5.seconds
+
   val monitor = system.actorOf(Props[BackupMonitor], "monitor")
+  lazy val backupers = List(
+    new CassandraBackuper(cassandra, googleDrive, monitor),
+    new MinioBackuper(minio, googleDrive, monitor))
 
-  lazy val cassandraGoogleDriveConnector = system.actorOf(
-    BackuperActor.props(new CassandraBackuper(cassandra, googleDrive, monitor)),
-    "cassandra-connector")
-  lazy val minioGoogleDriveConnector = system.actorOf(
-    BackuperActor.props(new MinioBackuper(minio, googleDrive, monitor)),
-    "minio-connector")
+  implicit val timeout: Timeout = 5.seconds
+  val jobCount = new java.util.concurrent.atomic.AtomicLong()
+  lazy val connectors = backupers.map { backuper =>
+    system.actorOf(BackuperActor.props(backuper), s"${backuper.serviceName}-actor")
+  }
 
-  def backupExperiment(experimentId: String): Long = {
+  def backupExperiment(experimentId: String): (Long, Long) = {
+    val jobId = jobCount.getAndIncrement
     val backupId = googleDrive.nextId
-    cassandraGoogleDriveConnector ! Backup(experimentId, backupId)
-    minioGoogleDriveConnector ! Backup(experimentId, backupId)
-    backupId
+    connectors.map(_ ! Backup(experimentId, backupId, jobId))
+    (jobId, backupId)
   }
 
   def recoverBackup(backupId: Long): Long = {
-    // TODO: this implementation is not correct
-    minioGoogleDriveConnector ! Restore(backupId)
-    cassandraGoogleDriveConnector ! Restore(backupId)
-    backupId
+    val jobId = jobCount.getAndIncrement
+    connectors.map(_ ! Restore(backupId, jobId))
+    jobId
   }
+
+  def getStatus(jobId: Long): Future[Option[(Int, Boolean)]] =
+    (monitor ? GetStatus(jobId)).mapTo[Option[Status]].map { maybeStatus =>
+      maybeStatus map {
+        case Progress(step) => (step, false)
+        case Finished(step) => (step, true)
+      }
+    }
+
 }
 
 object BackuperActor {
-  case class Backup(experimentId: String, backupId: Long)
-  case class Restore(backupId: Long)
+  case class Backup(experimentId: String, backupId: Long, jobId: Long)
+  case class Restore(backupId: Long, jobId: Long)
 
   def props(backuper: Backuper): Props = Props(new BackuperActor(backuper))
 }
@@ -65,10 +80,10 @@ class BackuperActor(backuper: Backuper) extends Actor {
   import BackuperActor._
 
   def receive: PartialFunction[Any, Unit] = {
-    case Backup(experimentId, backupId) =>
-      backuper.backup(experimentId, backupId)
-    case Restore(backupId) =>
-      backuper.restore(backupId)
+    case Backup(experimentId, backupId, jobId) =>
+      backuper.backup(experimentId, backupId, jobId)
+    case Restore(backupId, jobId) =>
+      backuper.restore(backupId, jobId)
   }
 }
 
@@ -77,7 +92,7 @@ object BackupMonitor {
   case class Done(jobId: Long)
   case class GetStatus(jobId: Long)
 
-  trait Status
+  sealed trait Status
   case class Progress(step: Int) extends Status
   case class Finished(step: Int) extends Status
 
@@ -93,14 +108,16 @@ class BackupMonitor extends Actor {
 
   def receive: PartialFunction[Any, Unit] = {
     case Step(jobId) =>
-      store.getOrElseUpdate(jobId, Progress(0)) match {
-        case Progress(step) => store(jobId) = Progress(step + 1)
+      store.get(jobId) match {
+        case None => store(jobId) = Progress(0)
+        case Some(Progress(step)) => store(jobId) = Progress(step + 1)
         // you thought it was over but others sub-backups are still happening
-        case Finished(step) => store(jobId) = Progress(step + 1)
+        case Some(Finished(step)) => store(jobId) = Progress(step + 1)
       }
     case Done(jobId) =>
-      store.getOrElseUpdate(jobId, Finished(0)) match {
-        case Progress(step) => store(jobId) = Finished(step)
+      store.get(jobId) match {
+        case None => store(jobId) = Finished(0)
+        case Some(Progress(step)) => store(jobId) = Finished(step)
         case _ => ()
       }
     case GetStatus(jobId) => sender ! store.get(jobId)
