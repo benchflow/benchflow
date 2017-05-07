@@ -1,0 +1,16 @@
+---
+swagger: "2.0"
+info:
+  description: "This is a sample description."
+  version: "v1"
+  title: "BenchFlow Test Manager"
+  termsOfService: "https://github.com/benchflow/benchflow"
+  license:
+    name: "RTL 1.5"
+    url: "https://github.com/benchflow/benchflow/blob/devel/LICENSE"
+tags:
+- name: "benchflow-test"
+- name: "benchflow-experiment"
+- name: "benchflow-trial"
+schemes:
+- "http"
