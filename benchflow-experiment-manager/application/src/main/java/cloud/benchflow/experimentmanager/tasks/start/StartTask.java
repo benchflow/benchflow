@@ -8,13 +8,9 @@ import cloud.benchflow.dsl.demo.DemoConverter;
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
-import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.TerminatedState;
-import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
-import cloud.benchflow.experimentmanager.tasks.CancellableTask;
-import cloud.benchflow.experimentmanager.tasks.ExperimentTaskController;
 import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.exceptions.JarFileNotFoundException;
 import org.apache.commons.io.FileUtils;
@@ -28,11 +24,12 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.concurrent.Callable;
 
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
-public class StartTask extends CancellableTask {
+public class StartTask implements Callable<Boolean> {
 
   private static final String TEMP_DIR = "./tmp";
   private static final String BENCHMARK_FILE_ENDING = ".jar";
@@ -45,7 +42,6 @@ public class StartTask extends CancellableTask {
   private MinioService minioService;
   private FabanClient fabanClient;
   private DriversMakerService driversMakerService;
-  private BenchFlowTestManagerService testManagerService;
 
   public StartTask(String experimentID) {
 
@@ -55,11 +51,10 @@ public class StartTask extends CancellableTask {
     this.minioService = BenchFlowExperimentManagerApplication.getMinioService();
     this.fabanClient = BenchFlowExperimentManagerApplication.getFabanClient();
     this.driversMakerService = BenchFlowExperimentManagerApplication.getDriversMakerService();
-    this.testManagerService = BenchFlowExperimentManagerApplication.getTestManagerService();
   }
 
   @Override
-  public void run() {
+  public Boolean call() throws Exception {
 
     // DEPLOY EXPERIMENT TO FABAN
 
@@ -77,8 +72,8 @@ public class StartTask extends CancellableTask {
 
       int nTrials = experiment.configuration().terminationCriteria().get().experiment().number();
 
-      // save experiment model in DB
-      experimentModelDAO.addExperiment(experimentID);
+      // save number of trials
+      experimentModelDAO.setNumTrials(experimentID, nTrials);
 
       // convert to old version and save to minio, and also a new experimentID to send to DriversMaker
       // generate DriversMaker compatible files on minio
@@ -123,25 +118,27 @@ public class StartTask extends CancellableTask {
       // remove file that was sent to fabanClient
       FileUtils.forceDelete(benchmarkPath.toFile());
 
+      // deployment successful
+      return true;
+
     } catch (IOException e) {
 
       logger.error(
           "could not read experiment definition for " + experimentID + " : " + e.getMessage());
-      experimentModelDAO.setTerminatedState(experimentID, TerminatedState.ERROR);
-      testManagerService.setExperimentTerminatedState(experimentID, TerminatedState.ERROR);
-      e.printStackTrace();
+
+      return false;
 
     } catch (JarFileNotFoundException e) {
 
       logger.error("could not find jar for " + experimentID + " : " + e.getMessage());
-      experimentModelDAO.setTerminatedState(experimentID, TerminatedState.ERROR);
-      testManagerService.setExperimentTerminatedState(experimentID, TerminatedState.ERROR);
-      e.printStackTrace();
+
+      return false;
 
     } catch (BenchFlowDeserializationException e) {
       // should already have been checked in previous step
       // TODO - handle me
       e.printStackTrace();
+      return false;
     }
   }
 

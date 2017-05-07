@@ -6,6 +6,7 @@ import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerS
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
+import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
 import cloud.benchflow.experimentmanager.tasks.ExperimentTaskController;
 import cloud.benchflow.faban.client.FabanClient;
 import com.mongodb.MongoClient;
@@ -30,11 +31,13 @@ public class BenchFlowExperimentManagerApplication
       LoggerFactory.getLogger(BenchFlowExperimentManagerApplication.class.getSimpleName());
 
   private static BenchFlowExperimentModelDAO experimentModelDAO;
+  private static TrialModelDAO trialModelDAO;
   private static MinioService minioService;
   private static FabanClient fabanClient;
   private static DriversMakerService driversMakerService;
   private static BenchFlowTestManagerService testManagerService;
   private static ExperimentTaskController experimentTaskController;
+  private static int submitRetries;
 
   public static void main(String[] args) throws Exception {
     new BenchFlowExperimentManagerApplication().run(args);
@@ -42,6 +45,10 @@ public class BenchFlowExperimentManagerApplication
 
   public static BenchFlowExperimentModelDAO getExperimentModelDAO() {
     return experimentModelDAO;
+  }
+
+  public static TrialModelDAO getTrialModelDAO() {
+    return trialModelDAO;
   }
 
   public static MinioService getMinioService() {
@@ -81,6 +88,10 @@ public class BenchFlowExperimentManagerApplication
 
   public static void setMinioService(MinioService minioService) {
     BenchFlowExperimentManagerApplication.minioService = minioService;
+  }
+
+  public static int getSubmitRetries() {
+    return submitRetries;
   }
 
   @Override
@@ -129,17 +140,17 @@ public class BenchFlowExperimentManagerApplication
         configuration.getTrialTaskExecutorFactory().build(environment);
 
     experimentModelDAO = new BenchFlowExperimentModelDAO(mongoClient);
+    trialModelDAO = new TrialModelDAO(mongoClient);
 
     minioService = configuration.getMinioServiceFactory().build();
     fabanClient = configuration.getFabanServiceFactory().build();
     driversMakerService = configuration.getDriversMakerServiceFactory().build(client);
     testManagerService = configuration.getTestManagerServiceFactory().build(client);
 
-    int submitRetries = configuration.getFabanServiceFactory().getSubmitRetries();
+    submitRetries = configuration.getFabanServiceFactory().getSubmitRetries();
 
     // ensure it is last so other services have been assigned
-    experimentTaskController =
-        new ExperimentTaskController(experimentTaskExecutorService, submitRetries);
+    experimentTaskController = new ExperimentTaskController(experimentTaskExecutorService);
 
     // make sure a bucket exists
     minioService.initializeBuckets();

@@ -13,31 +13,18 @@ import org.mongodb.morphia.Morphia;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.getTrialID;
 import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.ID_FIELD_NAME;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 06.03.17. */
-public class BenchFlowExperimentModelDAO {
+public class BenchFlowExperimentModelDAO extends AbstractDAO {
 
   private static Logger logger =
       LoggerFactory.getLogger(BenchFlowExperimentModelDAO.class.getSimpleName());
 
-  private Datastore datastore;
-
   public BenchFlowExperimentModelDAO(MongoClient mongoClient) {
-
-    final Morphia morphia = new Morphia();
-
-    // tell Morphia where to find your classes
-    // can be called multiple times with different packages or classes
-    morphia.map(BenchFlowExperimentModel.class);
-    morphia.map(TrialModel.class);
-
-    // create the Datastore
-    // TODO - set-up mongo DB (http://mongodb.github.io/mongo-java-driver/2.13/getting-started/quick-tour/)
-    // TODO - check about resilience and cache
-    datastore = morphia.createDatastore(mongoClient, BenchFlowConstants.DB_NAME);
-    datastore.ensureIndexes();
+    super(mongoClient);
   }
 
   public synchronized void addExperiment(String experimentID) {
@@ -156,6 +143,20 @@ public class BenchFlowExperimentModelDAO {
     return experimentModel.getTerminatedState();
   }
 
+  public synchronized int getNumTrialRetries(String experimentID)
+      throws BenchFlowExperimentIDDoesNotExistException {
+
+    logger.info("getNumTrialRetries: " + experimentID);
+
+    BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
+
+    if (experimentModel == null) {
+      throw new BenchFlowExperimentIDDoesNotExistException();
+    }
+
+    return experimentModel.getNumTrialRetries();
+  }
+
   public synchronized String addTrial(String experimentID, long trialNumber)
       throws BenchFlowExperimentIDDoesNotExistException {
 
@@ -180,61 +181,70 @@ public class BenchFlowExperimentModelDAO {
     return trialID;
   }
 
-  private synchronized TrialModel getTrialModel(String trialID) {
+  public synchronized String addTrial(String experimentID)
+      throws BenchFlowExperimentIDDoesNotExistException {
 
-    logger.info("getTrialModel: " + trialID);
+    logger.info("addTrial: " + experimentID);
 
-    return datastore
-        .createQuery(TrialModel.class)
-        .field(TrialModel.ID_FIELD_NAME)
-        .equal(trialID)
-        .get();
-  }
+    BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
 
-  private synchronized TrialModel getTrialModel(String experimentID, long trialNumber) {
-
-    String trialID = getTrialID(experimentID, trialNumber);
-
-    return getTrialModel(trialID);
-  }
-
-  public synchronized void setTrialModelAsStarted(String experimentID, long trialNumber)
-      throws TrialIDDoesNotExistException {
-
-    logger.info("setTrialModelAsStarted: " + experimentID + " trial " + trialNumber);
-
-    setTrialStatus(experimentID, trialNumber, RunStatus.Code.STARTED);
-  }
-
-  public synchronized void setFabanTrialID(
-      String experimentID, long trialNumber, String fabanRunID) {
-
-    logger.info(
-        "setFabanTrialID: " + experimentID + " trial " + trialNumber + " with " + fabanRunID);
-
-    TrialModel trialModel = getTrialModel(experimentID, trialNumber);
-
-    if (trialModel != null) {
-      trialModel.setFabanRunID(fabanRunID);
-      datastore.save(trialModel);
+    if (experimentModel == null) {
+      throw new BenchFlowExperimentIDDoesNotExistException();
     }
+
+    // increment to next trial number
+    String trialID = getTrialID(experimentID, experimentModel.getNumTrials());
+
+    // first save the Trial Model and then add it to Experiment Model
+    TrialModel trialModel = new TrialModel(trialID);
+    datastore.save(trialModel);
+
+    experimentModel.addTrial(trialModel);
+
+    datastore.save(experimentModel);
+
+    return trialID;
   }
 
-  public synchronized void setTrialStatus(
-      String experimentID, long trialNumber, RunStatus.Code statusCode) {
+  public synchronized int getNumExecutedTrials(String experimentID)
+      throws BenchFlowExperimentIDDoesNotExistException {
 
-    logger.info(
-        "setTrialStatus: " + experimentID + " trial " + trialNumber + " with " + statusCode.name());
+    logger.info("getNumExecutedTrials: " + experimentID);
 
-    TrialModel trialModel = getTrialModel(experimentID, trialNumber);
+    BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
 
-    if (trialModel != null) {
-      trialModel.setStatus(statusCode);
-      datastore.save(trialModel);
+    if (experimentModel == null) {
+      throw new BenchFlowExperimentIDDoesNotExistException();
     }
+
+    return experimentModel.getNumExecutedTrials();
   }
 
-  private synchronized String getTrialID(String experimentID, long trialNumber) {
-    return experimentID + BenchFlowConstants.MODEL_ID_DELIMITER + trialNumber;
+  public synchronized int getNumTrials(String experimentID)
+      throws BenchFlowExperimentIDDoesNotExistException {
+
+    logger.info("getNumTrials: " + experimentID);
+
+    BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
+
+    if (experimentModel == null) {
+      throw new BenchFlowExperimentIDDoesNotExistException();
+    }
+
+    return experimentModel.getNumTrials();
+  }
+
+  public synchronized void setNumTrials(String experimentID, int numTrials)
+      throws BenchFlowExperimentIDDoesNotExistException {
+
+    logger.info("setNumTrials: " + experimentID);
+
+    BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
+
+    if (experimentModel == null) {
+      throw new BenchFlowExperimentIDDoesNotExistException();
+    }
+
+    experimentModel.setNumTrials(numTrials);
   }
 }

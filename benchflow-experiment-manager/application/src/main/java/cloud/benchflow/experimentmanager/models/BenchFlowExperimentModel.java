@@ -27,6 +27,9 @@ public class BenchFlowExperimentModel {
   private BenchFlowExperimentState state;
   private RunningState runningState;
   private TerminatedState terminatedState;
+  private int numTrials;
+  // TODO - this should be part of the DSL
+  private int numTrialRetries = 2;
   @Reference private List<TrialModel> trials = new ArrayList<>();
 
   BenchFlowExperimentModel() {
@@ -83,9 +86,24 @@ public class BenchFlowExperimentModel {
     this.terminatedState = terminatedState;
   }
 
-  public void addTrial(TrialModel trialModel) {
+  public int getNumTrials() {
+    return numTrials;
+  }
 
+  public void setNumTrials(int numTrials) {
+    this.numTrials = numTrials;
+  }
+
+  public int getNumTrialRetries() {
+    return numTrialRetries;
+  }
+
+  public void addTrial(TrialModel trialModel) {
     trials.add(trialModel);
+  }
+
+  public int getNumExecutedTrials() {
+    return trials.size();
   }
 
   public enum BenchFlowExperimentState {

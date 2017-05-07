@@ -25,6 +25,7 @@ public class TrialModel {
   private Date start = new Date();
   private Date lastModified = new Date();
   private RunStatus.Code status;
+  private int numRetries = 0;
 
   public TrialModel() {
     // Empty constructor for MongoDB + Morphia
@@ -61,5 +62,13 @@ public class TrialModel {
 
   public void setFabanRunID(String fabanRunID) {
     this.fabanRunID = fabanRunID;
+  }
+
+  public int getNumRetries() {
+    return numRetries;
+  }
+
+  public void incrementRetries() {
+    numRetries++;
   }
 }

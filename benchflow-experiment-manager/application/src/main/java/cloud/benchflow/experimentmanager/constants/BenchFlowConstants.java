@@ -24,6 +24,8 @@ public class BenchFlowConstants {
   public static final String MODEL_ID_DELIMITER_REGEX = "\\.";
   // Faban
   public static final String FABAN_ID_DELIMITER = "_";
+  public static final String TEMP_DIR = "./tmp";
+  public static final String FABAN_CONFIGURATION_FILENAME = "run.xml";
   // TODO - put in common library so they can be handled by client
   // Exceptions
   public static final String INVALID_EXPERIMENT_ID_MESSAGE = "Invalid Experiment ID";
@@ -82,5 +84,18 @@ public class BenchFlowConstants {
         + experimentNumber
         + TRIALS_PATH
         + trialNumber;
+  }
+
+  public static int getTrialNumberFromTrialID(String trialID) {
+
+    String[] trialIDArray = trialID.split(MODEL_ID_DELIMITER_REGEX);
+
+    String trialNumber = trialIDArray[4];
+
+    return Integer.parseInt(trialNumber);
+  }
+
+  public static String getTrialID(String experimentID, long trialNumber) {
+    return experimentID + BenchFlowConstants.MODEL_ID_DELIMITER + trialNumber;
   }
 }

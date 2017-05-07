@@ -83,7 +83,8 @@ public class ExperimentTaskControllerIT extends DockerComposeIT {
     experimentModelDAO = BenchFlowExperimentManagerApplication.getExperimentModelDAO();
 
     // spy on minio to return files saved by other services
-    MinioService minioServiceSpy = Mockito.spy(BenchFlowExperimentManagerApplication.getMinioService());
+    MinioService minioServiceSpy =
+        Mockito.spy(BenchFlowExperimentManagerApplication.getMinioService());
     BenchFlowExperimentManagerApplication.setMinioService(minioServiceSpy);
 
     // set faban client as mock
@@ -108,7 +109,7 @@ public class ExperimentTaskControllerIT extends DockerComposeIT {
         .getDriversMakerGeneratedFabanConfiguration(
             driversMakerCompatibleID.getDriversMakerExperimentID(),
             driversMakerCompatibleID.getExperimentNumber(),
-            1);
+            0);
 
     Mockito.doNothing()
         .when(minioServiceSpy)
@@ -167,9 +168,7 @@ public class ExperimentTaskControllerIT extends DockerComposeIT {
         .when(fabanClientMock)
         .submit(Mockito.anyString(), Mockito.anyString(), Mockito.any(File.class));
 
-    Mockito.doReturn(new RunStatus("COMPLETED", runId))
-        .when(fabanClientMock)
-        .status(runId);
+    Mockito.doReturn(new RunStatus("COMPLETED", runId)).when(fabanClientMock).status(runId);
 
     Mockito.doReturn(status).when(fabanClientMock).status(runId);
 
