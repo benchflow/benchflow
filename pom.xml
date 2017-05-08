@@ -8,55 +8,69 @@
   <artifactId>benchflow</artifactId>
   <version>0.1.0</version>
   <packaging>pom</packaging>
-
   <properties>
-      <root.project.basedir>${project.basedir}/../</root.project.basedir>
+    <root.project.basedir>${project.basedir}/../</root.project.basedir>
   </properties>
-  
+  <profiles>
+    <profile>
+      <id>scala-profile</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <file>
+          <exists>${basedir}/src/main/scala</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <!-- scala style checker -->
+          <plugin>
+            <groupId>org.scalastyle</groupId>
+            <artifactId>scalastyle-maven-plugin</artifactId>
+            <version>0.8.0</version>
+            <configuration>
+              <verbose>false</verbose>
+              <failOnViolation>true</failOnViolation>
+              <includeTestSourceDirectory>true</includeTestSourceDirectory>
+              <failOnWarning>false</failOnWarning>
+              <sourceDirectory>${basedir}/src/main/scala</sourceDirectory>
+              <testSourceDirectory>${basedir}/src/test/scala</testSourceDirectory>
+              <configLocation>${root.project.basedir}scalastyle-config.xml</configLocation>
+              <outputFile>${project.basedir}/scalastyle-output.xml</outputFile>
+              <outputEncoding>UTF-8</outputEncoding>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>test</phase>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- scala formatter -->
+          <plugin>
+            <groupId>org.scalariform</groupId>
+            <artifactId>scalariform-maven-plugin</artifactId>
+            <version>0.1.4</version>
+            <executions>
+              <execution>
+                <phase>process-sources</phase>
+                <goals>
+                  <goal>format</goal>
+                </goals>
+                <configuration>
+                  <doubleIndentClassDeclaration>true</doubleIndentClassDeclaration>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
   <build>
     <plugins>
-      <!-- Enable scalastyle -->
-      <plugin>
-        <groupId>org.scalastyle</groupId>
-        <artifactId>scalastyle-maven-plugin</artifactId>
-        <version>0.8.0</version>
-        <configuration>
-          <verbose>false</verbose>
-          <failOnViolation>true</failOnViolation>
-          <includeTestSourceDirectory>true</includeTestSourceDirectory>
-          <failOnWarning>false</failOnWarning>
-          <sourceDirectory>${basedir}/src/main/scala</sourceDirectory>
-          <testSourceDirectory>${basedir}/src/test/scala</testSourceDirectory>
-          <configLocation>${root.project.basedir}scalastyle-config.xml</configLocation>
-          <outputFile>${project.basedir}/scalastyle-output.xml</outputFile>
-          <outputEncoding>UTF-8</outputEncoding>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>test</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <!-- Enable scalariform -->
-      <plugin>
-        <groupId>org.scalariform</groupId>
-        <artifactId>scalariform-maven-plugin</artifactId>
-        <version>0.1.4</version>
-        <executions>
-          <execution>
-            <phase>process-sources</phase>
-            <goals>
-              <goal>format</goal>
-            </goals>
-            <configuration>
-              <doubleIndentClassDeclaration>true</doubleIndentClassDeclaration>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
+      <!-- java style checker -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
@@ -85,6 +99,7 @@
           </execution>
         </executions>
       </plugin>
+      <!-- java formatter -->
       <plugin>
         <groupId>com.coveo</groupId>
         <artifactId>fmt-maven-plugin</artifactId>
@@ -102,6 +117,7 @@
           </execution>
         </executions>
       </plugin>
+      <!-- PMD/CPD -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
