@@ -1,47 +1,57 @@
 package cloud.benchflow.experimentmanager.api.request;
 
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.TerminatedState;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotNull;
 
-import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus;
+import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.RunningState;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 27.02.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 27.02.17. */
 public class BenchFlowExperimentStateRequest {
 
-    @NotNull
-    @JsonProperty
-    private BenchFlowExperimentState state;
+  @NotNull @JsonProperty private BenchFlowExperimentState state;
 
-    @NotNull
-    @JsonProperty
-    private BenchFlowExperimentStatus status;
+  @JsonProperty private RunningState runningState;
 
-    public BenchFlowExperimentStateRequest() {
-    }
+  @JsonProperty private TerminatedState terminatedState;
 
-    public BenchFlowExperimentStateRequest(BenchFlowExperimentState state, BenchFlowExperimentStatus status) {
-        this.state = state;
-        this.status = status;
-    }
+  public BenchFlowExperimentStateRequest() {}
 
-    public BenchFlowExperimentState getState() {
-        return state;
-    }
+  public BenchFlowExperimentStateRequest(
+      BenchFlowExperimentState state, RunningState runningState) {
+    this.state = state;
+    this.runningState = runningState;
+  }
 
-    public void setState(BenchFlowExperimentState state) {
-        this.state = state;
-    }
+  public BenchFlowExperimentStateRequest(
+      BenchFlowExperimentState state, TerminatedState terminatedState) {
+    this.state = state;
+    this.terminatedState = terminatedState;
+  }
 
-    public BenchFlowExperimentStatus getStatus() {
-        return status;
-    }
+  public BenchFlowExperimentState getState() {
+    return state;
+  }
 
-    public void setStatus(BenchFlowExperimentStatus status) {
-        this.status = status;
-    }
+  public void setState(BenchFlowExperimentState state) {
+    this.state = state;
+  }
+
+  public RunningState getRunningState() {
+    return runningState;
+  }
+
+  public void setRunningState(RunningState runningState) {
+    this.runningState = runningState;
+  }
+
+  public TerminatedState getTerminatedState() {
+    return terminatedState;
+  }
+
+  public void setTerminatedState(TerminatedState terminatedState) {
+    this.terminatedState = terminatedState;
+  }
 }

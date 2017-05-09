@@ -9,29 +9,23 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.ws.rs.client.Client;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 05.03.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 05.03.17. */
 public class TestManagerServiceFactory {
 
-    @NotEmpty
-    private String address;
+  @NotEmpty private String address;
 
-    @JsonProperty
-    public String getAddress() {
-        return address;
-    }
+  @JsonProperty
+  public String getAddress() {
+    return address;
+  }
 
-    @JsonProperty
-    public void setAddress(String address) {
-        this.address = address;
-    }
+  @JsonProperty
+  public void setAddress(String address) {
+    this.address = address;
+  }
 
+  public BenchFlowTestManagerService build(Client client) {
 
-    public BenchFlowTestManagerService build(Client client) {
-
-        return new BenchFlowTestManagerService(client, getAddress());
-
-    }
+    return new BenchFlowTestManagerService(client, getAddress());
+  }
 }

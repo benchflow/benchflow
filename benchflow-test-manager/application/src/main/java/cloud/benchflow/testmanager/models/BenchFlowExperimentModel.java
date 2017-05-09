@@ -31,7 +31,8 @@ public class BenchFlowExperimentModel {
   private Date start = new Date();
   private Date lastModified = new Date();
   private BenchFlowExperimentState state;
-  private BenchFlowExperimentStatus status;
+  private RunningState runningState;
+  private TerminatedState terminatedState;
   private Map<Long, RunStatus.Code> trials = new HashMap<>();
 
   BenchFlowExperimentModel() {
@@ -47,7 +48,6 @@ public class BenchFlowExperimentModel {
 
     this.hashedID = this.id;
     this.state = BenchFlowExperimentState.START;
-    this.status = BenchFlowExperimentStatus.START;
   }
 
   @PrePersist
@@ -79,12 +79,20 @@ public class BenchFlowExperimentModel {
     this.state = state;
   }
 
-  public BenchFlowExperimentStatus getStatus() {
-    return status;
+  public RunningState getRunningState() {
+    return runningState;
   }
 
-  public void setStatus(BenchFlowExperimentStatus status) {
-    this.status = status;
+  public void setRunningState(RunningState runningState) {
+    this.runningState = runningState;
+  }
+
+  public TerminatedState getTerminatedState() {
+    return terminatedState;
+  }
+
+  public void setTerminatedState(TerminatedState terminatedState) {
+    this.terminatedState = terminatedState;
   }
 
   public Map<Long, RunStatus.Code> getTrials() {
@@ -108,13 +116,14 @@ public class BenchFlowExperimentModel {
     TERMINATED
   }
 
-  public enum BenchFlowExperimentStatus {
-    START,
-    READY,
-    NEW_TRIAL,
-    HANDLE_RESULT,
-    CHECK_CRITERIA,
-    RE_EXECUTE_TRIAL,
+  public enum RunningState {
+    EXECUTE_NEW_TRIAL,
+    HANDLE_TRIAL_RESULT,
+    CHECK_TERMINATION_CRITERIA,
+    RE_EXECUTE_TRIAL
+  }
+
+  public enum TerminatedState {
     COMPLETED,
     FAILURE,
     ABORTED,

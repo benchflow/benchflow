@@ -14,83 +14,85 @@ import java.util.List;
 
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 05.03.17.
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 05.03.17. */
 public class DriversMakerService {
 
-    public static final String GENERATE_BENCHMARK_PATH = "/generatedriver";
+  public static final String GENERATE_BENCHMARK_PATH = "/generatedriver";
 
-    private Logger logger = LoggerFactory.getLogger(DriversMakerService.class.getSimpleName());
+  private Logger logger = LoggerFactory.getLogger(DriversMakerService.class.getSimpleName());
 
-    private WebTarget driversMakerTarget;
+  private WebTarget driversMakerTarget;
 
-    public DriversMakerService(Client httpClient, String driversMakerAddress) {
+  public DriversMakerService(Client httpClient, String driversMakerAddress) {
 
-        this.driversMakerTarget = httpClient.target("http://" + driversMakerAddress);
+    this.driversMakerTarget = httpClient.target("http://" + driversMakerAddress);
+  }
+
+  public void generateBenchmark(String experimentName, long experimentNumber, int nTrials) {
+
+    logger.info(
+        "generateBenchmark for "
+            + experimentName
+            + MODEL_ID_DELIMITER
+            + experimentNumber
+            + " with "
+            + nTrials
+            + " trials.");
+
+    // TODO - return result as a list of IDs
+
+    MakeDriverRequestBody body = new MakeDriverRequestBody();
+    body.setExperimentName(experimentName);
+    body.setExperimentNumber(experimentNumber);
+    body.setTrials(nTrials);
+
+    Response response =
+        driversMakerTarget
+            .path(GENERATE_BENCHMARK_PATH)
+            .request()
+            .post(Entity.entity(body, MediaType.APPLICATION_JSON));
+
+    if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+
+      logger.error("generateBenchmark: error connecting - " + response.getStatus());
+      throw new BenchmarkGenerationException("Error in benchmark generation", response.getStatus());
     }
 
-    public void generateBenchmark(String experimentName, long experimentNumber, int nTrials) {
+    logger.info(
+        "generateBenchmark: generated Benchmark with response: "
+            + response.readEntity(String.class));
+  }
 
-        logger.info("generateBenchmark for " + experimentName + MODEL_ID_DELIMITER + experimentNumber + " with " + nTrials + " trials.");
+  private static class MakeDriverRequestBody {
 
-        // TODO - return result as a list of IDs
+    private String experimentName;
+    private long experimentNumber;
+    private int trials;
 
-        MakeDriverRequestBody body = new MakeDriverRequestBody();
-        body.setExperimentName(experimentName);
-        body.setExperimentNumber(experimentNumber);
-        body.setTrials(nTrials);
+    MakeDriverRequestBody() {}
 
-        Response response = driversMakerTarget
-                .path(GENERATE_BENCHMARK_PATH)
-                .request()
-                .post(Entity.entity(body, MediaType.APPLICATION_JSON));
-
-        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-
-            logger.error("generateBenchmark: error connecting - " + response.getStatus());
-            throw new BenchmarkGenerationException("Error in benchmark generation",
-                    response.getStatus());
-        }
-
-        logger.info("generateBenchmark: generated Benchmark with response: " + response.readEntity(String.class));
-
+    public String getExperimentName() {
+      return experimentName;
     }
 
-
-    private static class MakeDriverRequestBody {
-
-        private String experimentName;
-        private long experimentNumber;
-        private int trials;
-
-        MakeDriverRequestBody() {
-        }
-
-        public String getExperimentName() {
-            return experimentName;
-        }
-
-        public void setExperimentName(String experimentName) {
-            this.experimentName = experimentName;
-        }
-
-        public long getExperimentNumber() {
-            return experimentNumber;
-        }
-
-        public void setExperimentNumber(long experimentNumber) {
-            this.experimentNumber = experimentNumber;
-        }
-
-        public int getTrials() {
-            return trials;
-        }
-
-        public void setTrials(int trials) {
-            this.trials = trials;
-        }
+    public void setExperimentName(String experimentName) {
+      this.experimentName = experimentName;
     }
 
+    public long getExperimentNumber() {
+      return experimentNumber;
+    }
+
+    public void setExperimentNumber(long experimentNumber) {
+      this.experimentNumber = experimentNumber;
+    }
+
+    public int getTrials() {
+      return trials;
+    }
+
+    public void setTrials(int trials) {
+      this.trials = trials;
+    }
+  }
 }

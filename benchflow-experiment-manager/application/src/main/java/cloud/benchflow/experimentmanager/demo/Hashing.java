@@ -8,25 +8,24 @@ import java.security.NoSuchAlgorithmException;
 /**
  * NOTE: This class is to be removed when driver-maker updates its minio interaction
  *
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 2017-04-11
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-11
  */
 public class Hashing {
 
-    private static int numOfCharacters = 4;
+  private static int numOfCharacters = 4;
 
-    public static String hashKey(String key) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        return Hashing.MD5(key);
-    }
+  public static String hashKey(String key)
+      throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    return Hashing.MD5(key);
+  }
 
-    private static String MD5(String key) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        byte[] bytesOfMessage = key.getBytes("UTF-8");
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        byte[] hashBytes = md.digest(bytesOfMessage);
-        String hashString = new BigInteger(1, hashBytes).toString(16);
-        hashString = hashString.substring(0, numOfCharacters);
-        return (hashString + "/" + key);
-    }
-
-
+  private static String MD5(String key)
+      throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    byte[] bytesOfMessage = key.getBytes("UTF-8");
+    MessageDigest md = MessageDigest.getInstance("MD5");
+    byte[] hashBytes = md.digest(bytesOfMessage);
+    String hashString = new BigInteger(1, hashBytes).toString(16);
+    hashString = hashString.substring(0, numOfCharacters);
+    return (hashString + "/" + key);
+  }
 }

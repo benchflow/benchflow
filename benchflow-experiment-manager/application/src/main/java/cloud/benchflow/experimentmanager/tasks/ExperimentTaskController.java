@@ -1,101 +1,311 @@
 package cloud.benchflow.experimentmanager.tasks;
 
+import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
+import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
-import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
-import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
-import cloud.benchflow.experimentmanager.tasks.experiment.ExperimentReadyTask;
-import cloud.benchflow.experimentmanager.tasks.experiment.ExperimentRunningTask;
-import cloud.benchflow.faban.client.FabanClient;
+import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
+import cloud.benchflow.experimentmanager.tasks.running.*;
+import cloud.benchflow.experimentmanager.tasks.running.CheckTerminationCriteriaTask.TerminationCriteriaResult;
+import cloud.benchflow.experimentmanager.tasks.start.StartTask;
+import cloud.benchflow.faban.client.responses.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.*;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 2017-04-19
- */
+import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.RunningState;
+
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
 public class ExperimentTaskController {
 
-    private static Logger logger = LoggerFactory.getLogger(ExperimentTaskController.class.getSimpleName());
-    private ConcurrentMap<String, CancellableTask> experimentTasks = new ConcurrentHashMap<>();
+  private static Logger logger =
+      LoggerFactory.getLogger(ExperimentTaskController.class.getSimpleName());
 
-    private MinioService minio;
-    private BenchFlowExperimentModelDAO experimentModelDAO;
-    private FabanClient faban;
-    private DriversMakerService driversMaker;
-    private BenchFlowTestManagerService testManagerService;
-    private ExecutorService experimentTaskExecutorService;
-    private int submitRetries;
+  private ConcurrentMap<String, Future> experimentTasks = new ConcurrentHashMap<>();
 
-    public ExperimentTaskController(MinioService minio, BenchFlowExperimentModelDAO experimentModelDAO, FabanClient faban, DriversMakerService driversMaker, BenchFlowTestManagerService testManagerService, ExecutorService experimentTaskExecutorService, int submitRetries) {
-        this.minio = minio;
-        this.experimentModelDAO = experimentModelDAO;
-        this.faban = faban;
-        this.driversMaker = driversMaker;
-        this.testManagerService = testManagerService;
-        this.experimentTaskExecutorService = experimentTaskExecutorService;
-        this.submitRetries = submitRetries;
+  // TODO - running queue (1 element)
+
+  // TODO - ready queue
+
+  private BenchFlowExperimentModelDAO experimentModelDAO;
+  private TrialModelDAO trialModelDAO;
+  // TODO - should go into a stateless queue (so that we can recover)
+  private ExecutorService experimentTaskExecutorService;
+  private BenchFlowTestManagerService testManagerService;
+
+  public ExperimentTaskController(ExecutorService experimentTaskExecutorService) {
+
+    this.experimentTaskExecutorService = experimentTaskExecutorService;
+
+    this.experimentModelDAO = BenchFlowExperimentManagerApplication.getExperimentModelDAO();
+    this.trialModelDAO = BenchFlowExperimentManagerApplication.getTrialModelDAO();
+    this.testManagerService = BenchFlowExperimentManagerApplication.getTestManagerService();
+  }
+
+  // used for testing
+  public ExecutorService getExperimentTaskExecutorService() {
+    return experimentTaskExecutorService;
+  }
+
+  public synchronized void handleExperimentState(String experimentID) {
+
+    try {
+
+      BenchFlowExperimentState experimentState =
+          experimentModelDAO.getExperimentState(experimentID);
+
+      logger.info("handleExperimentSate: " + experimentID + " state: " + experimentState.name());
+
+      switch (experimentState) {
+        case START:
+          handleStartState(experimentID);
+          break;
+
+        case READY:
+          // TODO - we should set the state when the experiment actually has been scheduled
+          setExperimentAsRunning(experimentID);
+          // TODO - put test in shared (with dispatcher) ready queue
+          break;
+
+        case RUNNING:
+          handleRunningState(experimentID);
+          break;
+
+        case TERMINATED:
+          // TODO - remove test from running queue so dispatcher can run next test
+          // experiment already executed
+          logger.info("Experiment already executed. Nothing to do.");
+          break;
+
+        default:
+          // no default
+          break;
+      }
+
+    } catch (BenchFlowExperimentIDDoesNotExistException e) {
+      e.printStackTrace();
     }
+  }
 
-    synchronized public void submitExperiment(String experimentID) {
+  private void setExperimentAsRunning(String experimentID) {
 
-        logger.info("submitExperiment: " + experimentID);
+    // change state to running and execute new trial
+    experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.RUNNING);
+    experimentModelDAO.setRunningState(experimentID, RunningState.EXECUTE_NEW_TRIAL);
+    // inform test-manager that a new trial is being executed
+    testManagerService.setExperimentRunningState(experimentID, RunningState.EXECUTE_NEW_TRIAL);
 
-        if (experimentTasks.containsKey(experimentID)) {
-            // TODO - throw exception?
-            logger.info("submitExperiment: experiment already submitted");
+    handleExperimentState(experimentID);
+  }
 
-            return;
-        }
+  private synchronized void handleStartState(String experimentID) {
 
-        ExperimentReadyTask readyTask = new ExperimentReadyTask(
-                experimentID,
-                this,
-                experimentModelDAO,
-                minio,
-                faban,
-                driversMaker,
-                testManagerService
-        );
+    logger.info("handleStartState: " + experimentID);
 
-        // TODO - should go into a stateless queue (so that we can recover)
-        // (for now) only allows one experiment at a time (poolSize == 1)
-        experimentTaskExecutorService.submit(readyTask);
+    StartTask startTask = new StartTask(experimentID);
 
-        experimentTasks.put(experimentID, readyTask);
+    Future<Boolean> future = experimentTaskExecutorService.submit(startTask);
 
+    experimentTasks.put(experimentID, future);
+
+    try {
+
+      boolean deployed = future.get();
+
+      if (deployed) {
+        experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.READY);
+        handleExperimentState(experimentID);
+      } else {
+        experimentModelDAO.setTerminatedState(
+            experimentID, BenchFlowExperimentModel.TerminatedState.ERROR);
+        testManagerService.setExperimentTerminatedState(
+            experimentID, BenchFlowExperimentModel.TerminatedState.ERROR);
+      }
+
+    } catch (InterruptedException | ExecutionException e) {
+      // TODO - handle properly
+      e.printStackTrace();
     }
+  }
 
-    synchronized public void runExperiment(String experimentID) {
+  private synchronized void handleRunningState(String experimentID) {
 
-        logger.info("runExperiment: " + experimentID);
+    try {
 
-        if (!experimentTasks.containsKey(experimentID)) {
-            // TODO - throw exception?
-            logger.info("runExperiment: experiment has to be submitted first");
+      RunningState runningState = experimentModelDAO.getRunningState(experimentID);
 
-            return;
-        }
+      logger.info("handleRunningState: " + experimentID + " state: " + runningState.name());
 
-        ExperimentRunningTask runningTask = new ExperimentRunningTask(
-                experimentID,
-                testManagerService,
-                minio,
-                faban,
-                experimentModelDAO,
-                submitRetries
-        );
+      switch (runningState) {
+        case EXECUTE_NEW_TRIAL:
+          handleExecuteNewTrial(experimentID);
+          break;
 
-        experimentTaskExecutorService.submit(runningTask);
+        case HANDLE_TRIAL_RESULT:
+          handleTrialResult(experimentID);
+          break;
 
-        // replace previous task
-        experimentTasks.put(experimentID, runningTask);
+        case CHECK_TERMINATION_CRITERIA:
+          handleCheckTerminationCriteria(experimentID);
+          break;
 
+        case RE_EXECUTE_TRIAL:
+          handleReExecuteTrial(experimentID);
+          break;
+
+        default:
+          // no default
+          break;
+      }
+
+    } catch (BenchFlowExperimentIDDoesNotExistException e) {
+      // should not happen since it was added earlier
+      logger.error("experiment ID does not exist - should not happen");
+      e.printStackTrace();
     }
+  }
 
+  private void handleExecuteNewTrial(String experimentID) {
 
+    logger.info("handleExecuteNewTrial: " + experimentID);
+
+    ExecuteNewTrialTask newTrialTask = new ExecuteNewTrialTask(experimentID);
+
+    Future<RunStatus> future = experimentTaskExecutorService.submit(newTrialTask);
+
+    experimentTasks.put(experimentID, future);
+
+    handleExecuteTrial(experimentID, future);
+  }
+
+  private void handleReExecuteTrial(String experimentID) {
+
+    logger.info("handleReExecuteTrial: " + experimentID);
+
+    ReExecuteTrialTask reExecuteTrialTask = new ReExecuteTrialTask(experimentID);
+
+    Future<RunStatus> future = experimentTaskExecutorService.submit(reExecuteTrialTask);
+
+    experimentTasks.put(experimentID, future);
+
+    handleExecuteTrial(experimentID, future);
+  }
+
+  private void handleExecuteTrial(String experimentID, Future<RunStatus> future) {
+
+    // TODO - remove this when faban interaction changes to non-polling
+    try {
+
+      RunStatus runStatus = future.get();
+
+      int trialNumber = experimentModelDAO.getNumExecutedTrials(experimentID) - 1;
+
+      trialModelDAO.setTrialStatus(experimentID, trialNumber, runStatus.getStatus());
+
+      experimentModelDAO.setRunningState(experimentID, RunningState.HANDLE_TRIAL_RESULT);
+      testManagerService.setExperimentRunningState(experimentID, RunningState.HANDLE_TRIAL_RESULT);
+
+      handleExperimentState(experimentID);
+
+    } catch (InterruptedException
+        | ExecutionException
+        | BenchFlowExperimentIDDoesNotExistException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void handleTrialResult(String experimentID) {
+
+    logger.info("handleTrialResult: " + experimentID);
+
+    HandleTrialResultTask trialResultTask = new HandleTrialResultTask(experimentID);
+
+    Future<Boolean> future = experimentTaskExecutorService.submit(trialResultTask);
+
+    experimentTasks.put(experimentID, future);
+
+    try {
+
+      boolean checkTerminationCriteria = future.get();
+
+      if (checkTerminationCriteria) {
+
+        experimentModelDAO.setRunningState(
+            experimentID, BenchFlowExperimentModel.RunningState.CHECK_TERMINATION_CRITERIA);
+        testManagerService.setExperimentRunningState(
+            experimentID, RunningState.CHECK_TERMINATION_CRITERIA);
+        handleExperimentState(experimentID);
+
+      } else {
+
+        experimentModelDAO.setRunningState(
+            experimentID, BenchFlowExperimentModel.RunningState.RE_EXECUTE_TRIAL);
+        testManagerService.setExperimentRunningState(experimentID, RunningState.RE_EXECUTE_TRIAL);
+        handleExperimentState(experimentID);
+      }
+
+    } catch (InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void handleCheckTerminationCriteria(String experimentID) {
+
+    logger.info("handleCheckTerminationCriteria: " + experimentID);
+
+    CheckTerminationCriteriaTask terminationCriteriaTask =
+        new CheckTerminationCriteriaTask(experimentID);
+
+    Future<TerminationCriteriaResult> future =
+        experimentTaskExecutorService.submit(terminationCriteriaTask);
+
+    experimentTasks.put(experimentID, future);
+
+    try {
+
+      TerminationCriteriaResult terminationCriteriaResult = future.get();
+
+      switch (terminationCriteriaResult) {
+        case FULFILLED:
+          experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED);
+          experimentModelDAO.setTerminatedState(
+              experimentID, BenchFlowExperimentModel.TerminatedState.COMPLETED);
+          testManagerService.setExperimentTerminatedState(
+              experimentID, BenchFlowExperimentModel.TerminatedState.COMPLETED);
+
+          handleExperimentState(experimentID);
+
+          break;
+
+        case NOT_FULLFILLED:
+          experimentModelDAO.setRunningState(experimentID, RunningState.EXECUTE_NEW_TRIAL);
+          testManagerService.setExperimentRunningState(
+              experimentID, RunningState.EXECUTE_NEW_TRIAL);
+          handleExperimentState(experimentID);
+
+          break;
+
+        case CANNOT_BE_FULFILLED:
+          experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED);
+          experimentModelDAO.setTerminatedState(
+              experimentID, BenchFlowExperimentModel.TerminatedState.FAILURE);
+          testManagerService.setExperimentTerminatedState(
+              experimentID, BenchFlowExperimentModel.TerminatedState.FAILURE);
+
+          handleExperimentState(experimentID);
+
+          break;
+
+        default:
+          // no default
+          break;
+      }
+
+    } catch (InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+    }
+  }
 }

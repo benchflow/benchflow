@@ -14,15 +14,17 @@ import java.util.concurrent.*;
 
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState.GOAL_REACHED;
 
-/**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20
- */
+/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20 */
 public class BenchFlowTestTaskController {
 
   private static Logger logger =
       LoggerFactory.getLogger(BenchFlowTestTaskController.class.getSimpleName());
 
   private ConcurrentMap<String, Future> testTasks = new ConcurrentHashMap<>();
+
+  // TODO - running queue (1 element)
+
+  // TODO - ready queue
 
   private ExecutorService taskExecutorService;
   private BenchFlowTestModelDAO testModelDAO;
@@ -47,14 +49,13 @@ public class BenchFlowTestTaskController {
 
       switch (testState) {
         case START:
-
           setNextTestState(testID, BenchFlowTestState.READY);
 
           break;
 
         case READY:
-
           setNextTestState(testID, BenchFlowTestState.RUNNING);
+          // TODO - put test in shared (with dispatcher) ready queue
 
           break;
 
@@ -71,6 +72,7 @@ public class BenchFlowTestTaskController {
           break;
 
         case TERMINATED:
+          // TODO - remove test from running queue so dispatcher can run next test
           // test already executed
           logger.info("Test already executed. Nothing to do.");
           break;
@@ -85,9 +87,10 @@ public class BenchFlowTestTaskController {
     }
   }
 
-  private void setNextTestState(String testID, BenchFlowTestState running) throws BenchFlowTestIDDoesNotExistException {
-    // change state to running
-    testModelDAO.setTestState(testID, running);
+  private void setNextTestState(String testID, BenchFlowTestState testState)
+      throws BenchFlowTestIDDoesNotExistException {
+    // change state to testState
+    testModelDAO.setTestState(testID, testState);
 
     handleTestState(testID);
   }

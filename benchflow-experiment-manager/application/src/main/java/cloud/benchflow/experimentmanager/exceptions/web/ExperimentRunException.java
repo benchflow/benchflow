@@ -4,17 +4,15 @@ import javax.ws.rs.WebApplicationException;
 
 /**
  * @author Simone D'Avico (simonedavico@gmail.com)
- *         <p>
- *         Created on 11/12/15.
+ *     <p>Created on 11/12/15.
  */
 public class ExperimentRunException extends WebApplicationException {
 
-    public ExperimentRunException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public ExperimentRunException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    public ExperimentRunException(String message) {
-        super(message);
-    }
-
+  public ExperimentRunException(String message) {
+    super(message);
+  }
 }

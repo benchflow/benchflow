@@ -11,34 +11,29 @@ import javax.ws.rs.client.Client;
 
 /**
  * @author Simone D'Avico (simonedavico@gmail.com)
- *         <p>
- *         Created on 07/01/16.
+ *     <p>Created on 07/01/16.
  */
 public class DriversMakerServiceFactory {
 
-    @NotEmpty
-    private String address;
+  @NotEmpty private String address;
 
-    @JsonProperty
-    public String getAddress() {
-        return address;
-    }
+  @JsonProperty
+  public String getAddress() {
+    return address;
+  }
 
-    @JsonProperty
-    public void setAddress(String address) {
-        this.address = address;
-    }
+  @JsonProperty
+  public void setAddress(String address) {
+    this.address = address;
+  }
 
-    /**
-     *
-     * @param config
-     * @param environment
-     * @return
-     */
-    public DriversMakerService build(Client client) {
+  /**
+   * @param config
+   * @param environment
+   * @return
+   */
+  public DriversMakerService build(Client client) {
 
-        return new DriversMakerService(client, getAddress());
-
-    }
-
+    return new DriversMakerService(client, getAddress());
+  }
 }
