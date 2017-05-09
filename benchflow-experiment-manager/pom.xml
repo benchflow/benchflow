@@ -42,7 +42,7 @@
         <docker-compose-rule-junit4.version>0.31.1</docker-compose-rule-junit4.version>
         <wiremock.version>2.5.1</wiremock.version>
         <dropwizard-swagger.version>1.0.6-1</dropwizard-swagger.version>
-        <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
+        <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
         <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
         <maven-shade-plugin.verion>2.4.1</maven-shade-plugin.verion>
         <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
@@ -97,13 +97,13 @@
             <dependency>
                 <groupId>cloud.benchflow</groupId>
                 <artifactId>benchflow-dsl</artifactId>
-                <version>${benchflow-dsl.version}</version>
+                <version>${benchflow-dsl-jar.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>cloud.benchflow</groupId>
                 <artifactId>faban-client</artifactId>
-                <version>${benchflow-faban-client.version}</version>
+                <version>${benchflow-faban-client-jar.version}</version>
             </dependency>
 
             <dependency>
@@ -213,7 +213,7 @@
                             <repositoryLayout>default</repositoryLayout>
                             <groupId>cloud.benchflow</groupId>
                             <artifactId>benchflow-dsl</artifactId>
-                            <version>${benchflow-dsl.version}</version>
+                            <version>${benchflow-dsl-jar.version}</version>
                             <packaging>jar</packaging>
                             <generatePom>true</generatePom>
                         </configuration>
@@ -229,7 +229,7 @@
                             <repositoryLayout>default</repositoryLayout>
                             <groupId>cloud.benchflow</groupId>
                             <artifactId>faban-client</artifactId>
-                            <version>${benchflow-faban-client.version}</version>
+                            <version>${benchflow-faban-client-jar.version}</version>
                             <packaging>jar</packaging>
                             <generatePom>true</generatePom>
                         </configuration>
@@ -251,11 +251,22 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>${exec-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>initialize-project</id>
+                        <!--<phase>initialize</phase>-->
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
-                    <mainClass>${project.mainclass}</mainClass>
+                    <!--<skip>true</skip>-->
+                    <executable>mvn</executable>
                     <arguments>
-                        <argument>server</argument>
-                        <argument>${project.configurationfile}</argument>
+                        <argument>clean</argument>
+                        <argument>post-clean</argument>
+                        <argument>compile</argument>
                     </arguments>
                 </configuration>
             </plugin>
