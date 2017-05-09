@@ -41,7 +41,7 @@
         <benchflow-faban-client.project.name>benchflow-faban-client</benchflow-faban-client.project.name>
         <benchflow-faban-client-jar.version>devel_ad148a</benchflow-faban-client-jar.version>
         <benchflow-faban-client.version>0.1.0</benchflow-faban-client.version>
-        <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
+        <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
         <maven-shade-plugin.verion>2.4.3</maven-shade-plugin.verion>
         <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
         <maven-surefire-plugin.version>2.20</maven-surefire-plugin.version>
@@ -144,14 +144,14 @@
             <dependency>
                 <groupId>cloud.benchflow</groupId>
                 <artifactId>benchflow-dsl</artifactId>
-                <version>${benchflow-dsl.version}</version>
+                <version>${benchflow-dsl-jar.version}</version>
             </dependency>
 
             <!-- needed for Faban Responses class-->
             <dependency>
                 <groupId>cloud.benchflow</groupId>
                 <artifactId>faban-client</artifactId>
-                <version>${benchflow-faban-client.version}</version>
+                <version>${benchflow-faban-client-jar.version}</version>
             </dependency>
 
         </dependencies>
@@ -214,7 +214,7 @@
                             <repositoryLayout>default</repositoryLayout>
                             <groupId>cloud.benchflow</groupId>
                             <artifactId>benchflow-dsl</artifactId>
-                            <version>${benchflow-dsl.version}</version>
+                            <version>${benchflow-dsl-jar.version}</version>
                             <packaging>jar</packaging>
                             <generatePom>true</generatePom>
                         </configuration>
@@ -230,7 +230,7 @@
                             <repositoryLayout>default</repositoryLayout>
                             <groupId>cloud.benchflow</groupId>
                             <artifactId>faban-client</artifactId>
-                            <version>${benchflow-faban-client.version}</version>
+                            <version>${benchflow-faban-client-jar.version}</version>
                             <packaging>jar</packaging>
                             <generatePom>true</generatePom>
                         </configuration>
@@ -252,11 +252,35 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>${exec-maven-plugin.version}</version>
+                <executions>
+                    <!--<execution>-->
+                        <!--<id>start-application</id>-->
+                        <!--<goals>-->
+                            <!--<goal>java</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<mainClass>${project.mainclass}</mainClass>-->
+                            <!--<arguments>-->
+                                <!--<argument>server</argument>-->
+                                <!--<argument>${project.configurationfile}</argument>-->
+                            <!--</arguments>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                    <execution>
+                        <id>initialize-project</id>
+                        <!--<phase>initialize</phase>-->
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
-                    <mainClass>${project.mainclass}</mainClass>
+                    <!--<skip>true</skip>-->
+                    <executable>mvn</executable>
                     <arguments>
-                        <argument>server</argument>
-                        <argument>${project.configurationfile}</argument>
+                        <argument>clean</argument>
+                        <argument>post-clean</argument>
+                        <argument>compile</argument>
                     </arguments>
                 </configuration>
             </plugin>
