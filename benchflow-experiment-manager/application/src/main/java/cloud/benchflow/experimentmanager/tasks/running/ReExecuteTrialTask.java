@@ -42,8 +42,7 @@ public class ReExecuteTrialTask implements Callable<RunStatus> {
     try {
 
       // get last executed trial
-      int trialNumber = experimentModelDAO.getNumExecutedTrials(experimentID);
-      String trialID = BenchFlowConstants.getTrialID(experimentID, trialNumber);
+      String trialID = experimentModelDAO.getLastExecutedTrialID(experimentID);
 
       return ExecuteTrial.executeTrial(
           trialID, experimentID, trialModelDAO, minioService, fabanClient);

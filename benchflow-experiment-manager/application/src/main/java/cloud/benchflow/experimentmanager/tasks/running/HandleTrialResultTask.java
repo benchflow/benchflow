@@ -1,6 +1,7 @@
 package cloud.benchflow.experimentmanager.tasks.running;
 
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
+import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
@@ -33,7 +34,9 @@ public class HandleTrialResultTask implements Callable<Boolean> {
 
     try {
 
-      int trialNumber = experimentModelDAO.getNumExecutedTrials(experimentID) - 1;
+      String trialID = experimentModelDAO.getLastExecutedTrialID(experimentID);
+
+      long trialNumber = BenchFlowConstants.getTrialNumberFromTrialID(trialID);
 
       RunStatus.Code trialStatus = trialModelDAO.getTrialStatus(experimentID, trialNumber);
 

@@ -3,9 +3,7 @@ package cloud.benchflow.experimentmanager.models;
 import org.mongodb.morphia.annotations.*;
 import org.mongodb.morphia.utils.IndexType;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-03-23 */
 @Entity
@@ -30,7 +28,7 @@ public class BenchFlowExperimentModel {
   private int numTrials;
   // TODO - this should be part of the DSL
   private int numTrialRetries = 2;
-  @Reference private List<TrialModel> trials = new ArrayList<>();
+  @Reference private TreeMap<Long, TrialModel> trials = new TreeMap<>();
 
   BenchFlowExperimentModel() {
     // Empty constructor for MongoDB + Morphia
@@ -98,12 +96,26 @@ public class BenchFlowExperimentModel {
     return numTrialRetries;
   }
 
-  public void addTrial(TrialModel trialModel) {
-    trials.add(trialModel);
+  public void addTrial(long index, TrialModel trialModel) {
+
+    trials.put(index, trialModel);
   }
 
-  public int getNumExecutedTrials() {
-    return trials.size();
+  public long getNumExecutedTrials() {
+
+    if (trials.size() == 0) {
+      return 0;
+    }
+
+    // return the greatest key
+    return trials.lastEntry().getKey();
+  }
+
+  public String getLastExecutedTrialID() {
+
+    // assumes that trials have been inserted in order (highest key is last)
+
+    return trials.lastEntry().getValue().getId();
   }
 
   public enum BenchFlowExperimentState {

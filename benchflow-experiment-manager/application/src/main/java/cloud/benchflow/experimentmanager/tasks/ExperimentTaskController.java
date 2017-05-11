@@ -1,6 +1,7 @@
 package cloud.benchflow.experimentmanager.tasks;
 
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
+import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
@@ -201,7 +202,9 @@ public class ExperimentTaskController {
 
       RunStatus runStatus = future.get();
 
-      int trialNumber = experimentModelDAO.getNumExecutedTrials(experimentID) - 1;
+      String trialID = experimentModelDAO.getLastExecutedTrialID(experimentID);
+
+      long trialNumber = BenchFlowConstants.getTrialNumberFromTrialID(trialID);
 
       trialModelDAO.setTrialStatus(experimentID, trialNumber, runStatus.getStatus());
 

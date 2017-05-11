@@ -109,7 +109,7 @@ public class ExperimentTaskControllerIT extends DockerComposeIT {
         .getDriversMakerGeneratedFabanConfiguration(
             driversMakerCompatibleID.getDriversMakerExperimentID(),
             driversMakerCompatibleID.getExperimentNumber(),
-            0);
+            1);
 
     Mockito.doNothing()
         .when(minioServiceSpy)
