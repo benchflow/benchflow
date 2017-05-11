@@ -1,7 +1,6 @@
 package cloud.benchflow.experimentmanager.tasks.running;
 
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
-import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;

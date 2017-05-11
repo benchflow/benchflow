@@ -44,38 +44,38 @@ public class BenchFlowExperimentModelDAOIT extends DockerComposeIT {
   @Test
   public void addTrial() throws Exception {
 
-    //    String experimentID = TestConstants.BENCHFLOW_EXPERIMENT_ID;
-    //
-    //    experimentModelDAO.addExperiment(experimentID);
-    //
-    //    String trialID = experimentModelDAO.addTrial(experimentID);
-    //
-    //    int trialNumber = BenchFlowConstants.getTrialNumberFromTrialID(trialID);
-    //
-    //    assertEquals(1, trialNumber);
-    //
-    //    String lastTrialID = experimentModelDAO.getLastExecutedTrialID(experimentID);
-    //
-    //    assertEquals(trialID, lastTrialID);
-    //
-    //    trialID = experimentModelDAO.addTrial(experimentID);
-    //
-    //    trialNumber = BenchFlowConstants.getTrialNumberFromTrialID(trialID);
-    //
-    //    assertEquals(2, trialNumber);
-    //
-    //    lastTrialID = experimentModelDAO.getLastExecutedTrialID(experimentID);
-    //
-    //    assertEquals(trialID, lastTrialID);
-    //
-    //    trialID = experimentModelDAO.addTrial(experimentID);
-    //
-    //    trialNumber = BenchFlowConstants.getTrialNumberFromTrialID(trialID);
-    //
-    //    assertEquals(3, trialNumber);
-    //
-    //    lastTrialID = experimentModelDAO.getLastExecutedTrialID(experimentID);
-    //
-    //    assertEquals(trialID, lastTrialID);
+    String experimentID = TestConstants.BENCHFLOW_EXPERIMENT_ID;
+
+    experimentModelDAO.addExperiment(experimentID);
+
+    String trialID = experimentModelDAO.addTrial(experimentID);
+
+    int trialNumber = BenchFlowConstants.getTrialNumberFromTrialID(trialID);
+
+    assertEquals(1, trialNumber);
+
+    String lastTrialID = experimentModelDAO.getLastExecutedTrialID(experimentID);
+
+    assertEquals(trialID, lastTrialID);
+
+    trialID = experimentModelDAO.addTrial(experimentID);
+
+    trialNumber = BenchFlowConstants.getTrialNumberFromTrialID(trialID);
+
+    assertEquals(2, trialNumber);
+
+    lastTrialID = experimentModelDAO.getLastExecutedTrialID(experimentID);
+
+    assertEquals(trialID, lastTrialID);
+
+    trialID = experimentModelDAO.addTrial(experimentID);
+
+    trialNumber = BenchFlowConstants.getTrialNumberFromTrialID(trialID);
+
+    assertEquals(3, trialNumber);
+
+    lastTrialID = experimentModelDAO.getLastExecutedTrialID(experimentID);
+
+    assertEquals(trialID, lastTrialID);
   }
 }
