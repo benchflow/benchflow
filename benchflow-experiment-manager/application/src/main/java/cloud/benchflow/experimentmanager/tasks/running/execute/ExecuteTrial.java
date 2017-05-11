@@ -28,14 +28,33 @@ import static cloud.benchflow.faban.client.responses.RunStatus.Code.STARTED;
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-05-07 */
 public class ExecuteTrial {
 
-  public static RunStatus executeTrial(
+  public static class TrialStatus {
+    private String trialID;
+    private RunStatus.Code statusCode;
+
+    public TrialStatus(String trialID, RunStatus.Code statusCode) {
+      this.trialID = trialID;
+      this.statusCode = statusCode;
+    }
+
+    public String getTrialID() {
+      return trialID;
+    }
+
+    public RunStatus.Code getStatusCode() {
+      return statusCode;
+    }
+  }
+
+  public static TrialStatus executeTrial(
       String trialID,
-      String experimentID,
       TrialModelDAO trialModelDAO,
       MinioService minioService,
       FabanClient fabanClient) {
 
     try {
+
+      String experimentID = BenchFlowConstants.getExperimentIDFromTrialID(trialID);
 
       String fabanExperimentId =
           experimentID.replace(MODEL_ID_DELIMITER, BenchFlowConstants.FABAN_ID_DELIMITER);
@@ -110,7 +129,7 @@ public class ExecuteTrial {
         status = fabanClient.status(runId);
       }
 
-      return status;
+      return new TrialStatus(trialID, status.getStatus());
 
     } catch (IOException
         | InterruptedException
@@ -119,7 +138,9 @@ public class ExecuteTrial {
 
       // TODO - handle me properly
       e.printStackTrace();
-      return new RunStatus(RunStatus.Code.FAILED.name(), null);
+
+      RunStatus status = new RunStatus(RunStatus.Code.FAILED.name(), null);
+      return new TrialStatus(trialID, status.getStatus());
     }
   }
 }

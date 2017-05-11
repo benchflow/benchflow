@@ -10,6 +10,8 @@ import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperime
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
 import cloud.benchflow.experimentmanager.tasks.running.*;
 import cloud.benchflow.experimentmanager.tasks.running.CheckTerminationCriteriaTask.TerminationCriteriaResult;
+import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial;
+import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.TrialStatus;
 import cloud.benchflow.experimentmanager.tasks.start.StartTask;
 import cloud.benchflow.faban.client.responses.RunStatus;
 import org.slf4j.Logger;
@@ -175,7 +177,7 @@ public class ExperimentTaskController {
 
     ExecuteNewTrialTask newTrialTask = new ExecuteNewTrialTask(experimentID);
 
-    Future<RunStatus> future = experimentTaskExecutorService.submit(newTrialTask);
+    Future<TrialStatus> future = experimentTaskExecutorService.submit(newTrialTask);
 
     experimentTasks.put(experimentID, future);
 
@@ -186,36 +188,39 @@ public class ExperimentTaskController {
 
     logger.info("handleReExecuteTrial: " + experimentID);
 
-    ReExecuteTrialTask reExecuteTrialTask = new ReExecuteTrialTask(experimentID);
-
-    Future<RunStatus> future = experimentTaskExecutorService.submit(reExecuteTrialTask);
-
-    experimentTasks.put(experimentID, future);
-
-    handleExecuteTrial(experimentID, future);
-  }
-
-  private void handleExecuteTrial(String experimentID, Future<RunStatus> future) {
-
-    // TODO - remove this when faban interaction changes to non-polling
     try {
-
-      RunStatus runStatus = future.get();
 
       String trialID = experimentModelDAO.getLastExecutedTrialID(experimentID);
 
-      long trialNumber = BenchFlowConstants.getTrialNumberFromTrialID(trialID);
+      ReExecuteTrialTask reExecuteTrialTask = new ReExecuteTrialTask(trialID);
 
-      trialModelDAO.setTrialStatus(experimentID, trialNumber, runStatus.getStatus());
+      Future<TrialStatus> future = experimentTaskExecutorService.submit(reExecuteTrialTask);
+
+      experimentTasks.put(experimentID, future);
+
+      handleExecuteTrial(experimentID, future);
+
+    } catch (BenchFlowExperimentIDDoesNotExistException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void handleExecuteTrial(String experimentID, Future<TrialStatus> future) {
+
+    // TODO - change this when faban interaction changes to non-polling
+
+    try {
+
+      TrialStatus runStatus = future.get();
+
+      trialModelDAO.setTrialStatus(runStatus.getTrialID(), runStatus.getStatusCode());
 
       experimentModelDAO.setRunningState(experimentID, RunningState.HANDLE_TRIAL_RESULT);
       testManagerService.setExperimentRunningState(experimentID, RunningState.HANDLE_TRIAL_RESULT);
 
       handleExperimentState(experimentID);
 
-    } catch (InterruptedException
-        | ExecutionException
-        | BenchFlowExperimentIDDoesNotExistException e) {
+    } catch (InterruptedException | ExecutionException e) {
       e.printStackTrace();
     }
   }

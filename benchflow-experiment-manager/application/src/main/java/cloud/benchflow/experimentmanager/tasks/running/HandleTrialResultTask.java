@@ -36,11 +36,9 @@ public class HandleTrialResultTask implements Callable<Boolean> {
 
       String trialID = experimentModelDAO.getLastExecutedTrialID(experimentID);
 
-      long trialNumber = BenchFlowConstants.getTrialNumberFromTrialID(trialID);
+      RunStatus.Code trialStatus = trialModelDAO.getTrialStatus(trialID);
 
-      RunStatus.Code trialStatus = trialModelDAO.getTrialStatus(experimentID, trialNumber);
-
-      int retries = trialModelDAO.getNumRetries(experimentID, trialNumber);
+      int retries = trialModelDAO.getNumRetries(trialID);
       int maxRetries = experimentModelDAO.getNumTrialRetries(experimentID);
 
       // TODO - how to handle all the cases
