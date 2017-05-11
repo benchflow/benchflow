@@ -123,8 +123,7 @@ public class BenchFlowTestResource {
       }
 
       // save new test
-      String testID =
-          testModelDAO.addTestModel(benchFlowTest.name(), BenchFlowConstants.BENCHFLOW_USER);
+      String testID = testModelDAO.addTestModel(benchFlowTest.name(), user);
 
       new Thread(
               new StartTask(

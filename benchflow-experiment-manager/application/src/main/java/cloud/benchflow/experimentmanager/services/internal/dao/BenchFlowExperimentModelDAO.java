@@ -219,6 +219,8 @@ public class BenchFlowExperimentModelDAO extends AbstractDAO {
     }
 
     experimentModel.setNumTrials(numTrials);
+
+    datastore.save(experimentModel);
   }
 
   public synchronized String getLastExecutedTrialID(String experimentID)

@@ -72,12 +72,16 @@ public class TrialModelDAO extends AbstractDAO {
     return trialModel.getStatus();
   }
 
-  public synchronized void incrementRetries(String experimentID, long trialNumber) {
-    logger.info("incrementRetries: " + experimentID + " trial " + trialNumber);
+  public synchronized void incrementRetries(String trialID) {
+    logger.info("incrementRetries: " + trialID);
 
-    TrialModel trialModel = getTrialModel(experimentID, trialNumber);
+    TrialModel trialModel = getTrialModel(trialID);
 
-    trialModel.incrementRetries();
+    if (trialModel != null) {
+      trialModel.incrementRetries();
+      datastore.save(trialModel);
+    }
+
   }
 
   public synchronized int getNumRetries(String trialID) {

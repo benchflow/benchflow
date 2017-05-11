@@ -39,6 +39,7 @@ public class ReExecuteTrialTask implements Callable<TrialStatus> {
     logger.info("running - " + trialID);
 
     // get last executed trial
+    trialModelDAO.incrementRetries(trialID);
 
     return ExecuteTrial.executeTrial(trialID, trialModelDAO, minioService, fabanClient);
   }

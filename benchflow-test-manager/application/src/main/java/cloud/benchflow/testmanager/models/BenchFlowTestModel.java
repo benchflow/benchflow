@@ -160,7 +160,11 @@ public class BenchFlowTestModel {
   @JsonIgnore
   public long getNextExperimentNumber() {
 
-    return experiments.size();
+    if (experiments.size() == 0) {
+      return 1;
+    }
+
+    return experiments.lastKey() + 1;
   }
 
   public enum BenchFlowTestState {

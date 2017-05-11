@@ -180,13 +180,15 @@ public class MinioService {
 
   public List<String> getAllTestBPMNModels(final String testID) {
 
+    logger.info("getAllTestBPMNModels: " + testID);
+
     List<String> modelNames = new ArrayList<>();
 
     String objectName = null;
 
     try {
 
-      objectName = testID + MINIO_ID_DELIMITER + BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER;
+      objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER + BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER;
 
       for (Result<Item> item : minioClient.listObjects(TESTS_BUCKET, objectName)) {
         modelNames.add(item.get().objectName().replace(objectName, ""));

@@ -82,7 +82,7 @@ public class BenchFlowExperimentModelDAOIT extends DockerComposeIT {
 
     String firstID = experimentModelDAO.addExperiment(testID);
 
-    assertEquals(testID + MODEL_ID_DELIMITER + 0, firstID);
+    assertEquals(testID + MODEL_ID_DELIMITER + 1, firstID);
 
     BenchFlowTestModel testModel = testModelDAO.getTestModel(testID);
 
@@ -90,7 +90,7 @@ public class BenchFlowExperimentModelDAOIT extends DockerComposeIT {
 
     String secondID = experimentModelDAO.addExperiment(testID);
 
-    assertEquals(testID + MODEL_ID_DELIMITER + 1, secondID);
+    assertEquals(testID + MODEL_ID_DELIMITER + 2, secondID);
 
     testModel = testModelDAO.getTestModel(testID);
 
