@@ -1,14 +1,12 @@
 package cloud.benchflow.testmanager.models;
 
+import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.mongodb.morphia.annotations.*;
 import org.mongodb.morphia.utils.IndexType;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
@@ -49,7 +47,7 @@ public class BenchFlowTestModel {
   private BenchFlowTestState state;
   private TestRunningState runningState;
   private TestTerminatedState terminatedState;
-  @Reference private Set<BenchFlowExperimentModel> experiments = new HashSet<>();
+  @Reference private TreeMap<Long, BenchFlowExperimentModel> experiments = new TreeMap<>();
 
   @JsonIgnore private ExplorationModel explorationModel = new ExplorationModel();
 
@@ -130,25 +128,29 @@ public class BenchFlowTestModel {
 
   public void addExperimentModel(BenchFlowExperimentModel experimentModel) {
 
-    experiments.add(experimentModel);
+    long experimentNumber =
+        BenchFlowConstants.getExperimentNumberfromExperimentID(experimentModel.getId());
+
+    experiments.put(experimentNumber, experimentModel);
   }
 
   public boolean containsExperimentModel(String experimentID) {
 
-    return experiments.stream().filter(model -> model.getId().equals(experimentID)).count() != 0;
+    long experimentNumber = BenchFlowConstants.getExperimentNumberfromExperimentID(experimentID);
+
+    return experiments.containsKey(experimentNumber);
   }
 
-  public List<Long> getExperimentNumbers() {
+  @JsonIgnore
+  public Set<Long> getExperimentNumbers() {
 
-    return experiments
-        .stream()
-        .map(BenchFlowExperimentModel::getNumber)
-        .collect(Collectors.toList());
+    return experiments.keySet();
   }
 
-  public Set<BenchFlowExperimentModel> getExperimentModels() {
+  @JsonIgnore
+  public Collection<BenchFlowExperimentModel> getExperimentModels() {
 
-    return experiments;
+    return experiments.values();
   }
 
   public ExplorationModel getExplorationModel() {

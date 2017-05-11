@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 19.12.16. */
@@ -218,7 +219,7 @@ public class BenchFlowTestModelDAO extends DAO {
     return getTestModel(testID).getTerminatedState();
   }
 
-  public synchronized List<Long> getExperimentNumbers(String testID)
+  public synchronized Set<Long> getExperimentNumbers(String testID)
       throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("getExperimentNumbers: " + testID);

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Set;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20 */
 public class CompleteSelectionStrategy implements ExperimentSelectionStrategy {
@@ -57,7 +58,7 @@ public class CompleteSelectionStrategy implements ExperimentSelectionStrategy {
       List<Integer> explorationSpace = explorationModelDAO.getWorkloadUserSpace(testID);
 
       // check which experiments have been executed
-      List<Long> executedExperimentNumbers = testModelDAO.getExperimentNumbers(testID);
+      Set<Long> executedExperimentNumbers = testModelDAO.getExperimentNumbers(testID);
 
       // expects that experiment has already been added to DB
       int nextExperimentNumber = executedExperimentNumbers.size() - 1;
@@ -88,7 +89,7 @@ public class CompleteSelectionStrategy implements ExperimentSelectionStrategy {
     // TODO - generalize this to complete search space
     List<Integer> explorationSpace = explorationModelDAO.getWorkloadUserSpace(testID);
     // check which experiments have been executed
-    List<Long> executedExperimentNumbers = testModelDAO.getExperimentNumbers(testID);
+    Set<Long> executedExperimentNumbers = testModelDAO.getExperimentNumbers(testID);
 
     return explorationSpace.size() == executedExperimentNumbers.size();
   }

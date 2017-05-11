@@ -92,7 +92,7 @@ public class BenchFlowTestResource {
     if (!userDAO.userExists(user)) {
 
       try {
-        userDAO.addUser(BenchFlowConstants.BENCHFLOW_USER.getUsername());
+        userDAO.addUser(user.getUsername());
       } catch (UserIDAlreadyExistsException e) {
         // since we already checked that the user doesn't exist it cannot happen
         throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
