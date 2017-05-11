@@ -26,9 +26,9 @@ import static cloud.benchflow.faban.client.responses.RunStatus.Code.RECEIVED;
 import static cloud.benchflow.faban.client.responses.RunStatus.Code.STARTED;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-05-07 */
-public class ExecuteExperiment {
+public class ExecuteTrial {
 
-  public static RunStatus executeExperiment(
+  public static RunStatus executeTrial(
       String trialID,
       String experimentID,
       TrialModelDAO trialModelDAO,

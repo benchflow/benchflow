@@ -6,7 +6,7 @@ import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNot
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
-import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteExperiment;
+import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial;
 import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.responses.RunStatus;
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ public class ReExecuteTrialTask implements Callable<RunStatus> {
       int trialNumber = experimentModelDAO.getNumExecutedTrials(experimentID);
       String trialID = BenchFlowConstants.getTrialID(experimentID, trialNumber);
 
-      return ExecuteExperiment.executeExperiment(
+      return ExecuteTrial.executeTrial(
           trialID, experimentID, trialModelDAO, minioService, fabanClient);
 
     } catch (BenchFlowExperimentIDDoesNotExistException e) {
