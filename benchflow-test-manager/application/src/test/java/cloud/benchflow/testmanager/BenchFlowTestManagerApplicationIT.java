@@ -9,6 +9,7 @@ import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.resources.BenchFlowTestResource;
+import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
@@ -121,8 +122,13 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
     BenchFlowTestModelDAO testModelDAO =
         new BenchFlowTestModelDAO(RULE.getConfiguration().getMongoDBFactory().build());
 
+    BenchFlowExperimentModelDAO experimentModelDAO =
+        new BenchFlowExperimentModelDAO(RULE.getConfiguration().getMongoDBFactory().build(), testModelDAO);
+
     String testID =
         testModelDAO.addTestModel(TestConstants.VALID_BENCHFLOW_TEST_NAME, TestConstants.TEST_USER);
+
+    String experimentID = experimentModelDAO.addExperiment(testID);
 
     Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
 
@@ -140,5 +146,7 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
 
     BenchFlowTestModel testModel = response.readEntity(BenchFlowTestModel.class);
     Assert.assertEquals(testID, testModel.getId());
+
+    Assert.assertTrue(testModel.containsExperimentModel(experimentID));
   }
 }

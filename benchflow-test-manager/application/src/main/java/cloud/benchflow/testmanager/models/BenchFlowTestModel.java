@@ -141,6 +141,10 @@ public class BenchFlowTestModel {
     return experiments.containsKey(experimentNumber);
   }
 
+  public TreeMap<Long, BenchFlowExperimentModel> getExperiments() {
+    return experiments;
+  }
+
   @JsonIgnore
   public Set<Long> getExperimentNumbers() {
 
