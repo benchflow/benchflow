@@ -27,7 +27,7 @@ public class BenchFlowExperimentModel {
   private TerminatedState terminatedState;
   private int numTrials;
   // TODO - this should be part of the DSL
-  private int numTrialRetries = 2;
+  private int numTrialRetries = 1;
   @Reference private TreeMap<Long, TrialModel> trials = new TreeMap<>();
 
   BenchFlowExperimentModel() {
