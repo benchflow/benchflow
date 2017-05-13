@@ -40,6 +40,10 @@ public class TrialModel {
     lastModified = new Date();
   }
 
+  public String getId() {
+    return id;
+  }
+
   public Date getStart() {
     return start;
   }

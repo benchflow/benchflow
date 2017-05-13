@@ -9,6 +9,7 @@ import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistExcepti
 import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidTestArchiveWebException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
+import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
@@ -63,11 +64,11 @@ public class BenchFlowTestResourceTest {
     InputStream expArchive = TestArchives.getValidTestArchive();
 
     String expectedTestID =
-        TEST_USER_NAME + MODEL_ID_DELIMITER + VALID_BENCHFLOW_TEST_NAME + MODEL_ID_DELIMITER + 0;
+        TEST_USER_NAME + MODEL_ID_DELIMITER + VALID_BENCHFLOW_TEST_NAME + MODEL_ID_DELIMITER + 1;
 
     Mockito.doReturn(expectedTestID)
         .when(testModelDAOMock)
-        .addTestModel(VALID_BENCHFLOW_TEST_NAME, BenchFlowConstants.BENCHFLOW_USER);
+        .addTestModel(Mockito.matches(VALID_BENCHFLOW_TEST_NAME), Mockito.any(User.class));
 
     RunBenchFlowTestResponse response = resource.runBenchFlowTest(TEST_USER_NAME, expArchive);
 

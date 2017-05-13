@@ -1,15 +1,10 @@
 package cloud.benchflow.experimentmanager.services.internal.dao;
 
-import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
-import cloud.benchflow.experimentmanager.exceptions.TrialIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.RunningState;
 import cloud.benchflow.experimentmanager.models.TrialModel;
-import cloud.benchflow.faban.client.responses.RunStatus;
 import com.mongodb.MongoClient;
-import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.Morphia;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -157,30 +152,6 @@ public class BenchFlowExperimentModelDAO extends AbstractDAO {
     return experimentModel.getNumTrialRetries();
   }
 
-  public synchronized String addTrial(String experimentID, long trialNumber)
-      throws BenchFlowExperimentIDDoesNotExistException {
-
-    String trialID = getTrialID(experimentID, trialNumber);
-
-    logger.info("addTrial: " + trialID);
-
-    BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
-
-    if (experimentModel == null) {
-      throw new BenchFlowExperimentIDDoesNotExistException();
-    }
-
-    // first save the Trial Model and then add it to Experiment Model
-    TrialModel trialModel = new TrialModel(trialID);
-    datastore.save(trialModel);
-
-    experimentModel.addTrial(trialModel);
-
-    datastore.save(experimentModel);
-
-    return trialID;
-  }
-
   public synchronized String addTrial(String experimentID)
       throws BenchFlowExperimentIDDoesNotExistException {
 
@@ -193,20 +164,22 @@ public class BenchFlowExperimentModelDAO extends AbstractDAO {
     }
 
     // increment to next trial number
-    String trialID = getTrialID(experimentID, experimentModel.getNumTrials());
+    long trialNumber = experimentModel.getNumExecutedTrials() + 1;
+
+    String trialID = getTrialID(experimentID, trialNumber);
 
     // first save the Trial Model and then add it to Experiment Model
     TrialModel trialModel = new TrialModel(trialID);
     datastore.save(trialModel);
 
-    experimentModel.addTrial(trialModel);
+    experimentModel.addTrial(trialNumber, trialModel);
 
     datastore.save(experimentModel);
 
     return trialID;
   }
 
-  public synchronized int getNumExecutedTrials(String experimentID)
+  public synchronized long getNumExecutedTrials(String experimentID)
       throws BenchFlowExperimentIDDoesNotExistException {
 
     logger.info("getNumExecutedTrials: " + experimentID);
@@ -246,5 +219,21 @@ public class BenchFlowExperimentModelDAO extends AbstractDAO {
     }
 
     experimentModel.setNumTrials(numTrials);
+
+    datastore.save(experimentModel);
+  }
+
+  public synchronized String getLastExecutedTrialID(String experimentID)
+      throws BenchFlowExperimentIDDoesNotExistException {
+
+    logger.info("getLastExecutedTrialID: " + experimentID);
+
+    BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
+
+    if (experimentModel == null) {
+      throw new BenchFlowExperimentIDDoesNotExistException();
+    }
+
+    return experimentModel.getLastExecutedTrialID();
   }
 }

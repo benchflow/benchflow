@@ -98,4 +98,9 @@ public class BenchFlowConstants {
   public static String getTrialID(String experimentID, long trialNumber) {
     return experimentID + BenchFlowConstants.MODEL_ID_DELIMITER + trialNumber;
   }
+
+  public static String getExperimentIDFromTrialID(String trialID) {
+
+    return trialID.substring(0, trialID.lastIndexOf(MODEL_ID_DELIMITER));
+  }
 }

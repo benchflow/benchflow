@@ -6,7 +6,8 @@ import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNot
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
-import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteExperiment;
+import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial;
+import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.TrialStatus;
 import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.responses.RunStatus;
 import org.slf4j.Logger;
@@ -15,43 +16,31 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.Callable;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
-public class ReExecuteTrialTask implements Callable<RunStatus> {
+public class ReExecuteTrialTask implements Callable<TrialStatus> {
 
   private static Logger logger = LoggerFactory.getLogger(ReExecuteTrialTask.class.getSimpleName());
 
-  private final String experimentID;
-  private BenchFlowExperimentModelDAO experimentModelDAO;
+  private final String trialID;
   private TrialModelDAO trialModelDAO;
   private MinioService minioService;
   private FabanClient fabanClient;
 
-  public ReExecuteTrialTask(String experimentID) {
-    this.experimentID = experimentID;
+  public ReExecuteTrialTask(String trialID) {
+    this.trialID = trialID;
 
-    this.experimentModelDAO = BenchFlowExperimentManagerApplication.getExperimentModelDAO();
     this.trialModelDAO = BenchFlowExperimentManagerApplication.getTrialModelDAO();
     this.minioService = BenchFlowExperimentManagerApplication.getMinioService();
     this.fabanClient = BenchFlowExperimentManagerApplication.getFabanClient();
   }
 
   @Override
-  public RunStatus call() throws Exception {
+  public TrialStatus call() throws Exception {
 
-    logger.info("running - " + experimentID);
+    logger.info("running - " + trialID);
 
-    try {
+    // get last executed trial
+    trialModelDAO.incrementRetries(trialID);
 
-      // get last executed trial
-      int trialNumber = experimentModelDAO.getNumExecutedTrials(experimentID);
-      String trialID = BenchFlowConstants.getTrialID(experimentID, trialNumber);
-
-      return ExecuteExperiment.executeExperiment(
-          trialID, experimentID, trialModelDAO, minioService, fabanClient);
-
-    } catch (BenchFlowExperimentIDDoesNotExistException e) {
-      e.printStackTrace();
-    }
-
-    return null;
+    return ExecuteTrial.executeTrial(trialID, trialModelDAO, minioService, fabanClient);
   }
 }

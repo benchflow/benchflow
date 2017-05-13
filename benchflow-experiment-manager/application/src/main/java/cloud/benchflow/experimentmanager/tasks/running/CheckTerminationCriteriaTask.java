@@ -28,7 +28,7 @@ public class CheckTerminationCriteriaTask
     logger.info("running - " + experimentID);
 
     int numTrials = experimentModelDAO.getNumTrials(experimentID);
-    int numExectuedTrials = experimentModelDAO.getNumExecutedTrials(experimentID);
+    long numExectuedTrials = experimentModelDAO.getNumExecutedTrials(experimentID);
 
     // TODO - add confidence interval (read termination criteria)
 

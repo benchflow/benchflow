@@ -167,6 +167,12 @@ public class StartTask implements Callable<Boolean> {
         minioService.copyExperimentBPMNModelForDriversMaker(
             experimentID, driversMakerExperimentID, operationName);
       }
+
     }
+
+    // TODO - think how to handle this is a cleaner way
+    // copy necessary mock.bpmn
+    minioService.copyExperimentBPMNModelForDriversMaker(
+        experimentID, driversMakerExperimentID, "mock.bpmn");
   }
 }

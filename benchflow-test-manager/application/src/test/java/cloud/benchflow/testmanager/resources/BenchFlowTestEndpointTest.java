@@ -59,7 +59,7 @@ public class BenchFlowTestEndpointTest {
                 + BenchFlowConstants.MODEL_ID_DELIMITER
                 + 1)
         .when(testModelDAOMock)
-        .addTestModel(benchFlowTestName, user);
+        .addTestModel(Mockito.matches(benchFlowTestName), Mockito.any(User.class));
 
     FileDataBodyPart fileDataBodyPart =
         new FileDataBodyPart(

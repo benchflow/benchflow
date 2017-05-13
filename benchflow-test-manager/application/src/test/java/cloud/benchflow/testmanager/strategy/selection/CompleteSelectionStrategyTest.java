@@ -16,7 +16,9 @@ import org.mockito.Mockito;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-27 */
 public class CompleteSelectionStrategyTest {
@@ -55,7 +57,7 @@ public class CompleteSelectionStrategyTest {
 
     Mockito.doReturn(selectionStrategy).when(explorationModelDAOMock).getWorkloadUserSpace(testID);
 
-    List<Long> experimentNumbers = new ArrayList<>();
+    Set<Long> experimentNumbers = new HashSet<>();
     // ensure that experiment is available in DB
     experimentNumbers.add(0L);
 

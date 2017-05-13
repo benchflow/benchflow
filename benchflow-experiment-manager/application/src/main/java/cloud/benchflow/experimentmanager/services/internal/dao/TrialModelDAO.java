@@ -23,7 +23,9 @@ public class TrialModelDAO extends AbstractDAO {
 
     logger.info("setTrialModelAsStarted: " + experimentID + " trial " + trialNumber);
 
-    setTrialStatus(experimentID, trialNumber, RunStatus.Code.STARTED);
+    String trialID = getTrialID(experimentID, trialNumber);
+
+    setTrialStatus(trialID, RunStatus.Code.STARTED);
   }
 
   public synchronized void setFabanTrialID(
@@ -40,18 +42,25 @@ public class TrialModelDAO extends AbstractDAO {
     }
   }
 
-  public synchronized void setTrialStatus(
-      String experimentID, long trialNumber, RunStatus.Code statusCode) {
+  public synchronized void setTrialStatus(String trialID, RunStatus.Code statusCode) {
 
-    logger.info(
-        "setTrialStatus: " + experimentID + " trial " + trialNumber + " with " + statusCode.name());
+    logger.info("setTrialStatus: " + trialID + " with " + statusCode.name());
 
-    TrialModel trialModel = getTrialModel(experimentID, trialNumber);
+    TrialModel trialModel = getTrialModel(trialID);
 
     if (trialModel != null) {
       trialModel.setStatus(statusCode);
       datastore.save(trialModel);
     }
+  }
+
+  public synchronized RunStatus.Code getTrialStatus(String trialID) {
+
+    logger.info("getTrialStatus: " + trialID);
+
+    TrialModel trialModel = getTrialModel(trialID);
+
+    return trialModel.getStatus();
   }
 
   public synchronized RunStatus.Code getTrialStatus(String experimentID, long trialNumber) {
@@ -63,19 +72,23 @@ public class TrialModelDAO extends AbstractDAO {
     return trialModel.getStatus();
   }
 
-  public synchronized void incrementRetries(String experimentID, long trialNumber) {
-    logger.info("incrementRetries: " + experimentID + " trial " + trialNumber);
+  public synchronized void incrementRetries(String trialID) {
+    logger.info("incrementRetries: " + trialID);
 
-    TrialModel trialModel = getTrialModel(experimentID, trialNumber);
+    TrialModel trialModel = getTrialModel(trialID);
 
-    trialModel.incrementRetries();
+    if (trialModel != null) {
+      trialModel.incrementRetries();
+      datastore.save(trialModel);
+    }
+
   }
 
-  public synchronized int getNumRetries(String experimentID, long trialNumber) {
+  public synchronized int getNumRetries(String trialID) {
 
-    logger.info("getNumRetries: " + experimentID + " trial " + trialNumber);
+    logger.info("getNumRetries: " + trialID);
 
-    TrialModel trialModel = getTrialModel(experimentID, trialNumber);
+    TrialModel trialModel = getTrialModel(trialID);
 
     return trialModel.getNumRetries();
   }

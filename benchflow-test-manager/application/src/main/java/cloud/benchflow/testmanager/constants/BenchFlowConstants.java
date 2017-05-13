@@ -134,4 +134,13 @@ public class BenchFlowConstants {
         + TRIALS_PATH
         + trialNumber;
   }
+
+  public static long getExperimentNumberfromExperimentID(String experimentID) {
+
+    String[] trialIDArray = experimentID.split(MODEL_ID_DELIMITER_REGEX);
+
+    String experimentNumber = trialIDArray[3];
+
+    return Integer.parseInt(experimentNumber);
+  }
 }

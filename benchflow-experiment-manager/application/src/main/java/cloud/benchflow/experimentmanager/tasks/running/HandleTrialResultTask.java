@@ -33,11 +33,11 @@ public class HandleTrialResultTask implements Callable<Boolean> {
 
     try {
 
-      int trialNumber = experimentModelDAO.getNumExecutedTrials(experimentID) - 1;
+      String trialID = experimentModelDAO.getLastExecutedTrialID(experimentID);
 
-      RunStatus.Code trialStatus = trialModelDAO.getTrialStatus(experimentID, trialNumber);
+      RunStatus.Code trialStatus = trialModelDAO.getTrialStatus(trialID);
 
-      int retries = trialModelDAO.getNumRetries(experimentID, trialNumber);
+      int retries = trialModelDAO.getNumRetries(trialID);
       int maxRetries = experimentModelDAO.getNumTrialRetries(experimentID);
 
       // TODO - how to handle all the cases
