@@ -27,11 +27,6 @@ public class DriversMakerServiceFactory {
     this.address = address;
   }
 
-  /**
-   * @param config
-   * @param environment
-   * @return
-   */
   public DriversMakerService build(Client client) {
 
     return new DriversMakerService(client, getAddress());

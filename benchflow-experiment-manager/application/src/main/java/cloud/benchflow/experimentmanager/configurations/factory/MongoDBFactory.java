@@ -38,7 +38,6 @@ public class MongoDBFactory {
     this.port = port;
   }
 
-  /** @return */
   public MongoClient build() {
 
     return new MongoClient(host, port);

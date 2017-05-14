@@ -55,11 +55,6 @@ public class MinioServiceFactory {
     this.secretKey = secretKey;
   }
 
-  /**
-   * @return
-   * @throws InvalidPortException
-   * @throws InvalidEndpointException
-   */
   public MinioService build() throws InvalidPortException, InvalidEndpointException {
 
     MinioClient minioClient = new MinioClient(getAddress(), getAccessKey(), getSecretKey());
