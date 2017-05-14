@@ -42,8 +42,9 @@ public class MinioServiceIT extends DockerComposeIT {
     MinioClient minioClient = new MinioClient(minioEndpoint, DockerComposeIT.MINIO_ACCESS_KEY,
         DockerComposeIT.MINIO_SECRET_KEY);
 
-    if (!minioClient.bucketExists(BenchFlowConstants.TESTS_BUCKET))
+    if (!minioClient.bucketExists(BenchFlowConstants.TESTS_BUCKET)) {
       minioClient.makeBucket(BenchFlowConstants.TESTS_BUCKET);
+    }
 
     minioService = new MinioService(minioClient);
 

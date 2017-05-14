@@ -70,8 +70,9 @@ public class TestArchives {
     String testDefinitionString = BenchFlowTestArchiveExtractor
         .extractBenchFlowTestDefinitionString(getValidTestArchiveZip());
 
-    if (testDefinitionString == null)
+    if (testDefinitionString == null) {
       return null;
+    }
 
     return new ByteArrayInputStream(testDefinitionString.getBytes());
   }
