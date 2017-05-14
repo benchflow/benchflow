@@ -44,7 +44,9 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17.
+ */
 @Path("/v1/users/{username}/tests")
 @Api(value = "benchflow-test")
 public class BenchFlowTestResource {

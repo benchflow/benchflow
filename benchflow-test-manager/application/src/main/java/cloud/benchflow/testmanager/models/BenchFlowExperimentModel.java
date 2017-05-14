@@ -19,7 +19,9 @@ import org.mongodb.morphia.annotations.Indexes;
 import org.mongodb.morphia.annotations.PrePersist;
 import org.mongodb.morphia.utils.IndexType;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16.
+ */
 @Entity
 @Indexes({@Index(options = @IndexOptions(),
     fields = {@Field(value = "hashedID", type = IndexType.HASHED)})})

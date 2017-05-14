@@ -12,7 +12,9 @@ import org.mongodb.morphia.annotations.Indexes;
 import org.mongodb.morphia.annotations.Reference;
 import org.mongodb.morphia.utils.IndexType;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 21.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 21.02.17.
+ */
 @Entity
 @Indexes({@Index(options = @IndexOptions(),
     fields = {@Field(value = "hashUsername", type = IndexType.HASHED)})})

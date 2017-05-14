@@ -4,7 +4,9 @@ import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_
 
 import cloud.benchflow.testmanager.models.User;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17.
+ */
 public class TestConstants {
 
   public static final String INVALID_BENCHFLOW_TEST_NAME = "invalid";

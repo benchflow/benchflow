@@ -9,7 +9,9 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 14.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 14.02.17.
+ */
 public class TestArchives {
 
   private static final String VALID_TEST_ARCHIVE_FILENAME =

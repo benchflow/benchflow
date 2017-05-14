@@ -11,7 +11,9 @@ import com.mongodb.MongoClient;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-27 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-27
+ */
 public abstract class DAO {
 
   protected final Datastore datastore;

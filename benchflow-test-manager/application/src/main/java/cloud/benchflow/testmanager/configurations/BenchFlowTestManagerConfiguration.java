@@ -15,7 +15,9 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16.
+ */
 public class BenchFlowTestManagerConfiguration extends Configuration {
 
   // see http://www.dropwizard.io/1.0.6/docs/manual/core.html#configuration

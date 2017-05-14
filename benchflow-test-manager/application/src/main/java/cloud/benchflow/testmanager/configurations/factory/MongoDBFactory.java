@@ -9,7 +9,9 @@ import javax.validation.constraints.Min;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17.
+ */
 public class MongoDBFactory {
 
   @NotEmpty

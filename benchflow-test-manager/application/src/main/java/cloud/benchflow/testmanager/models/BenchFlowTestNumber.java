@@ -5,7 +5,9 @@ import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 21.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 21.02.17.
+ */
 @Entity(noClassnameStored = true)
 public class BenchFlowTestNumber {
 

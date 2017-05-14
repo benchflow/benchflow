@@ -27,7 +27,9 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 26.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 26.02.17.
+ */
 public class BenchFlowTestEndpointTest {
 
   private static BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);

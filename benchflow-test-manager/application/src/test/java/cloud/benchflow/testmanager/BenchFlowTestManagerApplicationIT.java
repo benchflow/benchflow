@@ -29,7 +29,9 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.02.17.
+ */
 public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
 
   @Rule

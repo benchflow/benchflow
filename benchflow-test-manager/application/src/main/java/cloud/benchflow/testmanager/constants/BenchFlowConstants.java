@@ -2,7 +2,9 @@ package cloud.benchflow.testmanager.constants;
 
 import cloud.benchflow.testmanager.models.User;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 16.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 16.02.17.
+ */
 public class BenchFlowConstants {
 
   // REST API

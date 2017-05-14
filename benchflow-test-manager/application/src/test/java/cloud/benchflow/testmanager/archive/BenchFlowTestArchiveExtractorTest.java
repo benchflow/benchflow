@@ -8,7 +8,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 16.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 16.02.17.
+ */
 public class BenchFlowTestArchiveExtractorTest {
   @Before
   public void setUp() throws Exception {}

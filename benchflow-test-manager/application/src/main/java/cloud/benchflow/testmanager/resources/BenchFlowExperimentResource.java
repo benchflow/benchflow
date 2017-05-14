@@ -26,7 +26,9 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-16 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-16
+ */
 @Path("/v1/users/{username}/tests/{testName}/{testNumber}/experiments")
 @Api(value = "benchflow-experiment")
 public class BenchFlowExperimentResource {
