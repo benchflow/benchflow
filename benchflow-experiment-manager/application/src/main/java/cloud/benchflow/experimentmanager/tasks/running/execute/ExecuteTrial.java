@@ -26,7 +26,9 @@ import java.nio.file.Paths;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-05-07 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-05-07
+ */
 public class ExecuteTrial {
 
   public static class TrialStatus {

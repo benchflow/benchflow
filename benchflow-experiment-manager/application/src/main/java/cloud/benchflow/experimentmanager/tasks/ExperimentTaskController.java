@@ -25,7 +25,9 @@ import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19
+ */
 public class ExperimentTaskController {
 
   private static Logger logger =

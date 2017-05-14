@@ -11,7 +11,9 @@ import com.mongodb.MongoClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-05-07 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-05-07
+ */
 public class TrialModelDAO extends AbstractDAO {
 
   private static Logger logger = LoggerFactory.getLogger(TrialModelDAO.class.getSimpleName());

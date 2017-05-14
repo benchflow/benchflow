@@ -30,7 +30,9 @@ import org.slf4j.LoggerFactory;
 
 import scala.collection.JavaConverters;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19
+ */
 public class StartTask implements Callable<Boolean> {
 
   private static final String TEMP_DIR = "./tmp";

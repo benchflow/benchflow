@@ -6,7 +6,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotNull;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19
+ */
 public class SubmitTrialStatusRequest {
 
   @NotNull

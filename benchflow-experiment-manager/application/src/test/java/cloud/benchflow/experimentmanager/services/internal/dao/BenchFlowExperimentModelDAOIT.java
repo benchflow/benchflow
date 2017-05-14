@@ -13,7 +13,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-13 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-13
+ */
 public class BenchFlowExperimentModelDAOIT extends DockerComposeIT {
 
   private BenchFlowExperimentModelDAO experimentModelDAO;

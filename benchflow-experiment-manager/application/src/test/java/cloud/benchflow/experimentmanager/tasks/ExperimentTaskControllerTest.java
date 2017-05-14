@@ -1,7 +1,9 @@
 package cloud.benchflow.experimentmanager.tasks;
 
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-13 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-13
+ */
 public class ExperimentTaskControllerTest {
 
   // TODO - decide if we need this test

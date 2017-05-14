@@ -8,7 +8,9 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19
+ */
 public class CheckTerminationCriteriaTask
     implements Callable<CheckTerminationCriteriaTask.TerminationCriteriaResult> {
 

@@ -1,6 +1,8 @@
 package cloud.benchflow.experimentmanager.constants;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-03-21 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-03-21
+ */
 public class BenchFlowConstants {
 
   // REST API

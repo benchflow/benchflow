@@ -42,7 +42,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19
+ */
 public class ExperimentTaskControllerIT extends DockerComposeIT {
 
   private static final int TEST_PORT = 8080;

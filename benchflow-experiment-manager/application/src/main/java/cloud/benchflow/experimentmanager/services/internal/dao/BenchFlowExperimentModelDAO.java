@@ -14,7 +14,9 @@ import com.mongodb.MongoClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 06.03.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 06.03.17.
+ */
 public class BenchFlowExperimentModelDAO extends AbstractDAO {
 
   private static Logger logger =

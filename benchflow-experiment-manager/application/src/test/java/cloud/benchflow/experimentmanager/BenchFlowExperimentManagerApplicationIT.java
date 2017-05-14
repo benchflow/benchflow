@@ -41,7 +41,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-13 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-13
+ */
 public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
 
   private static final int TEST_PORT = 8080;

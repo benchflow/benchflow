@@ -4,7 +4,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-13 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-13
+ */
 public class MinioTestData {
 
   private static final String EXPERIMENT_DEFINITION_FILENAME =

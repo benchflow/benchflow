@@ -31,7 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParserException;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 05.03.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 05.03.17.
+ */
 public class MinioService {
 
   // http://www.iana.org/assignments/media-types/application/octet-stream
