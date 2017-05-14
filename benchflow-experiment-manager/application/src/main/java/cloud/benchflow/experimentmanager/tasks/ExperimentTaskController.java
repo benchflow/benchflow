@@ -122,10 +122,10 @@ public class ExperimentTaskController {
         experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.READY);
         handleExperimentState(experimentID);
       } else {
-        experimentModelDAO.setTerminatedState(
-            experimentID, BenchFlowExperimentModel.TerminatedState.ERROR);
-        testManagerService.setExperimentTerminatedState(
-            experimentID, BenchFlowExperimentModel.TerminatedState.ERROR);
+        experimentModelDAO.setTerminatedState(experimentID,
+            BenchFlowExperimentModel.TerminatedState.ERROR);
+        testManagerService.setExperimentTerminatedState(experimentID,
+            BenchFlowExperimentModel.TerminatedState.ERROR);
       }
 
     } catch (InterruptedException | ExecutionException e) {
@@ -241,16 +241,16 @@ public class ExperimentTaskController {
 
       if (checkTerminationCriteria) {
 
-        experimentModelDAO.setRunningState(
-            experimentID, BenchFlowExperimentModel.RunningState.CHECK_TERMINATION_CRITERIA);
-        testManagerService.setExperimentRunningState(
-            experimentID, RunningState.CHECK_TERMINATION_CRITERIA);
+        experimentModelDAO.setRunningState(experimentID,
+            BenchFlowExperimentModel.RunningState.CHECK_TERMINATION_CRITERIA);
+        testManagerService.setExperimentRunningState(experimentID,
+            RunningState.CHECK_TERMINATION_CRITERIA);
         handleExperimentState(experimentID);
 
       } else {
 
-        experimentModelDAO.setRunningState(
-            experimentID, BenchFlowExperimentModel.RunningState.RE_EXECUTE_TRIAL);
+        experimentModelDAO.setRunningState(experimentID,
+            BenchFlowExperimentModel.RunningState.RE_EXECUTE_TRIAL);
         testManagerService.setExperimentRunningState(experimentID, RunningState.RE_EXECUTE_TRIAL);
         handleExperimentState(experimentID);
       }
@@ -279,10 +279,10 @@ public class ExperimentTaskController {
       switch (terminationCriteriaResult) {
         case FULFILLED:
           experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED);
-          experimentModelDAO.setTerminatedState(
-              experimentID, BenchFlowExperimentModel.TerminatedState.COMPLETED);
-          testManagerService.setExperimentTerminatedState(
-              experimentID, BenchFlowExperimentModel.TerminatedState.COMPLETED);
+          experimentModelDAO.setTerminatedState(experimentID,
+              BenchFlowExperimentModel.TerminatedState.COMPLETED);
+          testManagerService.setExperimentTerminatedState(experimentID,
+              BenchFlowExperimentModel.TerminatedState.COMPLETED);
 
           handleExperimentState(experimentID);
 
@@ -290,18 +290,18 @@ public class ExperimentTaskController {
 
         case NOT_FULLFILLED:
           experimentModelDAO.setRunningState(experimentID, RunningState.EXECUTE_NEW_TRIAL);
-          testManagerService.setExperimentRunningState(
-              experimentID, RunningState.EXECUTE_NEW_TRIAL);
+          testManagerService.setExperimentRunningState(experimentID,
+              RunningState.EXECUTE_NEW_TRIAL);
           handleExperimentState(experimentID);
 
           break;
 
         case CANNOT_BE_FULFILLED:
           experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED);
-          experimentModelDAO.setTerminatedState(
-              experimentID, BenchFlowExperimentModel.TerminatedState.FAILURE);
-          testManagerService.setExperimentTerminatedState(
-              experimentID, BenchFlowExperimentModel.TerminatedState.FAILURE);
+          experimentModelDAO.setTerminatedState(experimentID,
+              BenchFlowExperimentModel.TerminatedState.FAILURE);
+          testManagerService.setExperimentTerminatedState(experimentID,
+              BenchFlowExperimentModel.TerminatedState.FAILURE);
 
           handleExperimentState(experimentID);
 

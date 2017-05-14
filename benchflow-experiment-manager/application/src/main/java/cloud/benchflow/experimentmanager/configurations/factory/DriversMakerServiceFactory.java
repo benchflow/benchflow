@@ -15,7 +15,8 @@ import javax.ws.rs.client.Client;
  */
 public class DriversMakerServiceFactory {
 
-  @NotEmpty private String address;
+  @NotEmpty
+  private String address;
 
   @JsonProperty
   public String getAddress() {

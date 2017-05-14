@@ -45,13 +45,10 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
 
   @Rule
   public final DropwizardAppRule<BenchFlowExperimentManagerConfiguration> RULE =
-      new DropwizardAppRule<>(
-          BenchFlowExperimentManagerApplication.class,
-          "../configuration.yml",
+      new DropwizardAppRule<>(BenchFlowExperimentManagerApplication.class, "../configuration.yml",
           ConfigOverride.config("mongoDB.hostname", MONGO_CONTAINER.getIp()),
           ConfigOverride.config("mongoDB.port", String.valueOf(MONGO_CONTAINER.getExternalPort())),
-          ConfigOverride.config(
-              "minio.address",
+          ConfigOverride.config("minio.address",
               "http://" + MINIO_CONTAINER.getIp() + ":" + MINIO_CONTAINER.getExternalPort()),
           ConfigOverride.config("minio.accessKey", MINIO_ACCESS_KEY),
           ConfigOverride.config("minio.secretKey", MINIO_SECRET_KEY),
@@ -59,7 +56,8 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
           ConfigOverride.config("testManager.address", TEST_ADDRESS),
           ConfigOverride.config("faban.address", TEST_ADDRESS));
 
-  @Rule public WireMockRule wireMockRule = new WireMockRule(TEST_PORT);
+  @Rule
+  public WireMockRule wireMockRule = new WireMockRule(TEST_PORT);
 
   private String experimentID = TestConstants.BENCHFLOW_EXPERIMENT_ID;
   private MinioService minioServiceSpy;
@@ -74,9 +72,8 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
     fabanClientSpy = Mockito.spy(BenchFlowExperimentManagerApplication.getFabanClient());
     BenchFlowExperimentManagerApplication.setFabanClient(fabanClientSpy);
 
-    executorService =
-        BenchFlowExperimentManagerApplication.getExperimentTaskController()
-            .getExperimentTaskExecutorService();
+    executorService = BenchFlowExperimentManagerApplication.getExperimentTaskController()
+        .getExperimentTaskExecutorService();
   }
 
   @Test
@@ -84,66 +81,51 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
 
     // make sure experiment has been saved to minio
     minioServiceSpy.saveExperimentDefinition(experimentID, MinioTestData.getExperimentDefinition());
-    minioServiceSpy.saveExperimentDeploymentDescriptor(
-        experimentID, MinioTestData.getDeploymentDescriptor());
-    minioServiceSpy.saveExperimentBPMNModel(
-        experimentID,
-        MinioTestData.BPM_MODEL_11_PARALLEL_NAME,
+    minioServiceSpy.saveExperimentDeploymentDescriptor(experimentID,
+        MinioTestData.getDeploymentDescriptor());
+    minioServiceSpy.saveExperimentBPMNModel(experimentID, MinioTestData.BPM_MODEL_11_PARALLEL_NAME,
         MinioTestData.get11ParallelStructuredModel());
 
     // make sure also drivers-maker benchmark is returned
-    Mockito.doReturn(MinioTestData.getGeneratedBenchmark())
-        .when(minioServiceSpy)
+    Mockito.doReturn(MinioTestData.getGeneratedBenchmark()).when(minioServiceSpy)
         .getDriversMakerGeneratedBenchmark(Mockito.anyString(), Mockito.anyLong());
 
     // make sure also faban configuration file is returned
-    Mockito.doReturn(MinioTestData.getFabanConfiguration())
-        .when(minioServiceSpy)
-        .getDriversMakerGeneratedFabanConfiguration(
-            Mockito.anyString(), Mockito.anyLong(), Mockito.anyLong());
+    Mockito.doReturn(MinioTestData.getFabanConfiguration()).when(minioServiceSpy)
+        .getDriversMakerGeneratedFabanConfiguration(Mockito.anyString(), Mockito.anyLong(),
+            Mockito.anyLong());
 
     Mockito.doReturn(new DeployStatus(201)).when(fabanClientSpy).deploy(Mockito.any());
 
     RunId fabanRunId = new RunId("test.faban-id");
 
-    Mockito.doReturn(fabanRunId)
-        .when(fabanClientSpy)
-        .submit(Mockito.anyString(), Mockito.anyString(), Mockito.any(File.class));
+    Mockito.doReturn(fabanRunId).when(fabanClientSpy).submit(Mockito.anyString(),
+        Mockito.anyString(), Mockito.any(File.class));
 
-    Mockito.doReturn(new RunStatus("COMPLETED", fabanRunId))
-        .when(fabanClientSpy)
+    Mockito.doReturn(new RunStatus("COMPLETED", fabanRunId)).when(fabanClientSpy)
         .status(fabanRunId);
 
     String trialID = experimentID + BenchFlowConstants.MODEL_ID_DELIMITER + 1;
 
     // Drivers Maker Stub
-    stubFor(
-        post(urlEqualTo(DriversMakerService.GENERATE_BENCHMARK_PATH))
-            .willReturn(aResponse().withStatus(Response.Status.OK.getStatusCode())));
+    stubFor(post(urlEqualTo(DriversMakerService.GENERATE_BENCHMARK_PATH))
+        .willReturn(aResponse().withStatus(Response.Status.OK.getStatusCode())));
 
     // Test Manager Trial Status Stub
-    stubFor(
-        put(urlEqualTo(
-                BenchFlowConstants.getPathFromTrialID(trialID)
-                    + BenchFlowTestManagerService.TRIAL_STATUS_PATH))
+    stubFor(put(urlEqualTo(BenchFlowConstants.getPathFromTrialID(trialID)
+        + BenchFlowTestManagerService.TRIAL_STATUS_PATH))
             .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
 
     // Test Manager Experiment State Stub
-    stubFor(
-        put(urlEqualTo(
-                BenchFlowConstants.getPathFromExperimentID(experimentID)
-                    + BenchFlowTestManagerService.EXPERIMENT_STATE_PATH))
+    stubFor(put(urlEqualTo(BenchFlowConstants.getPathFromExperimentID(experimentID)
+        + BenchFlowTestManagerService.EXPERIMENT_STATE_PATH))
             .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
 
     Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
 
-    Response response =
-        client
-            .target(String.format("http://localhost:%d", RULE.getLocalPort()))
-            .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
-            .path(BenchFlowExperimentResource.RUN_ACTION_PATH)
-            .request()
-            .post(null);
+    Response response = client.target(String.format("http://localhost:%d", RULE.getLocalPort()))
+        .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
+        .path(BenchFlowExperimentResource.RUN_ACTION_PATH).request().post(null);
 
     Assert.assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
 
@@ -154,10 +136,10 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
     // wait long enough for tasks to start to be executed
     executorService.awaitTermination(2, TimeUnit.SECONDS);
 
-    Assert.assertEquals(
-        BenchFlowExperimentState.TERMINATED, experimentModelDAO.getExperimentState(experimentID));
-    Assert.assertEquals(
-        TerminatedState.COMPLETED, experimentModelDAO.getTerminatedState(experimentID));
+    Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
+        experimentModelDAO.getExperimentState(experimentID));
+    Assert.assertEquals(TerminatedState.COMPLETED,
+        experimentModelDAO.getTerminatedState(experimentID));
   }
 
   @Test
@@ -167,13 +149,9 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
 
     Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
 
-    Response response =
-        client
-            .target(String.format("http://localhost:%d", RULE.getLocalPort()))
-            .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
-            .path(BenchFlowExperimentResource.RUN_ACTION_PATH)
-            .request()
-            .post(null);
+    Response response = client.target(String.format("http://localhost:%d", RULE.getLocalPort()))
+        .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
+        .path(BenchFlowExperimentResource.RUN_ACTION_PATH).request().post(null);
 
     Assert.assertEquals(Response.Status.PRECONDITION_FAILED.getStatusCode(), response.getStatus());
   }

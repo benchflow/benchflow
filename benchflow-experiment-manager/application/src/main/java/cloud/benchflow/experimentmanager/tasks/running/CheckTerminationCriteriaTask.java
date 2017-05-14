@@ -43,8 +43,6 @@ public class CheckTerminationCriteriaTask
   }
 
   public enum TerminationCriteriaResult {
-    NOT_FULLFILLED,
-    FULFILLED,
-    CANNOT_BE_FULFILLED
+    NOT_FULLFILLED, FULFILLED, CANNOT_BE_FULFILLED
   }
 }

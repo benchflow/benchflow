@@ -35,11 +35,8 @@ public class BenchFlowExperimentModelDAO extends AbstractDAO {
 
     logger.info("getExperimentModel: " + experimentID);
 
-    return datastore
-        .createQuery(BenchFlowExperimentModel.class)
-        .field(ID_FIELD_NAME)
-        .equal(experimentID)
-        .get();
+    return datastore.createQuery(BenchFlowExperimentModel.class).field(ID_FIELD_NAME)
+        .equal(experimentID).get();
   }
 
   public synchronized BenchFlowExperimentState getExperimentState(String experimentID)
@@ -56,8 +53,8 @@ public class BenchFlowExperimentModelDAO extends AbstractDAO {
     return experimentModel.getState();
   }
 
-  public synchronized BenchFlowExperimentState setExperimentState(
-      String experimentID, BenchFlowExperimentState state) {
+  public synchronized BenchFlowExperimentState setExperimentState(String experimentID,
+      BenchFlowExperimentState state) {
 
     logger.info("setExperimentRunningState: " + experimentID + " to " + state.name());
 
@@ -88,8 +85,8 @@ public class BenchFlowExperimentModelDAO extends AbstractDAO {
     return experimentModel.getRunningState();
   }
 
-  public synchronized BenchFlowExperimentState setRunningState(
-      String experimentID, RunningState state) {
+  public synchronized BenchFlowExperimentState setRunningState(String experimentID,
+      RunningState state) {
 
     logger.info("setRunningState: " + experimentID + " state: " + state.name());
 

@@ -9,7 +9,8 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 public class BenchFlowEnvironmentFactory {
 
-  @NotEmpty private String configPath;
+  @NotEmpty
+  private String configPath;
 
   @JsonProperty("config.yml")
   public String getConfigPath() {

@@ -56,12 +56,9 @@ public class TaskExecutorFactory {
     int cpus = Runtime.getRuntime().availableProcessors();
 
     // default configuration with threadPoolSize == 1
-    return environment
-        .lifecycle()
-        .executorService("task-%d", new DaemonThreadFactory())
+    return environment.lifecycle().executorService("task-%d", new DaemonThreadFactory())
         .workQueue(new SynchronousQueue<>())
-        .rejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy())
-        .build();
+        .rejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy()).build();
 
     //        return environment.lifecycle().executorService("task-%d")
     //                .minThreads(minThreads * cpus) //TODO: make base min value configurable

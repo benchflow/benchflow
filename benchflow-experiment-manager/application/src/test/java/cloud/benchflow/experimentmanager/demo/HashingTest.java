@@ -26,10 +26,8 @@ public class HashingTest {
     System.out.println("Minio ID: " + minioExperimentID);
     System.out.println("Hashed Minio ID: " + Hashing.hashKey(minioExperimentID));
 
-    System.out.println(
-        "test: "
-            + Hashing.hashKey(
-                "BenchFlow.ParallelMultiple11Activiti5210TestMultipleExploreUsers-2"
-                    .replace(MODEL_ID_DELIMITER, MINIO_ID_DELIMITER)));
+    System.out.println("test: "
+        + Hashing.hashKey("BenchFlow.ParallelMultiple11Activiti5210TestMultipleExploreUsers-2"
+            .replace(MODEL_ID_DELIMITER, MINIO_ID_DELIMITER)));
   }
 }

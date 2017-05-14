@@ -39,7 +39,8 @@ public class FabanServiceFactory {
     this.password = password;
   }
 
-  @NotEmpty private String address;
+  @NotEmpty
+  private String address;
 
   @JsonProperty
   public String getAddress() {
@@ -51,7 +52,8 @@ public class FabanServiceFactory {
     this.address = address;
   }
 
-  @NotNull private int submitRetries;
+  @NotNull
+  private int submitRetries;
 
   @JsonProperty
   public int getSubmitRetries() {

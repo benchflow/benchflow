@@ -18,7 +18,8 @@ import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MOD
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-13 */
 public class BenchFlowExperimentResourceTest {
 
-  @Rule public ExpectedException exception = ExpectedException.none();
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
 
   private MinioService minioMock = Mockito.mock(MinioService.class);
   private BenchFlowExperimentModelDAO experimentModelDAOMock =
@@ -30,9 +31,8 @@ public class BenchFlowExperimentResourceTest {
 
   @Before
   public void setUp() throws Exception {
-    experimentResource =
-        new BenchFlowExperimentResource(
-            minioMock, experimentModelDAOMock, experimentTaskControllerMock);
+    experimentResource = new BenchFlowExperimentResource(minioMock, experimentModelDAOMock,
+        experimentTaskControllerMock);
   }
 
   @Test

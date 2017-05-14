@@ -105,19 +105,17 @@ public class BenchFlowExperimentManagerApplication
     logger.info("initialize");
 
     // Dropwizard Template Config
-    bootstrap.addBundle(
-        new TemplateConfigBundle(
-            new TemplateConfigBundleConfiguration().resourceIncludePath("/app")));
+    bootstrap.addBundle(new TemplateConfigBundle(
+        new TemplateConfigBundleConfiguration().resourceIncludePath("/app")));
 
     // Dropwizard Swagger
-    bootstrap.addBundle(
-        new SwaggerBundle<BenchFlowExperimentManagerConfiguration>() {
-          @Override
-          protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(
-              BenchFlowExperimentManagerConfiguration configuration) {
-            return configuration.getSwagger();
-          }
-        });
+    bootstrap.addBundle(new SwaggerBundle<BenchFlowExperimentManagerConfiguration>() {
+      @Override
+      protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(
+          BenchFlowExperimentManagerConfiguration configuration) {
+        return configuration.getSwagger();
+      }
+    });
   }
 
   @Override
@@ -126,10 +124,8 @@ public class BenchFlowExperimentManagerApplication
 
     logger.info("run");
 
-    Client client =
-        new JerseyClientBuilder(environment)
-            .using(configuration.getJerseyClientConfiguration())
-            .build(environment.getName());
+    Client client = new JerseyClientBuilder(environment)
+        .using(configuration.getJerseyClientConfiguration()).build(environment.getName());
 
     MongoClient mongoClient = configuration.getMongoDBFactory().build();
 

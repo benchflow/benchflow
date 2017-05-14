@@ -28,11 +28,11 @@ public class TrialModelDAO extends AbstractDAO {
     setTrialStatus(trialID, RunStatus.Code.STARTED);
   }
 
-  public synchronized void setFabanTrialID(
-      String experimentID, long trialNumber, String fabanRunID) {
+  public synchronized void setFabanTrialID(String experimentID, long trialNumber,
+      String fabanRunID) {
 
-    logger.info(
-        "setFabanTrialID: " + experimentID + " trial " + trialNumber + " with " + fabanRunID);
+    logger
+        .info("setFabanTrialID: " + experimentID + " trial " + trialNumber + " with " + fabanRunID);
 
     TrialModel trialModel = getTrialModel(experimentID, trialNumber);
 
@@ -97,10 +97,7 @@ public class TrialModelDAO extends AbstractDAO {
 
     logger.info("getTrialModel: " + trialID);
 
-    return datastore
-        .createQuery(TrialModel.class)
-        .field(TrialModel.ID_FIELD_NAME)
-        .equal(trialID)
+    return datastore.createQuery(TrialModel.class).field(TrialModel.ID_FIELD_NAME).equal(trialID)
         .get();
   }
 

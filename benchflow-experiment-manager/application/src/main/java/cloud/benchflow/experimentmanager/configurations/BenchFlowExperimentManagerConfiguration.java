@@ -14,7 +14,9 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   // see http://www.dropwizard.io/1.0.6/docs/manual/core.html#configuration
 
   // Jersey Client Configuration
-  @Valid @NotNull private JerseyClientConfiguration jerseyClient = new JerseyClientConfiguration();
+  @Valid
+  @NotNull
+  private JerseyClientConfiguration jerseyClient = new JerseyClientConfiguration();
 
   @JsonProperty("jerseyClient")
   public JerseyClientConfiguration getJerseyClientConfiguration() {
@@ -27,7 +29,8 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   }
 
   // Swagger Configuration
-  @Valid @NotNull
+  @Valid
+  @NotNull
   private final SwaggerBundleConfiguration swagger = new SwaggerBundleConfiguration();
 
   @JsonProperty("swagger")
@@ -36,7 +39,9 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   }
 
   // BenchFlow Environment Configuration
-  @Valid @NotNull @JsonProperty
+  @Valid
+  @NotNull
+  @JsonProperty
   private BenchFlowEnvironmentFactory benchFlowEnvironmentFactory =
       new BenchFlowEnvironmentFactory();
 
@@ -52,7 +57,9 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   }
 
   // MongoDB Configuration
-  @Valid @NotNull private MongoDBFactory mongoDBFactory = new MongoDBFactory();
+  @Valid
+  @NotNull
+  private MongoDBFactory mongoDBFactory = new MongoDBFactory();
 
   @JsonProperty("mongoDB")
   public MongoDBFactory getMongoDBFactory() {
@@ -65,7 +72,9 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   }
 
   // Minio Service
-  @Valid @NotNull @JsonProperty
+  @Valid
+  @NotNull
+  @JsonProperty
   private MinioServiceFactory minioServiceFactory = new MinioServiceFactory();
 
   @JsonProperty("minio")
@@ -79,7 +88,9 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   }
 
   // Faban
-  @Valid @NotNull private FabanServiceFactory fabanServiceFactory = new FabanServiceFactory();
+  @Valid
+  @NotNull
+  private FabanServiceFactory fabanServiceFactory = new FabanServiceFactory();
 
   @JsonProperty("faban")
   public FabanServiceFactory getFabanServiceFactory() {
@@ -92,7 +103,8 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   }
 
   // Drivers Maker
-  @Valid @NotNull
+  @Valid
+  @NotNull
   private DriversMakerServiceFactory driversMakerServiceFactory = new DriversMakerServiceFactory();
 
   @JsonProperty("driversMaker")
@@ -106,7 +118,8 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   }
 
   // Performance-Test-Manager Service
-  @Valid @NotNull
+  @Valid
+  @NotNull
   private TestManagerServiceFactory TestManagerServiceFactory = new TestManagerServiceFactory();
 
   @JsonProperty("testManager")
@@ -120,7 +133,8 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   }
 
   // Experiment Task Executor
-  @Valid @NotNull
+  @Valid
+  @NotNull
   private TaskExecutorFactory experimentTaskExecutorServiceFactory = new TaskExecutorFactory();
 
   @JsonProperty("experimentTaskExecutor")
@@ -134,7 +148,8 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   }
 
   // Trial Task Executor
-  @Valid @NotNull
+  @Valid
+  @NotNull
   private TaskExecutorFactory trialTaskExecutorServiceFactory = new TaskExecutorFactory();
 
   @JsonProperty("trialTaskExecutor")

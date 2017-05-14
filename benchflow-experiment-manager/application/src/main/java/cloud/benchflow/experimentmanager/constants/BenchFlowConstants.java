@@ -34,15 +34,10 @@ public class BenchFlowConstants {
   public static final String DEPLOYMENT_DESCRIPTOR_FILE_NAME =
       DEPLOYMENT_DESCRIPTOR_NAME + YAML_EXTENSION;
 
-  public static String getExperimentID(
-      String username, String testName, int testNumber, int experimentNumber) {
-    return username
-        + MODEL_ID_DELIMITER
-        + testName
-        + MODEL_ID_DELIMITER
-        + testNumber
-        + MODEL_ID_DELIMITER
-        + experimentNumber;
+  public static String getExperimentID(String username, String testName, int testNumber,
+      int experimentNumber) {
+    return username + MODEL_ID_DELIMITER + testName + MODEL_ID_DELIMITER + testNumber
+        + MODEL_ID_DELIMITER + experimentNumber;
   }
 
   public static String getPathFromExperimentID(String experimentID) {
@@ -53,15 +48,8 @@ public class BenchFlowConstants {
     String testNumber = experimentIDArray[2];
     String experimentNumber = experimentIDArray[3];
 
-    return VERSION_1_PATH
-        + USERS_PATH
-        + username
-        + TESTS_PATH
-        + testName
-        + "/"
-        + testNumber
-        + EXPERIMENTS_PATH
-        + experimentNumber;
+    return VERSION_1_PATH + USERS_PATH + username + TESTS_PATH + testName + "/" + testNumber
+        + EXPERIMENTS_PATH + experimentNumber;
   }
 
   public static String getPathFromTrialID(String trialID) {
@@ -73,17 +61,8 @@ public class BenchFlowConstants {
     String experimentNumber = trialIDArray[3];
     String trialNumber = trialIDArray[4];
 
-    return VERSION_1_PATH
-        + USERS_PATH
-        + username
-        + TESTS_PATH
-        + testName
-        + "/"
-        + testNumber
-        + EXPERIMENTS_PATH
-        + experimentNumber
-        + TRIALS_PATH
-        + trialNumber;
+    return VERSION_1_PATH + USERS_PATH + username + TESTS_PATH + testName + "/" + testNumber
+        + EXPERIMENTS_PATH + experimentNumber + TRIALS_PATH + trialNumber;
   }
 
   public static int getTrialNumberFromTrialID(String trialID) {

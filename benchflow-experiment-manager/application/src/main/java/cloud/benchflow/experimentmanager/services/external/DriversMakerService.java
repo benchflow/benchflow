@@ -30,14 +30,8 @@ public class DriversMakerService {
 
   public void generateBenchmark(String experimentName, long experimentNumber, int nTrials) {
 
-    logger.info(
-        "generateBenchmark for "
-            + experimentName
-            + MODEL_ID_DELIMITER
-            + experimentNumber
-            + " with "
-            + nTrials
-            + " trials.");
+    logger.info("generateBenchmark for " + experimentName + MODEL_ID_DELIMITER + experimentNumber
+        + " with " + nTrials + " trials.");
 
     // TODO - return result as a list of IDs
 
@@ -46,11 +40,8 @@ public class DriversMakerService {
     body.setExperimentNumber(experimentNumber);
     body.setTrials(nTrials);
 
-    Response response =
-        driversMakerTarget
-            .path(GENERATE_BENCHMARK_PATH)
-            .request()
-            .post(Entity.entity(body, MediaType.APPLICATION_JSON));
+    Response response = driversMakerTarget.path(GENERATE_BENCHMARK_PATH).request()
+        .post(Entity.entity(body, MediaType.APPLICATION_JSON));
 
     if (response.getStatus() != Response.Status.OK.getStatusCode()) {
 
@@ -58,9 +49,8 @@ public class DriversMakerService {
       throw new BenchmarkGenerationException("Error in benchmark generation", response.getStatus());
     }
 
-    logger.info(
-        "generateBenchmark: generated Benchmark with response: "
-            + response.readEntity(String.class));
+    logger.info("generateBenchmark: generated Benchmark with response: "
+        + response.readEntity(String.class));
   }
 
   private static class MakeDriverRequestBody {

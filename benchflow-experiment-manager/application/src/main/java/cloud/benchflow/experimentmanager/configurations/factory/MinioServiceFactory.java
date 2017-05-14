@@ -13,7 +13,8 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 public class MinioServiceFactory {
 
-  @NotEmpty private String address;
+  @NotEmpty
+  private String address;
 
   @JsonProperty
   public String getAddress() {
@@ -25,7 +26,8 @@ public class MinioServiceFactory {
     this.address = address;
   }
 
-  @NotEmpty private String accessKey;
+  @NotEmpty
+  private String accessKey;
 
   @JsonProperty
   public String getAccessKey() {
@@ -37,7 +39,8 @@ public class MinioServiceFactory {
     this.accessKey = accessKey;
   }
 
-  @NotEmpty private String secretKey;
+  @NotEmpty
+  private String secretKey;
 
   @JsonProperty
   public String getSecretKey() {

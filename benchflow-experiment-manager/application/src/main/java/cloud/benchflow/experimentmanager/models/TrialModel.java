@@ -8,17 +8,14 @@ import java.util.Date;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-03-23 */
 @Entity
-@Indexes({
-  @Index(
-    options = @IndexOptions(),
-    fields = {@Field(value = "hashedID", type = IndexType.HASHED)}
-  )
-})
+@Indexes({@Index(options = @IndexOptions(),
+    fields = {@Field(value = "hashedID", type = IndexType.HASHED)})})
 public class TrialModel {
 
   public static final String ID_FIELD_NAME = "id";
   public static final String HASHED_ID_FIELD_NAME = "hashedID";
-  @Id private String id;
+  @Id
+  private String id;
   // used for potential sharding in the future
   private String hashedID;
   private String fabanRunID;

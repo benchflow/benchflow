@@ -45,8 +45,7 @@ public class BenchFlowExperimentResource {
   }
 
   // only used for testing with mocks
-  public BenchFlowExperimentResource(
-      MinioService minio,
+  public BenchFlowExperimentResource(MinioService minio,
       BenchFlowExperimentModelDAO experimentModelDAO,
       ExperimentTaskController experimentTaskController) {
     this.minio = minio;
@@ -56,25 +55,21 @@ public class BenchFlowExperimentResource {
 
   @POST
   @Path("/run")
-  public void runBenchFlowExperiment(
-      @PathParam("username") String username,
-      @PathParam("testName") String testName,
-      @PathParam("testNumber") int testNumber,
+  public void runBenchFlowExperiment(@PathParam("username") String username,
+      @PathParam("testName") String testName, @PathParam("testNumber") int testNumber,
       @PathParam("experimentNumber") int experimentNumber) {
 
     String experimentID =
         BenchFlowConstants.getExperimentID(username, testName, testNumber, experimentNumber);
 
-    logger.info(
-        "request received: POST "
-            + BenchFlowConstants.getPathFromExperimentID(experimentID)
-            + RUN_ACTION_PATH);
+    logger.info("request received: POST " + BenchFlowConstants.getPathFromExperimentID(experimentID)
+        + RUN_ACTION_PATH);
 
     // check that the experiment exists
     if (!minio.isValidExperimentID(experimentID)) {
       logger.info("invalid experimentID: " + experimentID);
-      throw new WebApplicationException(
-          BenchFlowConstants.INVALID_EXPERIMENT_ID_MESSAGE, Response.Status.PRECONDITION_FAILED);
+      throw new WebApplicationException(BenchFlowConstants.INVALID_EXPERIMENT_ID_MESSAGE,
+          Response.Status.PRECONDITION_FAILED);
     }
 
     experimentModelDAO.addExperiment(experimentID);
@@ -86,10 +81,8 @@ public class BenchFlowExperimentResource {
   @GET
   @Path("/state")
   @Produces(MediaType.APPLICATION_JSON)
-  public BenchFlowExperimentStateResponse getExperimentState(
-      @PathParam("username") String username,
-      @PathParam("testName") String testName,
-      @PathParam("testNumber") int testNumber,
+  public BenchFlowExperimentStateResponse getExperimentState(@PathParam("username") String username,
+      @PathParam("testName") String testName, @PathParam("testNumber") int testNumber,
       @PathParam("experimentNumber") int experimentNumber) {
 
     String experimentID =
@@ -105,12 +98,8 @@ public class BenchFlowExperimentResource {
       return new BenchFlowExperimentStateResponse(state);
 
     } catch (BenchFlowExperimentIDDoesNotExistException e) {
-      logger.error(
-          BenchFlowConstants.INVALID_EXPERIMENT_ID_MESSAGE
-              + ": "
-              + experimentID
-              + ": "
-              + e.getMessage());
+      logger.error(BenchFlowConstants.INVALID_EXPERIMENT_ID_MESSAGE + ": " + experimentID + ": "
+          + e.getMessage());
       throw new WebApplicationException(BenchFlowConstants.INVALID_EXPERIMENT_ID_MESSAGE);
     }
   }
@@ -119,22 +108,12 @@ public class BenchFlowExperimentResource {
   @Path("/state")
   @Consumes(MediaType.APPLICATION_JSON)
   public BenchFlowExperimentStateResponse changeExperimentState(
-      @PathParam("username") String username,
-      @PathParam("testName") String testName,
-      @PathParam("testNumber") int testNumber,
-      @PathParam("experimentNumber") int experimentNumber,
+      @PathParam("username") String username, @PathParam("testName") String testName,
+      @PathParam("testNumber") int testNumber, @PathParam("experimentNumber") int experimentNumber,
       @NotNull @Valid BenchFlowExperimentStateRequest stateRequest) {
 
-    logger.info(
-        "PUT /"
-            + username
-            + "/"
-            + testName
-            + "/"
-            + testNumber
-            + "/"
-            + experimentNumber
-            + ACTION_PATH);
+    logger.info("PUT /" + username + "/" + testName + "/" + testNumber + "/" + experimentNumber
+        + ACTION_PATH);
 
     String experimentID =
         BenchFlowConstants.getExperimentID(username, testName, testNumber, experimentNumber);

@@ -8,7 +8,9 @@ import javax.validation.constraints.NotNull;
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
 public class SubmitTrialStatusRequest {
 
-  @NotNull @JsonProperty private RunStatus.Code status;
+  @NotNull
+  @JsonProperty
+  private RunStatus.Code status;
 
   public SubmitTrialStatusRequest() {}
 

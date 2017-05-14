@@ -12,8 +12,7 @@ public class BenchFlowConstantsTest {
     String trialID =
         TestConstants.BENCHFLOW_EXPERIMENT_ID + BenchFlowConstants.MODEL_ID_DELIMITER + 1;
 
-    Assert.assertEquals(
-        TestConstants.BENCHFLOW_EXPERIMENT_ID,
+    Assert.assertEquals(TestConstants.BENCHFLOW_EXPERIMENT_ID,
         BenchFlowConstants.getExperimentIDFromTrialID(trialID));
   }
 }

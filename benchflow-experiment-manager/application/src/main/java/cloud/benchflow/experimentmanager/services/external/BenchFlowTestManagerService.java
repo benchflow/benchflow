@@ -39,12 +39,9 @@ public class BenchFlowTestManagerService {
     SubmitTrialStatusRequest trialStatusRequest = new SubmitTrialStatusRequest();
     trialStatusRequest.setStatus(statusCode);
 
-    Response response =
-        testManagerTarget
-            .path(BenchFlowConstants.getPathFromTrialID(trialID))
-            .path(TRIAL_STATUS_PATH)
-            .request()
-            .put(Entity.entity(trialStatusRequest, MediaType.APPLICATION_JSON));
+    Response response = testManagerTarget.path(BenchFlowConstants.getPathFromTrialID(trialID))
+        .path(TRIAL_STATUS_PATH).request()
+        .put(Entity.entity(trialStatusRequest, MediaType.APPLICATION_JSON));
 
     if (response.getStatus() != Response.Status.NO_CONTENT.getStatusCode()) {
 
@@ -66,14 +63,11 @@ public class BenchFlowTestManagerService {
     setExperimentState(experimentID, stateRequest);
   }
 
-  public void setExperimentTerminatedState(
-      String experimentID, BenchFlowExperimentModel.TerminatedState terminatedState) {
+  public void setExperimentTerminatedState(String experimentID,
+      BenchFlowExperimentModel.TerminatedState terminatedState) {
 
-    logger.info(
-        "setExperimentRunningState for "
-            + experimentID
-            + " terminatedState: "
-            + terminatedState.name());
+    logger.info("setExperimentRunningState for " + experimentID + " terminatedState: "
+        + terminatedState.name());
 
     BenchFlowExperimentStateRequest stateRequest =
         new BenchFlowExperimentStateRequest(BenchFlowExperimentState.TERMINATED, terminatedState);
@@ -81,15 +75,12 @@ public class BenchFlowTestManagerService {
     setExperimentState(experimentID, stateRequest);
   }
 
-  private void setExperimentState(
-      String experimentID, BenchFlowExperimentStateRequest stateRequest) {
+  private void setExperimentState(String experimentID,
+      BenchFlowExperimentStateRequest stateRequest) {
 
-    Response response =
-        testManagerTarget
-            .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
-            .path(EXPERIMENT_STATE_PATH)
-            .request()
-            .put(Entity.entity(stateRequest, MediaType.APPLICATION_JSON));
+    Response response = testManagerTarget
+        .path(BenchFlowConstants.getPathFromExperimentID(experimentID)).path(EXPERIMENT_STATE_PATH)
+        .request().put(Entity.entity(stateRequest, MediaType.APPLICATION_JSON));
 
     if (response.getStatus() != Response.Status.NO_CONTENT.getStatusCode()) {
       logger.error("setExperimentRunningState: error connecting - " + response.getStatus());

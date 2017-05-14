@@ -46,11 +46,8 @@ public class ExecuteTrial {
     }
   }
 
-  public static TrialStatus executeTrial(
-      String trialID,
-      TrialModelDAO trialModelDAO,
-      MinioService minioService,
-      FabanClient fabanClient) {
+  public static TrialStatus executeTrial(String trialID, TrialModelDAO trialModelDAO,
+      MinioService minioService, FabanClient fabanClient) {
 
     try {
 
@@ -71,15 +68,12 @@ public class ExecuteTrial {
 
       int trialNumber = BenchFlowConstants.getTrialNumberFromTrialID(trialID);
 
-      java.nio.file.Path fabanConfigPath =
-          Paths.get(BenchFlowConstants.TEMP_DIR)
-              .resolve(experimentID)
-              .resolve(String.valueOf(trialNumber))
-              .resolve(BenchFlowConstants.FABAN_CONFIGURATION_FILENAME);
+      java.nio.file.Path fabanConfigPath = Paths.get(BenchFlowConstants.TEMP_DIR)
+          .resolve(experimentID).resolve(String.valueOf(trialNumber))
+          .resolve(BenchFlowConstants.FABAN_CONFIGURATION_FILENAME);
 
-      InputStream configInputStream =
-          minioService.getDriversMakerGeneratedFabanConfiguration(
-              driversMakerExperimentID, experimentNumber, trialNumber);
+      InputStream configInputStream = minioService.getDriversMakerGeneratedFabanConfiguration(
+          driversMakerExperimentID, experimentNumber, trialNumber);
       String config = IOUtils.toString(configInputStream, StandardCharsets.UTF_8);
 
       FileUtils.writeStringToFile(fabanConfigPath.toFile(), config, StandardCharsets.UTF_8);
@@ -122,8 +116,7 @@ public class ExecuteTrial {
       // TODO - is this the status we want to use? No it is a subset, should also include metrics computation status
       RunStatus status = fabanClient.status(runId);
 
-      while (status.getStatus().equals(QUEUED)
-          || status.getStatus().equals(RECEIVED)
+      while (status.getStatus().equals(QUEUED) || status.getStatus().equals(RECEIVED)
           || status.getStatus().equals(STARTED)) {
         Thread.sleep(1000);
         status = fabanClient.status(runId);
@@ -131,9 +124,7 @@ public class ExecuteTrial {
 
       return new TrialStatus(trialID, status.getStatus());
 
-    } catch (IOException
-        | InterruptedException
-        | TrialIDDoesNotExistException
+    } catch (IOException | InterruptedException | TrialIDDoesNotExistException
         | RunIdNotFoundException e) {
 
       // TODO - handle me properly
