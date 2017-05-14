@@ -1,10 +1,15 @@
 package cloud.benchflow.experimentmanager;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.put;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+
 import cloud.benchflow.experimentmanager.configurations.BenchFlowExperimentManagerConfiguration;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.helpers.MinioTestData;
 import cloud.benchflow.experimentmanager.helpers.TestConstants;
-import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.TerminatedState;
 import cloud.benchflow.experimentmanager.resources.BenchFlowExperimentResource;
@@ -16,26 +21,25 @@ import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.responses.DeployStatus;
 import cloud.benchflow.faban.client.responses.RunId;
 import cloud.benchflow.faban.client.responses.RunStatus;
+
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.Response;
 
 import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.core.Response;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-13 */
 public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {

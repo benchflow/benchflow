@@ -1,13 +1,15 @@
 package cloud.benchflow.experimentmanager.services.internal.dao;
 
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.getTrialID;
+
 import cloud.benchflow.experimentmanager.exceptions.TrialIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.models.TrialModel;
 import cloud.benchflow.faban.client.responses.RunStatus;
+
 import com.mongodb.MongoClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.getTrialID;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-05-07 */
 public class TrialModelDAO extends AbstractDAO {

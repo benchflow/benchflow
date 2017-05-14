@@ -5,10 +5,11 @@ import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNot
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
 import cloud.benchflow.faban.client.responses.RunStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
 public class HandleTrialResultTask implements Callable<Boolean> {

@@ -1,19 +1,20 @@
 package cloud.benchflow.experimentmanager.resources;
 
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
+
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.helpers.TestConstants;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.tasks.ExperimentTaskController;
+
+import javax.ws.rs.WebApplicationException;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
-
-import javax.ws.rs.WebApplicationException;
-
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-13 */
 public class BenchFlowExperimentResourceTest {

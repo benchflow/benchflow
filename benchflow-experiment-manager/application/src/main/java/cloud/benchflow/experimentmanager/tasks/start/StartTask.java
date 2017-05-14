@@ -1,5 +1,7 @@
 package cloud.benchflow.experimentmanager.tasks.start;
 
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+
 import cloud.benchflow.dsl.BenchFlowDSL;
 import cloud.benchflow.dsl.definition.BenchFlowExperiment;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
@@ -13,11 +15,6 @@ import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.exceptions.JarFileNotFoundException;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import scala.collection.JavaConverters;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +23,12 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import scala.collection.JavaConverters;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
 public class StartTask implements Callable<Boolean> {

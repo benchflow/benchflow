@@ -1,5 +1,10 @@
 package cloud.benchflow.experimentmanager.tasks.running.execute;
 
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+import static cloud.benchflow.faban.client.responses.RunStatus.Code.QUEUED;
+import static cloud.benchflow.faban.client.responses.RunStatus.Code.RECEIVED;
+import static cloud.benchflow.faban.client.responses.RunStatus.Code.STARTED;
+
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
@@ -12,18 +17,14 @@ import cloud.benchflow.faban.client.exceptions.FabanClientException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunId;
 import cloud.benchflow.faban.client.responses.RunStatus;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
-import static cloud.benchflow.faban.client.responses.RunStatus.Code.QUEUED;
-import static cloud.benchflow.faban.client.responses.RunStatus.Code.RECEIVED;
-import static cloud.benchflow.faban.client.responses.RunStatus.Code.STARTED;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-05-07 */
 public class ExecuteTrial {

@@ -1,18 +1,17 @@
 package cloud.benchflow.experimentmanager.services.external;
 
-import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+
 import cloud.benchflow.experimentmanager.exceptions.web.BenchmarkGenerationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 05.03.17. */
 public class DriversMakerService {

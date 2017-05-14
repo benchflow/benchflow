@@ -1,10 +1,11 @@
 package cloud.benchflow.experimentmanager.demo;
 
-import cloud.benchflow.experimentmanager.helpers.TestConstants;
-import org.junit.Test;
-
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MINIO_ID_DELIMITER;
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+
+import cloud.benchflow.experimentmanager.helpers.TestConstants;
+
+import org.junit.Test;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-13 */
 public class HashingTest {

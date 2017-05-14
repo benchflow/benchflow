@@ -1,16 +1,18 @@
 package cloud.benchflow.experimentmanager.services.internal.dao;
 
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.getTrialID;
+import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.ID_FIELD_NAME;
+
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.RunningState;
 import cloud.benchflow.experimentmanager.models.TrialModel;
+
 import com.mongodb.MongoClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.getTrialID;
-import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
-import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.ID_FIELD_NAME;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 06.03.17. */
 public class BenchFlowExperimentModelDAO extends AbstractDAO {

@@ -1,11 +1,23 @@
 package cloud.benchflow.experimentmanager.services.external;
 
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.BPMN_MODELS_FOLDER_NAME;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.FABAN_CONFIG_FILENAME;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.GENERATED_BENCHMARK_FILENAME;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MINIO_ID_DELIMITER;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.PT_PE_DEFINITION_FILE_NAME;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.TESTS_BUCKET;
+import static cloud.benchflow.experimentmanager.demo.Hashing.hashKey;
+
 import io.minio.MinioClient;
-import io.minio.errors.*;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xmlpull.v1.XmlPullParserException;
+import io.minio.errors.ErrorResponseException;
+import io.minio.errors.InsufficientDataException;
+import io.minio.errors.InternalException;
+import io.minio.errors.InvalidArgumentException;
+import io.minio.errors.InvalidBucketNameException;
+import io.minio.errors.MinioException;
+import io.minio.errors.NoResponseException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,10 +26,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.*;
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.FABAN_CONFIG_FILENAME;
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
-import static cloud.benchflow.experimentmanager.demo.Hashing.hashKey;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xmlpull.v1.XmlPullParserException;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 05.03.17. */
 public class MinioService {

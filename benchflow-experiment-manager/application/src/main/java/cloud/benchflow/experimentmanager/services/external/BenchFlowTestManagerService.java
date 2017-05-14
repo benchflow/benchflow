@@ -7,14 +7,15 @@ import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.RunningState;
 import cloud.benchflow.faban.client.responses.RunStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 05.03.17. */
 public class BenchFlowTestManagerService {

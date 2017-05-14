@@ -4,6 +4,7 @@ import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.RunningState;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
@@ -14,12 +15,15 @@ import cloud.benchflow.experimentmanager.tasks.running.HandleTrialResultTask;
 import cloud.benchflow.experimentmanager.tasks.running.ReExecuteTrialTask;
 import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.TrialStatus;
 import cloud.benchflow.experimentmanager.tasks.start.StartTask;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.*;
-
-import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.RunningState;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
 public class ExperimentTaskController {
