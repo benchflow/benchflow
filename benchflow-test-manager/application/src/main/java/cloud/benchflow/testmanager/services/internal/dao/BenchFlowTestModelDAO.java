@@ -45,15 +45,11 @@ public class BenchFlowTestModelDAO extends DAO {
     String benchFlowTestIdentifier =
         BenchFlowTestNumber.generateBenchFlowTestIdentifier(user.getUsername(), testName);
 
-    Query<BenchFlowTestNumber> query =
-        datastore
-            .createQuery(BenchFlowTestNumber.class)
-            .field(BenchFlowTestNumber.ID_FIELD_NAME)
-            .equal(benchFlowTestIdentifier);
+    Query<BenchFlowTestNumber> query = datastore.createQuery(BenchFlowTestNumber.class)
+        .field(BenchFlowTestNumber.ID_FIELD_NAME).equal(benchFlowTestIdentifier);
 
     UpdateOperations<BenchFlowTestNumber> update =
-        datastore
-            .createUpdateOperations(BenchFlowTestNumber.class)
+        datastore.createUpdateOperations(BenchFlowTestNumber.class)
             .inc(BenchFlowTestNumber.COUNTER_FIELD_NAME);
 
     BenchFlowTestNumber counter = datastore.findAndModify(query, update);
@@ -100,11 +96,8 @@ public class BenchFlowTestModelDAO extends DAO {
 
     logger.info("getTestModel: " + testID);
 
-    final Query<BenchFlowTestModel> testModelQuery =
-        datastore
-            .createQuery(BenchFlowTestModel.class)
-            .field(BenchFlowTestModel.ID_FIELD_NAME)
-            .equal(testID);
+    final Query<BenchFlowTestModel> testModelQuery = datastore.createQuery(BenchFlowTestModel.class)
+        .field(BenchFlowTestModel.ID_FIELD_NAME).equal(testID);
 
     BenchFlowTestModel benchFlowTestModel = testModelQuery.get();
 
@@ -119,11 +112,8 @@ public class BenchFlowTestModelDAO extends DAO {
 
     logger.info("testModelExists: " + testID);
 
-    final Query<BenchFlowTestModel> testModelQuery =
-        datastore
-            .createQuery(BenchFlowTestModel.class)
-            .field(BenchFlowTestModel.ID_FIELD_NAME)
-            .equal(testID);
+    final Query<BenchFlowTestModel> testModelQuery = datastore.createQuery(BenchFlowTestModel.class)
+        .field(BenchFlowTestModel.ID_FIELD_NAME).equal(testID);
 
     BenchFlowTestModel benchFlowTestModel = testModelQuery.get();
 
@@ -137,16 +127,12 @@ public class BenchFlowTestModelDAO extends DAO {
     final Query<BenchFlowTestModel> testModelQuery =
         datastore.createQuery(BenchFlowTestModel.class);
 
-    return testModelQuery
-        .asList()
-        .stream()
-        .map(BenchFlowTestModel::getId)
+    return testModelQuery.asList().stream().map(BenchFlowTestModel::getId)
         .collect(Collectors.toList());
   }
 
-  public synchronized BenchFlowTestModel.BenchFlowTestState setTestState(
-      String testID, BenchFlowTestModel.BenchFlowTestState state)
-      throws BenchFlowTestIDDoesNotExistException {
+  public synchronized BenchFlowTestModel.BenchFlowTestState setTestState(String testID,
+      BenchFlowTestModel.BenchFlowTestState state) throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("setTestState: " + testID + " : " + state.name());
 
@@ -179,9 +165,8 @@ public class BenchFlowTestModelDAO extends DAO {
     return benchFlowTestModel.getRunningState();
   }
 
-  public synchronized BenchFlowTestModel.TestRunningState setTestRunningState(
-      String testID, BenchFlowTestModel.TestRunningState state)
-      throws BenchFlowTestIDDoesNotExistException {
+  public synchronized BenchFlowTestModel.TestRunningState setTestRunningState(String testID,
+      BenchFlowTestModel.TestRunningState state) throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("setTestRunningState: " + testID + " : " + state.name());
 
@@ -204,9 +189,8 @@ public class BenchFlowTestModelDAO extends DAO {
     return benchFlowTestModel.getTerminatedState();
   }
 
-  public synchronized BenchFlowTestModel.TestTerminatedState setTestTerminatedState(
-      String testID, BenchFlowTestModel.TestTerminatedState state)
-      throws BenchFlowTestIDDoesNotExistException {
+  public synchronized BenchFlowTestModel.TestTerminatedState setTestTerminatedState(String testID,
+      BenchFlowTestModel.TestTerminatedState state) throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("setTestTerminatedState: " + testID + " : " + state.name());
 

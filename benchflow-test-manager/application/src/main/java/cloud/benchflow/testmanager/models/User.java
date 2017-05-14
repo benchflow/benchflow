@@ -8,22 +8,20 @@ import java.util.Set;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 21.02.17. */
 @Entity
-@Indexes({
-  @Index(
-    options = @IndexOptions(),
-    fields = {@Field(value = "hashUsername", type = IndexType.HASHED)}
-  )
-})
+@Indexes({@Index(options = @IndexOptions(),
+    fields = {@Field(value = "hashUsername", type = IndexType.HASHED)})})
 public class User {
 
   public static String ID_FIELD_NAME = "username";
   public static String HASHED_ID_FIELD_NAME = "hashUsername";
 
-  @Id private String username;
+  @Id
+  private String username;
 
   private String hashUsername;
 
-  @Reference private Set<BenchFlowTestModel> testModels = new HashSet<>();
+  @Reference
+  private Set<BenchFlowTestModel> testModels = new HashSet<>();
 
   public User() {
     // Empty constructor for MongoDB + Morphia

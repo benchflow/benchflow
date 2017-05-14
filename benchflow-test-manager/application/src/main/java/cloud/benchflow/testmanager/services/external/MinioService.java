@@ -38,15 +38,9 @@ public class MinioService {
         minioClient.makeBucket(TESTS_BUCKET);
       }
 
-    } catch (InvalidBucketNameException
-        | NoSuchAlgorithmException
-        | IOException
-        | InsufficientDataException
-        | InvalidKeyException
-        | NoResponseException
-        | XmlPullParserException
-        | ErrorResponseException
-        | InternalException e) {
+    } catch (InvalidBucketNameException | NoSuchAlgorithmException | IOException
+        | InsufficientDataException | InvalidKeyException | NoResponseException
+        | XmlPullParserException | ErrorResponseException | InternalException e) {
       // TODO - handle exception
       logger.error("Exception in initializeBuckets ", e);
     }
@@ -128,38 +122,21 @@ public class MinioService {
 
     logger.info("saveTestBPMNModel: " + testID + MINIO_ID_DELIMITER + modelName);
 
-    String objectName =
-        minioCompatibleID(testID)
-            + MINIO_ID_DELIMITER
-            + BPMN_MODELS_FOLDER_NAME
-            + MINIO_ID_DELIMITER
-            + modelName;
+    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER + BPMN_MODELS_FOLDER_NAME
+        + MINIO_ID_DELIMITER + modelName;
 
     putInputStreamObject(model, objectName);
   }
 
   public void copyBPMNModelForExperiment(String testID, String experimentID, String modelName) {
 
-    logger.info(
-        "copyBPMNModelForExperiment: from:"
-            + testID
-            + " to:"
-            + experimentID
-            + " model:"
-            + modelName);
+    logger.info("copyBPMNModelForExperiment: from:" + testID + " to:" + experimentID + " model:"
+        + modelName);
 
-    String testObjectID =
-        minioCompatibleID(testID)
-            + MINIO_ID_DELIMITER
-            + BPMN_MODELS_FOLDER_NAME
-            + MINIO_ID_DELIMITER
-            + modelName;
-    String experimentObjectID =
-        minioCompatibleID(experimentID)
-            + MINIO_ID_DELIMITER
-            + BPMN_MODELS_FOLDER_NAME
-            + MINIO_ID_DELIMITER
-            + modelName;
+    String testObjectID = minioCompatibleID(testID) + MINIO_ID_DELIMITER + BPMN_MODELS_FOLDER_NAME
+        + MINIO_ID_DELIMITER + modelName;
+    String experimentObjectID = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER
+        + BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER + modelName;
 
     copyObject(testObjectID, experimentObjectID);
   }
@@ -168,12 +145,8 @@ public class MinioService {
 
     logger.info("getTestBPMNModel: " + testID + MINIO_ID_DELIMITER + modelName);
 
-    String objectName =
-        minioCompatibleID(testID)
-            + MINIO_ID_DELIMITER
-            + BPMN_MODELS_FOLDER_NAME
-            + MINIO_ID_DELIMITER
-            + modelName;
+    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER + BPMN_MODELS_FOLDER_NAME
+        + MINIO_ID_DELIMITER + modelName;
 
     return getInputStreamObject(objectName);
   }
@@ -188,17 +161,15 @@ public class MinioService {
 
     try {
 
-      objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER + BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER;
+      objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER + BPMN_MODELS_FOLDER_NAME
+          + MINIO_ID_DELIMITER;
 
       for (Result<Item> item : minioClient.listObjects(TESTS_BUCKET, objectName)) {
         modelNames.add(item.get().objectName().replace(objectName, ""));
       }
 
-    } catch (MinioException
-        | XmlPullParserException
-        | NoSuchAlgorithmException
-        | InvalidKeyException
-        | IOException e) {
+    } catch (MinioException | XmlPullParserException | NoSuchAlgorithmException
+        | InvalidKeyException | IOException e) {
 
       // TODO - handle exception
       logger.error("Exception in getAllTestBPMNModels: " + objectName, e);
@@ -211,12 +182,8 @@ public class MinioService {
 
     logger.info("removeTestBPMNModel: " + testID + MINIO_ID_DELIMITER + modelName);
 
-    String objectName =
-        minioCompatibleID(testID)
-            + MINIO_ID_DELIMITER
-            + BPMN_MODELS_FOLDER_NAME
-            + MINIO_ID_DELIMITER
-            + modelName;
+    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER + BPMN_MODELS_FOLDER_NAME
+        + MINIO_ID_DELIMITER + modelName;
 
     removeObject(objectName);
   }
@@ -257,19 +224,12 @@ public class MinioService {
 
     try {
 
-      minioClient.putObject(
-          TESTS_BUCKET, objectName, inputStream, inputStream.available(), CONTENT_TYPE);
+      minioClient.putObject(TESTS_BUCKET, objectName, inputStream, inputStream.available(),
+          CONTENT_TYPE);
 
-    } catch (InvalidBucketNameException
-        | NoSuchAlgorithmException
-        | InsufficientDataException
-        | IOException
-        | NoResponseException
-        | InvalidKeyException
-        | ErrorResponseException
-        | XmlPullParserException
-        | InvalidArgumentException
-        | InternalException e) {
+    } catch (InvalidBucketNameException | NoSuchAlgorithmException | InsufficientDataException
+        | IOException | NoResponseException | InvalidKeyException | ErrorResponseException
+        | XmlPullParserException | InvalidArgumentException | InternalException e) {
       // TODO - handle exception
       logger.error("Exception in putInputStreamObject: " + objectName, e);
     }
@@ -283,15 +243,9 @@ public class MinioService {
 
       return minioClient.getObject(TESTS_BUCKET, objectName);
 
-    } catch (InvalidBucketNameException
-        | NoSuchAlgorithmException
-        | InsufficientDataException
-        | IOException
-        | InvalidKeyException
-        | NoResponseException
-        | XmlPullParserException
-        | InternalException
-        | InvalidArgumentException e) {
+    } catch (InvalidBucketNameException | NoSuchAlgorithmException | InsufficientDataException
+        | IOException | InvalidKeyException | NoResponseException | XmlPullParserException
+        | InternalException | InvalidArgumentException e) {
       // TODO - handle exception
       logger.error("Exception in getInputStreamObject: " + objectName, e);
       return null;
@@ -308,13 +262,8 @@ public class MinioService {
 
     try {
       minioClient.removeObject(TESTS_BUCKET, objectName);
-    } catch (InvalidBucketNameException
-        | NoSuchAlgorithmException
-        | InsufficientDataException
-        | IOException
-        | InvalidKeyException
-        | NoResponseException
-        | XmlPullParserException
+    } catch (InvalidBucketNameException | NoSuchAlgorithmException | InsufficientDataException
+        | IOException | InvalidKeyException | NoResponseException | XmlPullParserException
         | InternalException e) {
       // TODO - handle exception
       logger.error("Exception in removeObject: " + objectName, e);
@@ -332,24 +281,16 @@ public class MinioService {
       // minioClient.copyObject(TESTS_BUCKET, fromObjectName, TESTS_BUCKET, toObjectName);
 
       // convert to buffered input stream as the type minio returns cannot be put
-      String temp =
-          IOUtils.toString(
-              minioClient.getObject(TESTS_BUCKET, fromObjectName), StandardCharsets.UTF_8);
+      String temp = IOUtils.toString(minioClient.getObject(TESTS_BUCKET, fromObjectName),
+          StandardCharsets.UTF_8);
       InputStream tempInputStream = IOUtils.toInputStream(temp, StandardCharsets.UTF_8);
 
-      minioClient.putObject(
-          TESTS_BUCKET, toObjectName, tempInputStream, tempInputStream.available(), CONTENT_TYPE);
+      minioClient.putObject(TESTS_BUCKET, toObjectName, tempInputStream,
+          tempInputStream.available(), CONTENT_TYPE);
 
-    } catch (InvalidKeyException
-        | InvalidBucketNameException
-        | NoSuchAlgorithmException
-        | InsufficientDataException
-        | NoResponseException
-        | ErrorResponseException
-        | InternalException
-        | IOException
-        | XmlPullParserException
-        | InvalidArgumentException e) {
+    } catch (InvalidKeyException | InvalidBucketNameException | NoSuchAlgorithmException
+        | InsufficientDataException | NoResponseException | ErrorResponseException
+        | InternalException | IOException | XmlPullParserException | InvalidArgumentException e) {
       // TODO - handle exception
       logger.error("Exception in copyObject: from:" + fromObjectName + " to:" + toObjectName, e);
     }

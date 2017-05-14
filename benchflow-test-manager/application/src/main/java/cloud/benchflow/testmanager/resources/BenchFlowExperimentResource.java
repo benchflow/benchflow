@@ -42,10 +42,8 @@ public class BenchFlowExperimentResource {
   }
 
   /* used for testing */
-  public BenchFlowExperimentResource(
-      BenchFlowExperimentModelDAO experimentModelDAO,
-      BenchFlowTestTaskController testTaskController,
-      BenchFlowTestModelDAO testModelDAO) {
+  public BenchFlowExperimentResource(BenchFlowExperimentModelDAO experimentModelDAO,
+      BenchFlowTestTaskController testTaskController, BenchFlowTestModelDAO testModelDAO) {
     this.experimentModelDAO = experimentModelDAO;
     this.testTaskController = testTaskController;
     this.testModelDAO = testModelDAO;
@@ -54,22 +52,16 @@ public class BenchFlowExperimentResource {
   @PUT
   @Path("/{experimentNumber}/state")
   @Consumes(MediaType.APPLICATION_JSON)
-  public void setExperimentState(
-      @PathParam("username") String username,
-      @PathParam("testName") String testName,
-      @PathParam("testNumber") int testNumber,
+  public void setExperimentState(@PathParam("username") String username,
+      @PathParam("testName") String testName, @PathParam("testNumber") int testNumber,
       @PathParam("experimentNumber") int experimentNumber,
       @NotNull @Valid final BenchFlowExperimentStateRequest stateRequest) {
 
     String experimentID =
         BenchFlowConstants.getExperimentID(username, testName, testNumber, experimentNumber);
 
-    logger.info(
-        "request received: POST "
-            + BenchFlowConstants.getPathFromExperimentID(experimentID)
-            + STATE_PATH
-            + " : "
-            + stateRequest.getState().name());
+    logger.info("request received: POST " + BenchFlowConstants.getPathFromExperimentID(experimentID)
+        + STATE_PATH + " : " + stateRequest.getState().name());
 
     String testID = BenchFlowConstants.getTestIDFromExperimentID(experimentID);
 
@@ -86,11 +78,8 @@ public class BenchFlowExperimentResource {
     }
 
     try {
-      experimentModelDAO.setExperimentState(
-          experimentID,
-          stateRequest.getState(),
-          stateRequest.getRunningState(),
-          stateRequest.getTerminatedState());
+      experimentModelDAO.setExperimentState(experimentID, stateRequest.getState(),
+          stateRequest.getRunningState(), stateRequest.getTerminatedState());
     } catch (BenchFlowExperimentIDDoesNotExistException e) {
       throw new InvalidTrialIDWebException();
     }

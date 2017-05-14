@@ -59,9 +59,7 @@ public class BenchFlowTestResource {
   }
 
   /* used for tests */
-  public BenchFlowTestResource(
-      BenchFlowTestModelDAO testModelDAO,
-      UserDAO userDAO,
+  public BenchFlowTestResource(BenchFlowTestModelDAO testModelDAO, UserDAO userDAO,
       BenchFlowTestTaskController testTaskController) {
     this.testModelDAO = testModelDAO;
     this.userDAO = userDAO;
@@ -72,8 +70,7 @@ public class BenchFlowTestResource {
   @Path("/run")
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Produces(MediaType.APPLICATION_JSON)
-  public RunBenchFlowTestResponse runBenchFlowTest(
-      @PathParam("username") String username,
+  public RunBenchFlowTestResponse runBenchFlowTest(@PathParam("username") String username,
       @FormDataParam("benchFlowTestBundle") final InputStream benchFlowTestBundle) {
 
     logger.info(
@@ -112,9 +109,8 @@ public class BenchFlowTestResource {
 
       BenchFlowTest benchFlowTest = BenchFlowDSL.testFromYaml(testDefinitionYamlString);
 
-      InputStream deploymentDescriptorInputStream =
-          BenchFlowTestArchiveExtractor.extractDeploymentDescriptorInputStream(
-              archiveZipInputStream);
+      InputStream deploymentDescriptorInputStream = BenchFlowTestArchiveExtractor
+          .extractDeploymentDescriptorInputStream(archiveZipInputStream);
       Map<String, InputStream> bpmnModelInputStreams =
           BenchFlowTestArchiveExtractor.extractBPMNModelInputStreams(archiveZipInputStream);
 
@@ -125,13 +121,8 @@ public class BenchFlowTestResource {
       // save new test
       String testID = testModelDAO.addTestModel(benchFlowTest.name(), user);
 
-      new Thread(
-              new StartTask(
-                  testID,
-                  testDefinitionYamlString,
-                  deploymentDescriptorInputStream,
-                  bpmnModelInputStreams))
-          .start();
+      new Thread(new StartTask(testID, testDefinitionYamlString, deploymentDescriptorInputStream,
+          bpmnModelInputStreams)).start();
 
       return new RunBenchFlowTestResponse(testID);
 
@@ -145,14 +136,13 @@ public class BenchFlowTestResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   public ChangeBenchFlowTestStateResponse changeBenchFlowTestState(
-      @PathParam("username") String username,
-      @PathParam("testName") String testName,
+      @PathParam("username") String username, @PathParam("testName") String testName,
       @PathParam("testNumber") int testNumber,
       @NotNull @Valid final ChangeBenchFlowTestStateRequest stateRequest) {
 
     String testID = BenchFlowConstants.getTestID(username, testName, testNumber);
-    logger.info(
-        "request received: PUT " + BenchFlowConstants.getPathFromTestID(testID) + STATE_PATH);
+    logger
+        .info("request received: PUT " + BenchFlowConstants.getPathFromTestID(testID) + STATE_PATH);
 
     // TODO - handle the actual state change (e.g. on PE Manager)
 
@@ -172,10 +162,8 @@ public class BenchFlowTestResource {
   @Path("{testName}/{testNumber}/status")
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public BenchFlowTestModel getBenchFlowTestStatus(
-      @PathParam("username") String username,
-      @PathParam("testName") String testName,
-      @PathParam("testNumber") int testNumber) {
+  public BenchFlowTestModel getBenchFlowTestStatus(@PathParam("username") String username,
+      @PathParam("testName") String testName, @PathParam("testNumber") int testNumber) {
 
     String testID = BenchFlowConstants.getTestID(username, testName, testNumber);
 

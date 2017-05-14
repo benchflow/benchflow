@@ -50,7 +50,8 @@ public class DockerComposeIT {
   // dockerComposeRule and dockerMachine are used only when executing the local workflow
   // IMPORTANT: needs to be executed before setupDockerComposeIfLocal()
   private static final DockerMachine dockerMachine = setupDockerMachineIfLocal();
-  @ClassRule public static DockerComposeRule dockerComposeRule = setupDockerComposeIfLocal();
+  @ClassRule
+  public static DockerComposeRule dockerComposeRule = setupDockerComposeIfLocal();
 
   // this seems to happen every time an IT test is executed but the variable assignment of the above variables survive
   @BeforeClass
@@ -137,13 +138,11 @@ public class DockerComposeIT {
     if (inLocal) {
 
       //We rely on the CI env variable to detect if we are not in CI environment
-      return DockerMachine.localMachine()
-          .withAdditionalEnvironmentVariable("MONGO_TAG", MONGO_TAG)
+      return DockerMachine.localMachine().withAdditionalEnvironmentVariable("MONGO_TAG", MONGO_TAG)
           .withAdditionalEnvironmentVariable("MONGO_DATA_VOLUME", MONGO_DATA_VOLUME_PATH)
           .withAdditionalEnvironmentVariable("MINIO_TAG", MINIO_TAG)
           .withAdditionalEnvironmentVariable("MINIO_ACCESS_KEY", MINIO_ACCESS_KEY)
-          .withAdditionalEnvironmentVariable("MINIO_SECRET_KEY", MINIO_SECRET_KEY)
-          .build();
+          .withAdditionalEnvironmentVariable("MINIO_SECRET_KEY", MINIO_SECRET_KEY).build();
     }
 
     return null;
@@ -158,13 +157,9 @@ public class DockerComposeIT {
 
       // to wait for a service to be available see https://github.com/palantir/docker-compose-rule#waiting-for-a-service-to-be-available
       // can also be specified in docker compose as a health check
-      return dockerComposeRule =
-          DockerComposeRule.builder()
-              .file(LOCAL_DOCKER_COMPOSE_PATH)
-              .machine(dockerMachine)
-              .waitingForService(MONGO_NAME, HealthChecks.toHaveAllPortsOpen())
-              .waitingForService(MINIO_NAME, HealthChecks.toHaveAllPortsOpen())
-              .build();
+      return dockerComposeRule = DockerComposeRule.builder().file(LOCAL_DOCKER_COMPOSE_PATH)
+          .machine(dockerMachine).waitingForService(MONGO_NAME, HealthChecks.toHaveAllPortsOpen())
+          .waitingForService(MINIO_NAME, HealthChecks.toHaveAllPortsOpen()).build();
     }
 
     return null;
@@ -172,8 +167,8 @@ public class DockerComposeIT {
 
   // wait for a port to be available
   // true = available, false = not available after maxRetries
-  private static void waitForPortAvailabilityOrFail(
-      DockerPort port, int maxRetries, int checkIntervalInMs) throws InterruptedException {
+  private static void waitForPortAvailabilityOrFail(DockerPort port, int maxRetries,
+      int checkIntervalInMs) throws InterruptedException {
 
     while (maxRetries > 0) {
 

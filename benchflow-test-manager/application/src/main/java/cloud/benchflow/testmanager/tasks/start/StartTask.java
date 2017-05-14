@@ -39,11 +39,8 @@ public class StartTask implements Runnable {
   private final ExplorationModelDAO explorationModelDAO;
   private final BenchFlowTestTaskController testTaskController;
 
-  public StartTask(
-      String testID,
-      String testDefinitionYamlString,
-      InputStream deploymentDescriptorInputStream,
-      Map<String, InputStream> bpmnModelInputStreams) {
+  public StartTask(String testID, String testDefinitionYamlString,
+      InputStream deploymentDescriptorInputStream, Map<String, InputStream> bpmnModelInputStreams) {
 
     this.testID = testID;
     this.testDefinitionYamlString = testDefinitionYamlString;
@@ -107,19 +104,10 @@ public class StartTask implements Runnable {
 
       if (test.configuration().goal().explorationSpace().get().workload().isDefined()) {
 
-        return JavaConverters.asJavaCollectionConverter(
-                test.configuration()
-                    .goal()
-                    .explorationSpace()
-                    .get()
-                    .workload()
-                    .get()
-                    .users()
-                    .get()
-                    .values())
-            .asJavaCollection()
-            .stream()
-            .map(object -> (Integer) object)
+        return JavaConverters
+            .asJavaCollectionConverter(test.configuration().goal().explorationSpace().get()
+                .workload().get().users().get().values())
+            .asJavaCollection().stream().map(object -> (Integer) object)
             .collect(Collectors.toList());
       }
     }

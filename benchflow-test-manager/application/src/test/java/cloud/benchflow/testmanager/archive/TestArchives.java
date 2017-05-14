@@ -49,30 +49,30 @@ public class TestArchives {
   }
 
   public static String getValidTestDefinitionString() throws IOException {
-    return BenchFlowTestArchiveExtractor.extractBenchFlowTestDefinitionString(
-        getValidTestArchiveZip());
+    return BenchFlowTestArchiveExtractor
+        .extractBenchFlowTestDefinitionString(getValidTestArchiveZip());
   }
 
   public static String getValidDeploymentDescriptorString() throws IOException {
-    return BenchFlowTestArchiveExtractor.extractDeploymentDescriptorString(
-        getValidTestArchiveZip());
+    return BenchFlowTestArchiveExtractor
+        .extractDeploymentDescriptorString(getValidTestArchiveZip());
   }
 
   public static InputStream getValidTestDefinitionInputStream() throws IOException {
 
-    String testDefinitionString =
-        BenchFlowTestArchiveExtractor.extractBenchFlowTestDefinitionString(
-            getValidTestArchiveZip());
+    String testDefinitionString = BenchFlowTestArchiveExtractor
+        .extractBenchFlowTestDefinitionString(getValidTestArchiveZip());
 
-    if (testDefinitionString == null) return null;
+    if (testDefinitionString == null)
+      return null;
 
     return new ByteArrayInputStream(testDefinitionString.getBytes());
   }
 
   public static InputStream getValidDeploymentDescriptorInputStream() throws IOException {
 
-    return BenchFlowTestArchiveExtractor.extractDeploymentDescriptorInputStream(
-        getValidTestArchiveZip());
+    return BenchFlowTestArchiveExtractor
+        .extractDeploymentDescriptorInputStream(getValidTestArchiveZip());
   }
 
   public static Map<String, InputStream> getValidBPMNModels() throws IOException {

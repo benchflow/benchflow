@@ -17,7 +17,8 @@ import static org.junit.Assert.assertEquals;
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17. */
 public class UserDAOIT extends DockerComposeIT {
 
-  @Rule public ExpectedException exception = ExpectedException.none();
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
 
   private BenchFlowTestModelDAO testModelDAO;
   private UserDAO userDAO;
@@ -99,15 +100,11 @@ public class UserDAOIT extends DockerComposeIT {
 
     DBCollection collection = userDAO.getDatastore().getCollection(User.class);
 
-    collection
-        .getIndexInfo()
-        .forEach(
-            dbObject -> {
-              BasicDBObject index = (BasicDBObject) dbObject;
-              if (!index.getString("name").equals("_id_")) {
-                assertEquals(
-                    "hashed", ((DBObject) index.get("key")).get(User.HASHED_ID_FIELD_NAME));
-              }
-            });
+    collection.getIndexInfo().forEach(dbObject -> {
+      BasicDBObject index = (BasicDBObject) dbObject;
+      if (!index.getString("name").equals("_id_")) {
+        assertEquals("hashed", ((DBObject) index.get("key")).get(User.HASHED_ID_FIELD_NAME));
+      }
+    });
   }
 }

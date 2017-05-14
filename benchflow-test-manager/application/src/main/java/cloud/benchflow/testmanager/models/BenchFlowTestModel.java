@@ -16,12 +16,8 @@ import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningS
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16. */
 @Entity
-@Indexes({
-  @Index(
-    options = @IndexOptions(),
-    fields = {@Field(value = "hashedID", type = IndexType.HASHED)}
-  )
-})
+@Indexes({@Index(options = @IndexOptions(),
+    fields = {@Field(value = "hashedID", type = IndexType.HASHED)})})
 public class BenchFlowTestModel {
 
   /**
@@ -32,24 +28,32 @@ public class BenchFlowTestModel {
   public static final String ID_FIELD_NAME = "id";
 
   public static final String HASHED_ID_FIELD_NAME = "hashedID";
-  @Id private String id;
+  @Id
+  private String id;
 
   // Annotations for MongoDB + Morphia (http://mongodb.github.io/morphia/1.3/guides/annotations/#entity)
 
   //    userName.testName.testNumber.experimentNumber.trialNumber
   // used for potential sharing in the future
-  @JsonIgnore private String hashedID;
-  @Reference @JsonIgnore private User user;
-  @JsonIgnore private String name;
-  @JsonIgnore private long number;
+  @JsonIgnore
+  private String hashedID;
+  @Reference
+  @JsonIgnore
+  private User user;
+  @JsonIgnore
+  private String name;
+  @JsonIgnore
+  private long number;
   private Date start = new Date();
   private Date lastModified = new Date();
   private BenchFlowTestState state;
   private TestRunningState runningState;
   private TestTerminatedState terminatedState;
-  @Reference private TreeMap<Long, BenchFlowExperimentModel> experiments = new TreeMap<>();
+  @Reference
+  private TreeMap<Long, BenchFlowExperimentModel> experiments = new TreeMap<>();
 
-  @JsonIgnore private ExplorationModel explorationModel = new ExplorationModel();
+  @JsonIgnore
+  private ExplorationModel explorationModel = new ExplorationModel();
 
   public BenchFlowTestModel() {
     // Empty constructor for MongoDB + Morphia
@@ -61,12 +65,8 @@ public class BenchFlowTestModel {
     this.name = benchFlowTestName;
     this.number = benchFlowTestNumber;
 
-    this.id =
-        user.getUsername()
-            + MODEL_ID_DELIMITER
-            + benchFlowTestName
-            + MODEL_ID_DELIMITER
-            + benchFlowTestNumber;
+    this.id = user.getUsername() + MODEL_ID_DELIMITER + benchFlowTestName + MODEL_ID_DELIMITER
+        + benchFlowTestNumber;
     this.hashedID = this.id;
 
     this.state = START;
@@ -172,27 +172,14 @@ public class BenchFlowTestModel {
   }
 
   public enum BenchFlowTestState {
-    START,
-    READY,
-    WAITING,
-    RUNNING,
-    TERMINATED
+    START, READY, WAITING, RUNNING, TERMINATED
   }
 
   public enum TestRunningState {
-    DETERMINE_EXPLORATION_STRATEGY,
-    ADD_STORED_KNOWLEDGE,
-    DETERMINE_EXECUTE_EXPERIMENTS,
-    HANDLE_EXPERIMENT_RESULT,
-    VALIDATE_TERMINATION_CRITERIA,
-    DERIVE_PREDICTION_FUNCTION,
-    VALIDATE_PREDICTION_FUNCTION,
-    REMOVE_NON_REACHABLE_EXPERIMENTS
+    DETERMINE_EXPLORATION_STRATEGY, ADD_STORED_KNOWLEDGE, DETERMINE_EXECUTE_EXPERIMENTS, HANDLE_EXPERIMENT_RESULT, VALIDATE_TERMINATION_CRITERIA, DERIVE_PREDICTION_FUNCTION, VALIDATE_PREDICTION_FUNCTION, REMOVE_NON_REACHABLE_EXPERIMENTS
   }
 
   public enum TestTerminatedState {
-    PARTIALLY_COMPLETE,
-    COMPLETED_WITH_FAILURE,
-    GOAL_REACHED
+    PARTIALLY_COMPLETE, COMPLETED_WITH_FAILURE, GOAL_REACHED
   }
 }

@@ -10,9 +10,12 @@ import org.hibernate.validator.constraints.NotEmpty;
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17. */
 public class MinioServiceFactory {
 
-  @NotEmpty private String address;
-  @NotEmpty private String accessKey;
-  @NotEmpty private String secretKey;
+  @NotEmpty
+  private String address;
+  @NotEmpty
+  private String accessKey;
+  @NotEmpty
+  private String secretKey;
 
   @JsonProperty
   public String getAddress() {

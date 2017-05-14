@@ -12,7 +12,8 @@ import javax.ws.rs.client.Client;
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17. */
 public class ExperimentManagerServiceFactory {
 
-  @NotEmpty private String address;
+  @NotEmpty
+  private String address;
 
   @JsonProperty
   public String getAddress() {
@@ -31,13 +32,11 @@ public class ExperimentManagerServiceFactory {
    * @param environment application environment
    * @return BenchFlowExperimentManagerService
    */
-  public BenchFlowExperimentManagerService build(
-      BenchFlowTestManagerConfiguration config, Environment environment) {
+  public BenchFlowExperimentManagerService build(BenchFlowTestManagerConfiguration config,
+      Environment environment) {
 
-    Client client =
-        new JerseyClientBuilder(environment)
-            .using(config.getJerseyClientConfiguration())
-            .build(environment.getName());
+    Client client = new JerseyClientBuilder(environment)
+        .using(config.getJerseyClientConfiguration()).build(environment.getName());
 
     return new BenchFlowExperimentManagerService(client, getAddress());
   }

@@ -31,31 +31,23 @@ public class BenchFlowExperimentEndpointTest {
 
   @ClassRule
   public static final ResourceTestRule resources =
-      ResourceTestRule.builder()
-          .addResource(
-              new BenchFlowExperimentResource(
-                  experimentModelDAOMock, testTaskControllerMock, testModelDAOMock))
-          .build();
+      ResourceTestRule.builder().addResource(new BenchFlowExperimentResource(experimentModelDAOMock,
+          testTaskControllerMock, testModelDAOMock)).build();
 
   @Test
   public void submitExperimentState() throws Exception {
 
     String experimentID = TestConstants.VALID_EXPERIMENT_ID;
 
-    Mockito.doReturn(BenchFlowTestModel.BenchFlowTestState.RUNNING)
-        .when(testModelDAOMock)
+    Mockito.doReturn(BenchFlowTestModel.BenchFlowTestState.RUNNING).when(testModelDAOMock)
         .getTestState(BenchFlowConstants.getTestIDFromExperimentID(experimentID));
 
-    BenchFlowExperimentStateRequest request =
-        new BenchFlowExperimentStateRequest(
-            BenchFlowExperimentState.TERMINATED, TerminatedState.COMPLETED);
+    BenchFlowExperimentStateRequest request = new BenchFlowExperimentStateRequest(
+        BenchFlowExperimentState.TERMINATED, TerminatedState.COMPLETED);
 
     Response response =
-        resources
-            .client()
-            .target(BenchFlowConstants.getPathFromExperimentID(experimentID))
-            .path(BenchFlowExperimentResource.STATE_PATH)
-            .request()
+        resources.client().target(BenchFlowConstants.getPathFromExperimentID(experimentID))
+            .path(BenchFlowExperimentResource.STATE_PATH).request()
             .put(Entity.entity(request, MediaType.APPLICATION_JSON));
 
     Assert.assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());

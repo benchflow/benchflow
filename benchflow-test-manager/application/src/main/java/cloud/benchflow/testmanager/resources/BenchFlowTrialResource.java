@@ -41,26 +41,19 @@ public class BenchFlowTrialResource {
   @PUT
   @Path("/{trialNumber}/status")
   @Consumes(MediaType.APPLICATION_JSON)
-  public void submitTrialStatus(
-      @PathParam("username") String username,
-      @PathParam("testName") String testName,
-      @PathParam("testNumber") int testNumber,
+  public void submitTrialStatus(@PathParam("username") String username,
+      @PathParam("testName") String testName, @PathParam("testNumber") int testNumber,
       @PathParam("experimentNumber") int experimentNumber,
       @PathParam("trialNumber") int trialNumber,
       @NotNull @Valid final SubmitTrialStatusRequest statusRequest) {
 
     String experimentID =
         BenchFlowConstants.getExperimentID(username, testName, testNumber, experimentNumber);
-    String trialID =
-        BenchFlowConstants.getTrialID(
-            username, testName, testNumber, experimentNumber, trialNumber);
+    String trialID = BenchFlowConstants.getTrialID(username, testName, testNumber, experimentNumber,
+        trialNumber);
 
-    logger.info(
-        "request received: POST "
-            + BenchFlowConstants.getPathFromTrialID(trialID)
-            + STATUS_PATH
-            + " : "
-            + statusRequest.getStatus().name());
+    logger.info("request received: POST " + BenchFlowConstants.getPathFromTrialID(trialID)
+        + STATUS_PATH + " : " + statusRequest.getStatus().name());
 
     try {
       experimentModelDAO.addTrialStatus(experimentID, trialNumber, statusRequest.getStatus());

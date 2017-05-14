@@ -69,10 +69,8 @@ public class BenchFlowExperimentModelDAO extends DAO {
     logger.info("getExperiment: " + experimentID);
 
     final Query<BenchFlowExperimentModel> testModelQuery =
-        datastore
-            .createQuery(BenchFlowExperimentModel.class)
-            .field(BENCHFLOW_EXPERIMENT_ID_FIELD_NAME)
-            .equal(experimentID);
+        datastore.createQuery(BenchFlowExperimentModel.class)
+            .field(BENCHFLOW_EXPERIMENT_ID_FIELD_NAME).equal(experimentID);
 
     BenchFlowExperimentModel experimentModel = testModelQuery.get();
 
@@ -88,11 +86,8 @@ public class BenchFlowExperimentModelDAO extends DAO {
    * @param state
    * @throws BenchFlowExperimentIDDoesNotExistException
    */
-  public synchronized void setExperimentState(
-      String experimentID,
-      BenchFlowExperimentState state,
-      RunningState runningState,
-      TerminatedState terminatedState)
+  public synchronized void setExperimentState(String experimentID, BenchFlowExperimentState state,
+      RunningState runningState, TerminatedState terminatedState)
       throws BenchFlowExperimentIDDoesNotExistException {
 
     logger.info("setExperimentState: " + experimentID + " : " + state.name());
@@ -114,17 +109,11 @@ public class BenchFlowExperimentModelDAO extends DAO {
    * @param status
    * @throws BenchFlowTestIDDoesNotExistException
    */
-  public synchronized void addTrialStatus(
-      String experimentID, long trialNUmber, RunStatus.Code status)
-      throws BenchFlowExperimentIDDoesNotExistException {
+  public synchronized void addTrialStatus(String experimentID, long trialNUmber,
+      RunStatus.Code status) throws BenchFlowExperimentIDDoesNotExistException {
 
-    logger.info(
-        "addTrialStatus: "
-            + experimentID
-            + MODEL_ID_DELIMITER
-            + trialNUmber
-            + " : "
-            + status.name());
+    logger.info("addTrialStatus: " + experimentID + MODEL_ID_DELIMITER + trialNUmber + " : "
+        + status.name());
 
     final BenchFlowExperimentModel experimentModel;
 

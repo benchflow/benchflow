@@ -34,10 +34,8 @@ public class CompleteSelectionStrategy implements ExperimentSelectionStrategy {
   }
 
   // only used for testing
-  public CompleteSelectionStrategy(
-      MinioService minioService,
-      ExplorationModelDAO explorationModelDAO,
-      BenchFlowTestModelDAO testModelDAO) {
+  public CompleteSelectionStrategy(MinioService minioService,
+      ExplorationModelDAO explorationModelDAO, BenchFlowTestModelDAO testModelDAO) {
     this.minioService = minioService;
     this.explorationModelDAO = explorationModelDAO;
     this.testModelDAO = testModelDAO;
@@ -70,11 +68,9 @@ public class CompleteSelectionStrategy implements ExperimentSelectionStrategy {
 
       // generate Experiment YAML file
       return BenchFlowDSL.experimentYamlBuilderFromTestYaml(testDefinitionYamlString)
-          .numUsers(nextUserConfig)
-          .build();
+          .numUsers(nextUserConfig).build();
 
-    } catch (IOException
-        | BenchFlowTestIDDoesNotExistException
+    } catch (IOException | BenchFlowTestIDDoesNotExistException
         | BenchFlowDeserializationException e) {
       // should not happen
       // TODO - handle me

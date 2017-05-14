@@ -101,8 +101,8 @@ public class BenchFlowTestTaskController {
 
       TestRunningState testRunningState = testModelDAO.getTestRunningState(testID);
 
-      logger.info(
-          "handleTestRunningState for " + testID + " with state " + testRunningState.name());
+      logger
+          .info("handleTestRunningState for " + testID + " with state " + testRunningState.name());
 
       switch (testRunningState) {
         case DETERMINE_EXPLORATION_STRATEGY:
@@ -304,8 +304,8 @@ public class BenchFlowTestTaskController {
       } else {
 
         // update the running state
-        testModelDAO.setTestRunningState(
-            testID, BenchFlowTestModel.TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS);
+        testModelDAO.setTestRunningState(testID,
+            BenchFlowTestModel.TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS);
 
         // run the next state
         handleTestState(testID);
@@ -365,8 +365,8 @@ public class BenchFlowTestTaskController {
     }
   }
 
-  private void waitForRunningTaskToComplete(
-      String testID, Future future, TestRunningState nextState) {
+  private void waitForRunningTaskToComplete(String testID, Future future,
+      TestRunningState nextState) {
 
     try {
 

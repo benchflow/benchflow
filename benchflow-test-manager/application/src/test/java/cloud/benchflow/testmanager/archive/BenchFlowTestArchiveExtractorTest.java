@@ -16,9 +16,8 @@ public class BenchFlowTestArchiveExtractorTest {
   @Test
   public void extractBenchFlowTestDefinition() throws Exception {
 
-    String ptDefinition =
-        BenchFlowTestArchiveExtractor.extractBenchFlowTestDefinitionString(
-            TestArchives.getInValidTestArchiveZip());
+    String ptDefinition = BenchFlowTestArchiveExtractor
+        .extractBenchFlowTestDefinitionString(TestArchives.getInValidTestArchiveZip());
 
     Assert.assertNotNull(ptDefinition);
 
@@ -28,15 +27,13 @@ public class BenchFlowTestArchiveExtractorTest {
   @Test
   public void extractDeploymentDescriptor() throws Exception {
 
-    InputStream deploymentDescriptorInputStream =
-        BenchFlowTestArchiveExtractor.extractDeploymentDescriptorInputStream(
-            TestArchives.getValidTestArchiveZip());
+    InputStream deploymentDescriptorInputStream = BenchFlowTestArchiveExtractor
+        .extractDeploymentDescriptorInputStream(TestArchives.getValidTestArchiveZip());
 
     Assert.assertNotNull(deploymentDescriptorInputStream);
 
-    String deploymentDescriptorString =
-        org.apache.commons.io.IOUtils.toString(
-            deploymentDescriptorInputStream, StandardCharsets.UTF_8.name());
+    String deploymentDescriptorString = org.apache.commons.io.IOUtils
+        .toString(deploymentDescriptorInputStream, StandardCharsets.UTF_8.name());
 
     Assert.assertTrue(deploymentDescriptorString.contains("version:"));
   }
@@ -46,9 +43,8 @@ public class BenchFlowTestArchiveExtractorTest {
 
     int numberOfModels = TestArchives.BPMN_MODELS_COUNT;
 
-    Map<String, InputStream> bpmnModels =
-        BenchFlowTestArchiveExtractor.extractBPMNModelInputStreams(
-            TestArchives.getValidTestArchiveZip());
+    Map<String, InputStream> bpmnModels = BenchFlowTestArchiveExtractor
+        .extractBPMNModelInputStreams(TestArchives.getValidTestArchiveZip());
 
     Assert.assertEquals(numberOfModels, bpmnModels.size());
   }

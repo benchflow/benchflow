@@ -41,11 +41,8 @@ public class BenchFlowExperimentManagerService {
     logger.info("runBenchFlowExperiment: " + experimentID);
 
     Response runPEResponse =
-        experimentManagerTarget
-            .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
-            .path(RUN_PATH)
-            .request()
-            .post(null);
+        experimentManagerTarget.path(BenchFlowConstants.getPathFromExperimentID(experimentID))
+            .path(RUN_PATH).request().post(null);
 
     if (runPEResponse.getStatus() != Response.Status.NO_CONTENT.getStatusCode()) {
 
@@ -62,11 +59,8 @@ public class BenchFlowExperimentManagerService {
     logger.info("abortBenchFlowExperiment: " + experimentID);
 
     Response abortPEResponse =
-        experimentManagerTarget
-            .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
-            .path(ABORT_PATH)
-            .request()
-            .post(null);
+        experimentManagerTarget.path(BenchFlowConstants.getPathFromExperimentID(experimentID))
+            .path(ABORT_PATH).request().post(null);
 
     if (abortPEResponse.getStatus() != Response.Status.NO_CONTENT.getStatusCode()) {
 

@@ -39,8 +39,8 @@ public class BenchFlowConstants {
     return experimentID.substring(0, experimentID.lastIndexOf(MODEL_ID_DELIMITER));
   }
 
-  public static String getExperimentID(
-      String username, String testName, int testNumber, int experimentNumber) {
+  public static String getExperimentID(String username, String testName, int testNumber,
+      int experimentNumber) {
     return getTestID(username, testName, testNumber) + MODEL_ID_DELIMITER + experimentNumber;
   }
 
@@ -54,10 +54,9 @@ public class BenchFlowConstants {
    * @param trialNumber number of the trial
    * @return trialID
    */
-  public static String getTrialID(
-      String username, String testName, int testNumber, int experimentNumber, int trialNumber) {
-    return getExperimentID(username, testName, testNumber, experimentNumber)
-        + MODEL_ID_DELIMITER
+  public static String getTrialID(String username, String testName, int testNumber,
+      int experimentNumber, int trialNumber) {
+    return getExperimentID(username, testName, testNumber, experimentNumber) + MODEL_ID_DELIMITER
         + trialNumber;
   }
 
@@ -96,15 +95,8 @@ public class BenchFlowConstants {
     String testNumber = experimentIDArray[2];
     String experimentNumber = experimentIDArray[3];
 
-    return VERSION_1_PATH
-        + USERS_PATH
-        + username
-        + TESTS_PATH
-        + testName
-        + "/"
-        + testNumber
-        + EXPERIMENTS_PATH
-        + experimentNumber;
+    return VERSION_1_PATH + USERS_PATH + username + TESTS_PATH + testName + "/" + testNumber
+        + EXPERIMENTS_PATH + experimentNumber;
   }
 
   /**
@@ -122,17 +114,8 @@ public class BenchFlowConstants {
     String experimentNumber = trialIDArray[3];
     String trialNumber = trialIDArray[4];
 
-    return VERSION_1_PATH
-        + USERS_PATH
-        + username
-        + TESTS_PATH
-        + testName
-        + "/"
-        + testNumber
-        + EXPERIMENTS_PATH
-        + experimentNumber
-        + TRIALS_PATH
-        + trialNumber;
+    return VERSION_1_PATH + USERS_PATH + username + TESTS_PATH + testName + "/" + testNumber
+        + EXPERIMENTS_PATH + experimentNumber + TRIALS_PATH + trialNumber;
   }
 
   public static long getExperimentNumberfromExperimentID(String experimentID) {

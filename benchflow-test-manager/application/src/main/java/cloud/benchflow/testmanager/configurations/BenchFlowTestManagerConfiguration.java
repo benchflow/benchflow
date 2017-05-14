@@ -15,24 +15,35 @@ public class BenchFlowTestManagerConfiguration extends Configuration {
   // see http://www.dropwizard.io/1.0.6/docs/manual/core.html#configuration
 
   // Swagger Configuration
-  @Valid @NotNull
+  @Valid
+  @NotNull
   private final SwaggerBundleConfiguration swagger = new SwaggerBundleConfiguration();
   // Jersey Client Configuration
-  @Valid @NotNull private JerseyClientConfiguration jerseyClient = new JerseyClientConfiguration();
+  @Valid
+  @NotNull
+  private JerseyClientConfiguration jerseyClient = new JerseyClientConfiguration();
   // BenchFlow Environment Configuration
-  @Valid @NotNull
+  @Valid
+  @NotNull
   private BenchFlowEnvironmentFactory benchFlowEnvironmentFactory =
       new BenchFlowEnvironmentFactory();
   // MongoDB Configuration
-  @Valid @NotNull private MongoDBFactory mongoDBFactory = new MongoDBFactory();
+  @Valid
+  @NotNull
+  private MongoDBFactory mongoDBFactory = new MongoDBFactory();
   // BenchFlow-Experiment-Manager Service
-  @Valid @NotNull
+  @Valid
+  @NotNull
   private ExperimentManagerServiceFactory benchFlowExperimentManagerServiceFactory =
       new ExperimentManagerServiceFactory();
   // Minio Service
-  @Valid @NotNull private MinioServiceFactory minioServiceFactory = new MinioServiceFactory();
+  @Valid
+  @NotNull
+  private MinioServiceFactory minioServiceFactory = new MinioServiceFactory();
   // Task Executor
-  @Valid @NotNull private TaskExecutorFactory taskExecutorFactory = new TaskExecutorFactory();
+  @Valid
+  @NotNull
+  private TaskExecutorFactory taskExecutorFactory = new TaskExecutorFactory();
 
   @JsonProperty("jerseyClient")
   public JerseyClientConfiguration getJerseyClientConfiguration() {

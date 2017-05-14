@@ -8,7 +8,9 @@ import javax.validation.constraints.NotNull;
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17. */
 public class ChangeBenchFlowTestStateResponse {
 
-  @NotNull @JsonProperty private BenchFlowTestModel.BenchFlowTestState state;
+  @NotNull
+  @JsonProperty
+  private BenchFlowTestModel.BenchFlowTestState state;
 
   public ChangeBenchFlowTestStateResponse() {}
 

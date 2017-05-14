@@ -22,10 +22,8 @@ public class BenchFlowTrialEndpointTest {
       Mockito.mock(BenchFlowExperimentModelDAO.class);
 
   @ClassRule
-  public static final ResourceTestRule resources =
-      ResourceTestRule.builder()
-          .addResource(new BenchFlowTrialResource(experimentModelDAOMock))
-          .build();
+  public static final ResourceTestRule resources = ResourceTestRule.builder()
+      .addResource(new BenchFlowTrialResource(experimentModelDAOMock)).build();
 
   @Test
   public void submitTrialStatus() throws Exception {
@@ -34,13 +32,9 @@ public class BenchFlowTrialEndpointTest {
 
     SubmitTrialStatusRequest statusRequest = new SubmitTrialStatusRequest(RunStatus.Code.COMPLETED);
 
-    Response response =
-        resources
-            .client()
-            .target(BenchFlowConstants.getPathFromTrialID(trialID))
-            .path(BenchFlowTrialResource.STATUS_PATH)
-            .request()
-            .put(Entity.entity(statusRequest, MediaType.APPLICATION_JSON));
+    Response response = resources.client().target(BenchFlowConstants.getPathFromTrialID(trialID))
+        .path(BenchFlowTrialResource.STATUS_PATH).request()
+        .put(Entity.entity(statusRequest, MediaType.APPLICATION_JSON));
 
     Assert.assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
   }

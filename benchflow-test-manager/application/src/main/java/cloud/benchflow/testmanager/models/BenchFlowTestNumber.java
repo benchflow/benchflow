@@ -12,7 +12,8 @@ public class BenchFlowTestNumber {
   public static String COUNTER_FIELD_NAME = "counter";
   public static String ID_FIELD_NAME = "testIdentifier";
 
-  @Id private String testIdentifier;
+  @Id
+  private String testIdentifier;
 
   private Long counter = 1L;
 

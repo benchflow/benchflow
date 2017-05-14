@@ -87,19 +87,17 @@ public class BenchFlowTestManagerApplication
     logger.info("initialize");
 
     // Dropwizard Template Config
-    bootstrap.addBundle(
-        new TemplateConfigBundle(
-            new TemplateConfigBundleConfiguration().resourceIncludePath("/app")));
+    bootstrap.addBundle(new TemplateConfigBundle(
+        new TemplateConfigBundleConfiguration().resourceIncludePath("/app")));
 
     // Dropwizard Swagger
-    bootstrap.addBundle(
-        new SwaggerBundle<BenchFlowTestManagerConfiguration>() {
-          @Override
-          protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(
-              BenchFlowTestManagerConfiguration configuration) {
-            return configuration.getSwagger();
-          }
-        });
+    bootstrap.addBundle(new SwaggerBundle<BenchFlowTestManagerConfiguration>() {
+      @Override
+      protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(
+          BenchFlowTestManagerConfiguration configuration) {
+        return configuration.getSwagger();
+      }
+    });
   }
 
   @Override
@@ -123,10 +121,8 @@ public class BenchFlowTestManagerApplication
     userDAO = new UserDAO(mongoClient, testModelDAO);
 
     minioService = configuration.getMinioServiceFactory().build();
-    experimentManagerService =
-        configuration
-            .getBenchFlowExperimentManagerServiceFactory()
-            .build(configuration, environment);
+    experimentManagerService = configuration.getBenchFlowExperimentManagerServiceFactory()
+        .build(configuration, environment);
 
     // has to be last so the other dependencies are already available when instantiating
     ExecutorService taskExecutor = configuration.getTaskExecutorFactory().build(environment);

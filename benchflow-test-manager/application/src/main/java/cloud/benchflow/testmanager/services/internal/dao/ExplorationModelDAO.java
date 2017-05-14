@@ -70,9 +70,8 @@ public class ExplorationModelDAO extends DAO {
     return benchFlowTestModel.getExplorationModel().getExperimentSelectionType();
   }
 
-  public synchronized void setExperimentSelectionStrategy(
-      String testID, ExperimentSelectionStrategy.Type strategyType)
-      throws BenchFlowTestIDDoesNotExistException {
+  public synchronized void setExperimentSelectionStrategy(String testID,
+      ExperimentSelectionStrategy.Type strategyType) throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("setExperimentSelectionStrategy: " + testID);
 

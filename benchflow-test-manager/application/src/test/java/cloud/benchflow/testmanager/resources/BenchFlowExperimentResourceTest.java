@@ -32,14 +32,14 @@ public class BenchFlowExperimentResourceTest {
       Mockito.mock(BenchFlowTestTaskController.class);
   private BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
 
-  @Rule public ExpectedException exception = ExpectedException.none();
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
 
   @Before
   public void setUp() throws Exception {
 
-    resource =
-        new BenchFlowExperimentResource(
-            experimentModelDAOMock, testTaskControllerMock, testModelDAOMock);
+    resource = new BenchFlowExperimentResource(experimentModelDAOMock, testTaskControllerMock,
+        testModelDAOMock);
     request = new BenchFlowExperimentStateRequest();
   }
 
@@ -57,18 +57,13 @@ public class BenchFlowExperimentResourceTest {
     int testNumber = Integer.parseInt(experimentIDArray[2]);
     int experimentNumber = Integer.parseInt(experimentIDArray[3]);
 
-    Mockito.doReturn(BenchFlowTestModel.BenchFlowTestState.RUNNING)
-        .when(testModelDAOMock)
+    Mockito.doReturn(BenchFlowTestModel.BenchFlowTestState.RUNNING).when(testModelDAOMock)
         .getTestState(BenchFlowConstants.getTestIDFromExperimentID(experimentID));
 
     resource.setExperimentState(username, testName, testNumber, experimentNumber, request);
 
-    Mockito.verify(experimentModelDAOMock, Mockito.times(1))
-        .setExperimentState(
-            experimentID,
-            request.getState(),
-            request.getRunningState(),
-            request.getTerminatedState());
+    Mockito.verify(experimentModelDAOMock, Mockito.times(1)).setExperimentState(experimentID,
+        request.getState(), request.getRunningState(), request.getTerminatedState());
 
     Mockito.verify(testModelDAOMock, Mockito.times(1))
         .getTestState(BenchFlowConstants.getTestIDFromExperimentID(experimentID));

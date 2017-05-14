@@ -36,15 +36,13 @@ public class HandleExperimentResultTask implements Callable<HandleExperimentResu
       case COMPLETE_SELECTION:
         return Result.COMPLETE_SELECTION;
 
-        // TODO - other cases:
+      // TODO - other cases:
       default:
         return Result.CAN_REACH_GOAL;
     }
   }
 
   public enum Result {
-    COMPLETE_SELECTION,
-    CAN_REACH_GOAL,
-    CANNOT_REACH_GOAL
+    COMPLETE_SELECTION, CAN_REACH_GOAL, CANNOT_REACH_GOAL
   }
 }

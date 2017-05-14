@@ -21,12 +21,8 @@ public class TestConstants {
   public static long VALID_EXPERIMENT_NUMBER = 1;
   public static long VALID_TRIAL_NUMBER = 1;
 
-  public static String VALID_TEST_ID =
-      TEST_USER_NAME
-          + MODEL_ID_DELIMITER
-          + VALID_BENCHFLOW_TEST_NAME
-          + MODEL_ID_DELIMITER
-          + VALID_TEST_NUMBER;
+  public static String VALID_TEST_ID = TEST_USER_NAME + MODEL_ID_DELIMITER
+      + VALID_BENCHFLOW_TEST_NAME + MODEL_ID_DELIMITER + VALID_TEST_NUMBER;
   public static String VALID_EXPERIMENT_ID =
       VALID_TEST_ID + MODEL_ID_DELIMITER + VALID_EXPERIMENT_NUMBER;
   public static String VALID_TRIAL_ID =

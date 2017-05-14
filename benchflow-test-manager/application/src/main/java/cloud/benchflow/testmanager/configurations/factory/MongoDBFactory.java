@@ -12,7 +12,8 @@ import javax.validation.constraints.Min;
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17. */
 public class MongoDBFactory {
 
-  @NotEmpty private String host;
+  @NotEmpty
+  private String host;
 
   @JsonProperty("hostname")
   public String getHost() {

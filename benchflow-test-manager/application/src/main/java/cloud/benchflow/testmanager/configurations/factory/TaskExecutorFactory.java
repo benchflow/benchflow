@@ -55,16 +55,10 @@ public final class TaskExecutorFactory {
 
     int processors = Runtime.getRuntime().availableProcessors();
 
-    return environment
-        .lifecycle()
-        .executorService("task-%d")
-        .minThreads(minThreads * processors)
-        .maxThreads(maxThreads * processors)
-        .keepAliveTime(Duration.seconds(60))
-        .workQueue(new SynchronousQueue<>())
-        .threadFactory(new DaemonThreadFactory())
-        .rejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy())
-        .build();
+    return environment.lifecycle().executorService("task-%d").minThreads(minThreads * processors)
+        .maxThreads(maxThreads * processors).keepAliveTime(Duration.seconds(60))
+        .workQueue(new SynchronousQueue<>()).threadFactory(new DaemonThreadFactory())
+        .rejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy()).build();
   }
 
   /** See http://dev.bizo.com/2014/06/cached-thread-pool-considered-harmlful.html */
