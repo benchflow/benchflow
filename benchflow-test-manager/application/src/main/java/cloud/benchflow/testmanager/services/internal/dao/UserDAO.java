@@ -41,7 +41,6 @@ public class UserDAO extends DAO {
     return user;
   }
 
-  /** @param username */
   public synchronized void removeUser(String username) {
 
     logger.info("removeUser: " + username);

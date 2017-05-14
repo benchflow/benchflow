@@ -64,7 +64,6 @@ public class BenchFlowTestModelDAO extends DAO {
     return counter.getCounter();
   }
 
-  /** @param testID */
   public synchronized void removeTestModel(String testID) {
 
     logger.info("removeTestModel: " + testID);
@@ -87,10 +86,6 @@ public class BenchFlowTestModelDAO extends DAO {
     }
   }
 
-  /**
-   * @param testID
-   * @return
-   */
   public synchronized BenchFlowTestModel getTestModel(String testID)
       throws BenchFlowTestIDDoesNotExistException {
 

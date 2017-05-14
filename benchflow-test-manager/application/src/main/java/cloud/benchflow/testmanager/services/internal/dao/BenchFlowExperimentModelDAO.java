@@ -33,11 +33,6 @@ public class BenchFlowExperimentModelDAO extends DAO {
     this.testModelDAO = testModelDAO;
   }
 
-  /**
-   * @param testID
-   * @return
-   * @throws BenchFlowTestIDDoesNotExistException
-   */
   public synchronized String addExperiment(String testID)
       throws BenchFlowTestIDDoesNotExistException {
 
@@ -60,11 +55,6 @@ public class BenchFlowExperimentModelDAO extends DAO {
     return experimentModel.getId();
   }
 
-  /**
-   * @param experimentID
-   * @return
-   * @throws BenchFlowExperimentIDDoesNotExistException
-   */
   private synchronized BenchFlowExperimentModel getExperiment(String experimentID)
       throws BenchFlowExperimentIDDoesNotExistException {
 
@@ -83,11 +73,6 @@ public class BenchFlowExperimentModelDAO extends DAO {
     return experimentModel;
   }
 
-  /**
-   * @param experimentID
-   * @param state
-   * @throws BenchFlowExperimentIDDoesNotExistException
-   */
   public synchronized void setExperimentState(String experimentID, BenchFlowExperimentState state,
       RunningState runningState, TerminatedState terminatedState)
       throws BenchFlowExperimentIDDoesNotExistException {
@@ -105,12 +90,6 @@ public class BenchFlowExperimentModelDAO extends DAO {
     datastore.save(experimentModel);
   }
 
-  /**
-   * @param experimentID
-   * @param trialNUmber
-   * @param status
-   * @throws BenchFlowTestIDDoesNotExistException
-   */
   public synchronized void addTrialStatus(String experimentID, long trialNUmber,
       RunStatus.Code status) throws BenchFlowExperimentIDDoesNotExistException {
 
@@ -125,12 +104,6 @@ public class BenchFlowExperimentModelDAO extends DAO {
     datastore.save(experimentModel);
   }
 
-  /**
-   * @param experimentID
-   * @param trialNumber
-   * @return
-   * @throws BenchFlowExperimentIDDoesNotExistException
-   */
   public synchronized RunStatus.Code getTrialStatus(String experimentID, long trialNumber)
       throws BenchFlowExperimentIDDoesNotExistException {
 
