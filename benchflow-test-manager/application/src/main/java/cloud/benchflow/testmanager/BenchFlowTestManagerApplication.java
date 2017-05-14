@@ -11,7 +11,9 @@ import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
+
 import com.mongodb.MongoClient;
+
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
 import io.dropwizard.Application;
@@ -19,11 +21,12 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+
+import java.util.concurrent.ExecutorService;
+
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.ExecutorService;
 
 public class BenchFlowTestManagerApplication
     extends Application<BenchFlowTestManagerConfiguration> {

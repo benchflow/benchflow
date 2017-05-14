@@ -1,10 +1,13 @@
 package cloud.benchflow.testmanager.configurations.factory;
 
 import cloud.benchflow.testmanager.services.external.MinioService;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.minio.MinioClient;
 import io.minio.errors.InvalidEndpointException;
 import io.minio.errors.InvalidPortException;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17. */

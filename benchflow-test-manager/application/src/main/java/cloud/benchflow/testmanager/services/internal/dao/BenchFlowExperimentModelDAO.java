@@ -1,5 +1,7 @@
 package cloud.benchflow.testmanager.services.internal.dao;
 
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+
 import cloud.benchflow.faban.client.responses.RunStatus;
 import cloud.benchflow.testmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
@@ -8,12 +10,12 @@ import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExpe
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.RunningState;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.TerminatedState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
+
 import com.mongodb.MongoClient;
+
 import org.mongodb.morphia.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17. */
 public class BenchFlowExperimentModelDAO extends DAO {

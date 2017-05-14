@@ -1,8 +1,8 @@
 package cloud.benchflow.testmanager.helpers;
 
-import cloud.benchflow.testmanager.models.User;
-
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+
+import cloud.benchflow.testmanager.models.User;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17. */
 public class TestConstants {

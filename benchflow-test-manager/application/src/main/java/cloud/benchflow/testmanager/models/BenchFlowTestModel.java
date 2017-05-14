@@ -1,18 +1,27 @@
 package cloud.benchflow.testmanager.models;
 
-import cloud.benchflow.testmanager.constants.BenchFlowConstants;
-import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.mongodb.morphia.annotations.*;
-import org.mongodb.morphia.utils.IndexType;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.READY;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.START;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.*;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.DETERMINE_EXPLORATION_STRATEGY;
+
+import cloud.benchflow.testmanager.constants.BenchFlowConstants;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.util.Collection;
+import java.util.Date;
+import java.util.Set;
+import java.util.TreeMap;
+
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Field;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Index;
+import org.mongodb.morphia.annotations.IndexOptions;
+import org.mongodb.morphia.annotations.Indexes;
+import org.mongodb.morphia.annotations.PrePersist;
+import org.mongodb.morphia.annotations.Reference;
+import org.mongodb.morphia.utils.IndexType;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16. */
 @Entity

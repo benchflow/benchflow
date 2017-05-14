@@ -7,8 +7,6 @@ import cloud.benchflow.testmanager.exceptions.BenchFlowExperimentIDDoesNotExistE
 import cloud.benchflow.testmanager.exceptions.web.InvalidTrialIDWebException;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import io.swagger.annotations.Api;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -17,6 +15,9 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17. */
 @Path("/v1/users/{username}/tests/{testName}/{testNumber}/experiments/{experimentNumber}/trials")

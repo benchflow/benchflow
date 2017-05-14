@@ -1,9 +1,9 @@
 package cloud.benchflow.testmanager.tasks.running;
 
+import java.util.concurrent.Callable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.Callable;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-05-05 */
 public class ValidatePredictionFunctionTask implements Callable<Boolean> {

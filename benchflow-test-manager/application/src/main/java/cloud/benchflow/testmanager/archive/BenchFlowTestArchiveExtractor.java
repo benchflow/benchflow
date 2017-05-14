@@ -1,5 +1,9 @@
 package cloud.benchflow.testmanager.archive;
 
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.BPMN_MODELS_FOLDER_NAME;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.DEPLOYMENT_DESCRIPTOR_NAME;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.TEST_EXPERIMENT_DEFINITION_NAME;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,8 +15,6 @@ import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.*;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 15.02.17. */
 public class BenchFlowTestArchiveExtractor {

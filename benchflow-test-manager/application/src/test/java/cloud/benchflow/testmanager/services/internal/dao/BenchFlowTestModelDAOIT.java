@@ -1,22 +1,27 @@
 package cloud.benchflow.testmanager.services.internal.dao;
 
+import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_BENCHFLOW_TEST_NAME;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
+import static org.junit.Assert.assertEquals;
+
+import cloud.benchflow.testmanager.DockerComposeIT;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
-import cloud.benchflow.testmanager.DockerComposeIT;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
-import org.junit.*;
-import org.junit.rules.ExpectedException;
 
 import java.util.List;
 
-import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_BENCHFLOW_TEST_NAME;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
-import static org.junit.Assert.assertEquals;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 14.02.17. */
 public class BenchFlowTestModelDAOIT extends DockerComposeIT {

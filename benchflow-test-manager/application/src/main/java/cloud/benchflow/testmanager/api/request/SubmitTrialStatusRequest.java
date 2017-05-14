@@ -1,6 +1,7 @@
 package cloud.benchflow.testmanager.api.request;
 
 import cloud.benchflow.faban.client.responses.RunStatus;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotNull;

@@ -6,14 +6,15 @@ import com.palantir.docker.compose.DockerComposeRule;
 import com.palantir.docker.compose.connection.DockerMachine;
 import com.palantir.docker.compose.connection.DockerPort;
 import com.palantir.docker.compose.connection.waiting.HealthChecks;
+
+import java.io.File;
+import java.io.IOException;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch)

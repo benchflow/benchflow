@@ -1,9 +1,10 @@
 package cloud.benchflow.testmanager.models;
 
 import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
-import org.mongodb.morphia.annotations.Embedded;
 
 import java.util.List;
+
+import org.mongodb.morphia.annotations.Embedded;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-25 */
 @Embedded

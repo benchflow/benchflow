@@ -1,9 +1,9 @@
 package cloud.benchflow.testmanager.models;
 
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
-
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 21.02.17. */
 @Entity(noClassnameStored = true)

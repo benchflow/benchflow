@@ -1,7 +1,5 @@
 package cloud.benchflow.testmanager.tasks.running;
 
-import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
-import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

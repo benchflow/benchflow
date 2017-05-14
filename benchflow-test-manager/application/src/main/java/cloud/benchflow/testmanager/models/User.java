@@ -1,10 +1,16 @@
 package cloud.benchflow.testmanager.models;
 
-import org.mongodb.morphia.annotations.*;
-import org.mongodb.morphia.utils.IndexType;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Field;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Index;
+import org.mongodb.morphia.annotations.IndexOptions;
+import org.mongodb.morphia.annotations.Indexes;
+import org.mongodb.morphia.annotations.Reference;
+import org.mongodb.morphia.utils.IndexType;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 21.02.17. */
 @Entity

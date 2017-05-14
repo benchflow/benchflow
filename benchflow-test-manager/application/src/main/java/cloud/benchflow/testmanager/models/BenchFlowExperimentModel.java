@@ -1,15 +1,23 @@
 package cloud.benchflow.testmanager.models;
 
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+
 import cloud.benchflow.faban.client.responses.RunStatus;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.mongodb.morphia.annotations.*;
-import org.mongodb.morphia.utils.IndexType;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Field;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Index;
+import org.mongodb.morphia.annotations.IndexOptions;
+import org.mongodb.morphia.annotations.Indexes;
+import org.mongodb.morphia.annotations.PrePersist;
+import org.mongodb.morphia.utils.IndexType;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16. */
 @Entity

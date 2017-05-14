@@ -1,21 +1,22 @@
 package cloud.benchflow.testmanager.services.external;
 
+import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_EXPERIMENT_ID;
+import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_TEST_ID;
+
+import cloud.benchflow.testmanager.DockerComposeIT;
 import cloud.benchflow.testmanager.archive.TestArchives;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
-import cloud.benchflow.testmanager.DockerComposeIT;
 import io.minio.MinioClient;
-import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_EXPERIMENT_ID;
-import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_TEST_ID;
+import org.apache.commons.io.IOUtils;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 16.02.17. */
 public class MinioServiceIT extends DockerComposeIT {

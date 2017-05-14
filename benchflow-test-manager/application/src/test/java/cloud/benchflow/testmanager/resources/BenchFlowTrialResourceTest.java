@@ -1,19 +1,20 @@
 package cloud.benchflow.testmanager.resources;
 
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
+
 import cloud.benchflow.faban.client.responses.RunStatus;
 import cloud.benchflow.testmanager.api.request.SubmitTrialStatusRequest;
+import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidTrialIDWebException;
 import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
-import cloud.benchflow.testmanager.constants.BenchFlowConstants;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
-
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 15.02.17. */
 public class BenchFlowTrialResourceTest {

@@ -1,18 +1,13 @@
 package cloud.benchflow.testmanager.services.external;
 
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
-import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
-import org.glassfish.jersey.media.multipart.*;
-import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.File;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * uses Jersey Client: http://www.dropwizard.io/1.0.6/docs/manual/client.html

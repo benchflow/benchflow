@@ -1,6 +1,7 @@
 package cloud.benchflow.testmanager.api.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16. */

@@ -7,14 +7,15 @@ import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistExcepti
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20 */
 public class CompleteSelectionStrategy implements ExperimentSelectionStrategy {

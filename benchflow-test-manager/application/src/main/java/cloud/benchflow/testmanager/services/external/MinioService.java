@@ -1,13 +1,22 @@
 package cloud.benchflow.testmanager.services.external;
 
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.BPMN_MODELS_FOLDER_NAME;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MINIO_ID_DELIMITER;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.TESTS_BUCKET;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.TEST_EXPERIMENT_DEFINITION_FILE_NAME;
+
 import io.minio.MinioClient;
 import io.minio.Result;
-import io.minio.errors.*;
+import io.minio.errors.ErrorResponseException;
+import io.minio.errors.InsufficientDataException;
+import io.minio.errors.InternalException;
+import io.minio.errors.InvalidArgumentException;
+import io.minio.errors.InvalidBucketNameException;
+import io.minio.errors.MinioException;
+import io.minio.errors.NoResponseException;
 import io.minio.messages.Item;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +26,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.*;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xmlpull.v1.XmlPullParserException;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16. */
 public class MinioService {

@@ -3,7 +3,6 @@ package cloud.benchflow.testmanager.resources;
 import cloud.benchflow.testmanager.api.request.BenchFlowExperimentStateRequest;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.helpers.TestConstants;
-import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.TerminatedState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
@@ -11,14 +10,15 @@ import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentMode
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.Mockito;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.junit.Assert;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 27.02.17. */
 public class BenchFlowExperimentEndpointTest {

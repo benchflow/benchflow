@@ -10,13 +10,15 @@ import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
-import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
-import cloud.benchflow.testmanager.services.external.MinioService;
-import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import io.dropwizard.testing.junit.ResourceTestRule;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
@@ -24,11 +26,6 @@ import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.concurrent.ExecutorService;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 26.02.17. */
 public class BenchFlowTestEndpointTest {

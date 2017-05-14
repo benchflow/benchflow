@@ -1,5 +1,15 @@
 package cloud.benchflow.testmanager.resources;
 
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
+import static cloud.benchflow.testmanager.helpers.TestConstants.INVALID_BENCHFLOW_TEST_ID;
+import static cloud.benchflow.testmanager.helpers.TestConstants.TEST_USER;
+import static cloud.benchflow.testmanager.helpers.TestConstants.TEST_USER_NAME;
+import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_BENCHFLOW_TEST_ID;
+import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_BENCHFLOW_TEST_NAME;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.RUNNING;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
+
 import cloud.benchflow.testmanager.api.request.ChangeBenchFlowTestStateRequest;
 import cloud.benchflow.testmanager.api.response.ChangeBenchFlowTestStateResponse;
 import cloud.benchflow.testmanager.api.response.RunBenchFlowTestResponse;
@@ -13,22 +23,18 @@ import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
+
+import java.io.InputStream;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import java.io.InputStream;
-
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
-import static cloud.benchflow.testmanager.helpers.TestConstants.*;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.RUNNING;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 15.02.17. */
 public class BenchFlowTestResourceTest {

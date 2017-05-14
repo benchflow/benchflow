@@ -1,5 +1,8 @@
 package cloud.benchflow.testmanager.tasks;
 
+import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState.TERMINATED;
+import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.TerminatedState.COMPLETED;
+
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.DockerComposeIT;
 import cloud.benchflow.testmanager.archive.TestArchives;
@@ -16,13 +19,6 @@ import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import cloud.benchflow.testmanager.tasks.start.StartTask;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
-import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -31,8 +27,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState.TERMINATED;
-import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.TerminatedState.COMPLETED;
+import org.apache.commons.io.IOUtils;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-27 */
 public class BenchFlowTestTaskControllerIT extends DockerComposeIT {

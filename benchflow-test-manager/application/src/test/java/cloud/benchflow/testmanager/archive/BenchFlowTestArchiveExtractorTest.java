@@ -1,12 +1,12 @@
 package cloud.benchflow.testmanager.archive;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 16.02.17. */
 public class BenchFlowTestArchiveExtractorTest {

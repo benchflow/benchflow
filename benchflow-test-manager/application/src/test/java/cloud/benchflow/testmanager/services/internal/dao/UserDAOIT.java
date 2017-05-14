@@ -1,18 +1,23 @@
 package cloud.benchflow.testmanager.services.internal.dao;
 
-import cloud.benchflow.testmanager.exceptions.UserIDAlreadyExistsException;
-import cloud.benchflow.testmanager.models.User;
-import cloud.benchflow.testmanager.DockerComposeIT;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
-import org.junit.*;
-import org.junit.rules.ExpectedException;
-
 import static cloud.benchflow.testmanager.helpers.TestConstants.TEST_USER_NAME;
 import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_BENCHFLOW_TEST_NAME;
 import static org.junit.Assert.assertEquals;
+
+import cloud.benchflow.testmanager.DockerComposeIT;
+import cloud.benchflow.testmanager.exceptions.UserIDAlreadyExistsException;
+import cloud.benchflow.testmanager.models.User;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 /** @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17. */
 public class UserDAOIT extends DockerComposeIT {
