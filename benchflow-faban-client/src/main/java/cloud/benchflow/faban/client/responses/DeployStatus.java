@@ -20,13 +20,13 @@ public class DeployStatus implements Response {
 
   public DeployStatus(int statusCode) {
     switch (statusCode) {
-      case (HttpStatus.SC_CREATED):
+      case HttpStatus.SC_CREATED:
         this.code = Code.CREATED;
         break;
-      case (HttpStatus.SC_CONFLICT):
+      case HttpStatus.SC_CONFLICT:
         this.code = Code.CONFLICT;
         break;
-      case (HttpStatus.SC_NOT_ACCEPTABLE):
+      case HttpStatus.SC_NOT_ACCEPTABLE:
         this.code = Code.NOT_ACCEPTABLE;
         break;
       default:
