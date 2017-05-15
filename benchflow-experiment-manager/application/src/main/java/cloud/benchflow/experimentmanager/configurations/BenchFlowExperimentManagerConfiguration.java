@@ -128,16 +128,16 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   // Performance-Test-Manager Service
   @Valid
   @NotNull
-  private TestManagerServiceFactory TestManagerServiceFactory = new TestManagerServiceFactory();
+  private TestManagerServiceFactory testManagerServiceFactory = new TestManagerServiceFactory();
 
   @JsonProperty("testManager")
   public TestManagerServiceFactory getTestManagerServiceFactory() {
-    return TestManagerServiceFactory;
+    return testManagerServiceFactory;
   }
 
   @JsonProperty("testManager")
   public void setTestManagerServiceFactory(TestManagerServiceFactory testManagerServiceFactory) {
-    this.TestManagerServiceFactory = testManagerServiceFactory;
+    this.testManagerServiceFactory = testManagerServiceFactory;
   }
 
   // Experiment Task Executor
