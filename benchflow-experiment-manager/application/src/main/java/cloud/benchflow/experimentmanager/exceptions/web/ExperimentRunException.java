@@ -3,8 +3,7 @@ package cloud.benchflow.experimentmanager.exceptions.web;
 import javax.ws.rs.WebApplicationException;
 
 /**
- * @author Simone D'Avico (simonedavico@gmail.com)
- *     <p>Created on 11/12/15.
+ * @author Simone D'Avico (simonedavico@gmail.com) - Created on 11/12/15.
  */
 public class ExperimentRunException extends WebApplicationException {
 

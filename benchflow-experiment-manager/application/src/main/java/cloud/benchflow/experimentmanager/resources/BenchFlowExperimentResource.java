@@ -28,8 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Simone D'Avico (simonedavico@gmail.com)
- *     <p>Created on 05/03/16.
+ * @author Simone D'Avico (simonedavico@gmail.com) - Created on 05/03/16.
  */
 @Path("/v1/users/{username}/tests/{testName}/{testNumber}/experiments/{experimentNumber}")
 @Api(value = "benchflow-experiment")

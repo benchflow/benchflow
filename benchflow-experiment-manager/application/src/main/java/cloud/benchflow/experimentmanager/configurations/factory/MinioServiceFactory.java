@@ -11,8 +11,7 @@ import io.minio.errors.InvalidPortException;
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
- * @author Simone D'Avico (simonedavico@gmail.com)
- *     <p>Created on 26/11/15.
+ * @author Simone D'Avico (simonedavico@gmail.com) - Created on 26/11/15.
  */
 public class MinioServiceFactory {
 

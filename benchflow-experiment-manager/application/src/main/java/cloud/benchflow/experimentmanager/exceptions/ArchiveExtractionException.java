@@ -2,8 +2,7 @@ package cloud.benchflow.experimentmanager.exceptions;
 
 /**
  * @author Simone D'Avico (simonedavico@gmail.com)
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *     <p>Created on 28/07/16.
+ * @author Jesper Findahl (jesper.findahl@usi.ch) - Created on 28/07/16.
  */
 public class ArchiveExtractionException extends Exception {
 

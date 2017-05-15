@@ -16,8 +16,7 @@ import javax.validation.constraints.NotNull;
 
 /**
  * @author Simone D'Avico (simonedavico@gmail.com)
- * @author jesper (jesper.findahl@usi.ch)
- *     <p>Created on 07/03/16.
+ * @author jesper (jesper.findahl@usi.ch) - Created on 07/03/16.
  */
 public class TaskExecutorFactory {
 
