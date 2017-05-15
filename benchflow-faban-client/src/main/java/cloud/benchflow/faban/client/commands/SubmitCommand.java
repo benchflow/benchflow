@@ -69,10 +69,11 @@ public class SubmitCommand extends Configurable<SubmitConfig> implements Command
 
       CloseableHttpResponse resp = httpClient.execute(post);
       int statusCode = resp.getStatusLine().getStatusCode();
-      if (statusCode == HttpStatus.SC_NOT_FOUND)
+      if (statusCode == HttpStatus.SC_NOT_FOUND) {
         throw new BenchmarkNameNotFoundException("Benchmark " + benchmarkName + " not deployed.");
-      if (statusCode == HttpStatus.SC_NO_CONTENT)
+      } else if (statusCode == HttpStatus.SC_NO_CONTENT) {
         throw new EmptyHarnessResponseException();
+      }
 
       //TODO: check that this does indeed work
       RunId runId = sh.handleResponse(resp);

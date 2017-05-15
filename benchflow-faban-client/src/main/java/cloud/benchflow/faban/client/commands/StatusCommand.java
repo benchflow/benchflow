@@ -53,10 +53,11 @@ public class StatusCommand extends Configurable<StatusConfig> implements Command
       CloseableHttpResponse resp = httpclient.execute(get);
 
       int status = resp.getStatusLine().getStatusCode();
-      if (status == HttpStatus.SC_NOT_FOUND)
+      if (status == HttpStatus.SC_NOT_FOUND) {
         throw new RunIdNotFoundException();
-      if (status == HttpStatus.SC_BAD_REQUEST)
+      } else if (status == HttpStatus.SC_BAD_REQUEST) {
         throw new FabanClientException("Illegal status request");
+      }
 
       //TODO: check that the call to .handleEntity(..) actually returns the expected string
       RunStatus runStatus = sh.handleResponse(resp);

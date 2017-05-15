@@ -9,7 +9,7 @@ public class EmptyHarnessResponseException extends FabanClientException {
 
   public EmptyHarnessResponseException() {
     super();
-  };
+  }
 
   public EmptyHarnessResponseException(String message) {
     super(message);

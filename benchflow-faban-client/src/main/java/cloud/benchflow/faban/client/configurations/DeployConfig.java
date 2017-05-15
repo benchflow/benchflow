@@ -4,8 +4,8 @@ import java.io.File;
 
 /**
  * Created by simonedavico on 26/10/15.
- *
- * Configuration class for the deploy command
+ * 
+ * <p>Configuration class for the deploy command
  */
 public class DeployConfig implements Config {
 

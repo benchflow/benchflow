@@ -64,12 +64,13 @@ public class KillCommand extends Configurable<StatusConfig> implements Command<R
       CloseableHttpResponse resp = httpClient.execute(post);
 
       int statusCode = resp.getStatusLine().getStatusCode();
-      if (statusCode == HttpStatus.SC_NOT_FOUND)
+      if (statusCode == HttpStatus.SC_NOT_FOUND) {
         throw new RunIdNotFoundException();
-      if (statusCode == HttpStatus.SC_BAD_REQUEST)
+      } else if (statusCode == HttpStatus.SC_BAD_REQUEST) {
         throw new FabanClientException("Bad kill request to harness");
-      if (statusCode == HttpStatus.SC_NO_CONTENT)
+      } else if (statusCode == HttpStatus.SC_NO_CONTENT) {
         throw new EmptyHarnessResponseException();
+      }
 
       return rh.handleResponse(resp);
 

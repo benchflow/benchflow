@@ -18,8 +18,9 @@ public class RunId implements Response {
 
   public RunId(String runId) {
     String[] parts = runId.split("\\.");
-    if (parts.length != 2)
+    if (parts.length != 2) {
       throw new IllegalRunIdException("Received unexpected runId " + runId);
+    }
     this.name = parts[0];
     this.queueId = parts[1];
   }

@@ -6,7 +6,7 @@ import java.net.URISyntaxException;
 /**
  * Created by simonedavico on 26/10/15.
  *
- * Default configuration for the Faban client.
+ * <p>Default configuration for the Faban client.
  */
 public class FabanClientDefaultConfig implements FabanClientConfig {
 

@@ -13,7 +13,7 @@ public class RunStatus implements Response {
 
   public enum Code {
     QUEUED, RECEIVED, STARTED, COMPLETED, FAILED, KILLED, KILLING, DENIED
-  };
+  }
 
   public RunStatus(String statusCode, RunId runId) {
     switch (statusCode.replace("\n", "")) {

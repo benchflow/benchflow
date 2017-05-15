@@ -107,12 +107,6 @@ public class FabanClient extends Configurable<FabanClientConfig> {
     this.deploy(jarFile).handle(handler);
   }
 
-  /**
-   *
-   * @param runId a run id
-   * @return the status of the run
-   * @throws RunIdNotFoundException
-   */
   public RunStatus status(RunId runId) throws FabanClientException, RunIdNotFoundException {
 
     StatusConfig statusConfig = new StatusConfig(runId);

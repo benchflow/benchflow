@@ -50,11 +50,12 @@ public class ShowLogsCommand extends Configurable<ShowLogsConfig> implements Com
       CloseableHttpResponse resp = httpClient.execute(get);
       int status = resp.getStatusLine().getStatusCode();
 
-      if (status == HttpStatus.SC_NO_CONTENT)
+      if (status == HttpStatus.SC_NO_CONTENT) {
         throw new EmptyHarnessResponseException(
             "Harness returned empty response to pending request");
-      if (status == HttpStatus.SC_NOT_FOUND)
+      } else if (status == HttpStatus.SC_NOT_FOUND) {
         throw new RunIdNotFoundException();
+      }
 
       HttpEntity ent = resp.getEntity();
       InputStream in = resp.getEntity().getContent();
