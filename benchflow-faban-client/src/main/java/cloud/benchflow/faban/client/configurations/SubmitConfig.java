@@ -9,25 +9,25 @@ import java.io.InputStream;
  */
 public class SubmitConfig implements Config {
 
-    private String benchmarkName;
-    private String profile;
-    private InputStream configFile;
+  private String benchmarkName;
+  private String profile;
+  private InputStream configFile;
 
-    public SubmitConfig(String benchmarkName, String profile, InputStream configFile) {
-        this.benchmarkName = benchmarkName;
-        this.profile = profile;
-        this.configFile = configFile;
-    }
+  public SubmitConfig(String benchmarkName, String profile, InputStream configFile) {
+    this.benchmarkName = benchmarkName;
+    this.profile = profile;
+    this.configFile = configFile;
+  }
 
-    public String getBenchmarkName() {
-        return benchmarkName;
-    }
+  public String getBenchmarkName() {
+    return benchmarkName;
+  }
 
-    public String getProfile() {
-        return profile;
-    }
+  public String getProfile() {
+    return profile;
+  }
 
-    public InputStream getConfigFile() {
-        return configFile;
-    }
+  public InputStream getConfigFile() {
+    return configFile;
+  }
 }

@@ -30,48 +30,48 @@ import java.net.URISyntaxException;
  */
 public class PendingCommand extends Configurable implements Command<RunQueue> {
 
-    private static String PENDING_URL = "/pending";
+  private static String PENDING_URL = "/pending";
 
-    public RunQueue exec(FabanClientConfig fabanConfig) throws IOException {
-        return pending(fabanConfig);
-    }
+  public RunQueue exec(FabanClientConfig fabanConfig) throws IOException {
+    return pending(fabanConfig);
+  }
 
-    private RunQueue pending(FabanClientConfig fabanConfig) throws IOException {
+  private RunQueue pending(FabanClientConfig fabanConfig) throws IOException {
 
-        try(CloseableHttpClient httpClient = HttpClients.createDefault()){
+    try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 
-            URI pendingURL = new URIBuilder(fabanConfig.getMasterURL())
-                                .setPath(PENDING_URL)
-                                .build();
+      URI pendingURL = new URIBuilder(fabanConfig.getMasterURL()).setPath(PENDING_URL).build();
 
-            RunQueue queue = new RunQueue();
+      RunQueue queue = new RunQueue();
 
-            HttpGet get = new HttpGet(pendingURL);
-            CloseableHttpResponse resp = httpClient.execute(get);
-            int status = resp.getStatusLine().getStatusCode();
+      HttpGet get = new HttpGet(pendingURL);
+      CloseableHttpResponse resp = httpClient.execute(get);
+      int status = resp.getStatusLine().getStatusCode();
 
-            if(status == HttpStatus.SC_NO_CONTENT)
-                throw new EmptyHarnessResponseException("Harness returned empty response to pending request");
+      if (status == HttpStatus.SC_NO_CONTENT)
+        throw new EmptyHarnessResponseException(
+            "Harness returned empty response to pending request");
 
-            HttpEntity ent = resp.getEntity();
-            InputStream in = resp.getEntity().getContent();
+      HttpEntity ent = resp.getEntity();
+      InputStream in = resp.getEntity().getContent();
 
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(in, ent.getContentEncoding().getValue()))) {
+      try (BufferedReader reader =
+          new BufferedReader(new InputStreamReader(in, ent.getContentEncoding().getValue()))) {
 
-                String line;
-                while((line = reader.readLine()) != null) {
-                    queue.add(new RunId(line));
-                }
-
-            }
-
-            return queue;
-
-        } catch (URISyntaxException e) {
-            throw new MalformedURIException("Malformed pending request to faban harness: " + e.getInput(), e);
+        String line;
+        while ((line = reader.readLine()) != null) {
+          queue.add(new RunId(line));
         }
 
+      }
+
+      return queue;
+
+    } catch (URISyntaxException e) {
+      throw new MalformedURIException("Malformed pending request to faban harness: " + e.getInput(),
+          e);
     }
+
+  }
 
 }

@@ -12,30 +12,30 @@ import java.net.URI;
  */
 public class FabanClientConfigImpl implements FabanClientConfig {
 
-    private final String user;
-    private final String password;
-    private final URI masterURL;
+  private final String user;
+  private final String password;
+  private final URI masterURL;
 
-    public FabanClientConfigImpl(final String user, final String password) {
-        this(user, password, new FabanClientDefaultConfig().getMasterURL());
-    }
+  public FabanClientConfigImpl(final String user, final String password) {
+    this(user, password, new FabanClientDefaultConfig().getMasterURL());
+  }
 
-    public FabanClientConfigImpl(final String user, final String password, final URI masterURL) {
-        this.user = user;
-        this.password = password;
-        this.masterURL = masterURL;
-    }
+  public FabanClientConfigImpl(final String user, final String password, final URI masterURL) {
+    this.user = user;
+    this.password = password;
+    this.masterURL = masterURL;
+  }
 
 
-    public String getUser() {
-        return user;
-    }
+  public String getUser() {
+    return user;
+  }
 
-    public String getPassword() {
-        return password;
-    }
+  public String getPassword() {
+    return password;
+  }
 
-    public URI getMasterURL() {
-        return masterURL;
-    }
+  public URI getMasterURL() {
+    return masterURL;
+  }
 }

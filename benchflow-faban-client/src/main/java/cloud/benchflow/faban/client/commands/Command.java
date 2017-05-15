@@ -11,8 +11,8 @@ import cloud.benchflow.faban.client.responses.Response;
  */
 public interface Command<T extends Response> {
 
-    default T exec(FabanClientConfig fabanConfig) throws Exception {
-        throw new UnsupportedOperationException();
-    }
+  default T exec(FabanClientConfig fabanConfig) throws Exception {
+    throw new UnsupportedOperationException();
+  }
 
 }

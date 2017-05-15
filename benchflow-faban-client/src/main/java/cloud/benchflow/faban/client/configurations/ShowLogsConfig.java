@@ -10,14 +10,14 @@ import cloud.benchflow.faban.client.responses.RunId;
 //TODO: implement this
 public class ShowLogsConfig implements Config {
 
-    private RunId runId;
+  private RunId runId;
 
-    public ShowLogsConfig(RunId runId) {
-        this.runId = runId;
-    }
+  public ShowLogsConfig(RunId runId) {
+    this.runId = runId;
+  }
 
-    public RunId getRunId() {
-        return runId;
-    }
+  public RunId getRunId() {
+    return runId;
+  }
 
 }

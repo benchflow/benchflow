@@ -7,14 +7,14 @@ package cloud.benchflow.faban.client.responses;
  */
 public class RunLog {
 
-    private String content;
+  private String content;
 
-    public RunLog(String content) {
-        this.content = content;
-    }
+  public RunLog(String content) {
+    this.content = content;
+  }
 
-    public String getContent() {
-        return content;
-    }
+  public String getContent() {
+    return content;
+  }
 
 }

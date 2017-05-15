@@ -29,43 +29,46 @@ import java.net.URISyntaxException;
  */
 public class StatusCommand extends Configurable<StatusConfig> implements Command<RunStatus> {
 
-    private static String STATUS_PATH = "/status";
+  private static String STATUS_PATH = "/status";
 
-    public RunStatus exec(FabanClientConfig fabanConfig) throws IOException, RunIdNotFoundException {
-        return status(fabanConfig);
+  public RunStatus exec(FabanClientConfig fabanConfig) throws IOException, RunIdNotFoundException {
+    return status(fabanConfig);
+  }
+
+  private RunStatus status(FabanClientConfig fabanConfig)
+      throws IOException, RunIdNotFoundException {
+
+    RunId runId = config.getRunId();
+
+    ResponseHandler<RunStatus> sh =
+        resp -> new RunStatus(new BasicResponseHandler().handleEntity(resp.getEntity()), runId);
+
+    try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+
+      URI statusURL =
+          new URIBuilder(fabanConfig.getMasterURL()).setPath(STATUS_PATH + "/" + runId).build();
+
+      HttpGet get = new HttpGet(statusURL);
+
+      CloseableHttpResponse resp = httpclient.execute(get);
+
+      int status = resp.getStatusLine().getStatusCode();
+      if (status == HttpStatus.SC_NOT_FOUND)
+        throw new RunIdNotFoundException();
+      if (status == HttpStatus.SC_BAD_REQUEST)
+        throw new FabanClientException("Illegal status request");
+
+      //TODO: check that the call to .handleEntity(..) actually returns the expected string
+      RunStatus runStatus = sh.handleResponse(resp);
+
+      return runStatus;
+
+    } catch (URISyntaxException e) {
+      throw new MalformedURIException(
+          "Attempted to check status from malformed URI: " + e.getInput(), e);
     }
 
-    private RunStatus status(FabanClientConfig fabanConfig) throws IOException, RunIdNotFoundException {
-
-        RunId runId = config.getRunId();
-
-        ResponseHandler<RunStatus> sh = resp ->
-                new RunStatus(new BasicResponseHandler().handleEntity(resp.getEntity()), runId);
-
-        try(CloseableHttpClient httpclient = HttpClients.createDefault()) {
-
-            URI statusURL = new URIBuilder(fabanConfig.getMasterURL())
-                                .setPath(STATUS_PATH + "/" + runId)
-                                .build();
-
-            HttpGet get = new HttpGet(statusURL);
-
-            CloseableHttpResponse resp = httpclient.execute(get);
-
-            int status = resp.getStatusLine().getStatusCode();
-            if(status == HttpStatus.SC_NOT_FOUND) throw new RunIdNotFoundException();
-            if(status == HttpStatus.SC_BAD_REQUEST) throw new FabanClientException("Illegal status request");
-
-            //TODO: check that the call to .handleEntity(..) actually returns the expected string
-            RunStatus runStatus = sh.handleResponse(resp);
-
-            return runStatus;
-
-        } catch (URISyntaxException e) {
-            throw new MalformedURIException("Attempted to check status from malformed URI: " + e.getInput(), e);
-        }
-
-    }
+  }
 
 
 }

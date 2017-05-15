@@ -8,12 +8,12 @@ package cloud.benchflow.faban.client.exceptions;
  */
 public class JarFileNotFoundException extends Exception {
 
-    public JarFileNotFoundException(String message) {
-        super(message);
-    }
+  public JarFileNotFoundException(String message) {
+    super(message);
+  }
 
-    public JarFileNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public JarFileNotFoundException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
 }

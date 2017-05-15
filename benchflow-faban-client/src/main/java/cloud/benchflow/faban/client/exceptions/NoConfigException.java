@@ -5,8 +5,8 @@ package cloud.benchflow.faban.client.exceptions;
  */
 public class NoConfigException extends FabanClientException {
 
-    public NoConfigException(String message) {
-        super(message);
-    }
+  public NoConfigException(String message) {
+    super(message);
+  }
 
 }

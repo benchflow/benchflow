@@ -7,15 +7,15 @@ package cloud.benchflow.faban.client.exceptions;
  */
 public class EmptyHarnessResponseException extends FabanClientException {
 
-    public EmptyHarnessResponseException() {
-        super();
-    };
+  public EmptyHarnessResponseException() {
+    super();
+  };
 
-    public EmptyHarnessResponseException(String message) {
-        super(message);
-    }
+  public EmptyHarnessResponseException(String message) {
+    super(message);
+  }
 
-    public EmptyHarnessResponseException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public EmptyHarnessResponseException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

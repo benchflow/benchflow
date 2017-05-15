@@ -9,11 +9,11 @@ package cloud.benchflow.faban.client.configurations;
 @SuppressWarnings("unchecked")
 public abstract class Configurable<U extends Config> {
 
-    protected U config;
+  protected U config;
 
-    public <T extends Configurable> T withConfig(U config) {
-        this.config = config;
-        return (T) this;
-    }
+  public <T extends Configurable> T withConfig(U config) {
+    this.config = config;
+    return (T) this;
+  }
 
 }

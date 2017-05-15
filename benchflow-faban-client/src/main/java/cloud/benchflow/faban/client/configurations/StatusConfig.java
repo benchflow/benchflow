@@ -9,14 +9,14 @@ import cloud.benchflow.faban.client.responses.RunId;
  */
 public class StatusConfig implements Config {
 
-    private RunId runId;
+  private RunId runId;
 
-    public StatusConfig(RunId runId) {
-        this.runId = runId;
-    }
+  public StatusConfig(RunId runId) {
+    this.runId = runId;
+  }
 
-    public RunId getRunId() {
-        return runId;
-    }
+  public RunId getRunId() {
+    return runId;
+  }
 
 }

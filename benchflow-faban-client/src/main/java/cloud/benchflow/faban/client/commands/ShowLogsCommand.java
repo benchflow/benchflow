@@ -29,37 +29,43 @@ import java.net.URISyntaxException;
  */
 public class ShowLogsCommand extends Configurable<ShowLogsConfig> implements Command<RunLogStream> {
 
-    private static String SHOWLOGS_URL = "/logs";
+  private static String SHOWLOGS_URL = "/logs";
 
 
-    public RunLogStream exec(FabanClientConfig fabanConfig) throws IOException, RunIdNotFoundException {
-        return showlogs(fabanConfig);
+  public RunLogStream exec(FabanClientConfig fabanConfig)
+      throws IOException, RunIdNotFoundException {
+    return showlogs(fabanConfig);
+  }
+
+  private RunLogStream showlogs(FabanClientConfig fabanConfig)
+      throws IOException, RunIdNotFoundException {
+
+    try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+
+      URI pendingURL = new URIBuilder(fabanConfig.getMasterURL())
+          .setPath(SHOWLOGS_URL + "/" + config.getRunId()).build();
+
+      HttpGet get = new HttpGet(pendingURL);
+      CloseableHttpResponse resp = httpClient.execute(get);
+      int status = resp.getStatusLine().getStatusCode();
+
+      if (status == HttpStatus.SC_NO_CONTENT)
+        throw new EmptyHarnessResponseException(
+            "Harness returned empty response to pending request");
+      if (status == HttpStatus.SC_NOT_FOUND)
+        throw new RunIdNotFoundException();
+
+      HttpEntity ent = resp.getEntity();
+      InputStream in = resp.getEntity().getContent();
+      BufferedReader reader =
+          new BufferedReader(new InputStreamReader(in, ent.getContentEncoding().getValue()));
+      return new RunLogStream(reader);
+
+    } catch (URISyntaxException e) {
+      throw new MalformedURIException(
+          "Malformed showlogs request to faban harness: " + e.getInput(), e);
     }
 
-    private RunLogStream showlogs(FabanClientConfig fabanConfig) throws IOException, RunIdNotFoundException {
-
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-
-            URI pendingURL = new URIBuilder(fabanConfig.getMasterURL())
-                                    .setPath(SHOWLOGS_URL + "/" + config.getRunId())
-                                    .build();
-
-            HttpGet get = new HttpGet(pendingURL);
-            CloseableHttpResponse resp = httpClient.execute(get);
-            int status = resp.getStatusLine().getStatusCode();
-
-            if(status == HttpStatus.SC_NO_CONTENT) throw new EmptyHarnessResponseException("Harness returned empty response to pending request");
-            if(status == HttpStatus.SC_NOT_FOUND) throw new RunIdNotFoundException();
-
-            HttpEntity ent = resp.getEntity();
-            InputStream in = resp.getEntity().getContent();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in, ent.getContentEncoding().getValue()));
-            return new RunLogStream(reader);
-
-        } catch (URISyntaxException e) {
-            throw new MalformedURIException("Malformed showlogs request to faban harness: " + e.getInput(), e);
-        }
-
-    }
+  }
 
 }

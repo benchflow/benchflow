@@ -32,57 +32,56 @@ import java.net.URISyntaxException;
  */
 public class SubmitCommand extends Configurable<SubmitConfig> implements Command<RunId> {
 
-    private static String SUBMIT_URL = "/submit";
+  private static String SUBMIT_URL = "/submit";
 
-    public RunId exec(FabanClientConfig fabanConfig) throws IOException, BenchmarkNameNotFoundException {
-        return submit(fabanConfig);
+  public RunId exec(FabanClientConfig fabanConfig)
+      throws IOException, BenchmarkNameNotFoundException {
+    return submit(fabanConfig);
+  }
+
+  public RunId submit(FabanClientConfig fabanConfig)
+      throws IOException, BenchmarkNameNotFoundException {
+
+
+    String benchmarkName = config.getBenchmarkName();
+    String profile = config.getProfile();
+    InputStream configFile = config.getConfigFile();
+
+    ResponseHandler<RunId> sh =
+        resp -> new RunId(new BasicResponseHandler().handleEntity(resp.getEntity()));
+
+    try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+
+      URI submitURL = new URIBuilder(fabanConfig.getMasterURL())
+          .setPath(SUBMIT_URL + "/" + benchmarkName + "/" + profile).build();
+
+      HttpPost post = new HttpPost(submitURL);
+      HttpEntity multipartEntity = MultipartEntityBuilder.create()
+          .addTextBody("sun", fabanConfig.getUser()).addTextBody("sp", fabanConfig.getPassword())
+          .addBinaryBody("configfile", ByteStreams.toByteArray(configFile),
+              //ContentType.DEFAULT_BINARY,
+              ContentType.create("application/octet-stream"), "run.xml")
+          .build();
+
+      post.setEntity(multipartEntity);
+
+      CloseableHttpResponse resp = httpClient.execute(post);
+      int statusCode = resp.getStatusLine().getStatusCode();
+      if (statusCode == HttpStatus.SC_NOT_FOUND)
+        throw new BenchmarkNameNotFoundException("Benchmark " + benchmarkName + " not deployed.");
+      if (statusCode == HttpStatus.SC_NO_CONTENT)
+        throw new EmptyHarnessResponseException();
+
+      //TODO: check that this does indeed work
+      RunId runId = sh.handleResponse(resp);
+
+      return runId;
+
+    } catch (URISyntaxException e) {
+      throw new MalformedURIException("Attempted to submit run for benchmark " + benchmarkName
+          + "and profile " + profile + "to malformed URL.");
     }
 
-    public RunId submit(FabanClientConfig fabanConfig) throws IOException, BenchmarkNameNotFoundException {
-
-
-        String benchmarkName = config.getBenchmarkName();
-        String profile = config.getProfile();
-        InputStream configFile = config.getConfigFile();
-
-        ResponseHandler<RunId> sh = resp -> new RunId(new BasicResponseHandler().handleEntity(resp.getEntity()));
-
-        try(CloseableHttpClient httpClient = HttpClients.createDefault()) {
-
-            URI submitURL = new URIBuilder(fabanConfig.getMasterURL())
-                                    .setPath(SUBMIT_URL + "/" + benchmarkName + "/" + profile)
-                                    .build();
-
-            HttpPost post = new HttpPost(submitURL);
-            HttpEntity multipartEntity = MultipartEntityBuilder.create()
-                                    .addTextBody("sun", fabanConfig.getUser())
-                                    .addTextBody("sp", fabanConfig.getPassword())
-                                    .addBinaryBody("configfile",
-                                                   ByteStreams.toByteArray(configFile),
-                                                   //ContentType.DEFAULT_BINARY,
-                                                   ContentType.create("application/octet-stream"),
-                                                   "run.xml")
-                                    .build();
-
-            post.setEntity(multipartEntity);
-
-            CloseableHttpResponse resp = httpClient.execute(post);
-            int statusCode = resp.getStatusLine().getStatusCode();
-            if(statusCode == HttpStatus.SC_NOT_FOUND)
-                throw new BenchmarkNameNotFoundException("Benchmark " + benchmarkName + " not deployed.");
-            if(statusCode == HttpStatus.SC_NO_CONTENT)
-                throw new EmptyHarnessResponseException();
-
-            //TODO: check that this does indeed work
-            RunId runId = sh.handleResponse(resp);
-
-            return runId;
-
-        } catch (URISyntaxException e) {
-            throw new MalformedURIException("Attempted to submit run for benchmark " +
-            benchmarkName + "and profile " + profile + "to malformed URL.");
-        }
-
-    }
+  }
 
 }

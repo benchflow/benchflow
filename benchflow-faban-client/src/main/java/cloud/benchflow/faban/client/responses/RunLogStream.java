@@ -10,21 +10,21 @@ import java.io.IOException;
  */
 public class RunLogStream implements AutoCloseable, Response {
 
-    private BufferedReader reader;
+  private BufferedReader reader;
 
-    public RunLogStream(BufferedReader reader) {
-        this.reader = reader;
-    }
+  public RunLogStream(BufferedReader reader) {
+    this.reader = reader;
+  }
 
-    public RunLog readLog() throws IOException {
-        String r = reader.readLine();
-        return r == null ? null : new RunLog(r);
-    }
+  public RunLog readLog() throws IOException {
+    String r = reader.readLine();
+    return r == null ? null : new RunLog(r);
+  }
 
 
-    @Override
-    public void close() throws Exception {
-        this.reader.close();
-    }
+  @Override
+  public void close() throws Exception {
+    this.reader.close();
+  }
 
 }
