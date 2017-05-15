@@ -28,9 +28,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
 /**
- * @author Simone D'Avico <simonedavico@gmail.com>
- *
- * Created on 28/10/15.
+ * @author Simone D'Avico (simonedavico@gmail.com) - Created on 28/10/15.
  */
 public class SubmitCommand extends Configurable<SubmitConfig> implements Command<RunId> {
 

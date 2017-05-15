@@ -3,9 +3,7 @@ package cloud.benchflow.faban.client.responses;
 import cloud.benchflow.faban.client.exceptions.IllegalRunStatusException;
 
 /**
- * @author Simone D'Avico (simonedavico@gmail.com)
- *
- * Created on 28/10/15.
+ * @author Simone D'Avico (simonedavico@gmail.com) - Created on 28/10/15.
  */
 public class RunStatus implements Response {
 

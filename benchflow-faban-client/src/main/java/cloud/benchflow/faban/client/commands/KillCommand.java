@@ -29,9 +29,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 
 /**
- * @author Simone D'Avico <simonedavico@gmail.com>
- *
- * Created on 29/10/15.
+ * @author Simone D'Avico (simonedavico@gmail.com) - Created on 29/10/15.
  */
 public class KillCommand extends Configurable<StatusConfig> implements Command<RunStatus> {
 

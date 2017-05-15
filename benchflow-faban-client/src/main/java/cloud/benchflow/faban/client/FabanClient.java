@@ -33,9 +33,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * @author Simone D'Avico <simonedavico@gmail.com>
- *
  * The faban client implementation.
+ * 
+ * @author Simone D'Avico (simonedavico@gmail.com)
  */
 @SuppressWarnings("unused")
 public class FabanClient extends Configurable<FabanClientConfig> {

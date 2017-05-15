@@ -24,9 +24,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
 /**
- * @author Simone D'Avico <simonedavico@gmail.com>
- *
- * Created on 11/11/15.
+ * @author Simone D'Avico (simonedavico@gmail.com) - Created on 11/11/15.
  */
 public class ShowLogsCommand extends Configurable<ShowLogsConfig> implements Command<RunLogStream> {
 

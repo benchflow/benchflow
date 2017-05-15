@@ -22,9 +22,7 @@ import org.apache.http.impl.client.HttpClients;
 
 
 /**
- * @author Simone D'Avico <simonedavico@gmail.com>
- *
- * Created on 26/10/15.
+ * @author Simone D'Avico (simonedavico@gmail.com) - Created on 26/10/15.
  */
 public class DeployCommand extends Configurable<DeployConfig> implements Command<DeployStatus> {
 

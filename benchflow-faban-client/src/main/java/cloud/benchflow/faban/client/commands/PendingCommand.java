@@ -24,9 +24,7 @@ import org.apache.http.impl.client.HttpClients;
 
 
 /**
- * @author Simone D'Avico <simonedavico@gmail.com>
- *
- * Created on 30/10/15.
+ * @author Simone D'Avico (simonedavico@gmail.com) - Created on 30/10/15.
  */
 public class PendingCommand extends Configurable implements Command<RunQueue> {
 

@@ -4,9 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 /**
- * @author Simone D'Avico <simonedavico@gmail.com>
- *
- * Created on 11/11/15.
+ * @author Simone D'Avico (simonedavico@gmail.com) - Created on 11/11/15.
  */
 public class RunLogStream implements AutoCloseable, Response {
 

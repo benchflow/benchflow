@@ -7,9 +7,7 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 
 /**
- * @author Simone D'Avico <simonedavico@gmail.com>
- *
- * Created on 30/10/15.
+ * @author Simone D'Avico (simonedavico@gmail.com) - Created on 30/10/15.
  */
 public class RunQueue implements Response, Iterable<RunId> {
 

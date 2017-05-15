@@ -4,7 +4,7 @@ import cloud.benchflow.faban.client.exceptions.IllegalRunIdException;
 
 /**
  *
- * @author Simone D'Avico <simonedavico@gmail.com>
+ * @author Simone D'Avico (simonedavico@gmail.com)
  */
 public class RunId implements Response {
 

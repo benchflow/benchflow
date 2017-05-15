@@ -5,7 +5,7 @@ import java.util.function.Function;
 
 /**
  *
- * @author Simone D'Avico <simonedavico@gmail.com>
+ * @author Simone D'Avico (simonedavico@gmail.com)
  */
 @SuppressWarnings("unchecked")
 public interface Response {
