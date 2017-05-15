@@ -1,7 +1,6 @@
 package cloud.benchflow.faban.client.configurations;
 
 import java.io.File;
-import java.io.InputStream;
 
 /**
  * Created by simonedavico on 26/10/15.

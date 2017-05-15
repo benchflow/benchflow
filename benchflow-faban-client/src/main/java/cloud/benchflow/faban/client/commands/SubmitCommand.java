@@ -1,15 +1,23 @@
 package cloud.benchflow.faban.client.commands;
 
+import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.configurations.SubmitConfig;
 import cloud.benchflow.faban.client.exceptions.BenchmarkNameNotFoundException;
 import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
-import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.responses.RunId;
+
 import com.google.common.io.ByteStreams;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
@@ -18,12 +26,6 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.client.ResponseHandler;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
  * @author Simone D'Avico <simonedavico@gmail.com>

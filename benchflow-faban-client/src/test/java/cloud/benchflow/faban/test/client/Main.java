@@ -7,7 +7,6 @@ import cloud.benchflow.faban.client.exceptions.ConfigFileNotFoundException;
 import cloud.benchflow.faban.client.exceptions.JarFileNotFoundException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.DeployStatus;
-import cloud.benchflow.faban.client.responses.RunId;
 
 import java.io.IOException;
 import java.net.URI;

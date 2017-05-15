@@ -1,35 +1,24 @@
 package cloud.benchflow.faban.client.commands;
 
+import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.DeployConfig;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
-import cloud.benchflow.faban.client.responses.DeployStatus;
-import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.exceptions.MalformedURIException;
-import com.google.common.io.ByteStreams;
-import org.apache.http.HttpEntity;
+import cloud.benchflow.faban.client.responses.DeployStatus;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import org.apache.http.HttpEntity;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.FormBodyPart;
-import org.apache.http.entity.mime.FormBodyPartBuilder;
-import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.ByteArrayBody;
-import org.apache.http.entity.mime.content.ContentBody;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Arrays;
 
 
 /**
