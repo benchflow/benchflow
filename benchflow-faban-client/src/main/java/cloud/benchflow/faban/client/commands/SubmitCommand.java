@@ -39,6 +39,13 @@ public class SubmitCommand extends Configurable<SubmitConfig> implements Command
     return submit(fabanConfig);
   }
 
+  /**
+   * Run a Faban benchmark.
+   * @param fabanConfig the harness configuration
+   * @return a response containing the status of the operation
+   * @throws IOException when there are issues in reading the benchmark file
+   * @throws BenchmarkNameNotFoundException when the requested benchmark is not found
+   */
   public RunId submit(FabanClientConfig fabanConfig)
       throws IOException, BenchmarkNameNotFoundException {
 

@@ -29,10 +29,10 @@ public class DeployCommand extends Configurable<DeployConfig> implements Command
   private static String DEPLOY_URL = "/deploy";
 
   /**
-   *
+   * Deploy a Faban benchmark.
    * @param fabanConfig the harness configuration
    * @return a response containing the status of the operation
-   * @throws IOException
+   * @throws IOException when there are issues in reading the benchmark file
    */
   public DeployStatus exec(FabanClientConfig fabanConfig) throws IOException {
     return deploy(fabanConfig);

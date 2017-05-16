@@ -11,11 +11,20 @@ public class RunId implements Response {
   private String name;
   private String queueId;
 
+  /**
+   * Contruct a run id response.
+   * @param name the name of the benchmark
+   * @param queueId the id of the benchmark in the queue
+   */
   public RunId(String name, String queueId) {
     this.name = name;
     this.queueId = queueId;
   }
 
+  /**
+   * Contruct a run id response.
+   * @param runId the run id of the benchmark
+   */
   public RunId(String runId) {
     String[] parts = runId.split("\\.");
     if (parts.length != 2) {

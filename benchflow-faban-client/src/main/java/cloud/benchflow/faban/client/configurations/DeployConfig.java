@@ -14,10 +14,22 @@ public class DeployConfig implements Config {
   private String driverName;
   private boolean clearConfig;
 
+  /**
+   * Construct a DeployConfig from the benchmark file and a name for the driver.
+   * @param jarFile the benchmark file
+   * @param driverName the driver name
+   */
   public DeployConfig(File jarFile, String driverName) {
     this(jarFile, driverName, true);
   }
 
+  /**
+   * Construct a DeployConfig from the benchmark file and a name for the driver,
+   * clearing the previous configuration for the benchmark.
+   * @param jarFile the benchmark file
+   * @param driverName the driver name
+   * @param clearConfig true for clearing the previous configuration for the benchmark
+   */
   public DeployConfig(File jarFile, String driverName, boolean clearConfig) {
     this.jarFile = jarFile;
     this.driverName = driverName;

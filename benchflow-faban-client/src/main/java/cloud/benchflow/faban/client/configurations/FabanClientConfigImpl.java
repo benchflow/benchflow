@@ -15,10 +15,21 @@ public class FabanClientConfigImpl implements FabanClientConfig {
   private final String password;
   private final URI masterURL;
 
+  /**
+   * Creates a FabanClientConfigImpl on the default url.
+   * @param user Faban harness username
+   * @param password Faban harness password
+   */
   public FabanClientConfigImpl(final String user, final String password) {
     this(user, password, new FabanClientDefaultConfig().getMasterURL());
   }
 
+  /**
+   * Creates a FabanClientConfigImpl on a custom url.
+   * @param user Faban harness username
+   * @param password Faban harness password
+   * @param masterURL Faban harness url
+   */
   public FabanClientConfigImpl(final String user, final String password, final URI masterURL) {
     this.user = user;
     this.password = password;

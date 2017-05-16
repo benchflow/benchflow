@@ -11,6 +11,12 @@ public class SubmitConfig implements Config {
   private String profile;
   private InputStream configFile;
 
+  /**
+   * Construct a SubmitConfig.
+   * @param benchmarkName the benchmark name
+   * @param profile the benchmark profile
+   * @param configFile the configuration file for this run
+   */
   public SubmitConfig(String benchmarkName, String profile, InputStream configFile) {
     this.benchmarkName = benchmarkName;
     this.profile = profile;

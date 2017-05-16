@@ -9,10 +9,18 @@ public class RunStatus implements Response {
 
   private Code status;
 
+  /**
+   * Possible run statuses.
+   */
   public enum Code {
     QUEUED, RECEIVED, STARTED, COMPLETED, FAILED, KILLED, KILLING, DENIED
   }
 
+  /**
+   * Construct a run status.
+   * @param statusCode the status code
+   * @param runId the run id
+   */
   public RunStatus(String statusCode, RunId runId) {
     switch (statusCode.replace("\n", "")) {
       case "QUEUED":

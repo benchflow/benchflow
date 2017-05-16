@@ -12,6 +12,9 @@ public class FabanClientDefaultConfig implements FabanClientConfig {
 
   private FabanClientConfigImpl defaultConfig;
 
+  /**
+   * Default constructor for the FabanClientDefaultConfig.
+   */
   public FabanClientDefaultConfig() {
 
     FabanClientConfigImpl defConf = null;
