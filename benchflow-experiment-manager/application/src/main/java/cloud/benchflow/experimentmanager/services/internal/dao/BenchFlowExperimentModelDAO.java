@@ -1,18 +1,22 @@
 package cloud.benchflow.experimentmanager.services.internal.dao;
 
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.getTrialID;
+import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.ID_FIELD_NAME;
+
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.RunningState;
 import cloud.benchflow.experimentmanager.models.TrialModel;
+
 import com.mongodb.MongoClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.getTrialID;
-import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
-import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.ID_FIELD_NAME;
-
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 06.03.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 06.03.17.
+ */
 public class BenchFlowExperimentModelDAO extends AbstractDAO {
 
   private static Logger logger =
@@ -35,11 +39,8 @@ public class BenchFlowExperimentModelDAO extends AbstractDAO {
 
     logger.info("getExperimentModel: " + experimentID);
 
-    return datastore
-        .createQuery(BenchFlowExperimentModel.class)
-        .field(ID_FIELD_NAME)
-        .equal(experimentID)
-        .get();
+    return datastore.createQuery(BenchFlowExperimentModel.class).field(ID_FIELD_NAME)
+        .equal(experimentID).get();
   }
 
   public synchronized BenchFlowExperimentState getExperimentState(String experimentID)
@@ -56,8 +57,8 @@ public class BenchFlowExperimentModelDAO extends AbstractDAO {
     return experimentModel.getState();
   }
 
-  public synchronized BenchFlowExperimentState setExperimentState(
-      String experimentID, BenchFlowExperimentState state) {
+  public synchronized BenchFlowExperimentState setExperimentState(String experimentID,
+      BenchFlowExperimentState state) {
 
     logger.info("setExperimentRunningState: " + experimentID + " to " + state.name());
 
@@ -88,8 +89,8 @@ public class BenchFlowExperimentModelDAO extends AbstractDAO {
     return experimentModel.getRunningState();
   }
 
-  public synchronized BenchFlowExperimentState setRunningState(
-      String experimentID, RunningState state) {
+  public synchronized BenchFlowExperimentState setRunningState(String experimentID,
+      RunningState state) {
 
     logger.info("setRunningState: " + experimentID + " state: " + state.name());
 

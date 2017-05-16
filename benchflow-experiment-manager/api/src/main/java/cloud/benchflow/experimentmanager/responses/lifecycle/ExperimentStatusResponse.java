@@ -5,8 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 /**
- * @author Simone D'Avico (simonedavico@gmail.com)
- *     <p>Created on 09/04/16.
+ * @author Simone D'Avico (simonedavico@gmail.com) - Created on 09/04/16.
  */
 public class ExperimentStatusResponse {
 

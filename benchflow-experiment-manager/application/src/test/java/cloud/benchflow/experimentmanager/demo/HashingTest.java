@@ -1,12 +1,15 @@
 package cloud.benchflow.experimentmanager.demo;
 
-import cloud.benchflow.experimentmanager.helpers.TestConstants;
-import org.junit.Test;
-
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MINIO_ID_DELIMITER;
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-13 */
+import cloud.benchflow.experimentmanager.helpers.TestConstants;
+
+import org.junit.Test;
+
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-13
+ */
 public class HashingTest {
   @Test
   public void hashKey() throws Exception {
@@ -26,10 +29,8 @@ public class HashingTest {
     System.out.println("Minio ID: " + minioExperimentID);
     System.out.println("Hashed Minio ID: " + Hashing.hashKey(minioExperimentID));
 
-    System.out.println(
-        "test: "
-            + Hashing.hashKey(
-                "BenchFlow.ParallelMultiple11Activiti5210TestMultipleExploreUsers-2"
-                    .replace(MODEL_ID_DELIMITER, MINIO_ID_DELIMITER)));
+    System.out.println("test: "
+        + Hashing.hashKey("BenchFlow.ParallelMultiple11Activiti5210TestMultipleExploreUsers-2"
+            .replace(MODEL_ID_DELIMITER, MINIO_ID_DELIMITER)));
   }
 }

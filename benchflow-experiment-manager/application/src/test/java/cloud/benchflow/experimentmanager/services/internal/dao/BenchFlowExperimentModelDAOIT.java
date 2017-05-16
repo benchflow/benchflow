@@ -1,18 +1,21 @@
 package cloud.benchflow.experimentmanager.services.internal.dao;
 
+import static org.junit.Assert.assertEquals;
+
 import cloud.benchflow.experimentmanager.DockerComposeIT;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.helpers.TestConstants;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
-import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
+
 import com.mongodb.MongoClient;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-13 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-13
+ */
 public class BenchFlowExperimentModelDAOIT extends DockerComposeIT {
 
   private BenchFlowExperimentModelDAO experimentModelDAO;

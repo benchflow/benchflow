@@ -4,6 +4,7 @@ import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.RunningState;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
@@ -14,14 +15,19 @@ import cloud.benchflow.experimentmanager.tasks.running.HandleTrialResultTask;
 import cloud.benchflow.experimentmanager.tasks.running.ReExecuteTrialTask;
 import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.TrialStatus;
 import cloud.benchflow.experimentmanager.tasks.start.StartTask;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.*;
-
-import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.RunningState;
-
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19
+ */
 public class ExperimentTaskController {
 
   private static Logger logger =
@@ -122,10 +128,10 @@ public class ExperimentTaskController {
         experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.READY);
         handleExperimentState(experimentID);
       } else {
-        experimentModelDAO.setTerminatedState(
-            experimentID, BenchFlowExperimentModel.TerminatedState.ERROR);
-        testManagerService.setExperimentTerminatedState(
-            experimentID, BenchFlowExperimentModel.TerminatedState.ERROR);
+        experimentModelDAO.setTerminatedState(experimentID,
+            BenchFlowExperimentModel.TerminatedState.ERROR);
+        testManagerService.setExperimentTerminatedState(experimentID,
+            BenchFlowExperimentModel.TerminatedState.ERROR);
       }
 
     } catch (InterruptedException | ExecutionException e) {
@@ -241,16 +247,16 @@ public class ExperimentTaskController {
 
       if (checkTerminationCriteria) {
 
-        experimentModelDAO.setRunningState(
-            experimentID, BenchFlowExperimentModel.RunningState.CHECK_TERMINATION_CRITERIA);
-        testManagerService.setExperimentRunningState(
-            experimentID, RunningState.CHECK_TERMINATION_CRITERIA);
+        experimentModelDAO.setRunningState(experimentID,
+            BenchFlowExperimentModel.RunningState.CHECK_TERMINATION_CRITERIA);
+        testManagerService.setExperimentRunningState(experimentID,
+            RunningState.CHECK_TERMINATION_CRITERIA);
         handleExperimentState(experimentID);
 
       } else {
 
-        experimentModelDAO.setRunningState(
-            experimentID, BenchFlowExperimentModel.RunningState.RE_EXECUTE_TRIAL);
+        experimentModelDAO.setRunningState(experimentID,
+            BenchFlowExperimentModel.RunningState.RE_EXECUTE_TRIAL);
         testManagerService.setExperimentRunningState(experimentID, RunningState.RE_EXECUTE_TRIAL);
         handleExperimentState(experimentID);
       }
@@ -279,10 +285,10 @@ public class ExperimentTaskController {
       switch (terminationCriteriaResult) {
         case FULFILLED:
           experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED);
-          experimentModelDAO.setTerminatedState(
-              experimentID, BenchFlowExperimentModel.TerminatedState.COMPLETED);
-          testManagerService.setExperimentTerminatedState(
-              experimentID, BenchFlowExperimentModel.TerminatedState.COMPLETED);
+          experimentModelDAO.setTerminatedState(experimentID,
+              BenchFlowExperimentModel.TerminatedState.COMPLETED);
+          testManagerService.setExperimentTerminatedState(experimentID,
+              BenchFlowExperimentModel.TerminatedState.COMPLETED);
 
           handleExperimentState(experimentID);
 
@@ -290,18 +296,18 @@ public class ExperimentTaskController {
 
         case NOT_FULLFILLED:
           experimentModelDAO.setRunningState(experimentID, RunningState.EXECUTE_NEW_TRIAL);
-          testManagerService.setExperimentRunningState(
-              experimentID, RunningState.EXECUTE_NEW_TRIAL);
+          testManagerService.setExperimentRunningState(experimentID,
+              RunningState.EXECUTE_NEW_TRIAL);
           handleExperimentState(experimentID);
 
           break;
 
         case CANNOT_BE_FULFILLED:
           experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED);
-          experimentModelDAO.setTerminatedState(
-              experimentID, BenchFlowExperimentModel.TerminatedState.FAILURE);
-          testManagerService.setExperimentTerminatedState(
-              experimentID, BenchFlowExperimentModel.TerminatedState.FAILURE);
+          experimentModelDAO.setTerminatedState(experimentID,
+              BenchFlowExperimentModel.TerminatedState.FAILURE);
+          testManagerService.setExperimentTerminatedState(experimentID,
+              BenchFlowExperimentModel.TerminatedState.FAILURE);
 
           handleExperimentState(experimentID);
 

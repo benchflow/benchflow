@@ -1,11 +1,23 @@
 package cloud.benchflow.experimentmanager.services.external;
 
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.BPMN_MODELS_FOLDER_NAME;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.FABAN_CONFIG_FILENAME;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.GENERATED_BENCHMARK_FILENAME;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MINIO_ID_DELIMITER;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.PT_PE_DEFINITION_FILE_NAME;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.TESTS_BUCKET;
+import static cloud.benchflow.experimentmanager.demo.Hashing.hashKey;
+
 import io.minio.MinioClient;
-import io.minio.errors.*;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xmlpull.v1.XmlPullParserException;
+import io.minio.errors.ErrorResponseException;
+import io.minio.errors.InsufficientDataException;
+import io.minio.errors.InternalException;
+import io.minio.errors.InvalidArgumentException;
+import io.minio.errors.InvalidBucketNameException;
+import io.minio.errors.MinioException;
+import io.minio.errors.NoResponseException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,12 +26,14 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.*;
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.FABAN_CONFIG_FILENAME;
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
-import static cloud.benchflow.experimentmanager.demo.Hashing.hashKey;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xmlpull.v1.XmlPullParserException;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 05.03.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 05.03.17.
+ */
 public class MinioService {
 
   // http://www.iana.org/assignments/media-types/application/octet-stream
@@ -38,15 +52,9 @@ public class MinioService {
         minioClient.makeBucket(TESTS_BUCKET);
       }
 
-    } catch (InvalidBucketNameException
-        | NoSuchAlgorithmException
-        | IOException
-        | InsufficientDataException
-        | InvalidKeyException
-        | NoResponseException
-        | XmlPullParserException
-        | ErrorResponseException
-        | InternalException e) {
+    } catch (InvalidBucketNameException | NoSuchAlgorithmException | IOException
+        | InsufficientDataException | InvalidKeyException | NoResponseException
+        | XmlPullParserException | ErrorResponseException | InternalException e) {
       // TODO - handle exception
       logger.error("Exception in initializeBuckets ", e);
     }
@@ -69,10 +77,7 @@ public class MinioService {
 
       return valid;
 
-    } catch (MinioException
-        | NoSuchAlgorithmException
-        | XmlPullParserException
-        | IOException
+    } catch (MinioException | NoSuchAlgorithmException | XmlPullParserException | IOException
         | InvalidKeyException e) {
       logger.error(e.getMessage());
       return false;
@@ -99,27 +104,20 @@ public class MinioService {
     return getInputStreamObject(objectName);
   }
 
-  public void copyExperimentDefintionForDriversMaker(
-      String driversMakerExperimentID, long experimentNumber, InputStream definitionInputStream) {
+  public void copyExperimentDefintionForDriversMaker(String driversMakerExperimentID,
+      long experimentNumber, InputStream definitionInputStream) {
 
     // TODO - change/remove this method when DriversMaker changes
 
-    logger.info(
-        "copyExperimentDefintionForDriversMaker: "
-            + driversMakerExperimentID
-            + MODEL_ID_DELIMITER
-            + experimentNumber);
+    logger.info("copyExperimentDefintionForDriversMaker: " + driversMakerExperimentID
+        + MODEL_ID_DELIMITER + experimentNumber);
 
     String objectName = minioCompatibleID(driversMakerExperimentID);
 
     try {
 
-      String hashedObjectName =
-          hashKey(objectName)
-              + MINIO_ID_DELIMITER
-              + experimentNumber
-              + MINIO_ID_DELIMITER
-              + PT_PE_DEFINITION_FILE_NAME;
+      String hashedObjectName = hashKey(objectName) + MINIO_ID_DELIMITER + experimentNumber
+          + MINIO_ID_DELIMITER + PT_PE_DEFINITION_FILE_NAME;
       putInputStreamObject(definitionInputStream, hashedObjectName);
 
     } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
@@ -127,8 +125,8 @@ public class MinioService {
     }
   }
 
-  public void saveExperimentDeploymentDescriptor(
-      String experimentID, InputStream definitionInputStream) {
+  public void saveExperimentDeploymentDescriptor(String experimentID,
+      InputStream definitionInputStream) {
 
     logger.info("saveExperimentDeploymentDescriptor: " + experimentID);
 
@@ -150,16 +148,13 @@ public class MinioService {
     return getInputStreamObject(objectName);
   }
 
-  public void copyDeploymentDescriptorForDriversMaker(
-      String experimentID, String driversMakerExperimentID, long experimentNumber) {
+  public void copyDeploymentDescriptorForDriversMaker(String experimentID,
+      String driversMakerExperimentID, long experimentNumber) {
 
     // TODO - change/remove this method when DriversMaker changes
 
-    logger.info(
-        "copyDeploymentDescriptorForDriversMaker: "
-            + experimentID
-            + MODEL_ID_DELIMITER
-            + experimentNumber);
+    logger.info("copyDeploymentDescriptorForDriversMaker: " + experimentID + MODEL_ID_DELIMITER
+        + experimentNumber);
 
     String experimentObjectName =
         minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
@@ -167,11 +162,8 @@ public class MinioService {
     try {
 
       String driversMakerObjectName =
-          hashKey(minioCompatibleID(driversMakerExperimentID))
-              + MINIO_ID_DELIMITER
-              + experimentNumber
-              + MINIO_ID_DELIMITER
-              + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+          hashKey(minioCompatibleID(driversMakerExperimentID)) + MINIO_ID_DELIMITER
+              + experimentNumber + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
       copyObject(experimentObjectName, driversMakerObjectName);
 
     } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
@@ -179,17 +171,13 @@ public class MinioService {
     }
   }
 
-  public void saveExperimentBPMNModel(
-      String experimentID, String modelName, InputStream definitionInputStream) {
+  public void saveExperimentBPMNModel(String experimentID, String modelName,
+      InputStream definitionInputStream) {
 
     logger.info("saveExperimentBPMNModel: " + experimentID);
 
-    String objectName =
-        minioCompatibleID(experimentID)
-            + MINIO_ID_DELIMITER
-            + BPMN_MODELS_FOLDER_NAME
-            + MINIO_ID_DELIMITER
-            + modelName;
+    String objectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER
+        + BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER + modelName;
 
     putInputStreamObject(definitionInputStream, objectName);
   }
@@ -202,68 +190,46 @@ public class MinioService {
 
     String testID = experimentID.substring(0, experimentID.lastIndexOf("."));
 
-    String objectName =
-        minioCompatibleID(testID)
-            + MINIO_ID_DELIMITER
-            + BPMN_MODELS_FOLDER_NAME
-            + MINIO_ID_DELIMITER
-            + modelName;
+    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER + BPMN_MODELS_FOLDER_NAME
+        + MINIO_ID_DELIMITER + modelName;
 
     return getInputStreamObject(objectName);
   }
 
-  public void copyExperimentBPMNModelForDriversMaker(
-      String experimentID, String driversMakerExperimentID, String modelName) {
+  public void copyExperimentBPMNModelForDriversMaker(String experimentID,
+      String driversMakerExperimentID, String modelName) {
 
     // TODO - change/remove this method when DriversMaker changes
 
-    logger.info(
-        "copyExperimentBPMNModelForDriversMaker: "
-            + driversMakerExperimentID
-            + MINIO_ID_DELIMITER
-            + modelName);
+    logger.info("copyExperimentBPMNModelForDriversMaker: " + driversMakerExperimentID
+        + MINIO_ID_DELIMITER + modelName);
 
-    String experimentObjectName =
-        minioCompatibleID(experimentID)
-            + MINIO_ID_DELIMITER
-            + BPMN_MODELS_FOLDER_NAME
-            + MINIO_ID_DELIMITER
-            + modelName;
+    String experimentObjectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER
+        + BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER + modelName;
 
     try {
-      String driversMakerObjectName =
-          hashKey(minioCompatibleID(driversMakerExperimentID))
-              + MINIO_ID_DELIMITER
-              + BPMN_MODELS_FOLDER_NAME
-              + MINIO_ID_DELIMITER
-              + modelName;
+      String driversMakerObjectName = hashKey(minioCompatibleID(driversMakerExperimentID))
+          + MINIO_ID_DELIMITER + BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER + modelName;
       copyObject(experimentObjectName, driversMakerObjectName);
     } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
       logger.error(e.getMessage());
     }
   }
 
-  public InputStream getDriversMakerGeneratedBenchmark(
-      String driversMakerExperimentID, long experimentNumber) {
+  public InputStream getDriversMakerGeneratedBenchmark(String driversMakerExperimentID,
+      long experimentNumber) {
 
     // TODO - change this method when DriversMaker changes
 
-    logger.info(
-        "getDriversMakerGeneratedBenchmark: "
-            + driversMakerExperimentID
-            + MODEL_ID_DELIMITER
-            + experimentNumber);
+    logger.info("getDriversMakerGeneratedBenchmark: " + driversMakerExperimentID
+        + MODEL_ID_DELIMITER + experimentNumber);
 
     String objectName = minioCompatibleID(driversMakerExperimentID);
 
     try {
 
-      String hashedObjectName =
-          hashKey(objectName)
-              + MINIO_ID_DELIMITER
-              + experimentNumber
-              + MINIO_ID_DELIMITER
-              + GENERATED_BENCHMARK_FILENAME;
+      String hashedObjectName = hashKey(objectName) + MINIO_ID_DELIMITER + experimentNumber
+          + MINIO_ID_DELIMITER + GENERATED_BENCHMARK_FILENAME;
       return getInputStreamObject(hashedObjectName);
 
     } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
@@ -273,30 +239,19 @@ public class MinioService {
     return null;
   }
 
-  public InputStream getDriversMakerGeneratedFabanConfiguration(
-      String driversMakerExperimentID, long experimentNumber, long trialNumber) {
+  public InputStream getDriversMakerGeneratedFabanConfiguration(String driversMakerExperimentID,
+      long experimentNumber, long trialNumber) {
 
     // TODO - change this method when DriversMaker changes
 
-    logger.info(
-        "getDriversMakerGeneratedFabanConfiguration: "
-            + driversMakerExperimentID
-            + MODEL_ID_DELIMITER
-            + experimentNumber
-            + MODEL_ID_DELIMITER
-            + trialNumber);
+    logger.info("getDriversMakerGeneratedFabanConfiguration: " + driversMakerExperimentID
+        + MODEL_ID_DELIMITER + experimentNumber + MODEL_ID_DELIMITER + trialNumber);
 
     String objectName = minioCompatibleID(driversMakerExperimentID);
 
     try {
-      String hashedObjectName =
-          hashKey(objectName)
-              + MINIO_ID_DELIMITER
-              + experimentNumber
-              + MINIO_ID_DELIMITER
-              + trialNumber
-              + MINIO_ID_DELIMITER
-              + FABAN_CONFIG_FILENAME;
+      String hashedObjectName = hashKey(objectName) + MINIO_ID_DELIMITER + experimentNumber
+          + MINIO_ID_DELIMITER + trialNumber + MINIO_ID_DELIMITER + FABAN_CONFIG_FILENAME;
       return getInputStreamObject(hashedObjectName);
 
     } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
@@ -306,40 +261,25 @@ public class MinioService {
     return null;
   }
 
-  /**
-   * @param inputStream
-   * @param objectName
-   */
   private void putInputStreamObject(InputStream inputStream, String objectName) {
 
     logger.info("putInputStreamObject: " + objectName);
 
     try {
 
-      minioClient.putObject(
-          TESTS_BUCKET, objectName, inputStream, inputStream.available(), CONTENT_TYPE);
+      minioClient.putObject(TESTS_BUCKET, objectName, inputStream, inputStream.available(),
+          CONTENT_TYPE);
 
       logger.info("putInputStreamObject: added ");
 
-    } catch (InvalidBucketNameException
-        | NoSuchAlgorithmException
-        | InsufficientDataException
-        | IOException
-        | NoResponseException
-        | InvalidKeyException
-        | ErrorResponseException
-        | XmlPullParserException
-        | InvalidArgumentException
-        | InternalException e) {
+    } catch (InvalidBucketNameException | NoSuchAlgorithmException | InsufficientDataException
+        | IOException | NoResponseException | InvalidKeyException | ErrorResponseException
+        | XmlPullParserException | InvalidArgumentException | InternalException e) {
       // TODO - handle exception
       logger.error("Exception in putInputStreamObject: " + objectName, e);
     }
   }
 
-  /**
-   * @param objectName
-   * @return
-   */
   private InputStream getInputStreamObject(String objectName) {
 
     logger.info("getInputStreamObject: " + objectName);
@@ -348,15 +288,9 @@ public class MinioService {
 
       return minioClient.getObject(TESTS_BUCKET, objectName);
 
-    } catch (InvalidBucketNameException
-        | NoSuchAlgorithmException
-        | InsufficientDataException
-        | IOException
-        | InvalidKeyException
-        | NoResponseException
-        | XmlPullParserException
-        | InternalException
-        | InvalidArgumentException e) {
+    } catch (InvalidBucketNameException | NoSuchAlgorithmException | InsufficientDataException
+        | IOException | InvalidKeyException | NoResponseException | XmlPullParserException
+        | InternalException | InvalidArgumentException e) {
       // TODO - handle exception
       logger.error("Exception in getInputStreamObject: " + objectName, e);
       return null;
@@ -376,24 +310,16 @@ public class MinioService {
       // minioClient.copyObject(TESTS_BUCKET, fromObjectName, TESTS_BUCKET, toObjectName);
 
       // convert to buffered input stream as the type minio returns cannot be put
-      String temp =
-          IOUtils.toString(
-              minioClient.getObject(TESTS_BUCKET, fromObjectName), StandardCharsets.UTF_8);
+      String temp = IOUtils.toString(minioClient.getObject(TESTS_BUCKET, fromObjectName),
+          StandardCharsets.UTF_8);
       InputStream tempInputStream = IOUtils.toInputStream(temp, StandardCharsets.UTF_8);
 
-      minioClient.putObject(
-          TESTS_BUCKET, toObjectName, tempInputStream, tempInputStream.available(), CONTENT_TYPE);
+      minioClient.putObject(TESTS_BUCKET, toObjectName, tempInputStream,
+          tempInputStream.available(), CONTENT_TYPE);
 
-    } catch (InvalidKeyException
-        | InvalidBucketNameException
-        | NoSuchAlgorithmException
-        | InsufficientDataException
-        | NoResponseException
-        | ErrorResponseException
-        | InternalException
-        | IOException
-        | XmlPullParserException
-        | InvalidArgumentException e) {
+    } catch (InvalidKeyException | InvalidBucketNameException | NoSuchAlgorithmException
+        | InsufficientDataException | NoResponseException | ErrorResponseException
+        | InternalException | IOException | XmlPullParserException | InvalidArgumentException e) {
       // TODO - handle exception
       logger.error("Exception in copyObject: from:" + fromObjectName + " to:" + toObjectName, e);
     }

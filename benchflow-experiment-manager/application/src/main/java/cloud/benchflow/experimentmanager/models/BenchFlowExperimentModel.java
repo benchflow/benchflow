@@ -1,23 +1,30 @@
 package cloud.benchflow.experimentmanager.models;
 
-import org.mongodb.morphia.annotations.*;
+import java.util.Date;
+import java.util.TreeMap;
+
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Field;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Index;
+import org.mongodb.morphia.annotations.IndexOptions;
+import org.mongodb.morphia.annotations.Indexes;
+import org.mongodb.morphia.annotations.PrePersist;
+import org.mongodb.morphia.annotations.Reference;
 import org.mongodb.morphia.utils.IndexType;
 
-import java.util.*;
-
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-03-23 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-03-23
+ */
 @Entity
-@Indexes({
-  @Index(
-    options = @IndexOptions(),
-    fields = {@Field(value = "hashedID", type = IndexType.HASHED)}
-  )
-})
+@Indexes({@Index(options = @IndexOptions(),
+    fields = {@Field(value = "hashedID", type = IndexType.HASHED)})})
 public class BenchFlowExperimentModel {
 
   public static final String ID_FIELD_NAME = "id";
   public static final String HASHED_ID_FIELD_NAME = "hashedID";
-  @Id private String id;
+  @Id
+  private String id;
   // used for potential sharding in the future
   private String hashedID;
   private Date start = new Date();
@@ -28,7 +35,8 @@ public class BenchFlowExperimentModel {
   private int numTrials;
   // TODO - this should be part of the DSL
   private int numTrialRetries = 1;
-  @Reference private TreeMap<Long, TrialModel> trials = new TreeMap<>();
+  @Reference
+  private TreeMap<Long, TrialModel> trials = new TreeMap<>();
 
   BenchFlowExperimentModel() {
     // Empty constructor for MongoDB + Morphia
@@ -119,23 +127,14 @@ public class BenchFlowExperimentModel {
   }
 
   public enum BenchFlowExperimentState {
-    START,
-    READY,
-    RUNNING,
-    TERMINATED
+    START, READY, RUNNING, TERMINATED
   }
 
   public enum RunningState {
-    EXECUTE_NEW_TRIAL,
-    HANDLE_TRIAL_RESULT,
-    CHECK_TERMINATION_CRITERIA,
-    RE_EXECUTE_TRIAL
+    EXECUTE_NEW_TRIAL, HANDLE_TRIAL_RESULT, CHECK_TERMINATION_CRITERIA, RE_EXECUTE_TRIAL
   }
 
   public enum TerminatedState {
-    COMPLETED,
-    FAILURE,
-    ABORTED,
-    ERROR
+    COMPLETED, FAILURE, ABORTED, ERROR
   }
 }

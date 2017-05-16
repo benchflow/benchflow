@@ -1,12 +1,8 @@
 package cloud.benchflow.experimentmanager.configurations.factory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.dropwizard.setup.Environment;
-import io.dropwizard.util.Duration;
 
-import javax.annotation.Nonnull;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import io.dropwizard.setup.Environment;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
@@ -14,10 +10,13 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.annotation.Nonnull;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
 /**
  * @author Simone D'Avico (simonedavico@gmail.com)
- * @author jesper (jesper.findahl@usi.ch)
- *     <p>Created on 07/03/16.
+ * @author jesper (jesper.findahl@usi.ch) - Created on 07/03/16.
  */
 public class TaskExecutorFactory {
 
@@ -56,12 +55,9 @@ public class TaskExecutorFactory {
     int cpus = Runtime.getRuntime().availableProcessors();
 
     // default configuration with threadPoolSize == 1
-    return environment
-        .lifecycle()
-        .executorService("task-%d", new DaemonThreadFactory())
+    return environment.lifecycle().executorService("task-%d", new DaemonThreadFactory())
         .workQueue(new SynchronousQueue<>())
-        .rejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy())
-        .build();
+        .rejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy()).build();
 
     //        return environment.lifecycle().executorService("task-%d")
     //                .minThreads(minThreads * cpus) //TODO: make base min value configurable

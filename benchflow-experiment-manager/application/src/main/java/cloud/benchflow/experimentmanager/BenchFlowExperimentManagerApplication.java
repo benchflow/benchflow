@@ -9,7 +9,9 @@ import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperime
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
 import cloud.benchflow.experimentmanager.tasks.ExperimentTaskController;
 import cloud.benchflow.faban.client.FabanClient;
+
 import com.mongodb.MongoClient;
+
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
 import io.dropwizard.Application;
@@ -18,11 +20,13 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ExecutorService;
 
 import javax.ws.rs.client.Client;
-import java.util.concurrent.ExecutorService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BenchFlowExperimentManagerApplication
     extends Application<BenchFlowExperimentManagerConfiguration> {
@@ -105,19 +109,17 @@ public class BenchFlowExperimentManagerApplication
     logger.info("initialize");
 
     // Dropwizard Template Config
-    bootstrap.addBundle(
-        new TemplateConfigBundle(
-            new TemplateConfigBundleConfiguration().resourceIncludePath("/app")));
+    bootstrap.addBundle(new TemplateConfigBundle(
+        new TemplateConfigBundleConfiguration().resourceIncludePath("/app")));
 
     // Dropwizard Swagger
-    bootstrap.addBundle(
-        new SwaggerBundle<BenchFlowExperimentManagerConfiguration>() {
-          @Override
-          protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(
-              BenchFlowExperimentManagerConfiguration configuration) {
-            return configuration.getSwagger();
-          }
-        });
+    bootstrap.addBundle(new SwaggerBundle<BenchFlowExperimentManagerConfiguration>() {
+      @Override
+      protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(
+          BenchFlowExperimentManagerConfiguration configuration) {
+        return configuration.getSwagger();
+      }
+    });
   }
 
   @Override
@@ -126,10 +128,8 @@ public class BenchFlowExperimentManagerApplication
 
     logger.info("run");
 
-    Client client =
-        new JerseyClientBuilder(environment)
-            .using(configuration.getJerseyClientConfiguration())
-            .build(environment.getName());
+    Client client = new JerseyClientBuilder(environment)
+        .using(configuration.getJerseyClientConfiguration()).build(environment.getName());
 
     MongoClient mongoClient = configuration.getMongoDBFactory().build();
 

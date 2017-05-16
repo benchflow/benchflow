@@ -3,8 +3,7 @@ package cloud.benchflow.experimentmanager.responses.lifecycle;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * @author Simone D'Avico (simonedavico@gmail.com)
- *     <p>Created on 09/04/16.
+ * @author Simone D'Avico (simonedavico@gmail.com) - Created on 09/04/16.
  */
 public class TrialStatusResponse {
 

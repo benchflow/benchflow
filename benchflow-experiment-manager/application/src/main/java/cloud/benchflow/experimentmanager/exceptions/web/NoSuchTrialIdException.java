@@ -3,8 +3,7 @@ package cloud.benchflow.experimentmanager.exceptions.web;
 import javax.ws.rs.WebApplicationException;
 
 /**
- * @author Simone D'Avico (simonedavico@gmail.com)
- *     <p>Created on 06/04/16.
+ * @author Simone D'Avico (simonedavico@gmail.com) - Created on 06/04/16.
  */
 public class NoSuchTrialIdException extends WebApplicationException {
 

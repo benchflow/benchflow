@@ -1,20 +1,21 @@
 package cloud.benchflow.experimentmanager.services.external;
 
-import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+
 import cloud.benchflow.experimentmanager.exceptions.web.BenchmarkGenerationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 05.03.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 05.03.17.
+ */
 public class DriversMakerService {
 
   public static final String GENERATE_BENCHMARK_PATH = "/generatedriver";
@@ -30,14 +31,8 @@ public class DriversMakerService {
 
   public void generateBenchmark(String experimentName, long experimentNumber, int nTrials) {
 
-    logger.info(
-        "generateBenchmark for "
-            + experimentName
-            + MODEL_ID_DELIMITER
-            + experimentNumber
-            + " with "
-            + nTrials
-            + " trials.");
+    logger.info("generateBenchmark for " + experimentName + MODEL_ID_DELIMITER + experimentNumber
+        + " with " + nTrials + " trials.");
 
     // TODO - return result as a list of IDs
 
@@ -46,11 +41,8 @@ public class DriversMakerService {
     body.setExperimentNumber(experimentNumber);
     body.setTrials(nTrials);
 
-    Response response =
-        driversMakerTarget
-            .path(GENERATE_BENCHMARK_PATH)
-            .request()
-            .post(Entity.entity(body, MediaType.APPLICATION_JSON));
+    Response response = driversMakerTarget.path(GENERATE_BENCHMARK_PATH).request()
+        .post(Entity.entity(body, MediaType.APPLICATION_JSON));
 
     if (response.getStatus() != Response.Status.OK.getStatusCode()) {
 
@@ -58,9 +50,8 @@ public class DriversMakerService {
       throw new BenchmarkGenerationException("Error in benchmark generation", response.getStatus());
     }
 
-    logger.info(
-        "generateBenchmark: generated Benchmark with response: "
-            + response.readEntity(String.class));
+    logger.info("generateBenchmark: generated Benchmark with response: "
+        + response.readEntity(String.class));
   }
 
   private static class MakeDriverRequestBody {

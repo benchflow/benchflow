@@ -1,7 +1,15 @@
 package cloud.benchflow.experimentmanager.configurations;
 
-import cloud.benchflow.experimentmanager.configurations.factory.*;
+import cloud.benchflow.experimentmanager.configurations.factory.BenchFlowEnvironmentFactory;
+import cloud.benchflow.experimentmanager.configurations.factory.DriversMakerServiceFactory;
+import cloud.benchflow.experimentmanager.configurations.factory.FabanServiceFactory;
+import cloud.benchflow.experimentmanager.configurations.factory.MinioServiceFactory;
+import cloud.benchflow.experimentmanager.configurations.factory.MongoDBFactory;
+import cloud.benchflow.experimentmanager.configurations.factory.TaskExecutorFactory;
+import cloud.benchflow.experimentmanager.configurations.factory.TestManagerServiceFactory;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.dropwizard.Configuration;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
@@ -14,7 +22,9 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   // see http://www.dropwizard.io/1.0.6/docs/manual/core.html#configuration
 
   // Jersey Client Configuration
-  @Valid @NotNull private JerseyClientConfiguration jerseyClient = new JerseyClientConfiguration();
+  @Valid
+  @NotNull
+  private JerseyClientConfiguration jerseyClient = new JerseyClientConfiguration();
 
   @JsonProperty("jerseyClient")
   public JerseyClientConfiguration getJerseyClientConfiguration() {
@@ -27,7 +37,8 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   }
 
   // Swagger Configuration
-  @Valid @NotNull
+  @Valid
+  @NotNull
   private final SwaggerBundleConfiguration swagger = new SwaggerBundleConfiguration();
 
   @JsonProperty("swagger")
@@ -36,7 +47,9 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   }
 
   // BenchFlow Environment Configuration
-  @Valid @NotNull @JsonProperty
+  @Valid
+  @NotNull
+  @JsonProperty
   private BenchFlowEnvironmentFactory benchFlowEnvironmentFactory =
       new BenchFlowEnvironmentFactory();
 
@@ -52,7 +65,9 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   }
 
   // MongoDB Configuration
-  @Valid @NotNull private MongoDBFactory mongoDBFactory = new MongoDBFactory();
+  @Valid
+  @NotNull
+  private MongoDBFactory mongoDBFactory = new MongoDBFactory();
 
   @JsonProperty("mongoDB")
   public MongoDBFactory getMongoDBFactory() {
@@ -65,7 +80,9 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   }
 
   // Minio Service
-  @Valid @NotNull @JsonProperty
+  @Valid
+  @NotNull
+  @JsonProperty
   private MinioServiceFactory minioServiceFactory = new MinioServiceFactory();
 
   @JsonProperty("minio")
@@ -79,7 +96,9 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   }
 
   // Faban
-  @Valid @NotNull private FabanServiceFactory fabanServiceFactory = new FabanServiceFactory();
+  @Valid
+  @NotNull
+  private FabanServiceFactory fabanServiceFactory = new FabanServiceFactory();
 
   @JsonProperty("faban")
   public FabanServiceFactory getFabanServiceFactory() {
@@ -92,7 +111,8 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   }
 
   // Drivers Maker
-  @Valid @NotNull
+  @Valid
+  @NotNull
   private DriversMakerServiceFactory driversMakerServiceFactory = new DriversMakerServiceFactory();
 
   @JsonProperty("driversMaker")
@@ -106,21 +126,23 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   }
 
   // Performance-Test-Manager Service
-  @Valid @NotNull
-  private TestManagerServiceFactory TestManagerServiceFactory = new TestManagerServiceFactory();
+  @Valid
+  @NotNull
+  private TestManagerServiceFactory testManagerServiceFactory = new TestManagerServiceFactory();
 
   @JsonProperty("testManager")
   public TestManagerServiceFactory getTestManagerServiceFactory() {
-    return TestManagerServiceFactory;
+    return testManagerServiceFactory;
   }
 
   @JsonProperty("testManager")
   public void setTestManagerServiceFactory(TestManagerServiceFactory testManagerServiceFactory) {
-    this.TestManagerServiceFactory = testManagerServiceFactory;
+    this.testManagerServiceFactory = testManagerServiceFactory;
   }
 
   // Experiment Task Executor
-  @Valid @NotNull
+  @Valid
+  @NotNull
   private TaskExecutorFactory experimentTaskExecutorServiceFactory = new TaskExecutorFactory();
 
   @JsonProperty("experimentTaskExecutor")
@@ -134,7 +156,8 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   }
 
   // Trial Task Executor
-  @Valid @NotNull
+  @Valid
+  @NotNull
   private TaskExecutorFactory trialTaskExecutorServiceFactory = new TaskExecutorFactory();
 
   @JsonProperty("trialTaskExecutor")

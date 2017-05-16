@@ -1,15 +1,19 @@
 package cloud.benchflow.experimentmanager.services.internal.dao;
 
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.getTrialID;
+
 import cloud.benchflow.experimentmanager.exceptions.TrialIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.models.TrialModel;
 import cloud.benchflow.faban.client.responses.RunStatus;
+
 import com.mongodb.MongoClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.getTrialID;
-
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-05-07 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-05-07
+ */
 public class TrialModelDAO extends AbstractDAO {
 
   private static Logger logger = LoggerFactory.getLogger(TrialModelDAO.class.getSimpleName());
@@ -28,11 +32,11 @@ public class TrialModelDAO extends AbstractDAO {
     setTrialStatus(trialID, RunStatus.Code.STARTED);
   }
 
-  public synchronized void setFabanTrialID(
-      String experimentID, long trialNumber, String fabanRunID) {
+  public synchronized void setFabanTrialID(String experimentID, long trialNumber,
+      String fabanRunID) {
 
-    logger.info(
-        "setFabanTrialID: " + experimentID + " trial " + trialNumber + " with " + fabanRunID);
+    logger
+        .info("setFabanTrialID: " + experimentID + " trial " + trialNumber + " with " + fabanRunID);
 
     TrialModel trialModel = getTrialModel(experimentID, trialNumber);
 
@@ -97,10 +101,7 @@ public class TrialModelDAO extends AbstractDAO {
 
     logger.info("getTrialModel: " + trialID);
 
-    return datastore
-        .createQuery(TrialModel.class)
-        .field(TrialModel.ID_FIELD_NAME)
-        .equal(trialID)
+    return datastore.createQuery(TrialModel.class).field(TrialModel.ID_FIELD_NAME).equal(trialID)
         .get();
   }
 

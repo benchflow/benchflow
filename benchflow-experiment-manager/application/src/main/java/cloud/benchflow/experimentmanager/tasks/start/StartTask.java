@@ -1,5 +1,7 @@
 package cloud.benchflow.experimentmanager.tasks.start;
 
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+
 import cloud.benchflow.dsl.BenchFlowDSL;
 import cloud.benchflow.dsl.definition.BenchFlowExperiment;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
@@ -13,11 +15,6 @@ import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.exceptions.JarFileNotFoundException;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import scala.collection.JavaConverters;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,9 +23,16 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19 */
+import scala.collection.JavaConverters;
+
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19
+ */
 public class StartTask implements Callable<Boolean> {
 
   private static final String TEMP_DIR = "./tmp";
@@ -63,9 +67,8 @@ public class StartTask implements Callable<Boolean> {
     try {
 
       // get the BenchFlowExperimentDefinition from minio
-      String experimentYamlString =
-          IOUtils.toString(
-              minioService.getExperimentDefinition(experimentID), StandardCharsets.UTF_8);
+      String experimentYamlString = IOUtils
+          .toString(minioService.getExperimentDefinition(experimentID), StandardCharsets.UTF_8);
 
       BenchFlowExperiment experiment =
           BenchFlowDSL.experimentFromExperimentYaml(experimentYamlString);
@@ -84,8 +87,8 @@ public class StartTask implements Callable<Boolean> {
       String experimentName = driversMakerCompatibleID.getExperimentName();
       long experimentNumber = driversMakerCompatibleID.getExperimentNumber();
 
-      saveDriversMakerCompatibleFilesOnMinio(
-          experiment, driversMakerExperimentID, experimentNumber);
+      saveDriversMakerCompatibleFilesOnMinio(experiment, driversMakerExperimentID,
+          experimentNumber);
 
       // generate benchmark from DriversMaker (one per experiment)
       // TODO - is driversMakerService responsible to generate the trialIDs, otherwise I think we should just pass the trialID to the driversMakerService
@@ -94,26 +97,22 @@ public class StartTask implements Callable<Boolean> {
 
       // DEPLOY TO FABAN
       // get the generated benchflow-benchmark.jar from minioService and save to disk so that it can be sent
-      InputStream fabanBenchmark =
-          minioService.getDriversMakerGeneratedBenchmark(
-              driversMakerExperimentID, experimentNumber);
+      InputStream fabanBenchmark = minioService
+          .getDriversMakerGeneratedBenchmark(driversMakerExperimentID, experimentNumber);
 
       // TODO - should this be a method (part of Faban Client?)
       String fabanExperimentId =
           experimentID.replace(MODEL_ID_DELIMITER, BenchFlowConstants.FABAN_ID_DELIMITER);
 
       // store on disk because there are issues sending InputStream directly
-      java.nio.file.Path benchmarkPath =
-          Paths.get(TEMP_DIR)
-              .resolve(experimentID)
-              .resolve(fabanExperimentId + BENCHMARK_FILE_ENDING);
+      java.nio.file.Path benchmarkPath = Paths.get(TEMP_DIR).resolve(experimentID)
+          .resolve(fabanExperimentId + BENCHMARK_FILE_ENDING);
 
       FileUtils.copyInputStreamToFile(fabanBenchmark, benchmarkPath.toFile());
 
       // deploy experiment to Faban
       fabanClient.deploy(benchmarkPath.toFile());
-      logger.info(
-          "deployed benchmark to Faban: " + fabanExperimentId); // TODO - move this into fabanClient
+      logger.info("deployed benchmark to Faban: " + fabanExperimentId); // TODO - move this into fabanClient
 
       // remove file that was sent to fabanClient
       FileUtils.forceDelete(benchmarkPath.toFile());
@@ -142,8 +141,8 @@ public class StartTask implements Callable<Boolean> {
     }
   }
 
-  private void saveDriversMakerCompatibleFilesOnMinio(
-      BenchFlowExperiment experiment, String driversMakerExperimentID, long experimentNumber) {
+  private void saveDriversMakerCompatibleFilesOnMinio(BenchFlowExperiment experiment,
+      String driversMakerExperimentID, long experimentNumber) {
 
     // convert to previous version
     String oldExperimentDefinitionYaml =
@@ -151,10 +150,10 @@ public class StartTask implements Callable<Boolean> {
     InputStream definitionInputStream =
         IOUtils.toInputStream(oldExperimentDefinitionYaml, StandardCharsets.UTF_8);
 
-    minioService.copyExperimentDefintionForDriversMaker(
-        driversMakerExperimentID, experimentNumber, definitionInputStream);
-    minioService.copyDeploymentDescriptorForDriversMaker(
-        experimentID, driversMakerExperimentID, experimentNumber);
+    minioService.copyExperimentDefintionForDriversMaker(driversMakerExperimentID, experimentNumber,
+        definitionInputStream);
+    minioService.copyDeploymentDescriptorForDriversMaker(experimentID, driversMakerExperimentID,
+        experimentNumber);
 
     // convert to Java compatible type
     Collection<Workload> workloadCollection =
@@ -162,17 +161,17 @@ public class StartTask implements Callable<Boolean> {
 
     for (Workload workload : workloadCollection) {
 
-      for (String operationName :
-          JavaConverters.asJavaCollectionConverter(workload.operations()).asJavaCollection()) {
-        minioService.copyExperimentBPMNModelForDriversMaker(
-            experimentID, driversMakerExperimentID, operationName);
+      for (String operationName : JavaConverters.asJavaCollectionConverter(workload.operations())
+          .asJavaCollection()) {
+        minioService.copyExperimentBPMNModelForDriversMaker(experimentID, driversMakerExperimentID,
+            operationName);
       }
 
     }
 
     // TODO - think how to handle this is a cleaner way
     // copy necessary mock.bpmn
-    minioService.copyExperimentBPMNModelForDriversMaker(
-        experimentID, driversMakerExperimentID, "mock.bpmn");
+    minioService.copyExperimentBPMNModelForDriversMaker(experimentID, driversMakerExperimentID,
+        "mock.bpmn");
   }
 }

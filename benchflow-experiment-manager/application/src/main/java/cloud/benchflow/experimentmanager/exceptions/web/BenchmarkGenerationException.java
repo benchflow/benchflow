@@ -4,8 +4,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 /**
- * @author Simone D'Avico (simonedavico@gmail.com)
- *     <p>Created on 05/03/16.
+ * @author Simone D'Avico (simonedavico@gmail.com) - Created on 05/03/16.
  */
 public class BenchmarkGenerationException extends WebApplicationException {
 

@@ -2,15 +2,19 @@ package cloud.benchflow.experimentmanager.configurations.factory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mongodb.MongoClient;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 05.03.17. */
+import org.hibernate.validator.constraints.NotEmpty;
+
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 05.03.17.
+ */
 public class MongoDBFactory {
 
-  @NotEmpty private String host;
+  @NotEmpty
+  private String host;
 
   @JsonProperty("hostname")
   public String getHost() {
@@ -36,7 +40,6 @@ public class MongoDBFactory {
     this.port = port;
   }
 
-  /** @return */
   public MongoClient build() {
 
     return new MongoClient(host, port);
