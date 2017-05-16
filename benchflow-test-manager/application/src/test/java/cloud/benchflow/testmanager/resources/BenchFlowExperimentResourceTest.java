@@ -1,25 +1,26 @@
 package cloud.benchflow.testmanager.resources;
 
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
+import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.TerminatedState.COMPLETED;
+
 import cloud.benchflow.testmanager.api.request.BenchFlowExperimentStateRequest;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.helpers.TestConstants;
-import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
-import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.*;
-import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.TerminatedState.COMPLETED;
-
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-17 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-17
+ */
 public class BenchFlowExperimentResourceTest {
 
   private BenchFlowExperimentResource resource;
@@ -32,14 +33,14 @@ public class BenchFlowExperimentResourceTest {
       Mockito.mock(BenchFlowTestTaskController.class);
   private BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
 
-  @Rule public ExpectedException exception = ExpectedException.none();
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
 
   @Before
   public void setUp() throws Exception {
 
-    resource =
-        new BenchFlowExperimentResource(
-            experimentModelDAOMock, testTaskControllerMock, testModelDAOMock);
+    resource = new BenchFlowExperimentResource(experimentModelDAOMock, testTaskControllerMock,
+        testModelDAOMock);
     request = new BenchFlowExperimentStateRequest();
   }
 
@@ -57,18 +58,13 @@ public class BenchFlowExperimentResourceTest {
     int testNumber = Integer.parseInt(experimentIDArray[2]);
     int experimentNumber = Integer.parseInt(experimentIDArray[3]);
 
-    Mockito.doReturn(BenchFlowTestModel.BenchFlowTestState.RUNNING)
-        .when(testModelDAOMock)
+    Mockito.doReturn(BenchFlowTestModel.BenchFlowTestState.RUNNING).when(testModelDAOMock)
         .getTestState(BenchFlowConstants.getTestIDFromExperimentID(experimentID));
 
     resource.setExperimentState(username, testName, testNumber, experimentNumber, request);
 
-    Mockito.verify(experimentModelDAOMock, Mockito.times(1))
-        .setExperimentState(
-            experimentID,
-            request.getState(),
-            request.getRunningState(),
-            request.getTerminatedState());
+    Mockito.verify(experimentModelDAOMock, Mockito.times(1)).setExperimentState(experimentID,
+        request.getState(), request.getRunningState(), request.getTerminatedState());
 
     Mockito.verify(testModelDAOMock, Mockito.times(1))
         .getTestState(BenchFlowConstants.getTestIDFromExperimentID(experimentID));

@@ -1,33 +1,43 @@
 package cloud.benchflow.testmanager.models;
 
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+
 import cloud.benchflow.faban.client.responses.RunStatus;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.mongodb.morphia.annotations.*;
-import org.mongodb.morphia.utils.IndexType;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Field;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Index;
+import org.mongodb.morphia.annotations.IndexOptions;
+import org.mongodb.morphia.annotations.Indexes;
+import org.mongodb.morphia.annotations.PrePersist;
+import org.mongodb.morphia.utils.IndexType;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16.
+ */
 @Entity
-@Indexes({
-  @Index(
-    options = @IndexOptions(),
-    fields = {@Field(value = "hashedID", type = IndexType.HASHED)}
-  )
-})
+@Indexes({@Index(options = @IndexOptions(),
+    fields = {@Field(value = "hashedID", type = IndexType.HASHED)})})
 public class BenchFlowExperimentModel {
 
   public static final String ID_FIELD_NAME = "id";
   public static final String HASHED_ID_FIELD_NAME = "hashedID";
-  @Id private String id;
+  @Id
+  private String id;
   // used for potential sharding in the future
-  @JsonIgnore private String hashedID;
-  @JsonIgnore private String testID;
-  @JsonIgnore private long number;
+  @JsonIgnore
+  private String hashedID;
+  @JsonIgnore
+  private String testID;
+  @JsonIgnore
+  private long number;
   private Date start = new Date();
   private Date lastModified = new Date();
   private BenchFlowExperimentState state;
@@ -110,23 +120,14 @@ public class BenchFlowExperimentModel {
   }
 
   public enum BenchFlowExperimentState {
-    START,
-    READY,
-    RUNNING,
-    TERMINATED
+    START, READY, RUNNING, TERMINATED
   }
 
   public enum RunningState {
-    EXECUTE_NEW_TRIAL,
-    HANDLE_TRIAL_RESULT,
-    CHECK_TERMINATION_CRITERIA,
-    RE_EXECUTE_TRIAL
+    EXECUTE_NEW_TRIAL, HANDLE_TRIAL_RESULT, CHECK_TERMINATION_CRITERIA, RE_EXECUTE_TRIAL
   }
 
   public enum TerminatedState {
-    COMPLETED,
-    FAILURE,
-    ABORTED,
-    ERROR
+    COMPLETED, FAILURE, ABORTED, ERROR
   }
 }

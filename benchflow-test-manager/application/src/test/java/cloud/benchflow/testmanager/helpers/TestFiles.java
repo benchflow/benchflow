@@ -4,7 +4,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-27 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-27
+ */
 public class TestFiles {
 
   private static String TESTS_FOLDER = "../../tests/data/dsl-examples/definition/benchflow-test/";

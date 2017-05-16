@@ -1,5 +1,9 @@
 package cloud.benchflow.testmanager.archive;
 
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.BPMN_MODELS_FOLDER_NAME;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.DEPLOYMENT_DESCRIPTOR_NAME;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.TEST_EXPERIMENT_DEFINITION_NAME;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -12,9 +16,9 @@ import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.*;
-
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 15.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 15.02.17.
+ */
 public class BenchFlowTestArchiveExtractor {
 
   //    benchflow-test.yaml or .yml
@@ -41,8 +45,8 @@ public class BenchFlowTestArchiveExtractor {
   public static String extractBenchFlowTestDefinitionString(ZipInputStream benchFlowTestArchive)
       throws IOException {
 
-    return (String)
-        extractBenchFlowTestDefinitionObject(benchFlowTestArchive, ReturnType.STRING, isExpConfig);
+    return (String) extractBenchFlowTestDefinitionObject(benchFlowTestArchive, ReturnType.STRING,
+        isExpConfig);
   }
 
   /**
@@ -55,9 +59,8 @@ public class BenchFlowTestArchiveExtractor {
   public static InputStream extractBenchFlowTestDefinitionInputStream(
       ZipInputStream benchFlowTestArchive) throws IOException {
 
-    return (InputStream)
-        extractBenchFlowTestDefinitionObject(
-            benchFlowTestArchive, ReturnType.INPUT_STREAM, isExpConfig);
+    return (InputStream) extractBenchFlowTestDefinitionObject(benchFlowTestArchive,
+        ReturnType.INPUT_STREAM, isExpConfig);
   }
 
   /**
@@ -70,9 +73,8 @@ public class BenchFlowTestArchiveExtractor {
   public static InputStream extractDeploymentDescriptorInputStream(
       ZipInputStream benchFlowTestArchive) throws IOException {
 
-    return (InputStream)
-        extractBenchFlowTestDefinitionObject(
-            benchFlowTestArchive, ReturnType.INPUT_STREAM, isDeploymentDescriptor);
+    return (InputStream) extractBenchFlowTestDefinitionObject(benchFlowTestArchive,
+        ReturnType.INPUT_STREAM, isDeploymentDescriptor);
   }
 
   /**
@@ -85,14 +87,12 @@ public class BenchFlowTestArchiveExtractor {
   public static String extractDeploymentDescriptorString(ZipInputStream benchFlowTestArchive)
       throws IOException {
 
-    return (String)
-        extractBenchFlowTestDefinitionObject(
-            benchFlowTestArchive, ReturnType.STRING, isDeploymentDescriptor);
+    return (String) extractBenchFlowTestDefinitionObject(benchFlowTestArchive, ReturnType.STRING,
+        isDeploymentDescriptor);
   }
 
-  private static Object extractBenchFlowTestDefinitionObject(
-      ZipInputStream benchFlowTestArchive, ReturnType returnType, Predicate<ZipEntry> isFile)
-      throws IOException {
+  private static Object extractBenchFlowTestDefinitionObject(ZipInputStream benchFlowTestArchive,
+      ReturnType returnType, Predicate<ZipEntry> isFile) throws IOException {
 
     ZipEntry zipEntry;
 
@@ -126,9 +126,8 @@ public class BenchFlowTestArchiveExtractor {
 
     // TODO - validate that the names are the same as in the test definition
 
-    BiPredicate<ZipEntry, String> isBPMNModelEntry =
-        (zipEntry, string) ->
-            zipEntry.getName().contains(string) && !zipEntry.getName().contains("._");
+    BiPredicate<ZipEntry, String> isBPMNModelEntry = (zipEntry,
+        string) -> zipEntry.getName().contains(string) && !zipEntry.getName().contains("._");
 
     Predicate<ZipEntry> isBPMNModel =
         entry -> isBPMNModelEntry.test(entry, BPMN_MODELS_FOLDER_NAME + "/");
@@ -188,7 +187,6 @@ public class BenchFlowTestArchiveExtractor {
   }
 
   private enum ReturnType {
-    STRING,
-    INPUT_STREAM
+    STRING, INPUT_STREAM
   }
 }

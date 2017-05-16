@@ -8,19 +8,21 @@ import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.tasks.start.StartTask;
+
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-27 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-27
+ */
 public class CompleteSelectionStrategyTest {
 
   private MinioService minioMock = Mockito.mock(MinioService.class);
@@ -43,13 +45,11 @@ public class CompleteSelectionStrategyTest {
 
     String expectedNumUsers = "5";
 
-    Mockito.doReturn(TestFiles.getTestExplorationCompleteUsersInputStream())
-        .when(minioMock)
+    Mockito.doReturn(TestFiles.getTestExplorationCompleteUsersInputStream()).when(minioMock)
         .getTestDefinition(testID);
 
-    String testYaml =
-        IOUtils.toString(
-            TestFiles.getTestExplorationCompleteUsersInputStream(), StandardCharsets.UTF_8);
+    String testYaml = IOUtils.toString(TestFiles.getTestExplorationCompleteUsersInputStream(),
+        StandardCharsets.UTF_8);
 
     BenchFlowTest test = BenchFlowDSL.testFromYaml(testYaml);
 
@@ -70,8 +70,7 @@ public class CompleteSelectionStrategyTest {
 
     // run the next experiment
     // make sure input stream has not been read already
-    Mockito.doReturn(TestFiles.getTestExplorationCompleteUsersInputStream())
-        .when(minioMock)
+    Mockito.doReturn(TestFiles.getTestExplorationCompleteUsersInputStream()).when(minioMock)
         .getTestDefinition(testID);
 
     experimentNumbers.add(1L);

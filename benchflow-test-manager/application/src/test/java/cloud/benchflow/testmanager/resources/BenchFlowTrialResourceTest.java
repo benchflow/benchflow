@@ -1,21 +1,24 @@
 package cloud.benchflow.testmanager.resources;
 
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
+
 import cloud.benchflow.faban.client.responses.RunStatus;
 import cloud.benchflow.testmanager.api.request.SubmitTrialStatusRequest;
+import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidTrialIDWebException;
 import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
-import cloud.benchflow.testmanager.constants.BenchFlowConstants;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
-
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 15.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 15.02.17.
+ */
 public class BenchFlowTrialResourceTest {
 
   private BenchFlowTrialResource resource;
@@ -25,7 +28,8 @@ public class BenchFlowTrialResourceTest {
   private BenchFlowExperimentModelDAO experimentModelDAOMock =
       Mockito.mock(BenchFlowExperimentModelDAO.class);
 
-  @Rule public ExpectedException exception = ExpectedException.none();
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
 
   @Before
   public void setUp() throws Exception {
@@ -49,11 +53,11 @@ public class BenchFlowTrialResourceTest {
     int testNumber = Integer.parseInt(trialIDArray[2]);
     int experimentNumber = Integer.parseInt(trialIDArray[3]);
 
-    resource.submitTrialStatus(
-        username, testName, testNumber, experimentNumber, trialNumber, request);
+    resource.submitTrialStatus(username, testName, testNumber, experimentNumber, trialNumber,
+        request);
 
-    Mockito.verify(experimentModelDAOMock, Mockito.times(1))
-        .addTrialStatus(experimentID, trialNumber, request.getStatus());
+    Mockito.verify(experimentModelDAOMock, Mockito.times(1)).addTrialStatus(experimentID,
+        trialNumber, request.getStatus());
   }
 
   @Test
@@ -66,8 +70,7 @@ public class BenchFlowTrialResourceTest {
 
     request.setStatus(RunStatus.Code.COMPLETED);
 
-    Mockito.doThrow(BenchFlowExperimentIDDoesNotExistException.class)
-        .when(experimentModelDAOMock)
+    Mockito.doThrow(BenchFlowExperimentIDDoesNotExistException.class).when(experimentModelDAOMock)
         .addTrialStatus(experimentID, trialNumber, request.getStatus());
     exception.expect(InvalidTrialIDWebException.class);
 
@@ -78,7 +81,7 @@ public class BenchFlowTrialResourceTest {
     int testNumber = Integer.parseInt(trialIDArray[2]);
     int experimentNumber = Integer.parseInt(trialIDArray[3]);
 
-    resource.submitTrialStatus(
-        username, testName, testNumber, experimentNumber, trialNumber, request);
+    resource.submitTrialStatus(username, testName, testNumber, experimentNumber, trialNumber,
+        request);
   }
 }

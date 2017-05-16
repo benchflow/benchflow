@@ -2,17 +2,23 @@ package cloud.benchflow.testmanager.configurations.factory;
 
 import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfiguration;
 import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Environment;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.ws.rs.client.Client;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17. */
+import org.hibernate.validator.constraints.NotEmpty;
+
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17.
+ */
 public class ExperimentManagerServiceFactory {
 
-  @NotEmpty private String address;
+  @NotEmpty
+  private String address;
 
   @JsonProperty
   public String getAddress() {
@@ -31,13 +37,11 @@ public class ExperimentManagerServiceFactory {
    * @param environment application environment
    * @return BenchFlowExperimentManagerService
    */
-  public BenchFlowExperimentManagerService build(
-      BenchFlowTestManagerConfiguration config, Environment environment) {
+  public BenchFlowExperimentManagerService build(BenchFlowTestManagerConfiguration config,
+      Environment environment) {
 
-    Client client =
-        new JerseyClientBuilder(environment)
-            .using(config.getJerseyClientConfiguration())
-            .build(environment.getName());
+    Client client = new JerseyClientBuilder(environment)
+        .using(config.getJerseyClientConfiguration()).build(environment.getName());
 
     return new BenchFlowExperimentManagerService(client, getAddress());
   }

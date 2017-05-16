@@ -13,15 +13,22 @@ import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentMode
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import io.swagger.annotations.Api;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-16 */
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-16
+ */
 @Path("/v1/users/{username}/tests/{testName}/{testNumber}/experiments")
 @Api(value = "benchflow-experiment")
 public class BenchFlowExperimentResource {
@@ -42,10 +49,8 @@ public class BenchFlowExperimentResource {
   }
 
   /* used for testing */
-  public BenchFlowExperimentResource(
-      BenchFlowExperimentModelDAO experimentModelDAO,
-      BenchFlowTestTaskController testTaskController,
-      BenchFlowTestModelDAO testModelDAO) {
+  public BenchFlowExperimentResource(BenchFlowExperimentModelDAO experimentModelDAO,
+      BenchFlowTestTaskController testTaskController, BenchFlowTestModelDAO testModelDAO) {
     this.experimentModelDAO = experimentModelDAO;
     this.testTaskController = testTaskController;
     this.testModelDAO = testModelDAO;
@@ -54,22 +59,16 @@ public class BenchFlowExperimentResource {
   @PUT
   @Path("/{experimentNumber}/state")
   @Consumes(MediaType.APPLICATION_JSON)
-  public void setExperimentState(
-      @PathParam("username") String username,
-      @PathParam("testName") String testName,
-      @PathParam("testNumber") int testNumber,
+  public void setExperimentState(@PathParam("username") String username,
+      @PathParam("testName") String testName, @PathParam("testNumber") int testNumber,
       @PathParam("experimentNumber") int experimentNumber,
       @NotNull @Valid final BenchFlowExperimentStateRequest stateRequest) {
 
     String experimentID =
         BenchFlowConstants.getExperimentID(username, testName, testNumber, experimentNumber);
 
-    logger.info(
-        "request received: POST "
-            + BenchFlowConstants.getPathFromExperimentID(experimentID)
-            + STATE_PATH
-            + " : "
-            + stateRequest.getState().name());
+    logger.info("request received: POST " + BenchFlowConstants.getPathFromExperimentID(experimentID)
+        + STATE_PATH + " : " + stateRequest.getState().name());
 
     String testID = BenchFlowConstants.getTestIDFromExperimentID(experimentID);
 
@@ -86,11 +85,8 @@ public class BenchFlowExperimentResource {
     }
 
     try {
-      experimentModelDAO.setExperimentState(
-          experimentID,
-          stateRequest.getState(),
-          stateRequest.getRunningState(),
-          stateRequest.getTerminatedState());
+      experimentModelDAO.setExperimentState(experimentID, stateRequest.getState(),
+          stateRequest.getRunningState(), stateRequest.getTerminatedState());
     } catch (BenchFlowExperimentIDDoesNotExistException e) {
       throw new InvalidTrialIDWebException();
     }

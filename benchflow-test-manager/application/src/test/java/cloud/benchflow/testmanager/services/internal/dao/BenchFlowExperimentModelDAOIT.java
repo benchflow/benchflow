@@ -1,27 +1,35 @@
 package cloud.benchflow.testmanager.services.internal.dao;
 
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_BENCHFLOW_TEST_NAME;
+import static org.junit.Assert.assertEquals;
+
 import cloud.benchflow.faban.client.responses.RunStatus;
+import cloud.benchflow.testmanager.DockerComposeIT;
 import cloud.benchflow.testmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
-import cloud.benchflow.testmanager.DockerComposeIT;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
-import org.junit.*;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
-import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_BENCHFLOW_TEST_NAME;
-import static org.junit.Assert.assertEquals;
-
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17.
+ */
 public class BenchFlowExperimentModelDAOIT extends DockerComposeIT {
 
-  @Rule public ExpectedException exception = ExpectedException.none();
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
   private BenchFlowTestModelDAO testModelDAO;
   private BenchFlowExperimentModelDAO experimentModelDAO;
   private UserDAO userDAO;
@@ -113,17 +121,12 @@ public class BenchFlowExperimentModelDAOIT extends DockerComposeIT {
     DBCollection collection =
         testModelDAO.getDatastore().getCollection(BenchFlowExperimentModel.class);
 
-    collection
-        .getIndexInfo()
-        .forEach(
-            dbObject -> {
-              BasicDBObject index = (BasicDBObject) dbObject;
-              if (!index.getString("name").equals("_id_")) {
-                assertEquals(
-                    "hashed",
-                    ((DBObject) index.get("key"))
-                        .get(BenchFlowExperimentModel.HASHED_ID_FIELD_NAME));
-              }
-            });
+    collection.getIndexInfo().forEach(dbObject -> {
+      BasicDBObject index = (BasicDBObject) dbObject;
+      if (!index.getString("name").equals("_id_")) {
+        assertEquals("hashed",
+            ((DBObject) index.get("key")).get(BenchFlowExperimentModel.HASHED_ID_FIELD_NAME));
+      }
+    });
   }
 }

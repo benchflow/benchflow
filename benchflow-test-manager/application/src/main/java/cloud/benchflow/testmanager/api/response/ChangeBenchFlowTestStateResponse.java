@@ -1,14 +1,19 @@
 package cloud.benchflow.testmanager.api.response;
 
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotNull;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17.
+ */
 public class ChangeBenchFlowTestStateResponse {
 
-  @NotNull @JsonProperty private BenchFlowTestModel.BenchFlowTestState state;
+  @NotNull
+  @JsonProperty
+  private BenchFlowTestModel.BenchFlowTestState state;
 
   public ChangeBenchFlowTestStateResponse() {}
 

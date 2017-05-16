@@ -1,14 +1,16 @@
 package cloud.benchflow.testmanager.archive;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 16.02.17. */
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 16.02.17.
+ */
 public class BenchFlowTestArchiveExtractorTest {
   @Before
   public void setUp() throws Exception {}
@@ -16,9 +18,8 @@ public class BenchFlowTestArchiveExtractorTest {
   @Test
   public void extractBenchFlowTestDefinition() throws Exception {
 
-    String ptDefinition =
-        BenchFlowTestArchiveExtractor.extractBenchFlowTestDefinitionString(
-            TestArchives.getInValidTestArchiveZip());
+    String ptDefinition = BenchFlowTestArchiveExtractor
+        .extractBenchFlowTestDefinitionString(TestArchives.getInValidTestArchiveZip());
 
     Assert.assertNotNull(ptDefinition);
 
@@ -28,15 +29,13 @@ public class BenchFlowTestArchiveExtractorTest {
   @Test
   public void extractDeploymentDescriptor() throws Exception {
 
-    InputStream deploymentDescriptorInputStream =
-        BenchFlowTestArchiveExtractor.extractDeploymentDescriptorInputStream(
-            TestArchives.getValidTestArchiveZip());
+    InputStream deploymentDescriptorInputStream = BenchFlowTestArchiveExtractor
+        .extractDeploymentDescriptorInputStream(TestArchives.getValidTestArchiveZip());
 
     Assert.assertNotNull(deploymentDescriptorInputStream);
 
-    String deploymentDescriptorString =
-        org.apache.commons.io.IOUtils.toString(
-            deploymentDescriptorInputStream, StandardCharsets.UTF_8.name());
+    String deploymentDescriptorString = org.apache.commons.io.IOUtils
+        .toString(deploymentDescriptorInputStream, StandardCharsets.UTF_8.name());
 
     Assert.assertTrue(deploymentDescriptorString.contains("version:"));
   }
@@ -46,9 +45,8 @@ public class BenchFlowTestArchiveExtractorTest {
 
     int numberOfModels = TestArchives.BPMN_MODELS_COUNT;
 
-    Map<String, InputStream> bpmnModels =
-        BenchFlowTestArchiveExtractor.extractBPMNModelInputStreams(
-            TestArchives.getValidTestArchiveZip());
+    Map<String, InputStream> bpmnModels = BenchFlowTestArchiveExtractor
+        .extractBPMNModelInputStreams(TestArchives.getValidTestArchiveZip());
 
     Assert.assertEquals(numberOfModels, bpmnModels.size());
   }

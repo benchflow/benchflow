@@ -1,18 +1,21 @@
 package cloud.benchflow.testmanager.models;
 
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
-
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 21.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 21.02.17.
+ */
 @Entity(noClassnameStored = true)
 public class BenchFlowTestNumber {
 
   public static String COUNTER_FIELD_NAME = "counter";
   public static String ID_FIELD_NAME = "testIdentifier";
 
-  @Id private String testIdentifier;
+  @Id
+  private String testIdentifier;
 
   private Long counter = 1L;
 

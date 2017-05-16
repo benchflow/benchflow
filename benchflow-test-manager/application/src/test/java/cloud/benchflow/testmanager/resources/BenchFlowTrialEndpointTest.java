@@ -6,26 +6,27 @@ import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.Mockito;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 27.02.17. */
+import org.junit.Assert;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 27.02.17.
+ */
 public class BenchFlowTrialEndpointTest {
 
   private static BenchFlowExperimentModelDAO experimentModelDAOMock =
       Mockito.mock(BenchFlowExperimentModelDAO.class);
 
   @ClassRule
-  public static final ResourceTestRule resources =
-      ResourceTestRule.builder()
-          .addResource(new BenchFlowTrialResource(experimentModelDAOMock))
-          .build();
+  public static final ResourceTestRule resources = ResourceTestRule.builder()
+      .addResource(new BenchFlowTrialResource(experimentModelDAOMock)).build();
 
   @Test
   public void submitTrialStatus() throws Exception {
@@ -34,13 +35,9 @@ public class BenchFlowTrialEndpointTest {
 
     SubmitTrialStatusRequest statusRequest = new SubmitTrialStatusRequest(RunStatus.Code.COMPLETED);
 
-    Response response =
-        resources
-            .client()
-            .target(BenchFlowConstants.getPathFromTrialID(trialID))
-            .path(BenchFlowTrialResource.STATUS_PATH)
-            .request()
-            .put(Entity.entity(statusRequest, MediaType.APPLICATION_JSON));
+    Response response = resources.client().target(BenchFlowConstants.getPathFromTrialID(trialID))
+        .path(BenchFlowTrialResource.STATUS_PATH).request()
+        .put(Entity.entity(statusRequest, MediaType.APPLICATION_JSON));
 
     Assert.assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
   }

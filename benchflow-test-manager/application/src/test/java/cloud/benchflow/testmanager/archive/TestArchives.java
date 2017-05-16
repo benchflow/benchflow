@@ -1,10 +1,17 @@
 package cloud.benchflow.testmanager.archive;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 14.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 14.02.17.
+ */
 public class TestArchives {
 
   private static final String VALID_TEST_ARCHIVE_FILENAME =
@@ -49,30 +56,31 @@ public class TestArchives {
   }
 
   public static String getValidTestDefinitionString() throws IOException {
-    return BenchFlowTestArchiveExtractor.extractBenchFlowTestDefinitionString(
-        getValidTestArchiveZip());
+    return BenchFlowTestArchiveExtractor
+        .extractBenchFlowTestDefinitionString(getValidTestArchiveZip());
   }
 
   public static String getValidDeploymentDescriptorString() throws IOException {
-    return BenchFlowTestArchiveExtractor.extractDeploymentDescriptorString(
-        getValidTestArchiveZip());
+    return BenchFlowTestArchiveExtractor
+        .extractDeploymentDescriptorString(getValidTestArchiveZip());
   }
 
   public static InputStream getValidTestDefinitionInputStream() throws IOException {
 
-    String testDefinitionString =
-        BenchFlowTestArchiveExtractor.extractBenchFlowTestDefinitionString(
-            getValidTestArchiveZip());
+    String testDefinitionString = BenchFlowTestArchiveExtractor
+        .extractBenchFlowTestDefinitionString(getValidTestArchiveZip());
 
-    if (testDefinitionString == null) return null;
+    if (testDefinitionString == null) {
+      return null;
+    }
 
     return new ByteArrayInputStream(testDefinitionString.getBytes());
   }
 
   public static InputStream getValidDeploymentDescriptorInputStream() throws IOException {
 
-    return BenchFlowTestArchiveExtractor.extractDeploymentDescriptorInputStream(
-        getValidTestArchiveZip());
+    return BenchFlowTestArchiveExtractor
+        .extractDeploymentDescriptorInputStream(getValidTestArchiveZip());
   }
 
   public static Map<String, InputStream> getValidBPMNModels() throws IOException {

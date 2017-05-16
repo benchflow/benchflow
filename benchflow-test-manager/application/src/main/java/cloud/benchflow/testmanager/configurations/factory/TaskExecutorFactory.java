@@ -1,12 +1,9 @@
 package cloud.benchflow.testmanager.configurations.factory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
-
-import javax.annotation.Nonnull;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
@@ -14,7 +11,13 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 19.12.16. */
+import javax.annotation.Nonnull;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 19.12.16.
+ */
 public final class TaskExecutorFactory {
 
   @NotNull
@@ -55,16 +58,10 @@ public final class TaskExecutorFactory {
 
     int processors = Runtime.getRuntime().availableProcessors();
 
-    return environment
-        .lifecycle()
-        .executorService("task-%d")
-        .minThreads(minThreads * processors)
-        .maxThreads(maxThreads * processors)
-        .keepAliveTime(Duration.seconds(60))
-        .workQueue(new SynchronousQueue<>())
-        .threadFactory(new DaemonThreadFactory())
-        .rejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy())
-        .build();
+    return environment.lifecycle().executorService("task-%d").minThreads(minThreads * processors)
+        .maxThreads(maxThreads * processors).keepAliveTime(Duration.seconds(60))
+        .workQueue(new SynchronousQueue<>()).threadFactory(new DaemonThreadFactory())
+        .rejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy()).build();
   }
 
   /** See http://dev.bizo.com/2014/06/cached-thread-pool-considered-harmlful.html */
