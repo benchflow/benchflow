@@ -5,14 +5,14 @@ package cloud.benchflow.faban.client.exceptions;
  */
 public class FabanClientException extends RuntimeException {
 
-    public FabanClientException() {};
+  public FabanClientException() {}
 
-    public FabanClientException(String message) {
-        super(message);
-    }
+  public FabanClientException(String message) {
+    super(message);
+  }
 
-    public FabanClientException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public FabanClientException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
 }
