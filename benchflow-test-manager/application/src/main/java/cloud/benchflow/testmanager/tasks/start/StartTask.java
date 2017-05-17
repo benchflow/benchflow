@@ -7,18 +7,19 @@ import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
-import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import scala.collection.JavaConverters;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import scala.collection.JavaConverters;
 
 /**
  * Prepares the test for running.
@@ -39,11 +40,8 @@ public class StartTask implements Runnable {
   private final ExplorationModelDAO explorationModelDAO;
   private final BenchFlowTestTaskController testTaskController;
 
-  public StartTask(
-      String testID,
-      String testDefinitionYamlString,
-      InputStream deploymentDescriptorInputStream,
-      Map<String, InputStream> bpmnModelInputStreams) {
+  public StartTask(String testID, String testDefinitionYamlString,
+      InputStream deploymentDescriptorInputStream, Map<String, InputStream> bpmnModelInputStreams) {
 
     this.testID = testID;
     this.testDefinitionYamlString = testDefinitionYamlString;
@@ -107,19 +105,10 @@ public class StartTask implements Runnable {
 
       if (test.configuration().goal().explorationSpace().get().workload().isDefined()) {
 
-        return JavaConverters.asJavaCollectionConverter(
-                test.configuration()
-                    .goal()
-                    .explorationSpace()
-                    .get()
-                    .workload()
-                    .get()
-                    .users()
-                    .get()
-                    .values())
-            .asJavaCollection()
-            .stream()
-            .map(object -> (Integer) object)
+        return JavaConverters
+            .asJavaCollectionConverter(test.configuration().goal().explorationSpace().get()
+                .workload().get().users().get().values())
+            .asJavaCollection().stream().map(object -> (Integer) object)
             .collect(Collectors.toList());
       }
     }

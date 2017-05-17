@@ -1,5 +1,8 @@
 package cloud.benchflow.testmanager.tasks;
 
+import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState.TERMINATED;
+import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.TerminatedState.COMPLETED;
+
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.DockerComposeIT;
 import cloud.benchflow.testmanager.archive.TestArchives;
@@ -16,13 +19,6 @@ import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import cloud.benchflow.testmanager.tasks.start.StartTask;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
-import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -31,21 +27,25 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState.TERMINATED;
-import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus.COMPLETED;
+import org.apache.commons.io.IOUtils;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-27 */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-27
+ */
 public class BenchFlowTestTaskControllerIT extends DockerComposeIT {
 
   @Rule
   public final DropwizardAppRule<BenchFlowTestManagerConfiguration> RULE =
-      new DropwizardAppRule<>(
-          BenchFlowTestManagerApplication.class,
-          "../configuration.yml",
+      new DropwizardAppRule<>(BenchFlowTestManagerApplication.class, "../configuration.yml",
           ConfigOverride.config("mongoDB.hostname", MONGO_CONTAINER.getIp()),
           ConfigOverride.config("mongoDB.port", String.valueOf(MONGO_CONTAINER.getExternalPort())),
-          ConfigOverride.config(
-              "minio.address",
+          ConfigOverride.config("minio.address",
               "http://" + MINIO_CONTAINER.getIp() + ":" + MINIO_CONTAINER.getExternalPort()),
           ConfigOverride.config("minio.accessKey", MINIO_ACCESS_KEY),
           ConfigOverride.config("minio.secretKey", MINIO_SECRET_KEY),
@@ -86,40 +86,31 @@ public class BenchFlowTestTaskControllerIT extends DockerComposeIT {
 
     CountDownLatch countDownLatch = new CountDownLatch(expectedExperiments);
 
-    Mockito.doAnswer(
-            invocationOnMock -> {
-              String experimentID = (String) invocationOnMock.getArguments()[0];
+    Mockito.doAnswer(invocationOnMock -> {
+      String experimentID = (String) invocationOnMock.getArguments()[0];
 
-              experimentModelDAO.setExperimentState(experimentID, TERMINATED, COMPLETED);
+      experimentModelDAO.setExperimentState(experimentID, TERMINATED, null, COMPLETED);
 
-              String testID = BenchFlowConstants.getTestIDFromExperimentID(experimentID);
-              testTaskController.handleTestState(testID);
+      String testID = BenchFlowConstants.getTestIDFromExperimentID(experimentID);
+      testTaskController.handleTestState(testID);
 
-              countDownLatch.countDown();
+      countDownLatch.countDown();
 
-              return null;
-            })
-        .when(experimentManagerService)
-        .runBenchFlowExperiment(Matchers.anyString());
+      return null;
+    }).when(experimentManagerService).runBenchFlowExperiment(Matchers.anyString());
 
     User user = userDAO.addUser(TestConstants.TEST_USER_NAME);
 
     String testID = testModelDAO.addTestModel(testName, user);
 
-    String testDefinitionString =
-        IOUtils.toString(
-            TestFiles.getTestExplorationCompleteUsersInputStream(), StandardCharsets.UTF_8);
+    String testDefinitionString = IOUtils
+        .toString(TestFiles.getTestExplorationCompleteUsersInputStream(), StandardCharsets.UTF_8);
     InputStream deploymentDescriptorInputStream =
         TestArchives.getValidDeploymentDescriptorInputStream();
     Map<String, InputStream> bpmnModelsInputStream = TestArchives.getValidBPMNModels();
 
-    Thread startTaskThread =
-        new Thread(
-            new StartTask(
-                testID,
-                testDefinitionString,
-                deploymentDescriptorInputStream,
-                bpmnModelsInputStream));
+    Thread startTaskThread = new Thread(new StartTask(testID, testDefinitionString,
+        deploymentDescriptorInputStream, bpmnModelsInputStream));
 
     startTaskThread.start();
 
@@ -134,7 +125,7 @@ public class BenchFlowTestTaskControllerIT extends DockerComposeIT {
     Assert.assertEquals(0, countDownLatch.getCount());
 
     // asssert that test has been set as TERMINATED
-    Assert.assertEquals(
-        BenchFlowTestModel.BenchFlowTestState.TERMINATED, testModelDAO.getTestState(testID));
+    Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
+        testModelDAO.getTestState(testID));
   }
 }

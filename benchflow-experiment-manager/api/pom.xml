@@ -9,10 +9,27 @@
     <groupId>cloud.benchflow.experiments-manager</groupId>
     <artifactId>api</artifactId>
 
+    <properties>
+        <root.project.basedir>${project.basedir}/../../</root.project.basedir>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

@@ -1,18 +1,30 @@
 package cloud.benchflow.testmanager.tasks;
 
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState.GOAL_REACHED;
+
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
-import cloud.benchflow.testmanager.tasks.running.*;
+import cloud.benchflow.testmanager.tasks.running.AddStoredKnowledgeTask;
+import cloud.benchflow.testmanager.tasks.running.DerivePredictionFunctionTask;
+import cloud.benchflow.testmanager.tasks.running.DetermineExecuteExperimentsTask;
+import cloud.benchflow.testmanager.tasks.running.DetermineExplorationStrategyTask;
+import cloud.benchflow.testmanager.tasks.running.HandleExperimentResultTask;
+import cloud.benchflow.testmanager.tasks.running.RemoveNonReachableExperimentsTask;
+import cloud.benchflow.testmanager.tasks.running.ValidatePredictionFunctionTask;
+import cloud.benchflow.testmanager.tasks.running.ValidateTerminationCriteria;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.*;
-
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState.GOAL_REACHED;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20
@@ -23,6 +35,10 @@ public class BenchFlowTestTaskController {
       LoggerFactory.getLogger(BenchFlowTestTaskController.class.getSimpleName());
 
   private ConcurrentMap<String, Future> testTasks = new ConcurrentHashMap<>();
+
+  // TODO - running queue (1 element)
+
+  // TODO - ready queue
 
   private ExecutorService taskExecutorService;
   private BenchFlowTestModelDAO testModelDAO;
@@ -47,14 +63,13 @@ public class BenchFlowTestTaskController {
 
       switch (testState) {
         case START:
-
           setNextTestState(testID, BenchFlowTestState.READY);
 
           break;
 
         case READY:
-
           setNextTestState(testID, BenchFlowTestState.RUNNING);
+          // TODO - put test in shared (with dispatcher) ready queue
 
           break;
 
@@ -71,6 +86,7 @@ public class BenchFlowTestTaskController {
           break;
 
         case TERMINATED:
+          // TODO - remove test from running queue so dispatcher can run next test
           // test already executed
           logger.info("Test already executed. Nothing to do.");
           break;
@@ -85,9 +101,10 @@ public class BenchFlowTestTaskController {
     }
   }
 
-  private void setNextTestState(String testID, BenchFlowTestState running) throws BenchFlowTestIDDoesNotExistException {
-    // change state to running
-    testModelDAO.setTestState(testID, running);
+  private void setNextTestState(String testID, BenchFlowTestState testState)
+      throws BenchFlowTestIDDoesNotExistException {
+    // change state to testState
+    testModelDAO.setTestState(testID, testState);
 
     handleTestState(testID);
   }
@@ -98,8 +115,8 @@ public class BenchFlowTestTaskController {
 
       TestRunningState testRunningState = testModelDAO.getTestRunningState(testID);
 
-      logger.info(
-          "handleTestRunningState for " + testID + " with state " + testRunningState.name());
+      logger
+          .info("handleTestRunningState for " + testID + " with state " + testRunningState.name());
 
       switch (testRunningState) {
         case DETERMINE_EXPLORATION_STRATEGY:
@@ -301,8 +318,8 @@ public class BenchFlowTestTaskController {
       } else {
 
         // update the running state
-        testModelDAO.setTestRunningState(
-            testID, BenchFlowTestModel.TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS);
+        testModelDAO.setTestRunningState(testID,
+            BenchFlowTestModel.TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS);
 
         // run the next state
         handleTestState(testID);
@@ -362,8 +379,8 @@ public class BenchFlowTestTaskController {
     }
   }
 
-  private void waitForRunningTaskToComplete(
-      String testID, Future future, TestRunningState nextState) {
+  private void waitForRunningTaskToComplete(String testID, Future future,
+      TestRunningState nextState) {
 
     try {
 

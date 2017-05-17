@@ -4,16 +4,21 @@ import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistExcepti
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestNumber;
 import cloud.benchflow.testmanager.models.User;
+
 import com.mongodb.MongoClient;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 19.12.16. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 19.12.16.
+ */
 public class BenchFlowTestModelDAO extends DAO {
 
   private static Logger logger =
@@ -44,15 +49,11 @@ public class BenchFlowTestModelDAO extends DAO {
     String benchFlowTestIdentifier =
         BenchFlowTestNumber.generateBenchFlowTestIdentifier(user.getUsername(), testName);
 
-    Query<BenchFlowTestNumber> query =
-        datastore
-            .createQuery(BenchFlowTestNumber.class)
-            .field(BenchFlowTestNumber.ID_FIELD_NAME)
-            .equal(benchFlowTestIdentifier);
+    Query<BenchFlowTestNumber> query = datastore.createQuery(BenchFlowTestNumber.class)
+        .field(BenchFlowTestNumber.ID_FIELD_NAME).equal(benchFlowTestIdentifier);
 
     UpdateOperations<BenchFlowTestNumber> update =
-        datastore
-            .createUpdateOperations(BenchFlowTestNumber.class)
+        datastore.createUpdateOperations(BenchFlowTestNumber.class)
             .inc(BenchFlowTestNumber.COUNTER_FIELD_NAME);
 
     BenchFlowTestNumber counter = datastore.findAndModify(query, update);
@@ -65,7 +66,6 @@ public class BenchFlowTestModelDAO extends DAO {
     return counter.getCounter();
   }
 
-  /** @param testID */
   public synchronized void removeTestModel(String testID) {
 
     logger.info("removeTestModel: " + testID);
@@ -88,10 +88,6 @@ public class BenchFlowTestModelDAO extends DAO {
     }
   }
 
-  /**
-   * @param testID
-   * @return
-   */
   public synchronized BenchFlowTestModel getTestModel(String testID)
       throws BenchFlowTestIDDoesNotExistException {
 
@@ -99,11 +95,8 @@ public class BenchFlowTestModelDAO extends DAO {
 
     logger.info("getTestModel: " + testID);
 
-    final Query<BenchFlowTestModel> testModelQuery =
-        datastore
-            .createQuery(BenchFlowTestModel.class)
-            .field(BenchFlowTestModel.ID_FIELD_NAME)
-            .equal(testID);
+    final Query<BenchFlowTestModel> testModelQuery = datastore.createQuery(BenchFlowTestModel.class)
+        .field(BenchFlowTestModel.ID_FIELD_NAME).equal(testID);
 
     BenchFlowTestModel benchFlowTestModel = testModelQuery.get();
 
@@ -118,11 +111,8 @@ public class BenchFlowTestModelDAO extends DAO {
 
     logger.info("testModelExists: " + testID);
 
-    final Query<BenchFlowTestModel> testModelQuery =
-        datastore
-            .createQuery(BenchFlowTestModel.class)
-            .field(BenchFlowTestModel.ID_FIELD_NAME)
-            .equal(testID);
+    final Query<BenchFlowTestModel> testModelQuery = datastore.createQuery(BenchFlowTestModel.class)
+        .field(BenchFlowTestModel.ID_FIELD_NAME).equal(testID);
 
     BenchFlowTestModel benchFlowTestModel = testModelQuery.get();
 
@@ -136,16 +126,12 @@ public class BenchFlowTestModelDAO extends DAO {
     final Query<BenchFlowTestModel> testModelQuery =
         datastore.createQuery(BenchFlowTestModel.class);
 
-    return testModelQuery
-        .asList()
-        .stream()
-        .map(BenchFlowTestModel::getId)
+    return testModelQuery.asList().stream().map(BenchFlowTestModel::getId)
         .collect(Collectors.toList());
   }
 
-  public synchronized BenchFlowTestModel.BenchFlowTestState setTestState(
-      String testID, BenchFlowTestModel.BenchFlowTestState state)
-      throws BenchFlowTestIDDoesNotExistException {
+  public synchronized BenchFlowTestModel.BenchFlowTestState setTestState(String testID,
+      BenchFlowTestModel.BenchFlowTestState state) throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("setTestState: " + testID + " : " + state.name());
 
@@ -178,9 +164,8 @@ public class BenchFlowTestModelDAO extends DAO {
     return benchFlowTestModel.getRunningState();
   }
 
-  public synchronized BenchFlowTestModel.TestRunningState setTestRunningState(
-      String testID, BenchFlowTestModel.TestRunningState state)
-      throws BenchFlowTestIDDoesNotExistException {
+  public synchronized BenchFlowTestModel.TestRunningState setTestRunningState(String testID,
+      BenchFlowTestModel.TestRunningState state) throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("setTestRunningState: " + testID + " : " + state.name());
 
@@ -203,9 +188,8 @@ public class BenchFlowTestModelDAO extends DAO {
     return benchFlowTestModel.getTerminatedState();
   }
 
-  public synchronized BenchFlowTestModel.TestTerminatedState setTestTerminatedState(
-      String testID, BenchFlowTestModel.TestTerminatedState state)
-      throws BenchFlowTestIDDoesNotExistException {
+  public synchronized BenchFlowTestModel.TestTerminatedState setTestTerminatedState(String testID,
+      BenchFlowTestModel.TestTerminatedState state) throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("setTestTerminatedState: " + testID + " : " + state.name());
 
@@ -218,7 +202,7 @@ public class BenchFlowTestModelDAO extends DAO {
     return getTestModel(testID).getTerminatedState();
   }
 
-  public synchronized List<Long> getExperimentNumbers(String testID)
+  public synchronized Set<Long> getExperimentNumbers(String testID)
       throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("getExperimentNumbers: " + testID);

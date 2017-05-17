@@ -1,85 +1,140 @@
 package cloud.benchflow.experimentmanager.models;
 
-import org.mongodb.morphia.annotations.*;
+import java.util.Date;
+import java.util.TreeMap;
+
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Field;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Index;
+import org.mongodb.morphia.annotations.IndexOptions;
+import org.mongodb.morphia.annotations.Indexes;
+import org.mongodb.morphia.annotations.PrePersist;
+import org.mongodb.morphia.annotations.Reference;
 import org.mongodb.morphia.utils.IndexType;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 2017-03-23
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-03-23
  */
 @Entity
-@Indexes({@Index(options = @IndexOptions(), fields = {@Field(value = "hashedID", type = IndexType.HASHED)})})
+@Indexes({@Index(options = @IndexOptions(),
+    fields = {@Field(value = "hashedID", type = IndexType.HASHED)})})
 public class BenchFlowExperimentModel {
 
-    public static final String ID_FIELD_NAME = "id";
-    public static final String HASHED_ID_FIELD_NAME = "hashedID";
-    @Id
-    private String id;
-    // used for potential sharding in the future
-    private String hashedID;
-    private Date start = new Date();
-    private Date lastModified = new Date();
-    private BenchFlowExperimentState state = BenchFlowExperimentState.READY;
-    private BenchFlowExperimentStatus status = BenchFlowExperimentStatus.READY;
-    @Reference
-    private List<TrialModel> trials = new ArrayList<>();
+  public static final String ID_FIELD_NAME = "id";
+  public static final String HASHED_ID_FIELD_NAME = "hashedID";
+  @Id
+  private String id;
+  // used for potential sharding in the future
+  private String hashedID;
+  private Date start = new Date();
+  private Date lastModified = new Date();
+  private BenchFlowExperimentState state;
+  private RunningState runningState;
+  private TerminatedState terminatedState;
+  private int numTrials;
+  // TODO - this should be part of the DSL
+  private int numTrialRetries = 1;
+  @Reference
+  private TreeMap<Long, TrialModel> trials = new TreeMap<>();
 
-    BenchFlowExperimentModel() {
-        // Empty constructor for MongoDB + Morphia
+  BenchFlowExperimentModel() {
+    // Empty constructor for MongoDB + Morphia
+  }
+
+  public BenchFlowExperimentModel(String experimentID) {
+
+    this.id = experimentID;
+
+    this.hashedID = this.id;
+    this.state = BenchFlowExperimentState.START;
+    this.runningState = RunningState.EXECUTE_NEW_TRIAL;
+  }
+
+  @PrePersist
+  void prePersist() {
+    lastModified = new Date();
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public Date getStart() {
+    return start;
+  }
+
+  public Date getLastModified() {
+    return lastModified;
+  }
+
+  public BenchFlowExperimentState getState() {
+    return state;
+  }
+
+  public void setState(BenchFlowExperimentState state) {
+    this.state = state;
+  }
+
+  public RunningState getRunningState() {
+    return runningState;
+  }
+
+  public void setRunningState(RunningState runningState) {
+    this.runningState = runningState;
+  }
+
+  public TerminatedState getTerminatedState() {
+    return terminatedState;
+  }
+
+  public void setTerminatedState(TerminatedState terminatedState) {
+    this.terminatedState = terminatedState;
+  }
+
+  public int getNumTrials() {
+    return numTrials;
+  }
+
+  public void setNumTrials(int numTrials) {
+    this.numTrials = numTrials;
+  }
+
+  public int getNumTrialRetries() {
+    return numTrialRetries;
+  }
+
+  public void addTrial(long index, TrialModel trialModel) {
+
+    trials.put(index, trialModel);
+  }
+
+  public long getNumExecutedTrials() {
+
+    if (trials.size() == 0) {
+      return 0;
     }
 
-    public BenchFlowExperimentModel(String experimentID) {
+    // return the greatest key
+    return trials.lastEntry().getKey();
+  }
 
-        this.id = experimentID;
+  public String getLastExecutedTrialID() {
 
-        this.hashedID = this.id;
+    // assumes that trials have been inserted in order (highest key is last)
 
-    }
+    return trials.lastEntry().getValue().getId();
+  }
 
-    @PrePersist
-    void prePersist() {
-        lastModified = new Date();
-    }
+  public enum BenchFlowExperimentState {
+    START, READY, RUNNING, TERMINATED
+  }
 
-    public String getId() {
-        return id;
-    }
+  public enum RunningState {
+    EXECUTE_NEW_TRIAL, HANDLE_TRIAL_RESULT, CHECK_TERMINATION_CRITERIA, RE_EXECUTE_TRIAL
+  }
 
-    public Date getStart() {
-        return start;
-    }
-
-    public Date getLastModified() {
-        return lastModified;
-    }
-
-    public BenchFlowExperimentState getState() {
-        return state;
-    }
-
-    public void setState(BenchFlowExperimentState state) {
-        this.state = state;
-    }
-
-    public BenchFlowExperimentStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(BenchFlowExperimentStatus status) {
-        this.status = status;
-    }
-
-    public void addTrial(TrialModel trialModel) {
-
-        trials.add(trialModel);
-
-    }
-
-    public enum BenchFlowExperimentState {READY, RUNNING, TERMINATED}
-
-    public enum BenchFlowExperimentStatus {READY, NEW_TRIAL, HANDLE_RESULT, CHECK_CRITERIA, RE_EXECUTE_TRIAL, COMPLETED, FAILURE, ABORTED, ERROR}
+  public enum TerminatedState {
+    COMPLETED, FAILURE, ABORTED, ERROR
+  }
 }

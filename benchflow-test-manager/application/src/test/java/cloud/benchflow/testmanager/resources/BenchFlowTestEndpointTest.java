@@ -10,13 +10,15 @@ import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
-import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
-import cloud.benchflow.testmanager.services.external.MinioService;
-import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import io.dropwizard.testing.junit.ResourceTestRule;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
@@ -25,12 +27,9 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.concurrent.ExecutorService;
-
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 26.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 26.02.17.
+ */
 public class BenchFlowTestEndpointTest {
 
   private static BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
@@ -40,8 +39,7 @@ public class BenchFlowTestEndpointTest {
 
   @ClassRule
   public static final ResourceTestRule resources =
-      ResourceTestRule.builder()
-          .addProvider(MultiPartFeature.class)
+      ResourceTestRule.builder().addProvider(MultiPartFeature.class)
           .addResource(
               new BenchFlowTestResource(testModelDAOMock, userDAOMock, testTaskControllerMock))
           .build();
@@ -52,33 +50,23 @@ public class BenchFlowTestEndpointTest {
     String benchFlowTestName = "testNameExample";
     User user = BenchFlowConstants.BENCHFLOW_USER;
 
-    Mockito.doReturn(
-            user.getUsername()
-                + BenchFlowConstants.MODEL_ID_DELIMITER
-                + benchFlowTestName
-                + BenchFlowConstants.MODEL_ID_DELIMITER
-                + 1)
+    Mockito
+        .doReturn(user.getUsername() + BenchFlowConstants.MODEL_ID_DELIMITER + benchFlowTestName
+            + BenchFlowConstants.MODEL_ID_DELIMITER + 1)
         .when(testModelDAOMock)
-        .addTestModel(benchFlowTestName, user);
+        .addTestModel(Mockito.matches(benchFlowTestName), Mockito.any(User.class));
 
-    FileDataBodyPart fileDataBodyPart =
-        new FileDataBodyPart(
-            "benchFlowTestBundle",
-            TestArchives.getValidTestArchiveFile(),
-            MediaType.APPLICATION_OCTET_STREAM_TYPE);
+    FileDataBodyPart fileDataBodyPart = new FileDataBodyPart("benchFlowTestBundle",
+        TestArchives.getValidTestArchiveFile(), MediaType.APPLICATION_OCTET_STREAM_TYPE);
 
     MultiPart multiPart = new MultiPart();
     multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
     multiPart.bodyPart(fileDataBodyPart);
 
     Response response =
-        resources
-            .client()
-            .target(BenchFlowConstants.getPathFromUsername(user.getUsername()))
-            .path(BenchFlowConstants.TESTS_PATH)
-            .path(BenchFlowTestResource.RUN_PATH)
-            .register(MultiPartFeature.class)
-            .request(MediaType.APPLICATION_JSON)
+        resources.client().target(BenchFlowConstants.getPathFromUsername(user.getUsername()))
+            .path(BenchFlowConstants.TESTS_PATH).path(BenchFlowTestResource.RUN_PATH)
+            .register(MultiPartFeature.class).request(MediaType.APPLICATION_JSON)
             .post(Entity.entity(multiPart, multiPart.getMediaType()));
 
     Assert.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
@@ -106,13 +94,9 @@ public class BenchFlowTestEndpointTest {
 
     ChangeBenchFlowTestStateRequest stateRequest = new ChangeBenchFlowTestStateRequest(state);
 
-    Response response =
-        resources
-            .client()
-            .target(BenchFlowConstants.getPathFromTestID(testID))
-            .path(BenchFlowTestResource.STATE_PATH)
-            .request(MediaType.APPLICATION_JSON)
-            .put(Entity.entity(stateRequest, MediaType.APPLICATION_JSON));
+    Response response = resources.client().target(BenchFlowConstants.getPathFromTestID(testID))
+        .path(BenchFlowTestResource.STATE_PATH).request(MediaType.APPLICATION_JSON)
+        .put(Entity.entity(stateRequest, MediaType.APPLICATION_JSON));
 
     ChangeBenchFlowTestStateResponse stateResponse =
         response.readEntity(ChangeBenchFlowTestStateResponse.class);
@@ -134,11 +118,8 @@ public class BenchFlowTestEndpointTest {
 
     String testID = TestConstants.VALID_TEST_ID;
 
-    BenchFlowTestModel testModel =
-        new BenchFlowTestModel(
-            TestConstants.TEST_USER,
-            TestConstants.VALID_BENCHFLOW_TEST_NAME,
-            TestConstants.VALID_TEST_NUMBER);
+    BenchFlowTestModel testModel = new BenchFlowTestModel(TestConstants.TEST_USER,
+        TestConstants.VALID_BENCHFLOW_TEST_NAME, TestConstants.VALID_TEST_NUMBER);
     testModel.setState(BenchFlowTestModel.BenchFlowTestState.RUNNING);
     BenchFlowExperimentModel experimentModel = new BenchFlowExperimentModel(testModel.getId(), 1);
     testModel.addExperimentModel(experimentModel);
@@ -147,13 +128,8 @@ public class BenchFlowTestEndpointTest {
 
     Mockito.doReturn(testModel).when(testModelDAOMock).getTestModel(testID);
 
-    Response response =
-        resources
-            .client()
-            .target(BenchFlowConstants.getPathFromTestID(testID))
-            .path(BenchFlowTestResource.STATUS_PATH)
-            .request(MediaType.APPLICATION_JSON)
-            .get();
+    Response response = resources.client().target(BenchFlowConstants.getPathFromTestID(testID))
+        .path(BenchFlowTestResource.STATUS_PATH).request(MediaType.APPLICATION_JSON).get();
 
     BenchFlowTestModel statusResponse = response.readEntity(BenchFlowTestModel.class);
 

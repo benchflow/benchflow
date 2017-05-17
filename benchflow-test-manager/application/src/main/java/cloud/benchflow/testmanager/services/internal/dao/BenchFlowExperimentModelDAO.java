@@ -1,20 +1,25 @@
 package cloud.benchflow.testmanager.services.internal.dao;
 
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+
 import cloud.benchflow.faban.client.responses.RunStatus;
 import cloud.benchflow.testmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
-import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentStatus;
+import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.RunningState;
+import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.TerminatedState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
+
 import com.mongodb.MongoClient;
+
 import org.mongodb.morphia.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
-
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17.
+ */
 public class BenchFlowExperimentModelDAO extends DAO {
 
   // TODO - this is also stored in the model?? read it directly from the model
@@ -30,11 +35,6 @@ public class BenchFlowExperimentModelDAO extends DAO {
     this.testModelDAO = testModelDAO;
   }
 
-  /**
-   * @param testID
-   * @return
-   * @throws BenchFlowTestIDDoesNotExistException
-   */
   public synchronized String addExperiment(String testID)
       throws BenchFlowTestIDDoesNotExistException {
 
@@ -57,21 +57,14 @@ public class BenchFlowExperimentModelDAO extends DAO {
     return experimentModel.getId();
   }
 
-  /**
-   * @param experimentID
-   * @return
-   * @throws BenchFlowExperimentIDDoesNotExistException
-   */
   private synchronized BenchFlowExperimentModel getExperiment(String experimentID)
       throws BenchFlowExperimentIDDoesNotExistException {
 
     logger.info("getExperiment: " + experimentID);
 
     final Query<BenchFlowExperimentModel> testModelQuery =
-        datastore
-            .createQuery(BenchFlowExperimentModel.class)
-            .field(BENCHFLOW_EXPERIMENT_ID_FIELD_NAME)
-            .equal(experimentID);
+        datastore.createQuery(BenchFlowExperimentModel.class)
+            .field(BENCHFLOW_EXPERIMENT_ID_FIELD_NAME).equal(experimentID);
 
     BenchFlowExperimentModel experimentModel = testModelQuery.get();
 
@@ -82,13 +75,8 @@ public class BenchFlowExperimentModelDAO extends DAO {
     return experimentModel;
   }
 
-  /**
-   * @param experimentID
-   * @param state
-   * @throws BenchFlowExperimentIDDoesNotExistException
-   */
-  public synchronized void setExperimentState(
-      String experimentID, BenchFlowExperimentState state, BenchFlowExperimentStatus status)
+  public synchronized void setExperimentState(String experimentID, BenchFlowExperimentState state,
+      RunningState runningState, TerminatedState terminatedState)
       throws BenchFlowExperimentIDDoesNotExistException {
 
     logger.info("setExperimentState: " + experimentID + " : " + state.name());
@@ -98,28 +86,17 @@ public class BenchFlowExperimentModelDAO extends DAO {
     experimentModel = getExperiment(experimentID);
 
     experimentModel.setState(state);
-    experimentModel.setStatus(status);
+    experimentModel.setRunningState(runningState);
+    experimentModel.setTerminatedState(terminatedState);
 
     datastore.save(experimentModel);
   }
 
-  /**
-   * @param experimentID
-   * @param trialNUmber
-   * @param status
-   * @throws BenchFlowTestIDDoesNotExistException
-   */
-  public synchronized void addTrialStatus(
-      String experimentID, long trialNUmber, RunStatus.Code status)
-      throws BenchFlowExperimentIDDoesNotExistException {
+  public synchronized void addTrialStatus(String experimentID, long trialNUmber,
+      RunStatus.Code status) throws BenchFlowExperimentIDDoesNotExistException {
 
-    logger.info(
-        "addTrialStatus: "
-            + experimentID
-            + MODEL_ID_DELIMITER
-            + trialNUmber
-            + " : "
-            + status.name());
+    logger.info("addTrialStatus: " + experimentID + MODEL_ID_DELIMITER + trialNUmber + " : "
+        + status.name());
 
     final BenchFlowExperimentModel experimentModel;
 
@@ -129,12 +106,6 @@ public class BenchFlowExperimentModelDAO extends DAO {
     datastore.save(experimentModel);
   }
 
-  /**
-   * @param experimentID
-   * @param trialNumber
-   * @return
-   * @throws BenchFlowExperimentIDDoesNotExistException
-   */
   public synchronized RunStatus.Code getTrialStatus(String experimentID, long trialNumber)
       throws BenchFlowExperimentIDDoesNotExistException {
 

@@ -125,7 +125,17 @@ To help format your code according to the guidelines you probably want to use a 
       which runs before the compiler
 
 ### Java
-We are following the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html).
+
+We are following the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html) with the following adaptations:
+
+- names may contain up to 5 consecutive capital letters
+
+
+The requirements of this style guide are quite reasonable. In particular with regards to Javadoc checks:
+
+- only public methods have to be documented
+- it is not mandatory to document each single parameter, thrown exception, or return. This is good because in practice sometimes only a textual description is enough. The traditional checks force you to document each single parameter which leads to useless documentation like "experimentID: the ID of the experiment". But it is important to notice that if you do write an "@param someParameter" or a "@throws SomeException" without documentation the static check will complain
+- methods with less than 3 lines (we can change this parameter if you want) don't have to be documented. That is also great because if you're forced to document obvious code like getters and setters then nobody takes the static checks seriously.
 
 #### Checker
 
@@ -153,24 +163,19 @@ To check it we are using [checkstyle](http://checkstyle.sourceforge.net/).
 
 - Maven
   
-  The maven plug-in responsible for formatting (<https://github.com/coveo/fmt-maven-plugin>) basically calls the software Google users to format their Java code (<https://github.com/google/google-java-format>)
-which they say doesn't accept configuration on purpose to make sure nobody deviates from the standard.
+  To automatically format the code following the standard we use [formatter-maven-plugin](http://code.revelc.net/formatter-maven-plugin/formatter-maven-plugin/index.html) which uses the Eclipse code formatter. It formats the code using rules provided by a Eclipse formatter configuration file. The file is available in the repository.
 
-  If we decide we want to have a standard that is based on the Google standard but with something different we have to use a formatter that accepts configuration. For example:
-[formatter-maven-plugin](http://code.revelc.net/formatter-maven-plugin/formatter-maven-plugin/index.html)
-
-  Run it with
+  You can run it manually with
 
   ```
-  mvn com.coveo:fmt-maven-plugin:format
+  mvn java-formatter:format
   ```
 
   or it will run automatically before the compiler
 
 - Eclipse
   
-  You can configure the built-in formatter with this configuration file:
-  <https://github.com/google/styleguide/blob/gh-pages/eclipse-java-google-style.xml>
+  You can configure the built-in formatter with the same configuration file used by the Maven plug-in.
 
 - IntelliJ
  

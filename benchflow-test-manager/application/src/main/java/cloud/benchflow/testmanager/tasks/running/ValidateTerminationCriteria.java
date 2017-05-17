@@ -3,12 +3,15 @@ package cloud.benchflow.testmanager.tasks.running;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.strategy.selection.CompleteSelectionStrategy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-05-05 */
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-05-05
+ */
 public class ValidateTerminationCriteria implements Callable<Boolean> {
 
   private static Logger logger =

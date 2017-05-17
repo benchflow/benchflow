@@ -7,15 +7,19 @@ import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistExcepti
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Set;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20 */
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20
+ */
 public class CompleteSelectionStrategy implements ExperimentSelectionStrategy {
 
   private static Logger logger =
@@ -33,10 +37,8 @@ public class CompleteSelectionStrategy implements ExperimentSelectionStrategy {
   }
 
   // only used for testing
-  public CompleteSelectionStrategy(
-      MinioService minioService,
-      ExplorationModelDAO explorationModelDAO,
-      BenchFlowTestModelDAO testModelDAO) {
+  public CompleteSelectionStrategy(MinioService minioService,
+      ExplorationModelDAO explorationModelDAO, BenchFlowTestModelDAO testModelDAO) {
     this.minioService = minioService;
     this.explorationModelDAO = explorationModelDAO;
     this.testModelDAO = testModelDAO;
@@ -57,7 +59,7 @@ public class CompleteSelectionStrategy implements ExperimentSelectionStrategy {
       List<Integer> explorationSpace = explorationModelDAO.getWorkloadUserSpace(testID);
 
       // check which experiments have been executed
-      List<Long> executedExperimentNumbers = testModelDAO.getExperimentNumbers(testID);
+      Set<Long> executedExperimentNumbers = testModelDAO.getExperimentNumbers(testID);
 
       // expects that experiment has already been added to DB
       int nextExperimentNumber = executedExperimentNumbers.size() - 1;
@@ -69,11 +71,9 @@ public class CompleteSelectionStrategy implements ExperimentSelectionStrategy {
 
       // generate Experiment YAML file
       return BenchFlowDSL.experimentYamlBuilderFromTestYaml(testDefinitionYamlString)
-          .numUsers(nextUserConfig)
-          .build();
+          .numUsers(nextUserConfig).build();
 
-    } catch (IOException
-        | BenchFlowTestIDDoesNotExistException
+    } catch (IOException | BenchFlowTestIDDoesNotExistException
         | BenchFlowDeserializationException e) {
       // should not happen
       // TODO - handle me
@@ -88,7 +88,7 @@ public class CompleteSelectionStrategy implements ExperimentSelectionStrategy {
     // TODO - generalize this to complete search space
     List<Integer> explorationSpace = explorationModelDAO.getWorkloadUserSpace(testID);
     // check which experiments have been executed
-    List<Long> executedExperimentNumbers = testModelDAO.getExperimentNumbers(testID);
+    Set<Long> executedExperimentNumbers = testModelDAO.getExperimentNumbers(testID);
 
     return explorationSpace.size() == executedExperimentNumbers.size();
   }

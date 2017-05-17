@@ -5,11 +5,11 @@ package cloud.benchflow.faban.client.exceptions;
  */
 public class MalformedURIException extends FabanClientException {
 
-    public MalformedURIException(String message) {
-        super(message);
-    }
+  public MalformedURIException(String message) {
+    super(message);
+  }
 
-    public MalformedURIException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public MalformedURIException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

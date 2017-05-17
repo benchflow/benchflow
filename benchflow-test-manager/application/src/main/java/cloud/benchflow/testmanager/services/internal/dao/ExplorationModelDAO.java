@@ -4,13 +4,17 @@ import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistExcepti
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.strategy.selection.CompleteSelectionStrategy;
 import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
+
 import com.mongodb.MongoClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-25 */
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-25
+ */
 public class ExplorationModelDAO extends DAO {
 
   private static Logger logger = LoggerFactory.getLogger(ExplorationModelDAO.class.getSimpleName());
@@ -70,9 +74,8 @@ public class ExplorationModelDAO extends DAO {
     return benchFlowTestModel.getExplorationModel().getExperimentSelectionType();
   }
 
-  public synchronized void setExperimentSelectionStrategy(
-      String testID, ExperimentSelectionStrategy.Type strategyType)
-      throws BenchFlowTestIDDoesNotExistException {
+  public synchronized void setExperimentSelectionStrategy(String testID,
+      ExperimentSelectionStrategy.Type strategyType) throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("setExperimentSelectionStrategy: " + testID);
 

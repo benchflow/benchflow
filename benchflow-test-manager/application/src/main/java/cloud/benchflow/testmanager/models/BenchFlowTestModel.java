@@ -1,29 +1,34 @@
 package cloud.benchflow.testmanager.models;
 
-import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.START;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.DETERMINE_EXPLORATION_STRATEGY;
+
+import cloud.benchflow.testmanager.constants.BenchFlowConstants;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.mongodb.morphia.annotations.*;
+
+import java.util.Collection;
+import java.util.Date;
+import java.util.Set;
+import java.util.TreeMap;
+
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Field;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Index;
+import org.mongodb.morphia.annotations.IndexOptions;
+import org.mongodb.morphia.annotations.Indexes;
+import org.mongodb.morphia.annotations.PrePersist;
+import org.mongodb.morphia.annotations.Reference;
 import org.mongodb.morphia.utils.IndexType;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.READY;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.START;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.*;
-
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16.
+ */
 @Entity
-@Indexes({
-  @Index(
-    options = @IndexOptions(),
-    fields = {@Field(value = "hashedID", type = IndexType.HASHED)}
-  )
-})
+@Indexes({@Index(options = @IndexOptions(),
+    fields = {@Field(value = "hashedID", type = IndexType.HASHED)})})
 public class BenchFlowTestModel {
 
   /**
@@ -34,24 +39,32 @@ public class BenchFlowTestModel {
   public static final String ID_FIELD_NAME = "id";
 
   public static final String HASHED_ID_FIELD_NAME = "hashedID";
-  @Id private String id;
+  @Id
+  private String id;
 
   // Annotations for MongoDB + Morphia (http://mongodb.github.io/morphia/1.3/guides/annotations/#entity)
 
   //    userName.testName.testNumber.experimentNumber.trialNumber
   // used for potential sharing in the future
-  @JsonIgnore private String hashedID;
-  @Reference @JsonIgnore private User user;
-  @JsonIgnore private String name;
-  @JsonIgnore private long number;
+  @JsonIgnore
+  private String hashedID;
+  @Reference
+  @JsonIgnore
+  private User user;
+  @JsonIgnore
+  private String name;
+  @JsonIgnore
+  private long number;
   private Date start = new Date();
   private Date lastModified = new Date();
   private BenchFlowTestState state;
   private TestRunningState runningState;
   private TestTerminatedState terminatedState;
-  @Reference private Set<BenchFlowExperimentModel> experiments = new HashSet<>();
+  @Reference
+  private TreeMap<Long, BenchFlowExperimentModel> experiments = new TreeMap<>();
 
-  @JsonIgnore private ExplorationModel explorationModel = new ExplorationModel();
+  @JsonIgnore
+  private ExplorationModel explorationModel = new ExplorationModel();
 
   public BenchFlowTestModel() {
     // Empty constructor for MongoDB + Morphia
@@ -63,12 +76,8 @@ public class BenchFlowTestModel {
     this.name = benchFlowTestName;
     this.number = benchFlowTestNumber;
 
-    this.id =
-        user.getUsername()
-            + MODEL_ID_DELIMITER
-            + benchFlowTestName
-            + MODEL_ID_DELIMITER
-            + benchFlowTestNumber;
+    this.id = user.getUsername() + MODEL_ID_DELIMITER + benchFlowTestName + MODEL_ID_DELIMITER
+        + benchFlowTestNumber;
     this.hashedID = this.id;
 
     this.state = START;
@@ -130,25 +139,33 @@ public class BenchFlowTestModel {
 
   public void addExperimentModel(BenchFlowExperimentModel experimentModel) {
 
-    experiments.add(experimentModel);
+    long experimentNumber =
+        BenchFlowConstants.getExperimentNumberfromExperimentID(experimentModel.getId());
+
+    experiments.put(experimentNumber, experimentModel);
   }
 
   public boolean containsExperimentModel(String experimentID) {
 
-    return experiments.stream().filter(model -> model.getId().equals(experimentID)).count() != 0;
+    long experimentNumber = BenchFlowConstants.getExperimentNumberfromExperimentID(experimentID);
+
+    return experiments.containsKey(experimentNumber);
   }
 
-  public List<Long> getExperimentNumbers() {
-
-    return experiments
-        .stream()
-        .map(BenchFlowExperimentModel::getNumber)
-        .collect(Collectors.toList());
-  }
-
-  public Set<BenchFlowExperimentModel> getExperimentModels() {
-
+  public TreeMap<Long, BenchFlowExperimentModel> getExperiments() {
     return experiments;
+  }
+
+  @JsonIgnore
+  public Set<Long> getExperimentNumbers() {
+
+    return experiments.keySet();
+  }
+
+  @JsonIgnore
+  public Collection<BenchFlowExperimentModel> getExperimentModels() {
+
+    return experiments.values();
   }
 
   public ExplorationModel getExplorationModel() {
@@ -158,31 +175,22 @@ public class BenchFlowTestModel {
   @JsonIgnore
   public long getNextExperimentNumber() {
 
-    return experiments.size();
+    if (experiments.size() == 0) {
+      return 1;
+    }
+
+    return experiments.lastKey() + 1;
   }
 
   public enum BenchFlowTestState {
-    START,
-    READY,
-    WAITING,
-    RUNNING,
-    TERMINATED
+    START, READY, WAITING, RUNNING, TERMINATED
   }
 
   public enum TestRunningState {
-    DETERMINE_EXPLORATION_STRATEGY,
-    ADD_STORED_KNOWLEDGE,
-    DETERMINE_EXECUTE_EXPERIMENTS,
-    HANDLE_EXPERIMENT_RESULT,
-    VALIDATE_TERMINATION_CRITERIA,
-    DERIVE_PREDICTION_FUNCTION,
-    VALIDATE_PREDICTION_FUNCTION,
-    REMOVE_NON_REACHABLE_EXPERIMENTS
+    DETERMINE_EXPLORATION_STRATEGY, ADD_STORED_KNOWLEDGE, DETERMINE_EXECUTE_EXPERIMENTS, HANDLE_EXPERIMENT_RESULT, VALIDATE_TERMINATION_CRITERIA, DERIVE_PREDICTION_FUNCTION, VALIDATE_PREDICTION_FUNCTION, REMOVE_NON_REACHABLE_EXPERIMENTS
   }
 
   public enum TestTerminatedState {
-    PARTIALLY_COMPLETE,
-    COMPLETED_WITH_FAILURE,
-    GOAL_REACHED
+    PARTIALLY_COMPLETE, COMPLETED_WITH_FAILURE, GOAL_REACHED
   }
 }

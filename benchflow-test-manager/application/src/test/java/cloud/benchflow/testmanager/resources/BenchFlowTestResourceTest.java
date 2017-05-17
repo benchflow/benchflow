@@ -1,5 +1,15 @@
 package cloud.benchflow.testmanager.resources;
 
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
+import static cloud.benchflow.testmanager.helpers.TestConstants.INVALID_BENCHFLOW_TEST_ID;
+import static cloud.benchflow.testmanager.helpers.TestConstants.TEST_USER;
+import static cloud.benchflow.testmanager.helpers.TestConstants.TEST_USER_NAME;
+import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_BENCHFLOW_TEST_ID;
+import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_BENCHFLOW_TEST_NAME;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.RUNNING;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
+
 import cloud.benchflow.testmanager.api.request.ChangeBenchFlowTestStateRequest;
 import cloud.benchflow.testmanager.api.response.ChangeBenchFlowTestStateResponse;
 import cloud.benchflow.testmanager.api.response.RunBenchFlowTestResponse;
@@ -9,9 +19,16 @@ import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistExcepti
 import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidTestArchiveWebException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
+import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
+
+import java.io.InputStream;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -19,20 +36,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import java.io.InputStream;
-
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
-import static cloud.benchflow.testmanager.helpers.TestConstants.*;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.RUNNING;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
-
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 15.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 15.02.17.
+ */
 public class BenchFlowTestResourceTest {
 
-  @Rule public ExpectedException exception = ExpectedException.none();
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
   // mocks
   private BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
   private UserDAO userDAOMock = Mockito.mock(UserDAO.class);
@@ -63,11 +73,10 @@ public class BenchFlowTestResourceTest {
     InputStream expArchive = TestArchives.getValidTestArchive();
 
     String expectedTestID =
-        TEST_USER_NAME + MODEL_ID_DELIMITER + VALID_BENCHFLOW_TEST_NAME + MODEL_ID_DELIMITER + 0;
+        TEST_USER_NAME + MODEL_ID_DELIMITER + VALID_BENCHFLOW_TEST_NAME + MODEL_ID_DELIMITER + 1;
 
-    Mockito.doReturn(expectedTestID)
-        .when(testModelDAOMock)
-        .addTestModel(VALID_BENCHFLOW_TEST_NAME, BenchFlowConstants.BENCHFLOW_USER);
+    Mockito.doReturn(expectedTestID).when(testModelDAOMock)
+        .addTestModel(Mockito.matches(VALID_BENCHFLOW_TEST_NAME), Mockito.any(User.class));
 
     RunBenchFlowTestResponse response = resource.runBenchFlowTest(TEST_USER_NAME, expArchive);
 
@@ -88,9 +97,8 @@ public class BenchFlowTestResourceTest {
   public void changeBenchFlowTestState() throws Exception {
 
     Mockito.doReturn(RUNNING).when(testModelDAOMock).setTestState(VALID_BENCHFLOW_TEST_ID, RUNNING);
-    Mockito.doReturn(TERMINATED)
-        .when(testModelDAOMock)
-        .setTestState(VALID_BENCHFLOW_TEST_ID, TERMINATED);
+    Mockito.doReturn(TERMINATED).when(testModelDAOMock).setTestState(VALID_BENCHFLOW_TEST_ID,
+        TERMINATED);
 
     request.setState(RUNNING);
 
@@ -119,8 +127,7 @@ public class BenchFlowTestResourceTest {
 
     request.setState(RUNNING);
 
-    Mockito.doThrow(BenchFlowTestIDDoesNotExistException.class)
-        .when(testModelDAOMock)
+    Mockito.doThrow(BenchFlowTestIDDoesNotExistException.class).when(testModelDAOMock)
         .setTestState(VALID_BENCHFLOW_TEST_ID, RUNNING);
 
     exception.expect(InvalidBenchFlowTestIDWebException.class);
@@ -139,8 +146,7 @@ public class BenchFlowTestResourceTest {
 
     String testID = INVALID_BENCHFLOW_TEST_ID;
 
-    Mockito.doThrow(BenchFlowTestIDDoesNotExistException.class)
-        .when(testModelDAOMock)
+    Mockito.doThrow(BenchFlowTestIDDoesNotExistException.class).when(testModelDAOMock)
         .getTestModel(testID);
 
     exception.expect(InvalidBenchFlowTestIDWebException.class);
@@ -161,15 +167,10 @@ public class BenchFlowTestResourceTest {
 
     String benchFlowTestName = VALID_BENCHFLOW_TEST_NAME;
 
-    String expectedTestID =
-        TEST_USER_NAME
-            + BenchFlowConstants.MODEL_ID_DELIMITER
-            + benchFlowTestName
-            + BenchFlowConstants.MODEL_ID_DELIMITER
-            + 1;
+    String expectedTestID = TEST_USER_NAME + BenchFlowConstants.MODEL_ID_DELIMITER
+        + benchFlowTestName + BenchFlowConstants.MODEL_ID_DELIMITER + 1;
 
-    Mockito.doReturn(new BenchFlowTestModel(TEST_USER, benchFlowTestName, 1))
-        .when(testModelDAOMock)
+    Mockito.doReturn(new BenchFlowTestModel(TEST_USER, benchFlowTestName, 1)).when(testModelDAOMock)
         .getTestModel(expectedTestID);
 
     String[] testIDArray = expectedTestID.split(MODEL_ID_DELIMITER_REGEX);

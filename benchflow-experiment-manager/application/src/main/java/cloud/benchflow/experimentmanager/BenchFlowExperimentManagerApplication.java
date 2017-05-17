@@ -6,8 +6,12 @@ import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerS
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
+import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
 import cloud.benchflow.experimentmanager.tasks.ExperimentTaskController;
 import cloud.benchflow.faban.client.FabanClient;
+
+import com.mongodb.MongoClient;
+
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
 import io.dropwizard.Application;
@@ -16,85 +20,150 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+
+import java.util.concurrent.ExecutorService;
+
+import javax.ws.rs.client.Client;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.client.Client;
-import java.util.concurrent.ExecutorService;
+public class BenchFlowExperimentManagerApplication
+    extends Application<BenchFlowExperimentManagerConfiguration> {
 
-public class BenchFlowExperimentManagerApplication extends Application<BenchFlowExperimentManagerConfiguration> {
+  private Logger logger =
+      LoggerFactory.getLogger(BenchFlowExperimentManagerApplication.class.getSimpleName());
 
-    private Logger logger = LoggerFactory.getLogger(BenchFlowExperimentManagerApplication.class.getSimpleName());
+  private static BenchFlowExperimentModelDAO experimentModelDAO;
+  private static TrialModelDAO trialModelDAO;
+  private static MinioService minioService;
+  private static FabanClient fabanClient;
+  private static DriversMakerService driversMakerService;
+  private static BenchFlowTestManagerService testManagerService;
+  private static ExperimentTaskController experimentTaskController;
+  private static int submitRetries;
 
-    public static void main(String[] args) throws Exception {
-        new BenchFlowExperimentManagerApplication().run(args);
-    }
+  public static void main(String[] args) throws Exception {
+    new BenchFlowExperimentManagerApplication().run(args);
+  }
 
-    @Override
-    public String getName() {
-        return "benchflow-experiment-manager";
-    }
+  public static BenchFlowExperimentModelDAO getExperimentModelDAO() {
+    return experimentModelDAO;
+  }
 
-    @Override
-    public void initialize(Bootstrap<BenchFlowExperimentManagerConfiguration> bootstrap) {
+  public static TrialModelDAO getTrialModelDAO() {
+    return trialModelDAO;
+  }
 
-        logger.info("initialize");
+  public static MinioService getMinioService() {
+    return minioService;
+  }
 
-        // Dropwizard Template Config
-        bootstrap.addBundle(new TemplateConfigBundle(new TemplateConfigBundleConfiguration().resourceIncludePath("/app")));
+  public static FabanClient getFabanClient() {
+    return fabanClient;
+  }
 
-        // Dropwizard Swagger
-        bootstrap.addBundle(new SwaggerBundle<BenchFlowExperimentManagerConfiguration>() {
-            @Override
-            protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(BenchFlowExperimentManagerConfiguration configuration) {
-                return configuration.getSwagger();
-            }
-        });
+  public static DriversMakerService getDriversMakerService() {
+    return driversMakerService;
+  }
 
-    }
+  public static BenchFlowTestManagerService getTestManagerService() {
+    return testManagerService;
+  }
 
-    @Override
-    public void run(BenchFlowExperimentManagerConfiguration configuration, Environment environment) throws Exception {
+  public static ExperimentTaskController getExperimentTaskController() {
+    return experimentTaskController;
+  }
 
-        logger.info("run");
+  // used for testing to insert mock/spy object
+  public static void setFabanClient(FabanClient fabanClient) {
+    BenchFlowExperimentManagerApplication.fabanClient = fabanClient;
+  }
 
-        Client client = new JerseyClientBuilder(environment)
-                .using(configuration.getJerseyClientConfiguration())
-                .build(environment.getName());
+  // used for testing to insert mock/spy object
+  public static void setDriversMakerService(DriversMakerService driversMakerService) {
+    BenchFlowExperimentManagerApplication.driversMakerService = driversMakerService;
+  }
 
-        // services
-        ExecutorService experimentTaskExecutorService = configuration.getExperimentTaskExecutorFactory().build(environment);
-        ExecutorService trialTaskExecutorService = configuration.getTrialTaskExecutorFactory().build(environment);
-        BenchFlowExperimentModelDAO experimentModelDAO = new BenchFlowExperimentModelDAO(configuration.getMongoDBFactory().build());
-        MinioService minioService = configuration.getMinioServiceFactory().build();
-        FabanClient fabanClient = configuration.getFabanServiceFactory().build();
-        DriversMakerService driversMakerService = configuration.getDriversMakerServiceFactory().build(client);
-        BenchFlowTestManagerService testManagerService = configuration.getTestManagerServiceFactory().build(client);
+  // used for testing to insert mock/spy object
+  public static void setTestManagerService(BenchFlowTestManagerService testManagerService) {
+    BenchFlowExperimentManagerApplication.testManagerService = testManagerService;
+  }
 
-        int submitRetries = configuration.getFabanServiceFactory().getSubmitRetries();
+  public static void setMinioService(MinioService minioService) {
+    BenchFlowExperimentManagerApplication.minioService = minioService;
+  }
 
-        ExperimentTaskController experimentTaskController = new ExperimentTaskController(minioService, experimentModelDAO, fabanClient, driversMakerService, testManagerService, experimentTaskExecutorService, submitRetries);
+  public static int getSubmitRetries() {
+    return submitRetries;
+  }
 
-        // make sure a bucket exists
-        minioService.initializeBuckets();
+  @Override
+  public String getName() {
+    return "benchflow-experiment-manager";
+  }
 
-        // instantiate resources
-        BenchFlowExperimentResource experimentResource = new BenchFlowExperimentResource(
-                minioService,
-                experimentModelDAO,
-                experimentTaskController
-        );
+  @Override
+  public void initialize(Bootstrap<BenchFlowExperimentManagerConfiguration> bootstrap) {
 
+    logger.info("initialize");
 
-        // TODO - health checks for all services
-//        final TemplateHealthCheck healthCheck =
-//                new TemplateHealthCheck(configuration.getTemplate());
-//        environment.healthChecks().register("template", healthCheck);
+    // Dropwizard Template Config
+    bootstrap.addBundle(new TemplateConfigBundle(
+        new TemplateConfigBundleConfiguration().resourceIncludePath("/app")));
 
-        // register resources
-        environment.jersey().register(experimentResource);
+    // Dropwizard Swagger
+    bootstrap.addBundle(new SwaggerBundle<BenchFlowExperimentManagerConfiguration>() {
+      @Override
+      protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(
+          BenchFlowExperimentManagerConfiguration configuration) {
+        return configuration.getSwagger();
+      }
+    });
+  }
 
-    }
+  @Override
+  public void run(BenchFlowExperimentManagerConfiguration configuration, Environment environment)
+      throws Exception {
 
+    logger.info("run");
 
+    Client client = new JerseyClientBuilder(environment)
+        .using(configuration.getJerseyClientConfiguration()).build(environment.getName());
+
+    MongoClient mongoClient = configuration.getMongoDBFactory().build();
+
+    // services
+    ExecutorService experimentTaskExecutorService =
+        configuration.getExperimentTaskExecutorFactory().build(environment);
+    ExecutorService trialTaskExecutorService =
+        configuration.getTrialTaskExecutorFactory().build(environment);
+
+    experimentModelDAO = new BenchFlowExperimentModelDAO(mongoClient);
+    trialModelDAO = new TrialModelDAO(mongoClient);
+
+    minioService = configuration.getMinioServiceFactory().build();
+    fabanClient = configuration.getFabanServiceFactory().build();
+    driversMakerService = configuration.getDriversMakerServiceFactory().build(client);
+    testManagerService = configuration.getTestManagerServiceFactory().build(client);
+
+    submitRetries = configuration.getFabanServiceFactory().getSubmitRetries();
+
+    // ensure it is last so other services have been assigned
+    experimentTaskController = new ExperimentTaskController(experimentTaskExecutorService);
+
+    // make sure a bucket exists
+    minioService.initializeBuckets();
+
+    // instantiate resources
+    BenchFlowExperimentResource experimentResource = new BenchFlowExperimentResource();
+
+    // TODO - health checks for all services
+    //        final TemplateHealthCheck healthCheck =
+    //                new TemplateHealthCheck(configuration.getTemplate());
+    //        environment.healthChecks().register("template", healthCheck);
+
+    // register resources
+    environment.jersey().register(experimentResource);
+  }
 }

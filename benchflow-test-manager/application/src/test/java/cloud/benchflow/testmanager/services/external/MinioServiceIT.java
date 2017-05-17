@@ -1,23 +1,26 @@
 package cloud.benchflow.testmanager.services.external;
 
+import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_EXPERIMENT_ID;
+import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_TEST_ID;
+
+import cloud.benchflow.testmanager.DockerComposeIT;
 import cloud.benchflow.testmanager.archive.TestArchives;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
-import cloud.benchflow.testmanager.DockerComposeIT;
 import io.minio.MinioClient;
-import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_EXPERIMENT_ID;
-import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_TEST_ID;
+import org.apache.commons.io.IOUtils;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 16.02.17. */
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 16.02.17.
+ */
 public class MinioServiceIT extends DockerComposeIT {
 
   private MinioService minioService;
@@ -36,12 +39,12 @@ public class MinioServiceIT extends DockerComposeIT {
     String minioEndpoint =
         "http://" + MINIO_CONTAINER.getIp() + ":" + MINIO_CONTAINER.getExternalPort();
 
-    MinioClient minioClient =
-        new MinioClient(
-            minioEndpoint, DockerComposeIT.MINIO_ACCESS_KEY, DockerComposeIT.MINIO_SECRET_KEY);
+    MinioClient minioClient = new MinioClient(minioEndpoint, DockerComposeIT.MINIO_ACCESS_KEY,
+        DockerComposeIT.MINIO_SECRET_KEY);
 
-    if (!minioClient.bucketExists(BenchFlowConstants.TESTS_BUCKET))
+    if (!minioClient.bucketExists(BenchFlowConstants.TESTS_BUCKET)) {
       minioClient.makeBucket(BenchFlowConstants.TESTS_BUCKET);
+    }
 
     minioService = new MinioService(minioClient);
 
@@ -61,10 +64,8 @@ public class MinioServiceIT extends DockerComposeIT {
 
     Assert.assertNotNull(receivedInputStream);
 
-    String receivedString =
-        IOUtils.toString(
-            new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)),
-            StandardCharsets.UTF_8);
+    String receivedString = IOUtils.toString(
+        new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)), StandardCharsets.UTF_8);
 
     Assert.assertEquals(TestArchives.getValidTestDefinitionString(), receivedString);
 
@@ -84,10 +85,8 @@ public class MinioServiceIT extends DockerComposeIT {
 
     Assert.assertNotNull(receivedInputStream);
 
-    String receivedString =
-        IOUtils.toString(
-            new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)),
-            StandardCharsets.UTF_8);
+    String receivedString = IOUtils.toString(
+        new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)), StandardCharsets.UTF_8);
 
     Assert.assertEquals(TestArchives.getValidDeploymentDescriptorString(), receivedString);
 
@@ -103,26 +102,25 @@ public class MinioServiceIT extends DockerComposeIT {
 
     // TODO
 
-    bpmnModelsMap.forEach(
-        (name, model) -> {
-          minioService.saveTestBPMNModel(VALID_TEST_ID, name, model);
+    bpmnModelsMap.forEach((name, model) -> {
+      minioService.saveTestBPMNModel(VALID_TEST_ID, name, model);
 
-          InputStream receivedInputStream = minioService.getTestBPMNModel(VALID_TEST_ID, name);
+      InputStream receivedInputStream = minioService.getTestBPMNModel(VALID_TEST_ID, name);
 
-          Assert.assertNotNull(receivedInputStream);
+      Assert.assertNotNull(receivedInputStream);
 
-          // TODO - assert the content is the same
+      // TODO - assert the content is the same
 
-          //            String receivedString = IOUtils.toString(new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)), StandardCharsets.UTF_8);
-          //
-          //            Assert.assertEquals(TestArchives.getValidDeploymentDescriptorString(), receivedString);
+      //            String receivedString = IOUtils.toString(new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)), StandardCharsets.UTF_8);
+      //
+      //            Assert.assertEquals(TestArchives.getValidDeploymentDescriptorString(), receivedString);
 
-          minioService.removeTestBPMNModel(VALID_TEST_ID, name);
+      minioService.removeTestBPMNModel(VALID_TEST_ID, name);
 
-          receivedInputStream = minioService.getTestBPMNModel(VALID_TEST_ID, name);
+      receivedInputStream = minioService.getTestBPMNModel(VALID_TEST_ID, name);
 
-          Assert.assertNull(receivedInputStream);
-        });
+      Assert.assertNull(receivedInputStream);
+    });
   }
 
   @Test
@@ -134,10 +132,8 @@ public class MinioServiceIT extends DockerComposeIT {
 
     Assert.assertNotNull(receivedInputStream);
 
-    String receivedString =
-        IOUtils.toString(
-            new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)),
-            StandardCharsets.UTF_8);
+    String receivedString = IOUtils.toString(
+        new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)), StandardCharsets.UTF_8);
 
     Assert.assertEquals(TestArchives.getValidTestDefinitionString(), receivedString);
 

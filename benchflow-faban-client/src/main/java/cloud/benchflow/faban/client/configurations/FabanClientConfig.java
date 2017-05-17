@@ -7,9 +7,9 @@ import java.net.URI;
  */
 public interface FabanClientConfig extends Config {
 
-    String getUser();
+  String getUser();
 
-    String getPassword();
+  String getPassword();
 
-    URI getMasterURL();
+  URI getMasterURL();
 }

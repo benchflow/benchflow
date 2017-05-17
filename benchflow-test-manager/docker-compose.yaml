@@ -1,0 +1,45 @@
+# This file is ONLY meant for starting the service locally
+version: '3'
+services:
+  mongo:
+    image: mongo:3.4.2
+    # We expose the port so that we can inspect the service if needed
+    ports:
+      - "27017:27017"
+    networks:
+      - benchflow-test-manager
+
+  minio:
+    image: minio/minio:RELEASE.2017-02-16T01-47-30Z
+    # We expose the port so that we can inspect the service if needed
+    ports:
+      - "9000:9000"
+    environment:
+          MINIO_ACCESS_KEY: minio
+          MINIO_SECRET_KEY: minio123
+    command: server /export
+    networks:
+      - benchflow-test-manager
+  
+  # The service has to be resilience in the connection to the dependent services
+  # as well has to expose an health check that is is possible to specify: https://docs.docker.com/compose/compose-file/#healthcheck
+  benchflow-test-manager:
+      image: benchflow/test-manager:devel
+      ports:
+        - "8080:8080"
+      environment:
+          ENVCONSUL_CONSUL: demo.consul.io
+          MONGO_DB_ADDRESS: mongo
+          MONGO_DB_PORT: 27017
+          MINIO_ADDRESS: minio
+          MINIO_ACCESS_KEY: minio
+          MINIO_SECRET_KEY: minio123
+      depends_on:
+        - "mongo"
+        - "minio"
+      networks:
+        - benchflow-test-manager
+
+networks:
+  benchflow-test-manager:
+    driver: bridge

@@ -5,14 +5,14 @@ import cloud.benchflow.faban.client.responses.Response;
 
 
 /**
- * @author Simone D'Avico <simonedavico@gmail.com>
- *
  * Interface for a generic command.
+ * 
+ * @author Simone D'Avico (simonedavico@gmail.com)
  */
 public interface Command<T extends Response> {
 
-    default T exec(FabanClientConfig fabanConfig) throws Exception {
-        throw new UnsupportedOperationException();
-    }
+  default T exec(FabanClientConfig fabanConfig) throws Exception {
+    throw new UnsupportedOperationException();
+  }
 
 }

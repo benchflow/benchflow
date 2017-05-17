@@ -1,11 +1,14 @@
 package cloud.benchflow.testmanager.models;
 
 import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
-import org.mongodb.morphia.annotations.Embedded;
 
 import java.util.List;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-25 */
+import org.mongodb.morphia.annotations.Embedded;
+
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-25
+ */
 @Embedded
 public class ExplorationModel {
 

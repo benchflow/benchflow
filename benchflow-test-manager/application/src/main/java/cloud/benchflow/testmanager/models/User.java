@@ -1,29 +1,35 @@
 package cloud.benchflow.testmanager.models;
 
-import org.mongodb.morphia.annotations.*;
-import org.mongodb.morphia.utils.IndexType;
-
 import java.util.HashSet;
 import java.util.Set;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 21.02.17. */
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Field;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Index;
+import org.mongodb.morphia.annotations.IndexOptions;
+import org.mongodb.morphia.annotations.Indexes;
+import org.mongodb.morphia.annotations.Reference;
+import org.mongodb.morphia.utils.IndexType;
+
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 21.02.17.
+ */
 @Entity
-@Indexes({
-  @Index(
-    options = @IndexOptions(),
-    fields = {@Field(value = "hashUsername", type = IndexType.HASHED)}
-  )
-})
+@Indexes({@Index(options = @IndexOptions(),
+    fields = {@Field(value = "hashUsername", type = IndexType.HASHED)})})
 public class User {
 
   public static String ID_FIELD_NAME = "username";
   public static String HASHED_ID_FIELD_NAME = "hashUsername";
 
-  @Id private String username;
+  @Id
+  private String username;
 
   private String hashUsername;
 
-  @Reference private Set<BenchFlowTestModel> testModels = new HashSet<>();
+  @Reference
+  private Set<BenchFlowTestModel> testModels = new HashSet<>();
 
   public User() {
     // Empty constructor for MongoDB + Morphia

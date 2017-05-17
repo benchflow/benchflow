@@ -21,22 +21,32 @@ import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
 import cloud.benchflow.testmanager.tasks.start.StartTask;
 import io.swagger.annotations.Api;
-import org.glassfish.jersey.media.multipart.FormDataParam;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 
-/** @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17. */
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17.
+ */
 @Path("/v1/users/{username}/tests")
 @Api(value = "benchflow-test")
 public class BenchFlowTestResource {
@@ -59,9 +69,7 @@ public class BenchFlowTestResource {
   }
 
   /* used for tests */
-  public BenchFlowTestResource(
-      BenchFlowTestModelDAO testModelDAO,
-      UserDAO userDAO,
+  public BenchFlowTestResource(BenchFlowTestModelDAO testModelDAO, UserDAO userDAO,
       BenchFlowTestTaskController testTaskController) {
     this.testModelDAO = testModelDAO;
     this.userDAO = userDAO;
@@ -72,8 +80,7 @@ public class BenchFlowTestResource {
   @Path("/run")
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Produces(MediaType.APPLICATION_JSON)
-  public RunBenchFlowTestResponse runBenchFlowTest(
-      @PathParam("username") String username,
+  public RunBenchFlowTestResponse runBenchFlowTest(@PathParam("username") String username,
       @FormDataParam("benchFlowTestBundle") final InputStream benchFlowTestBundle) {
 
     logger.info(
@@ -92,7 +99,7 @@ public class BenchFlowTestResource {
     if (!userDAO.userExists(user)) {
 
       try {
-        userDAO.addUser(BenchFlowConstants.BENCHFLOW_USER.getUsername());
+        userDAO.addUser(user.getUsername());
       } catch (UserIDAlreadyExistsException e) {
         // since we already checked that the user doesn't exist it cannot happen
         throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
@@ -112,9 +119,8 @@ public class BenchFlowTestResource {
 
       BenchFlowTest benchFlowTest = BenchFlowDSL.testFromYaml(testDefinitionYamlString);
 
-      InputStream deploymentDescriptorInputStream =
-          BenchFlowTestArchiveExtractor.extractDeploymentDescriptorInputStream(
-              archiveZipInputStream);
+      InputStream deploymentDescriptorInputStream = BenchFlowTestArchiveExtractor
+          .extractDeploymentDescriptorInputStream(archiveZipInputStream);
       Map<String, InputStream> bpmnModelInputStreams =
           BenchFlowTestArchiveExtractor.extractBPMNModelInputStreams(archiveZipInputStream);
 
@@ -123,16 +129,10 @@ public class BenchFlowTestResource {
       }
 
       // save new test
-      String testID =
-          testModelDAO.addTestModel(benchFlowTest.name(), BenchFlowConstants.BENCHFLOW_USER);
+      String testID = testModelDAO.addTestModel(benchFlowTest.name(), user);
 
-      new Thread(
-              new StartTask(
-                  testID,
-                  testDefinitionYamlString,
-                  deploymentDescriptorInputStream,
-                  bpmnModelInputStreams))
-          .start();
+      new Thread(new StartTask(testID, testDefinitionYamlString, deploymentDescriptorInputStream,
+          bpmnModelInputStreams)).start();
 
       return new RunBenchFlowTestResponse(testID);
 
@@ -146,14 +146,13 @@ public class BenchFlowTestResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   public ChangeBenchFlowTestStateResponse changeBenchFlowTestState(
-      @PathParam("username") String username,
-      @PathParam("testName") String testName,
+      @PathParam("username") String username, @PathParam("testName") String testName,
       @PathParam("testNumber") int testNumber,
       @NotNull @Valid final ChangeBenchFlowTestStateRequest stateRequest) {
 
     String testID = BenchFlowConstants.getTestID(username, testName, testNumber);
-    logger.info(
-        "request received: PUT " + BenchFlowConstants.getPathFromTestID(testID) + STATE_PATH);
+    logger
+        .info("request received: PUT " + BenchFlowConstants.getPathFromTestID(testID) + STATE_PATH);
 
     // TODO - handle the actual state change (e.g. on PE Manager)
 
@@ -173,10 +172,8 @@ public class BenchFlowTestResource {
   @Path("{testName}/{testNumber}/status")
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public BenchFlowTestModel getBenchFlowTestStatus(
-      @PathParam("username") String username,
-      @PathParam("testName") String testName,
-      @PathParam("testNumber") int testNumber) {
+  public BenchFlowTestModel getBenchFlowTestStatus(@PathParam("username") String username,
+      @PathParam("testName") String testName, @PathParam("testNumber") int testNumber) {
 
     String testID = BenchFlowConstants.getTestID(username, testName, testNumber);
 

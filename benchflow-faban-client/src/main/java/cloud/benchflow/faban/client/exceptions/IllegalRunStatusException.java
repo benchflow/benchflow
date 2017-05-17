@@ -5,7 +5,7 @@ package cloud.benchflow.faban.client.exceptions;
  */
 public class IllegalRunStatusException extends FabanClientException {
 
-    public IllegalRunStatusException(String s) {
-        super(s);
-    }
+  public IllegalRunStatusException(String s) {
+    super(s);
+  }
 }
