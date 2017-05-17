@@ -7,9 +7,11 @@ import io.dropwizard.Configuration;
 import org.hibernate.validator.constraints.NotEmpty;
 
 public class DataManagerConfiguration extends Configuration {
-  @NotEmpty private String template;
+  @NotEmpty
+  private String template;
 
-  @NotEmpty private String defaultName = "Stranger";
+  @NotEmpty
+  private String defaultName = "Stranger";
 
   @JsonProperty
   public String getTemplate() {
