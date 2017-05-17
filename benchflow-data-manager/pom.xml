@@ -27,6 +27,24 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <dropwizard.version>1.0.0</dropwizard.version>
         <scala.version>2.11.8</scala.version>
+        <scala.minor.version>2.11</scala.minor.version>
+        <akka.version>2.4.17</akka.version>
+        <scalatest.version>3.0.1</scalatest.version>
+        <guice.version>4.1.0</guice.version>
+        <google-api-services-drive.version>v3-rev46-1.22.0</google-api-services-drive.version>
+        <google-oauth-client-jetty.version>1.22.0</google-oauth-client-jetty.version>
+        <akka-stream-alpakka-cassandra.version>0.7</akka-stream-alpakka-cassandra.version>
+        <minio.version>3.0.3</minio.version>
+        <play-json.version>2.5.14</play-json.version>
+        <scala-maven-plugin.version>3.2.2</scala-maven-plugin.version>
+        <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
+        <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
+        <maven-source-plugin.version>2.4</maven-source-plugin.version>
+        <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
+        <maven-shade-plugin.version>3.0.0</maven-shade-plugin.version>
+        <maven-surefire-plugin.version>2.7</maven-surefire-plugin.version>
+        <maven-project-info-reports-plugin.version>2.8.1</maven-project-info-reports-plugin.version>
+        <scalatest-maven-plugin.version>1.0</scalatest-maven-plugin.version>
         <mainClass>cloud.benchflow.datamanager.service.DataManagerApplication</mainClass>
     </properties>
 
@@ -54,61 +72,61 @@
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.11</artifactId>
-            <version>3.0.1</version>
+            <artifactId>scalatest_${scala.minor.version}</artifactId>
+            <version>${scalatest.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-testkit_2.11</artifactId>
-            <version>2.4.7</version>
+            <artifactId>akka-testkit_${scala.minor.version}</artifactId>
+            <version>${akka.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-stream-testkit_2.11</artifactId>
-            <version>2.4.7</version>
+            <artifactId>akka-stream-testkit_${scala.minor.version}</artifactId>
+            <version>${akka.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <version>4.1.0</version>
+            <version>${guice.version}</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-stream_2.11</artifactId>
-            <version>2.4.7</version>
+            <artifactId>akka-stream_${scala.minor.version}</artifactId>
+            <version>${akka.version}</version>
         </dependency>
         <dependency>
           <groupId>com.typesafe.akka</groupId>
-          <artifactId>akka-actor_2.11</artifactId>
-          <version>2.4.7</version>
+          <artifactId>akka-actor_${scala.minor.version}</artifactId>
+          <version>${akka.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-drive</artifactId>
-            <version>v3-rev46-1.22.0</version>
+            <version>${google-api-services-drive.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.oauth-client</groupId>
             <artifactId>google-oauth-client-jetty</artifactId>
-            <version>1.22.0</version>
+            <version>${google-oauth-client-jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>com.lightbend.akka</groupId>
-            <artifactId>akka-stream-alpakka-cassandra_2.11</artifactId>
-            <version>0.5</version>
+            <artifactId>akka-stream-alpakka-cassandra_${scala.minor.version}</artifactId>
+            <version>${akka-stream-alpakka-cassandra.version}</version>
         </dependency>
         <dependency>
             <groupId>io.minio</groupId>
             <artifactId>minio</artifactId>
-            <version>3.0.3</version>
+            <version>${minio.version}</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.play</groupId>
-            <artifactId>play-json_2.11</artifactId>
-            <version>2.5.14</version>
+            <artifactId>play-json_${scala.minor.version}</artifactId>
+            <version>${play-json.version}</version>
         </dependency>
     </dependencies>
 
@@ -116,7 +134,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.1</version>
+                <version>${maven-shade-plugin.version}</version>
                 <configuration>
                     <createDependencyReducedPom>true</createDependencyReducedPom>
                     <transformers>
@@ -151,7 +169,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.6</version>
+                <version>${maven-jar-plugin.version}</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -163,7 +181,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -171,7 +189,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.4</version>
+                <version>${maven-source-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -183,7 +201,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.3</version>
+                <version>${maven-javadoc-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -196,7 +214,7 @@
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>${scala-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>scala-compile-first</id>
@@ -221,7 +239,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <scalaCompatVersion>2.11</scalaCompatVersion>
+                    <scalaCompatVersion>${scala.minor.version}</scalaCompatVersion>
                     <recompileMode>incremental</recompileMode>
                     <ccTestGoals>scalatest:test</ccTestGoals>
                     <jvmArgs>
@@ -239,7 +257,7 @@
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-surefire-plugin</artifactId>
-              <version>2.7</version>
+              <version>${maven-surefire-plugin.version}</version>
               <configuration>
                 <skipTests>true</skipTests>
               </configuration>
@@ -248,7 +266,7 @@
             <plugin>
               <groupId>org.scalatest</groupId>
               <artifactId>scalatest-maven-plugin</artifactId>
-              <version>1.0</version>
+              <version>${scalatest-maven-plugin.version}</version>
               <configuration>
                 <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
                 <junitxml>.</junitxml>
@@ -270,7 +288,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.8.1</version>
+                <version>${maven-project-info-reports-plugin.version}</version>
                 <configuration>
                     <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
                     <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
@@ -278,7 +296,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.3</version>
+                <version>${maven-javadoc-plugin.version}</version>
             </plugin>
         </plugins>
     </reporting>
