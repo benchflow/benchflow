@@ -2,8 +2,6 @@ package cloud.benchflow.datamanager.core
 
 import scala.concurrent.duration.DurationInt
 
-import com.google.inject.ImplementedBy
-
 import akka.actor.{ Actor, ActorRef, ActorSystem, Props, actorRef2Scala }
 import akka.stream.Materializer
 import akka.util.Timeout
@@ -27,7 +25,7 @@ trait Backuper {
   def restore(backupId: Long): Unit
 }
 
-class BackupManager @Inject() (
+class BackupManager(
     val cassandra: Cassandra,
     googleDrive: BackupStorage,
     val minio: ExperimentFileStorage)(implicit system: ActorSystem, materializer: Materializer) {

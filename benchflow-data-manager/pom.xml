@@ -30,7 +30,6 @@
         <scala.minor.version>2.11</scala.minor.version>
         <akka.version>2.4.17</akka.version>
         <scalatest.version>3.0.1</scalatest.version>
-        <guice.version>4.1.0</guice.version>
         <google-api-services-drive.version>v3-rev46-1.22.0</google-api-services-drive.version>
         <google-oauth-client-jetty.version>1.22.0</google-oauth-client-jetty.version>
         <akka-stream-alpakka-cassandra.version>0.7</akka-stream-alpakka-cassandra.version>
@@ -87,11 +86,6 @@
             <artifactId>akka-stream-testkit_${scala.minor.version}</artifactId>
             <version>${akka.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-            <version>${guice.version}</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>

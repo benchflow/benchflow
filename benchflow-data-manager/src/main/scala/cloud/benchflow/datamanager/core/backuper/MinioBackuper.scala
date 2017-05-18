@@ -2,8 +2,6 @@ package cloud.benchflow.datamanager.core.backuper
 
 import java.io.{ ByteArrayInputStream, ByteArrayOutputStream }
 
-import com.google.inject.ImplementedBy
-
 import akka.actor.ActorRef
 
 import cloud.benchflow.datamanager.core.Backuper

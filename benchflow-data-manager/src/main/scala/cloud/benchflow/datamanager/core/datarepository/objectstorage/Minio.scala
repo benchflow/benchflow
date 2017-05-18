@@ -5,8 +5,6 @@ import java.io.InputStream
 import scala.collection.JavaConversions._
 import scala.util.Try
 
-import com.google.inject.ImplementedBy
-
 import cloud.benchflow.datamanager.core.datarepository.filestorage.{ ExperimentFile, ExperimentFileStorage }
 import io.minio.MinioClient
 

@@ -5,7 +5,6 @@ import java.io.{ InputStream, OutputStream }
 import scala.collection.JavaConversions.asScalaBuffer
 
 import com.google.api.services.drive.model.File
-import com.google.inject.ImplementedBy
 
 trait GoogleDriveBackupStorage extends BackupStorage {
   val googleDrive: GoogleDrive

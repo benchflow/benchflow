@@ -8,7 +8,6 @@ import scala.util.{ Failure, Success, Try }
 import org.slf4j.LoggerFactory
 
 import com.datastax.driver.core.{ Cluster, PreparedStatement }
-import com.google.inject.ImplementedBy
 
 import akka.{ Done, NotUsed }
 import akka.actor.ActorSystem
@@ -17,7 +16,6 @@ import akka.stream.{ Attributes, Materializer }
 import akka.stream.alpakka.cassandra.scaladsl.{ CassandraSink, CassandraSource }
 import akka.stream.scaladsl.Source
 
-@ImplementedBy(classOf[CassandraFromConfig])
 trait Cassandra {
   val cluster: Cluster
   val keyspace: String

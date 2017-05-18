@@ -7,7 +7,6 @@ import scala.collection.mutable.ArrayBuffer
 import org.scalatest.{ Matchers, WordSpecLike }
 
 import com.datastax.driver.core.Cluster
-import com.google.inject.ImplementedBy
 
 import akka.stream.ActorMaterializer
 import akka.testkit.TestKit
@@ -17,7 +16,6 @@ import cloud.benchflow.datamanager.core.backupstorage.{ BackupFile, BackupStorag
 import cloud.benchflow.datamanager.core.datarepository.cassandra.{ Cassandra, CassandraFromConfig }
 import cloud.benchflow.datamanager.core.datarepository.objectstorage.{ ExperimentObjectStorage, ObjectStat }
 import cloud.benchflow.datamanager.service.resources.RootResource
-import javax.inject.Inject
 
 class IntegrationTests
     extends WordSpecLike

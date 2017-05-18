@@ -2,11 +2,8 @@ package cloud.benchflow.datamanager.core.backupstorage
 
 import java.io.{ InputStream, OutputStream }
 
-import com.google.inject.ImplementedBy
-
 case class BackupFile(id: String, name: String, fileType: String)
 
-@ImplementedBy(classOf[GoogleDriveFromConfig])
 trait BackupStorage {
   def listFiles(
     backupId: Long,
