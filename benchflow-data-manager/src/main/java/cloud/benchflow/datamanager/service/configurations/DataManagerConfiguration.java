@@ -1,4 +1,4 @@
-package cloud.benchflow.datamanager.service;
+package cloud.benchflow.datamanager.service.configurations;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

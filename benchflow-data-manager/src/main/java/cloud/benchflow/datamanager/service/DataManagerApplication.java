@@ -10,6 +10,7 @@ import cloud.benchflow.datamanager.core.datarepository.cassandra.Cassandra;
 import cloud.benchflow.datamanager.core.datarepository.cassandra.CassandraFromConfig;
 import cloud.benchflow.datamanager.core.datarepository.filestorage.ExperimentFileStorage;
 import cloud.benchflow.datamanager.core.datarepository.objectstorage.MinioFromConfig;
+import cloud.benchflow.datamanager.service.configurations.DataManagerConfiguration;
 import cloud.benchflow.datamanager.service.resources.RootResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
