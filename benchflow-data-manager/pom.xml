@@ -26,6 +26,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <dropwizard.version>1.0.0</dropwizard.version>
+        <dropwizard-template-config.version>1.4.0</dropwizard-template-config.version>
         <scala.version>2.11.8</scala.version>
         <scala.minor.version>2.11</scala.minor.version>
         <akka.version>2.4.17</akka.version>
@@ -68,6 +69,11 @@
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.thomaskrille</groupId>
+            <artifactId>dropwizard-template-config</artifactId>
+            <version>${dropwizard-template-config.version}</version>
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>

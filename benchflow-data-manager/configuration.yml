@@ -4,5 +4,8 @@ logging:
     cloud.benchflow.datamanager: DEBUG
     com.google.api.client.http: All
 
-template: Hello, %s!
-defaultName: Stranger
+minio:
+  address: ${env.MINIO_ADDRESS!"SET_ME"}
+  accessKey: ${env.MINIO_ACCESS_KEY!"SET_ME"}
+  secretKey: ${env.MINIO_SECRET_KEY!"SET_ME"}
+  defaultBucket: ${env.MINIO_DEFAULT_BUCKET!"test"}

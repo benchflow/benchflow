@@ -9,12 +9,15 @@ import cloud.benchflow.datamanager.core.backupstorage.GoogleDriveFromConfig;
 import cloud.benchflow.datamanager.core.datarepository.cassandra.Cassandra;
 import cloud.benchflow.datamanager.core.datarepository.cassandra.CassandraFromConfig;
 import cloud.benchflow.datamanager.core.datarepository.filestorage.ExperimentFileStorage;
-import cloud.benchflow.datamanager.core.datarepository.objectstorage.MinioFromConfig;
 import cloud.benchflow.datamanager.service.configurations.DataManagerConfiguration;
 import cloud.benchflow.datamanager.service.resources.RootResource;
+import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
+import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.minio.errors.InvalidEndpointException;
+import io.minio.errors.InvalidPortException;
 
 public class DataManagerApplication extends Application<DataManagerConfiguration> {
 
@@ -29,18 +32,21 @@ public class DataManagerApplication extends Application<DataManagerConfiguration
 
   @Override
   public void initialize(final Bootstrap<DataManagerConfiguration> bootstrap) {
-    // TODO: application initialization
+    // Dropwizard Template Config
+    bootstrap.addBundle(new TemplateConfigBundle(
+        new TemplateConfigBundleConfiguration().resourceIncludePath("/app")));
   }
 
   @Override
-  public void run(final DataManagerConfiguration configuration, final Environment environment) {
+  public void run(final DataManagerConfiguration configuration, final Environment environment)
+      throws InvalidPortException, InvalidEndpointException {
 
     ActorSystem system = ActorSystem.create();
     Materializer materializer = ActorMaterializer.create(system);
 
     Cassandra cassandra = new CassandraFromConfig(system, materializer);
     BackupStorage googleDrive = new GoogleDriveFromConfig();
-    ExperimentFileStorage minio = new MinioFromConfig();
+    ExperimentFileStorage minio = configuration.getMinioServiceFactory().build();
 
     BackupManager backupManager =
         new BackupManager(cassandra, googleDrive, minio, system, materializer);

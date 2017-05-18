@@ -17,3 +17,15 @@ class MinioFromConfig extends ExperimentObjectStorage with Minio {
 
   override val defaultBucket: String = configuration.getString("minio.defaultBucket")
 }
+
+class MinioFromClient(val minioClient: MinioClient, val defaultBucket: String = "test") extends ExperimentObjectStorage with Minio
+
+object MinioFactory {
+  def apply: MinioFromConfig = new MinioFromConfig
+  def apply(minioClient: MinioClient): MinioFromClient = new MinioFromClient(minioClient)
+  def apply(minioClient: MinioClient, defaultBucket: String): MinioFromClient = new MinioFromClient(minioClient, defaultBucket)
+  def apply(url: String, accessKey: String, secretKey: String, defaultBucket: String = "test"): MinioFromClient = {
+    val minioClient = new MinioClient(url, accessKey, secretKey)
+    new MinioFromClient(minioClient, defaultBucket)
+  }
+}
