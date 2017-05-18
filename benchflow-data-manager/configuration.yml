@@ -9,3 +9,9 @@ minio:
   accessKey: ${env.MINIO_ACCESS_KEY!"SET_ME"}
   secretKey: ${env.MINIO_SECRET_KEY!"SET_ME"}
   defaultBucket: ${env.MINIO_DEFAULT_BUCKET!"test"}
+
+googleDrive:
+  applicationName: ${env.GOOGLE_DRIVE_APPNAME!"benchflow-datamanager"}
+  secret: ${env.GOOGLE_DRIVE_SECRET!"SET_ME"}
+  credentialsDir: ${env.GOOGLE_DRIVE_CREDENTIALS_DIR!"./"}
+  baseFolderName: ${env.GOOGLE_DRIVE_BASEFOLDER!"benchflow"}

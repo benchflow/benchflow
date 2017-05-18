@@ -32,3 +32,6 @@ class GoogleDriveFromConfig extends GoogleDriveBackupStorage {
   }
 
 }
+
+class GoogleDriveImpl(val googleDrive: GoogleDrive, val baseFolderName: String) extends GoogleDriveBackupStorage
+

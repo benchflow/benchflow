@@ -5,7 +5,6 @@ import akka.stream.ActorMaterializer;
 import akka.stream.Materializer;
 import cloud.benchflow.datamanager.core.BackupManager;
 import cloud.benchflow.datamanager.core.backupstorage.BackupStorage;
-import cloud.benchflow.datamanager.core.backupstorage.GoogleDriveFromConfig;
 import cloud.benchflow.datamanager.core.datarepository.cassandra.Cassandra;
 import cloud.benchflow.datamanager.core.datarepository.cassandra.CassandraFromConfig;
 import cloud.benchflow.datamanager.core.datarepository.filestorage.ExperimentFileStorage;
@@ -16,8 +15,6 @@ import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfigurat
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import io.minio.errors.InvalidEndpointException;
-import io.minio.errors.InvalidPortException;
 
 public class DataManagerApplication extends Application<DataManagerConfiguration> {
 
@@ -39,13 +36,13 @@ public class DataManagerApplication extends Application<DataManagerConfiguration
 
   @Override
   public void run(final DataManagerConfiguration configuration, final Environment environment)
-      throws InvalidPortException, InvalidEndpointException {
+      throws Exception {
 
     ActorSystem system = ActorSystem.create();
     Materializer materializer = ActorMaterializer.create(system);
 
     Cassandra cassandra = new CassandraFromConfig(system, materializer);
-    BackupStorage googleDrive = new GoogleDriveFromConfig();
+    BackupStorage googleDrive = configuration.getGoogleDriveServiceFactory().build();
     ExperimentFileStorage minio = configuration.getMinioServiceFactory().build();
 
     BackupManager backupManager =

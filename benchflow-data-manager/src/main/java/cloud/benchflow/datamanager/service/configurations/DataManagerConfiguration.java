@@ -1,5 +1,6 @@
 package cloud.benchflow.datamanager.service.configurations;
 
+import cloud.benchflow.datamanager.service.configurations.factory.GoogleDriveServiceFactory;
 import cloud.benchflow.datamanager.service.configurations.factory.MinioServiceFactory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,6 +26,22 @@ public class DataManagerConfiguration extends Configuration {
   @JsonProperty("minio")
   public void setMinioServiceFactory(MinioServiceFactory minioServiceFactory) {
     this.minioServiceFactory = minioServiceFactory;
+  }
+
+  // GoogleDrive Service
+  @Valid
+  @NotNull
+  @JsonProperty
+  private GoogleDriveServiceFactory googleDriveServiceFactory = new GoogleDriveServiceFactory();
+
+  @JsonProperty("googleDrive")
+  public GoogleDriveServiceFactory getGoogleDriveServiceFactory() {
+    return googleDriveServiceFactory;
+  }
+
+  @JsonProperty("googleDrive")
+  public void setGoogleDriveServiceFactory(GoogleDriveServiceFactory googleDriveServiceFactory) {
+    this.googleDriveServiceFactory = googleDriveServiceFactory;
   }
 
 }
