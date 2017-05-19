@@ -8,7 +8,7 @@ import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNot
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
-import cloud.benchflow.experimentmanager.tasks.ExperimentTaskController;
+import cloud.benchflow.experimentmanager.tasks.ExperimentTaskScheduler;
 import io.swagger.annotations.Api;
 
 import javax.validation.Valid;
@@ -42,22 +42,22 @@ public class BenchFlowExperimentResource {
 
   private MinioService minio;
   private BenchFlowExperimentModelDAO experimentModelDAO;
-  private ExperimentTaskController experimentTaskController;
+  private ExperimentTaskScheduler experimentTaskScheduler;
 
   public BenchFlowExperimentResource() {
     this.minio = BenchFlowExperimentManagerApplication.getMinioService();
     this.experimentModelDAO = BenchFlowExperimentManagerApplication.getExperimentModelDAO();
-    this.experimentTaskController =
-        BenchFlowExperimentManagerApplication.getExperimentTaskController();
+    this.experimentTaskScheduler =
+        BenchFlowExperimentManagerApplication.getExperimentTaskScheduler();
   }
 
   // only used for testing with mocks
   public BenchFlowExperimentResource(MinioService minio,
       BenchFlowExperimentModelDAO experimentModelDAO,
-      ExperimentTaskController experimentTaskController) {
+      ExperimentTaskScheduler experimentTaskScheduler) {
     this.minio = minio;
     this.experimentModelDAO = experimentModelDAO;
-    this.experimentTaskController = experimentTaskController;
+    this.experimentTaskScheduler = experimentTaskScheduler;
   }
 
   @POST
@@ -82,7 +82,7 @@ public class BenchFlowExperimentResource {
     experimentModelDAO.addExperiment(experimentID);
 
     // execute in separate thread so we can return
-    new Thread(() -> experimentTaskController.handleExperimentState(experimentID)).start();
+    new Thread(() -> experimentTaskScheduler.handleExperimentState(experimentID)).start();
   }
 
   @GET

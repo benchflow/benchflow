@@ -78,7 +78,7 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
     fabanClientSpy = Mockito.spy(BenchFlowExperimentManagerApplication.getFabanClient());
     BenchFlowExperimentManagerApplication.setFabanClient(fabanClientSpy);
 
-    executorService = BenchFlowExperimentManagerApplication.getExperimentTaskController()
+    executorService = BenchFlowExperimentManagerApplication.getExperimentTaskScheduler()
         .getExperimentTaskExecutorService();
   }
 

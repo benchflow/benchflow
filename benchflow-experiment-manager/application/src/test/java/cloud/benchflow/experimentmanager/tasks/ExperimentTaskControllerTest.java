@@ -22,7 +22,7 @@ public class ExperimentTaskControllerTest {
   //
   //  private ExecutorService taskExecutorService = Executors.newSingleThreadExecutor();
   //
-  //  private ExperimentTaskController experimentTaskController;
+  //  private ExperimentTaskScheduler experimentTaskController;
   //
   //  @Before
   //  public void setUp() throws Exception {
@@ -31,7 +31,7 @@ public class ExperimentTaskControllerTest {
   //    driversMakerCompatibleID = new DriversMakerCompatibleID(experimentID);
   //
   //    experimentTaskController =
-  //        new ExperimentTaskController(
+  //        new ExperimentTaskScheduler(
   //            minioServiceMock,
   //            experimentModelDAOMock,
   //            fabanClientMock,

@@ -7,7 +7,7 @@ import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
-import cloud.benchflow.experimentmanager.tasks.ExperimentTaskController;
+import cloud.benchflow.experimentmanager.tasks.ExperimentTaskScheduler;
 import cloud.benchflow.faban.client.FabanClient;
 
 import com.mongodb.MongoClient;
@@ -40,7 +40,7 @@ public class BenchFlowExperimentManagerApplication
   private static FabanClient fabanClient;
   private static DriversMakerService driversMakerService;
   private static BenchFlowTestManagerService testManagerService;
-  private static ExperimentTaskController experimentTaskController;
+  private static ExperimentTaskScheduler experimentTaskScheduler;
   private static int submitRetries;
 
   public static void main(String[] args) throws Exception {
@@ -71,8 +71,8 @@ public class BenchFlowExperimentManagerApplication
     return testManagerService;
   }
 
-  public static ExperimentTaskController getExperimentTaskController() {
-    return experimentTaskController;
+  public static ExperimentTaskScheduler getExperimentTaskScheduler() {
+    return experimentTaskScheduler;
   }
 
   // used for testing to insert mock/spy object
@@ -150,7 +150,7 @@ public class BenchFlowExperimentManagerApplication
     submitRetries = configuration.getFabanServiceFactory().getSubmitRetries();
 
     // ensure it is last so other services have been assigned
-    experimentTaskController = new ExperimentTaskController(experimentTaskExecutorService);
+    experimentTaskScheduler = new ExperimentTaskScheduler(experimentTaskExecutorService);
 
     // make sure a bucket exists
     minioService.initializeBuckets();

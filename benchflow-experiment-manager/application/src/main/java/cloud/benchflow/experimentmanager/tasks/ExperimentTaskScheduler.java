@@ -28,10 +28,10 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19
  */
-public class ExperimentTaskController {
+public class ExperimentTaskScheduler {
 
   private static Logger logger =
-      LoggerFactory.getLogger(ExperimentTaskController.class.getSimpleName());
+      LoggerFactory.getLogger(ExperimentTaskScheduler.class.getSimpleName());
 
   private ConcurrentMap<String, Future> experimentTasks = new ConcurrentHashMap<>();
 
@@ -45,7 +45,7 @@ public class ExperimentTaskController {
   private ExecutorService experimentTaskExecutorService;
   private BenchFlowTestManagerService testManagerService;
 
-  public ExperimentTaskController(ExecutorService experimentTaskExecutorService) {
+  public ExperimentTaskScheduler(ExecutorService experimentTaskExecutorService) {
 
     this.experimentTaskExecutorService = experimentTaskExecutorService;
 

@@ -45,7 +45,7 @@ import org.mockito.Mockito;
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19
  */
-public class ExperimentTaskControllerIT extends DockerComposeIT {
+public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
   private static final int TEST_PORT = 8080;
   private static final String TEST_ADDRESS = "localhost:" + TEST_PORT;
@@ -73,7 +73,7 @@ public class ExperimentTaskControllerIT extends DockerComposeIT {
 
   private String experimentID = TestConstants.BENCHFLOW_EXPERIMENT_ID;
 
-  private ExperimentTaskController experimentTaskController;
+  private ExperimentTaskScheduler experimentTaskScheduler;
   private ExecutorService experimentTaskExecutorServer;
   private BenchFlowExperimentModelDAO experimentModelDAO;
 
@@ -117,9 +117,9 @@ public class ExperimentTaskControllerIT extends DockerComposeIT {
         Mockito.matches(driversMakerCompatibleID.getDriversMakerExperimentID()),
         Mockito.eq(driversMakerCompatibleID.getExperimentNumber()), Mockito.any(InputStream.class));
 
-    experimentTaskController = BenchFlowExperimentManagerApplication.getExperimentTaskController();
+    experimentTaskScheduler = BenchFlowExperimentManagerApplication.getExperimentTaskScheduler();
 
-    experimentTaskExecutorServer = experimentTaskController.getExperimentTaskExecutorService();
+    experimentTaskExecutorServer = experimentTaskScheduler.getExperimentTaskExecutorService();
   }
 
   @Test
@@ -155,7 +155,7 @@ public class ExperimentTaskControllerIT extends DockerComposeIT {
 
     experimentModelDAO.addExperiment(experimentID);
 
-    experimentTaskController.handleExperimentState(experimentID);
+    experimentTaskScheduler.handleExperimentState(experimentID);
 
     // wait for tasks to finish
     experimentTaskExecutorServer.awaitTermination(1, TimeUnit.SECONDS);
