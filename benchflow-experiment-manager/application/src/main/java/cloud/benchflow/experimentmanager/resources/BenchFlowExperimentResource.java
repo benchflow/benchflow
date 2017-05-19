@@ -8,7 +8,7 @@ import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNot
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
-import cloud.benchflow.experimentmanager.tasks.ExperimentTaskScheduler;
+import cloud.benchflow.experimentmanager.scheduler.ExperimentTaskScheduler;
 import io.swagger.annotations.Api;
 
 import javax.validation.Valid;

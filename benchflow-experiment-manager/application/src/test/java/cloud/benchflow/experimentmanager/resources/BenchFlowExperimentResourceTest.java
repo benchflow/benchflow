@@ -6,7 +6,7 @@ import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.helpers.TestConstants;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
-import cloud.benchflow.experimentmanager.tasks.ExperimentTaskScheduler;
+import cloud.benchflow.experimentmanager.scheduler.ExperimentTaskScheduler;
 
 import javax.ws.rs.WebApplicationException;
 

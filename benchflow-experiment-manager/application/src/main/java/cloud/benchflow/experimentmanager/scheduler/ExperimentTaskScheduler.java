@@ -1,4 +1,4 @@
-package cloud.benchflow.experimentmanager.tasks;
+package cloud.benchflow.experimentmanager.scheduler;
 
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
