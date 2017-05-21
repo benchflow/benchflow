@@ -25,7 +25,6 @@ public class ExecuteNewTrialTask implements Callable<TrialStatus> {
   private BenchFlowExperimentModelDAO experimentModelDAO;
   private TrialModelDAO trialModelDAO;
   private FabanManagerService fabanManagerService;
-  private FabanClient fabanClient;
 
   public ExecuteNewTrialTask(String experimentID) {
     this.experimentID = experimentID;
@@ -33,7 +32,6 @@ public class ExecuteNewTrialTask implements Callable<TrialStatus> {
     this.experimentModelDAO = BenchFlowExperimentManagerApplication.getExperimentModelDAO();
     this.trialModelDAO = BenchFlowExperimentManagerApplication.getTrialModelDAO();
     this.fabanManagerService = BenchFlowExperimentManagerApplication.getFabanManagerService();
-    this.fabanClient = BenchFlowExperimentManagerApplication.getFabanClient();
   }
 
   @Override
@@ -45,7 +43,7 @@ public class ExecuteNewTrialTask implements Callable<TrialStatus> {
       // add trial to experiment
       String trialID = experimentModelDAO.addTrial(experimentID);
 
-      return ExecuteTrial.executeTrial(trialID, trialModelDAO, fabanManagerService, fabanClient);
+      return ExecuteTrial.executeTrial(trialID, trialModelDAO, fabanManagerService);
 
     } catch (BenchFlowExperimentIDDoesNotExistException e) {
       e.printStackTrace();

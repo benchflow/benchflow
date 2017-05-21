@@ -1,14 +1,20 @@
 package cloud.benchflow.experimentmanager.services.external;
 
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+import static cloud.benchflow.faban.client.responses.RunStatus.Code.QUEUED;
+import static cloud.benchflow.faban.client.responses.RunStatus.Code.RECEIVED;
+import static cloud.benchflow.faban.client.responses.RunStatus.Code.STARTED;
 
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
+import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.TrialStatus;
 import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.exceptions.ConfigFileNotFoundException;
 import cloud.benchflow.faban.client.exceptions.FabanClientException;
 import cloud.benchflow.faban.client.exceptions.JarFileNotFoundException;
+import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunId;
+import cloud.benchflow.faban.client.responses.RunStatus;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -42,6 +48,14 @@ public class FabanManagerService {
     this.minioService = minioService;
   }
 
+  public static String getFabanExperimentID(String experimentID) {
+    return experimentID.replace(MODEL_ID_DELIMITER, BenchFlowConstants.FABAN_ID_DELIMITER);
+  }
+
+  public static String getFabanTrialID(String trialID) {
+    return trialID.replace(MODEL_ID_DELIMITER, BenchFlowConstants.FABAN_ID_DELIMITER);
+  }
+
   public void deployExperimentToFaban(String experimentID, String driversMakerExperimentID,
       long experimentNumber) throws IOException, JarFileNotFoundException {
 
@@ -53,7 +67,6 @@ public class FabanManagerService {
     // get the generated benchflow-benchmark.jar from minioService and save to disk so that it can be sent
     InputStream fabanBenchmark =
         minioService.getDriversMakerGeneratedBenchmark(driversMakerExperimentID, experimentNumber);
-
 
     // store on disk because there are issues sending InputStream directly
     java.nio.file.Path benchmarkPath = Paths.get(TEMP_DIR).resolve(experimentID)
@@ -120,18 +133,27 @@ public class FabanManagerService {
 
   }
 
-  public static String getFabanExperimentID(String experimentID) {
-    // TODO - move to Faban Manager
-    return experimentID.replace(MODEL_ID_DELIMITER, BenchFlowConstants.FABAN_ID_DELIMITER);
+  public TrialStatus pollForTrialStatus(String trialID, RunId runId) throws RunIdNotFoundException {
+
+    // B) wait/poll for trial to complete and store the trial result in the DB
+    // TODO - is this the status we want to use? No it is a subset, should also include metrics computation status
+    RunStatus status = fabanClient.status(runId);
+
+    while (status.getStatus().equals(QUEUED) || status.getStatus().equals(RECEIVED)
+        || status.getStatus().equals(STARTED)) {
+
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+
+      status = fabanClient.status(runId);
+
+    }
+
+    return new TrialStatus(trialID, status.getStatus());
+
   }
-
-  public static String getFabanTrialID(String trialID) {
-    return trialID.replace(MODEL_ID_DELIMITER, BenchFlowConstants.FABAN_ID_DELIMITER);
-  }
-
-  //  public stt String getFabanCompatibleExperimentID(String experimentID) {
-  //    return experimentID.replace(MODEL_ID_DELIMITER, BenchFlowConstants.FABAN_ID_DELIMITER);
-  //  }
-
 
 }
