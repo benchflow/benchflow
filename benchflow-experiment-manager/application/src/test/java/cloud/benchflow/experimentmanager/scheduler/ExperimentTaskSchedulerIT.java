@@ -1,4 +1,4 @@
-package cloud.benchflow.experimentmanager.tasks;
+package cloud.benchflow.experimentmanager.scheduler;
 
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.getFabanTrialID;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -18,6 +18,7 @@ import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.Termina
 import cloud.benchflow.experimentmanager.scheduler.ExperimentTaskScheduler;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
+import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.faban.client.FabanClient;
@@ -86,6 +87,8 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     // set faban client as mock
     BenchFlowExperimentManagerApplication.setFabanClient(fabanClientMock);
+    FabanManagerService fabanManagerService = new FabanManagerService(fabanClientMock, minioServiceSpy);
+    BenchFlowExperimentManagerApplication.setFabanManagerService(fabanManagerService);
 
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment1TrialDefinition())
         .when(minioServiceSpy)

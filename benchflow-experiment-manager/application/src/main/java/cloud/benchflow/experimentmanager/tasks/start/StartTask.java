@@ -1,33 +1,25 @@
 package cloud.benchflow.experimentmanager.tasks.start;
 
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
-
 import cloud.benchflow.dsl.BenchFlowDSL;
 import cloud.benchflow.dsl.definition.BenchFlowExperiment;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.dsl.definition.workload.Workload;
 import cloud.benchflow.dsl.demo.DemoConverter;
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
-import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
+import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
-import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.exceptions.JarFileNotFoundException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.concurrent.Callable;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import scala.collection.JavaConverters;
 
 /**
@@ -35,16 +27,13 @@ import scala.collection.JavaConverters;
  */
 public class StartTask implements Callable<Boolean> {
 
-  private static final String TEMP_DIR = "./tmp";
-  private static final String BENCHMARK_FILE_ENDING = ".jar";
-
   private static Logger logger = LoggerFactory.getLogger(StartTask.class.getSimpleName());
 
   private String experimentID;
 
   private BenchFlowExperimentModelDAO experimentModelDAO;
   private MinioService minioService;
-  private FabanClient fabanClient;
+  private FabanManagerService fabanManagerService;
   private DriversMakerService driversMakerService;
 
   public StartTask(String experimentID) {
@@ -53,7 +42,7 @@ public class StartTask implements Callable<Boolean> {
 
     this.experimentModelDAO = BenchFlowExperimentManagerApplication.getExperimentModelDAO();
     this.minioService = BenchFlowExperimentManagerApplication.getMinioService();
-    this.fabanClient = BenchFlowExperimentManagerApplication.getFabanClient();
+    this.fabanManagerService = BenchFlowExperimentManagerApplication.getFabanManagerService();
     this.driversMakerService = BenchFlowExperimentManagerApplication.getDriversMakerService();
   }
 
@@ -95,27 +84,8 @@ public class StartTask implements Callable<Boolean> {
 
       driversMakerService.generateBenchmark(experimentName, experimentNumber, nTrials);
 
-      // DEPLOY TO FABAN
-      // get the generated benchflow-benchmark.jar from minioService and save to disk so that it can be sent
-      InputStream fabanBenchmark = minioService
-          .getDriversMakerGeneratedBenchmark(driversMakerExperimentID, experimentNumber);
-
-      // TODO - should this be a method (part of Faban Client?)
-      String fabanExperimentId =
-          experimentID.replace(MODEL_ID_DELIMITER, BenchFlowConstants.FABAN_ID_DELIMITER);
-
-      // store on disk because there are issues sending InputStream directly
-      java.nio.file.Path benchmarkPath = Paths.get(TEMP_DIR).resolve(experimentID)
-          .resolve(fabanExperimentId + BENCHMARK_FILE_ENDING);
-
-      FileUtils.copyInputStreamToFile(fabanBenchmark, benchmarkPath.toFile());
-
-      // deploy experiment to Faban
-      fabanClient.deploy(benchmarkPath.toFile());
-      logger.info("deployed benchmark to Faban: " + fabanExperimentId); // TODO - move this into fabanClient
-
-      // remove file that was sent to fabanClient
-      FileUtils.forceDelete(benchmarkPath.toFile());
+      fabanManagerService
+          .deployExperimentToFaban(experimentID, driversMakerExperimentID, experimentNumber);
 
       // deployment successful
       return true;
