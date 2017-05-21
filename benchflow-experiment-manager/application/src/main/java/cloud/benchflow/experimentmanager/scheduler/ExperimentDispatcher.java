@@ -55,10 +55,10 @@ public class ExperimentDispatcher implements Runnable {
         experimentModelDAO.setExperimentState(experimentID,
             BenchFlowExperimentModel.BenchFlowExperimentState.RUNNING);
         experimentModelDAO.setRunningState(experimentID,
-            BenchFlowExperimentModel.RunningState.EXECUTE_NEW_TRIAL);
+            BenchFlowExperimentModel.RunningState.DETERMINE_EXECUTE_TRIALS);
         // inform test-manager that a new trial is being executed
         testManagerService.setExperimentRunningState(experimentID,
-            BenchFlowExperimentModel.RunningState.EXECUTE_NEW_TRIAL);
+            BenchFlowExperimentModel.RunningState.DETERMINE_EXECUTE_TRIALS);
 
         if (taskScheduler == null) {
           // can only be called once taskScheduler has been instantiated.
