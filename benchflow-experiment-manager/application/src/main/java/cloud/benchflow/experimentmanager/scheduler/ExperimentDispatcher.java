@@ -1,19 +1,15 @@
 package cloud.benchflow.experimentmanager.scheduler;
 
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
-import cloud.benchflow.experimentmanager.configurations.factory.TestManagerServiceFactory;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
+import java.util.concurrent.BlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.AbstractQueue;
-import java.util.concurrent.BlockingQueue;
-
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
- *         created on 2017-05-19
+ * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-05-19
  */
 public class ExperimentDispatcher implements Runnable {
 
@@ -40,7 +36,6 @@ public class ExperimentDispatcher implements Runnable {
   public void run() {
 
     logger.info("running");
-
 
     while (true) {
 
