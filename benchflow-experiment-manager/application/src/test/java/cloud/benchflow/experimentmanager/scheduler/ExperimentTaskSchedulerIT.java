@@ -157,12 +157,12 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   }
 
   @Test
-  public void runSingleExperimentSingleTrialWithFailure() throws Exception {
+  public void runSingleExperimentSingleTrialWithFailureAndSuccess() throws Exception {
 
     String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_1_TRIAL;
 
     setupExperimentMocks(experimentID);
-    setupTrialMocksWithFailure(experimentID, 1);
+    setupTrialMocksWithFailureAndSuccess(experimentID, 1);
 
     experimentModelDAO.addExperiment(experimentID);
 
@@ -175,6 +175,28 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
         experimentModelDAO.getExperimentState(experimentID));
 
     Assert.assertEquals(TerminatedState.COMPLETED,
+        experimentModelDAO.getTerminatedState(experimentID));
+  }
+
+  @Test
+  public void runSingleExperimentSingleTrialWithExperimentFailure() throws Exception {
+
+    String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_1_TRIAL;
+
+    setupExperimentMocks(experimentID);
+    setupTrialMocksWithOnlyFailure(experimentID, 1);
+
+    experimentModelDAO.addExperiment(experimentID);
+
+    experimentTaskScheduler.handleExperimentState(experimentID);
+
+    // wait for tasks to finish
+    experimentTaskExecutorServer.awaitTermination(1, TimeUnit.SECONDS);
+
+    Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
+        experimentModelDAO.getExperimentState(experimentID));
+
+    Assert.assertEquals(TerminatedState.FAILURE,
         experimentModelDAO.getTerminatedState(experimentID));
   }
 
@@ -206,6 +228,34 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   }
 
   @Test
+  public void runSingleExperimentMultipleTrialsWithExperimentFailure() throws Exception {
+
+    String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_2_TRIAL;
+
+    setupExperimentMocks(experimentID);
+
+    for (int i = 1; i <= 2; i++) {
+      setupTrialMocksWithOnlyFailure(experimentID, i);
+    }
+
+    experimentModelDAO.addExperiment(experimentID);
+
+    experimentTaskScheduler.handleExperimentState(experimentID);
+
+    // wait for tasks to finish
+    experimentTaskExecutorServer.awaitTermination(1, TimeUnit.SECONDS);
+
+    Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
+        experimentModelDAO.getExperimentState(experimentID));
+
+    Assert.assertEquals(TerminatedState.FAILURE,
+        experimentModelDAO.getTerminatedState(experimentID));
+
+    Assert.assertEquals(1, experimentModelDAO.getNumExecutedTrials(experimentID));
+
+  }
+
+  @Test
   public void runMultipleExperimentMultipleTrialsWithFailures() throws Exception {
 
     int[] experimentNumbers = new int[] {1, 2};
@@ -221,7 +271,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
       setupExperimentMocks(experimentID);
 
       for (int j = 1; j <= 2; j++) {
-        setupTrialMocksWithFailure(experimentID, j);
+        setupTrialMocksWithFailureAndSuccess(experimentID, j);
       }
 
       experimentModelDAO.addExperiment(experimentID);
@@ -270,7 +320,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
   }
 
-  private void setupTrialMocksWithFailure(String experimentID, long trialNumber)
+  private void setupTrialMocksWithFailureAndSuccess(String experimentID, long trialNumber)
       throws RunIdNotFoundException, ConfigFileNotFoundException {
 
     String fabanID = "test_faban_id_" + trialNumber;
@@ -290,6 +340,29 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     Mockito.doReturn(new RunStatus("FAILED", runId)).doReturn(new RunStatus("COMPLETED", runId))
         .when(fabanClientMock).status(runId);
+
+
+  }
+
+  private void setupTrialMocksWithOnlyFailure(String experimentID, long trialNumber)
+      throws RunIdNotFoundException, ConfigFileNotFoundException {
+
+    String fabanID = "test_faban_id_" + trialNumber;
+    String fabanExperimentId = FabanManagerService.getFabanExperimentID(experimentID);
+
+    RunId runId = new RunId(fabanID, Long.toString(trialNumber));
+
+    String trialID = BenchFlowConstants.getTrialID(experimentID, trialNumber);
+
+    // Test Manager Trial Status Stub
+    stubFor(put(urlEqualTo(BenchFlowConstants.getPathFromTrialID(trialID)
+        + BenchFlowTestManagerService.TRIAL_STATUS_PATH))
+            .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
+
+    Mockito.doReturn(runId).when(fabanClientMock).submit(Mockito.matches(fabanExperimentId),
+        Mockito.matches(getFabanTrialID(trialID)), Mockito.any(File.class));
+
+    Mockito.doReturn(new RunStatus("FAILED", runId)).when(fabanClientMock).status(runId);
 
 
   }
