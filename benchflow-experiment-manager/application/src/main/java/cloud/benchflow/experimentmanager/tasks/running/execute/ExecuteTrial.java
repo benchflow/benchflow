@@ -1,10 +1,5 @@
 package cloud.benchflow.experimentmanager.tasks.running.execute;
 
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
-import static cloud.benchflow.faban.client.responses.RunStatus.Code.QUEUED;
-import static cloud.benchflow.faban.client.responses.RunStatus.Code.RECEIVED;
-import static cloud.benchflow.faban.client.responses.RunStatus.Code.STARTED;
-
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
@@ -17,37 +12,21 @@ import cloud.benchflow.faban.client.exceptions.FabanClientException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunId;
 import cloud.benchflow.faban.client.responses.RunStatus;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.getFabanTrialID;
+import static cloud.benchflow.faban.client.responses.RunStatus.Code.*;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-05-07
  */
 public class ExecuteTrial {
-
-  public static class TrialStatus {
-    private String trialID;
-    private RunStatus.Code statusCode;
-
-    public TrialStatus(String trialID, RunStatus.Code statusCode) {
-      this.trialID = trialID;
-      this.statusCode = statusCode;
-    }
-
-    public String getTrialID() {
-      return trialID;
-    }
-
-    public RunStatus.Code getStatusCode() {
-      return statusCode;
-    }
-  }
 
   public static TrialStatus executeTrial(String trialID, TrialModelDAO trialModelDAO,
       MinioService minioService, FabanClient fabanClient) {
@@ -56,8 +35,7 @@ public class ExecuteTrial {
 
       String experimentID = BenchFlowConstants.getExperimentIDFromTrialID(trialID);
 
-      String fabanExperimentId =
-          experimentID.replace(MODEL_ID_DELIMITER, BenchFlowConstants.FABAN_ID_DELIMITER);
+      String fabanExperimentId = BenchFlowConstants.getFabanExperimentID(experimentID);
 
       DriversMakerCompatibleID driversMakerCompatibleID =
           new DriversMakerCompatibleID(experimentID);
@@ -86,8 +64,7 @@ public class ExecuteTrial {
         try {
 
           // TODO - should this be a method (part of Faban Client?)
-          String fabanTrialId =
-              trialID.replace(MODEL_ID_DELIMITER, BenchFlowConstants.FABAN_ID_DELIMITER);
+          String fabanTrialId = getFabanTrialID(trialID);
 
           runId = fabanClient.submit(fabanExperimentId, fabanTrialId, fabanConfigPath.toFile());
 
@@ -135,6 +112,24 @@ public class ExecuteTrial {
 
       RunStatus status = new RunStatus(RunStatus.Code.FAILED.name(), null);
       return new TrialStatus(trialID, status.getStatus());
+    }
+  }
+
+  public static class TrialStatus {
+    private String trialID;
+    private RunStatus.Code statusCode;
+
+    public TrialStatus(String trialID, RunStatus.Code statusCode) {
+      this.trialID = trialID;
+      this.statusCode = statusCode;
+    }
+
+    public String getTrialID() {
+      return trialID;
+    }
+
+    public RunStatus.Code getStatusCode() {
+      return statusCode;
     }
   }
 }

@@ -3,7 +3,7 @@ package cloud.benchflow.experimentmanager.demo;
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MINIO_ID_DELIMITER;
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 
-import cloud.benchflow.experimentmanager.helpers.TestConstants;
+import cloud.benchflow.experimentmanager.helpers.BenchFlowData;
 
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ public class HashingTest {
 
     // TODO - remove me after demo
 
-    String[] experimentIDArray = TestConstants.BENCHFLOW_EXPERIMENT_ID.split("\\.");
+    String[] experimentIDArray = BenchFlowData.VALID_EXPERIMENT_ID_1_TRIAL.split("\\.");
 
     final String experimentName = "ParallelMultiple11Activiti5210";
     final long experimentNumber = 1;

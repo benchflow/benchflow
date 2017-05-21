@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import cloud.benchflow.experimentmanager.DockerComposeIT;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
-import cloud.benchflow.experimentmanager.helpers.TestConstants;
+import cloud.benchflow.experimentmanager.helpers.BenchFlowData;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
 
 import com.mongodb.MongoClient;
@@ -35,7 +35,7 @@ public class BenchFlowExperimentModelDAOIT extends DockerComposeIT {
   @Test
   public void addExperiment() throws Exception {
 
-    String experimentID = TestConstants.BENCHFLOW_EXPERIMENT_ID;
+    String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_1_TRIAL;
 
     experimentModelDAO.addExperiment(experimentID);
 
@@ -47,7 +47,7 @@ public class BenchFlowExperimentModelDAOIT extends DockerComposeIT {
   @Test
   public void addTrial() throws Exception {
 
-    String experimentID = TestConstants.BENCHFLOW_EXPERIMENT_ID;
+    String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_1_TRIAL;
 
     experimentModelDAO.addExperiment(experimentID);
 
