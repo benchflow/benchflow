@@ -155,18 +155,4 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
     this.experimentTaskExecutorServiceFactory = taskExecutorServiceFactory;
   }
 
-  // Trial Task Executor
-  @Valid
-  @NotNull
-  private TaskExecutorFactory trialTaskExecutorServiceFactory = new TaskExecutorFactory();
-
-  @JsonProperty("trialTaskExecutor")
-  public TaskExecutorFactory getTrialTaskExecutorFactory() {
-    return trialTaskExecutorServiceFactory;
-  }
-
-  @JsonProperty("trialTaskExecutor")
-  public void setTrialTaskExecutorFactory(TaskExecutorFactory taskExecutorServiceFactory) {
-    this.trialTaskExecutorServiceFactory = taskExecutorServiceFactory;
-  }
 }

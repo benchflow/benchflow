@@ -136,8 +136,6 @@ public class BenchFlowExperimentManagerApplication
     // services
     ExecutorService experimentTaskExecutorService =
         configuration.getExperimentTaskExecutorFactory().build(environment);
-    ExecutorService trialTaskExecutorService =
-        configuration.getTrialTaskExecutorFactory().build(environment);
 
     experimentModelDAO = new BenchFlowExperimentModelDAO(mongoClient);
     trialModelDAO = new TrialModelDAO(mongoClient);
