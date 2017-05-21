@@ -4,6 +4,7 @@ import cloud.benchflow.experimentmanager.configurations.BenchFlowExperimentManag
 import cloud.benchflow.experimentmanager.resources.BenchFlowExperimentResource;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
+import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
@@ -38,6 +39,7 @@ public class BenchFlowExperimentManagerApplication
   private static TrialModelDAO trialModelDAO;
   private static MinioService minioService;
   private static FabanClient fabanClient;
+  private static FabanManagerService fabanManagerService;
   private static DriversMakerService driversMakerService;
   private static BenchFlowTestManagerService testManagerService;
   private static ExperimentTaskScheduler experimentTaskScheduler;
@@ -63,6 +65,10 @@ public class BenchFlowExperimentManagerApplication
     return fabanClient;
   }
 
+  public static FabanManagerService getFabanManagerService() {
+    return fabanManagerService;
+  }
+
   public static DriversMakerService getDriversMakerService() {
     return driversMakerService;
   }
@@ -81,6 +87,11 @@ public class BenchFlowExperimentManagerApplication
   }
 
   // used for testing to insert mock/spy object
+  public static void setFabanManagerService(FabanManagerService fabanManagerService) {
+    BenchFlowExperimentManagerApplication.fabanManagerService = fabanManagerService;
+  }
+
+  // used for testing to insert mock/spy object
   public static void setDriversMakerService(DriversMakerService driversMakerService) {
     BenchFlowExperimentManagerApplication.driversMakerService = driversMakerService;
   }
@@ -90,6 +101,7 @@ public class BenchFlowExperimentManagerApplication
     BenchFlowExperimentManagerApplication.testManagerService = testManagerService;
   }
 
+  // used for testing to insert mock/spy object
   public static void setMinioService(MinioService minioService) {
     BenchFlowExperimentManagerApplication.minioService = minioService;
   }
@@ -141,7 +153,9 @@ public class BenchFlowExperimentManagerApplication
     trialModelDAO = new TrialModelDAO(mongoClient);
 
     minioService = configuration.getMinioServiceFactory().build();
+    // TODO - remove and only use FabanManagerService
     fabanClient = configuration.getFabanServiceFactory().build();
+    fabanManagerService = new FabanManagerService(fabanClient);
     driversMakerService = configuration.getDriversMakerServiceFactory().build(client);
     testManagerService = configuration.getTestManagerServiceFactory().build(client);
 
