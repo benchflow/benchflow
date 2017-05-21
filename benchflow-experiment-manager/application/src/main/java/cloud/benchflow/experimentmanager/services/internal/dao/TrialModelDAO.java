@@ -22,23 +22,19 @@ public class TrialModelDAO extends AbstractDAO {
     super(mongoClient);
   }
 
-  public synchronized void setTrialModelAsStarted(String experimentID, long trialNumber)
+  public synchronized void setTrialModelAsStarted(String trialID)
       throws TrialIDDoesNotExistException {
 
-    logger.info("setTrialModelAsStarted: " + experimentID + " trial " + trialNumber);
-
-    String trialID = getTrialID(experimentID, trialNumber);
+    logger.info("setTrialModelAsStarted: " + trialID);
 
     setTrialStatus(trialID, RunStatus.Code.STARTED);
   }
 
-  public synchronized void setFabanTrialID(String experimentID, long trialNumber,
-      String fabanRunID) {
+  public synchronized void setFabanTrialID(String trialID, String fabanRunID) {
 
-    logger
-        .info("setFabanTrialID: " + experimentID + " trial " + trialNumber + " with " + fabanRunID);
+    logger.info("setFabanTrialID: " + trialID + " with " + fabanRunID);
 
-    TrialModel trialModel = getTrialModel(experimentID, trialNumber);
+    TrialModel trialModel = getTrialModel(trialID);
 
     if (trialModel != null) {
       trialModel.setFabanRunID(fabanRunID);

@@ -1,6 +1,6 @@
 package cloud.benchflow.experimentmanager.scheduler;
 
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.getFabanTrialID;
+import static cloud.benchflow.experimentmanager.services.external.FabanManagerService.getFabanTrialID;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.put;
@@ -15,7 +15,6 @@ import cloud.benchflow.experimentmanager.helpers.BenchFlowData;
 import cloud.benchflow.experimentmanager.helpers.MinioTestData;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.TerminatedState;
-import cloud.benchflow.experimentmanager.scheduler.ExperimentTaskScheduler;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
 import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
@@ -231,7 +230,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
       throws JarFileNotFoundException, ConfigFileNotFoundException, RunIdNotFoundException {
 
     String fabanID = "test_faban_id_" + trialNumber;
-    String fabanExperimentId = BenchFlowConstants.getFabanExperimentID(experimentID);
+    String fabanExperimentId = FabanManagerService.getFabanExperimentID(experimentID);
 
     RunId runId = new RunId(fabanID, Long.toString(trialNumber));
 

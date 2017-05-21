@@ -2,6 +2,7 @@ package cloud.benchflow.experimentmanager.tasks.running;
 
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
+import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
@@ -23,7 +24,7 @@ public class ExecuteNewTrialTask implements Callable<TrialStatus> {
   private final String experimentID;
   private BenchFlowExperimentModelDAO experimentModelDAO;
   private TrialModelDAO trialModelDAO;
-  private MinioService minioService;
+  private FabanManagerService fabanManagerService;
   private FabanClient fabanClient;
 
   public ExecuteNewTrialTask(String experimentID) {
@@ -31,7 +32,7 @@ public class ExecuteNewTrialTask implements Callable<TrialStatus> {
 
     this.experimentModelDAO = BenchFlowExperimentManagerApplication.getExperimentModelDAO();
     this.trialModelDAO = BenchFlowExperimentManagerApplication.getTrialModelDAO();
-    this.minioService = BenchFlowExperimentManagerApplication.getMinioService();
+    this.fabanManagerService = BenchFlowExperimentManagerApplication.getFabanManagerService();
     this.fabanClient = BenchFlowExperimentManagerApplication.getFabanClient();
   }
 
@@ -44,7 +45,7 @@ public class ExecuteNewTrialTask implements Callable<TrialStatus> {
       // add trial to experiment
       String trialID = experimentModelDAO.addTrial(experimentID);
 
-      return ExecuteTrial.executeTrial(trialID, trialModelDAO, minioService, fabanClient);
+      return ExecuteTrial.executeTrial(trialID, trialModelDAO, fabanManagerService, fabanClient);
 
     } catch (BenchFlowExperimentIDDoesNotExistException e) {
       e.printStackTrace();
