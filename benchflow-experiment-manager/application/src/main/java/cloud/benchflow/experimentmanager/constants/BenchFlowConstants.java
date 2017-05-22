@@ -85,12 +85,4 @@ public class BenchFlowConstants {
     return trialID.substring(0, trialID.lastIndexOf(MODEL_ID_DELIMITER));
   }
 
-  public static String getFabanExperimentID(String experimentID) {
-    // TODO - move to Faban Manager
-    return experimentID.replace(MODEL_ID_DELIMITER, BenchFlowConstants.FABAN_ID_DELIMITER);
-  }
-
-  public static String getFabanTrialID(String trialID) {
-    return trialID.replace(MODEL_ID_DELIMITER, BenchFlowConstants.FABAN_ID_DELIMITER);
-  }
 }

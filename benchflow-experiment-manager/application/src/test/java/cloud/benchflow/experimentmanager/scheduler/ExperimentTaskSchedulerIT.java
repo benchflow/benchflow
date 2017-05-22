@@ -1,6 +1,6 @@
-package cloud.benchflow.experimentmanager.tasks;
+package cloud.benchflow.experimentmanager.scheduler;
 
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.getFabanTrialID;
+import static cloud.benchflow.experimentmanager.services.external.FabanManagerService.getFabanTrialID;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.put;
@@ -15,9 +15,9 @@ import cloud.benchflow.experimentmanager.helpers.BenchFlowData;
 import cloud.benchflow.experimentmanager.helpers.MinioTestData;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.TerminatedState;
-import cloud.benchflow.experimentmanager.scheduler.ExperimentTaskScheduler;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
+import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.faban.client.FabanClient;
@@ -86,6 +86,9 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     // set faban client as mock
     BenchFlowExperimentManagerApplication.setFabanClient(fabanClientMock);
+    FabanManagerService fabanManagerService =
+        new FabanManagerService(fabanClientMock, minioServiceSpy);
+    BenchFlowExperimentManagerApplication.setFabanManagerService(fabanManagerService);
 
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment1TrialDefinition())
         .when(minioServiceSpy)
@@ -100,7 +103,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     Mockito.doAnswer(invocationOnMock -> MinioTestData.get11ParallelStructuredModel())
         .when(minioServiceSpy).getExperimentBPMNModel(Mockito.anyString(),
-        Mockito.matches(MinioTestData.BPM_MODEL_11_PARALLEL_NAME));
+            Mockito.matches(MinioTestData.BPM_MODEL_11_PARALLEL_NAME));
 
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getGeneratedBenchmark())
         .when(minioServiceSpy)
@@ -108,7 +111,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getFabanConfiguration())
         .when(minioServiceSpy).getDriversMakerGeneratedFabanConfiguration(Mockito.anyString(),
-        Mockito.anyLong(), Mockito.anyLong());
+            Mockito.anyLong(), Mockito.anyLong());
 
     Mockito.doNothing().when(minioServiceSpy).copyDeploymentDescriptorForDriversMaker(
         Mockito.anyString(), Mockito.anyString(), Mockito.anyLong());
@@ -183,7 +186,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   @Test
   public void runMultipleExperimentMultipleTrials() throws Exception {
 
-    int[] experimentNumbers = new int[]{1, 2};
+    int[] experimentNumbers = new int[] {1, 2};
     String[] experimentIDs = new String[2];
 
     for (int i = 0; i < experimentNumbers.length; i++) {
@@ -227,7 +230,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
       throws JarFileNotFoundException, ConfigFileNotFoundException, RunIdNotFoundException {
 
     String fabanID = "test_faban_id_" + trialNumber;
-    String fabanExperimentId = BenchFlowConstants.getFabanExperimentID(experimentID);
+    String fabanExperimentId = FabanManagerService.getFabanExperimentID(experimentID);
 
     RunId runId = new RunId(fabanID, Long.toString(trialNumber));
 
@@ -238,7 +241,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     // Test Manager Trial Status Stub
     stubFor(put(urlEqualTo(BenchFlowConstants.getPathFromTrialID(trialID)
         + BenchFlowTestManagerService.TRIAL_STATUS_PATH))
-        .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
+            .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
 
     Mockito.doReturn(runId).when(fabanClientMock).submit(Mockito.matches(fabanExperimentId),
         Mockito.matches(getFabanTrialID(trialID)), Mockito.any(File.class));
@@ -254,7 +257,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     // Test Manager Experiment State Stub
     stubFor(put(urlEqualTo(BenchFlowConstants.getPathFromExperimentID(experimentID)
         + BenchFlowTestManagerService.EXPERIMENT_STATE_PATH))
-        .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
+            .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
 
 
   }

@@ -1,14 +1,11 @@
 package cloud.benchflow.experimentmanager.tasks.running;
 
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
-import cloud.benchflow.experimentmanager.services.external.MinioService;
+import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
 import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial;
 import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.TrialStatus;
-import cloud.benchflow.faban.client.FabanClient;
-
 import java.util.concurrent.Callable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,15 +18,13 @@ public class ReExecuteTrialTask implements Callable<TrialStatus> {
 
   private final String trialID;
   private TrialModelDAO trialModelDAO;
-  private MinioService minioService;
-  private FabanClient fabanClient;
+  private FabanManagerService fabanManagerService;
 
   public ReExecuteTrialTask(String trialID) {
     this.trialID = trialID;
 
     this.trialModelDAO = BenchFlowExperimentManagerApplication.getTrialModelDAO();
-    this.minioService = BenchFlowExperimentManagerApplication.getMinioService();
-    this.fabanClient = BenchFlowExperimentManagerApplication.getFabanClient();
+    this.fabanManagerService = BenchFlowExperimentManagerApplication.getFabanManagerService();
   }
 
   @Override
@@ -40,6 +35,6 @@ public class ReExecuteTrialTask implements Callable<TrialStatus> {
     // get last executed trial
     trialModelDAO.incrementRetries(trialID);
 
-    return ExecuteTrial.executeTrial(trialID, trialModelDAO, minioService, fabanClient);
+    return ExecuteTrial.executeTrial(trialID, trialModelDAO, fabanManagerService);
   }
 }

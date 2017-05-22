@@ -15,6 +15,7 @@ import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.Termina
 import cloud.benchflow.experimentmanager.resources.BenchFlowExperimentResource;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
+import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.faban.client.FabanClient;
@@ -77,6 +78,9 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
 
     fabanClientSpy = Mockito.spy(BenchFlowExperimentManagerApplication.getFabanClient());
     BenchFlowExperimentManagerApplication.setFabanClient(fabanClientSpy);
+
+    BenchFlowExperimentManagerApplication
+        .setFabanManagerService(new FabanManagerService(fabanClientSpy, minioServiceSpy));
 
     executorService = BenchFlowExperimentManagerApplication.getExperimentTaskScheduler()
         .getExperimentTaskExecutorService();
