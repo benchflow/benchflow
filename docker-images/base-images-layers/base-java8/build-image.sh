@@ -18,8 +18,8 @@ cp ./services/020-java.conf /apps/chaperone.d/020-java.conf
 # Install Java requirements
 
 JAVA_VERSION=8
-JAVA_UPDATE=92
-JAVA_BUILD=14
+JAVA_UPDATE=131
+JAVA_BUILD=11
 JAVA_HOME=/usr/lib/jvm/java${JAVA_VERSION}
 GLIBC_VERSION=2.25-r0
 
