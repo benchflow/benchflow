@@ -48,7 +48,7 @@ public class BenchFlowExperimentModel {
 
     this.hashedID = this.id;
     this.state = BenchFlowExperimentState.START;
-    this.runningState = RunningState.EXECUTE_NEW_TRIAL;
+    this.runningState = RunningState.DETERMINE_EXECUTE_TRIALS;
   }
 
   @PrePersist
@@ -131,7 +131,7 @@ public class BenchFlowExperimentModel {
   }
 
   public enum RunningState {
-    EXECUTE_NEW_TRIAL, HANDLE_TRIAL_RESULT, CHECK_TERMINATION_CRITERIA, RE_EXECUTE_TRIAL
+    DETERMINE_EXECUTE_TRIALS, HANDLE_TRIAL_RESULT, CHECK_TERMINATION_CRITERIA
   }
 
   public enum TerminatedState {

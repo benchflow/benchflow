@@ -1,17 +1,19 @@
 package cloud.benchflow.experimentmanager.scheduler;
 
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
+import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.RunningState;
+import cloud.benchflow.experimentmanager.models.TrialModel.HandleTrialResultState;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
 import cloud.benchflow.experimentmanager.tasks.running.CheckTerminationCriteriaTask;
 import cloud.benchflow.experimentmanager.tasks.running.CheckTerminationCriteriaTask.TerminationCriteriaResult;
-import cloud.benchflow.experimentmanager.tasks.running.ExecuteNewTrialTask;
-import cloud.benchflow.experimentmanager.tasks.running.HandleTrialResultTask;
+import cloud.benchflow.experimentmanager.tasks.running.DetermineAndExecuteTrialsTask;
+import cloud.benchflow.experimentmanager.tasks.running.CheckTrialResultTask;
 import cloud.benchflow.experimentmanager.tasks.running.ReExecuteTrialTask;
 import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.TrialStatus;
 import cloud.benchflow.experimentmanager.tasks.start.StartTask;
@@ -146,8 +148,8 @@ public class ExperimentTaskScheduler {
       logger.info("handleRunningState: " + experimentID + " state: " + runningState.name());
 
       switch (runningState) {
-        case EXECUTE_NEW_TRIAL:
-          handleExecuteNewTrial(experimentID);
+        case DETERMINE_EXECUTE_TRIALS:
+          handleDetermineAndExecuteTrials(experimentID);
           break;
 
         case HANDLE_TRIAL_RESULT:
@@ -156,10 +158,6 @@ public class ExperimentTaskScheduler {
 
         case CHECK_TERMINATION_CRITERIA:
           handleCheckTerminationCriteria(experimentID);
-          break;
-
-        case RE_EXECUTE_TRIAL:
-          handleReExecuteTrial(experimentID);
           break;
 
         default:
@@ -174,41 +172,15 @@ public class ExperimentTaskScheduler {
     }
   }
 
-  private void handleExecuteNewTrial(String experimentID) {
+  private void handleDetermineAndExecuteTrials(String experimentID) {
 
-    logger.info("handleExecuteNewTrial: " + experimentID);
+    logger.info("handleDetermineAndExecuteTrials: " + experimentID);
 
-    ExecuteNewTrialTask newTrialTask = new ExecuteNewTrialTask(experimentID);
+    DetermineAndExecuteTrialsTask newTrialTask = new DetermineAndExecuteTrialsTask(experimentID);
 
     Future<TrialStatus> future = experimentTaskExecutorService.submit(newTrialTask);
 
     experimentTasks.put(experimentID, future);
-
-    handleExecuteTrial(experimentID, future);
-  }
-
-  private void handleReExecuteTrial(String experimentID) {
-
-    logger.info("handleReExecuteTrial: " + experimentID);
-
-    try {
-
-      String trialID = experimentModelDAO.getLastExecutedTrialID(experimentID);
-
-      ReExecuteTrialTask reExecuteTrialTask = new ReExecuteTrialTask(trialID);
-
-      Future<TrialStatus> future = experimentTaskExecutorService.submit(reExecuteTrialTask);
-
-      experimentTasks.put(experimentID, future);
-
-      handleExecuteTrial(experimentID, future);
-
-    } catch (BenchFlowExperimentIDDoesNotExistException e) {
-      e.printStackTrace();
-    }
-  }
-
-  private void handleExecuteTrial(String experimentID, Future<TrialStatus> future) {
 
     // TODO - change this when faban interaction changes to non-polling
 
@@ -226,16 +198,49 @@ public class ExperimentTaskScheduler {
     } catch (InterruptedException | ExecutionException e) {
       e.printStackTrace();
     }
+
   }
 
   private void handleTrialResult(String experimentID) {
 
     logger.info("handleTrialResult: " + experimentID);
 
-    HandleTrialResultTask trialResultTask = new HandleTrialResultTask(experimentID);
+    try {
+
+      String trialID = experimentModelDAO.getLastExecutedTrialID(experimentID);
+
+      HandleTrialResultState state = trialModelDAO.getHandleTrialResultState(trialID);
+
+      switch (state) {
+
+        case CHECK_TRIAL_RESULT:
+          handleCheckTrialResultTask(trialID);
+          break;
+
+        case RE_EXECUTE_TRIAL:
+          handleReExecuteTrial(trialID);
+          break;
+
+        default:
+          // no default
+          break;
+
+      }
+
+    } catch (BenchFlowExperimentIDDoesNotExistException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void handleCheckTrialResultTask(String trialID) {
+
+    logger.info("handleCheckTrialResultTask: " + trialID);
+
+    CheckTrialResultTask trialResultTask = new CheckTrialResultTask(trialID);
 
     Future<Boolean> future = experimentTaskExecutorService.submit(trialResultTask);
 
+    String experimentID = BenchFlowConstants.getExperimentIDFromTrialID(trialID);
     experimentTasks.put(experimentID, future);
 
     try {
@@ -252,11 +257,36 @@ public class ExperimentTaskScheduler {
 
       } else {
 
-        experimentModelDAO.setRunningState(experimentID,
-            BenchFlowExperimentModel.RunningState.RE_EXECUTE_TRIAL);
-        testManagerService.setExperimentRunningState(experimentID, RunningState.RE_EXECUTE_TRIAL);
+        trialModelDAO.setHandleTrialResultState(trialID, HandleTrialResultState.RE_EXECUTE_TRIAL);
         handleExperimentState(experimentID);
       }
+
+    } catch (InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+    }
+
+  }
+
+  private void handleReExecuteTrial(String trialID) {
+
+    logger.info("handleReExecuteTrial: " + trialID);
+
+    try {
+
+      ReExecuteTrialTask reExecuteTrialTask = new ReExecuteTrialTask(trialID);
+
+      Future<TrialStatus> future = experimentTaskExecutorService.submit(reExecuteTrialTask);
+
+      String experimentID = BenchFlowConstants.getExperimentIDFromTrialID(trialID);
+      experimentTasks.put(experimentID, future);
+
+      // TODO - change this when faban interaction changes to non-polling
+      TrialStatus runStatus = future.get();
+
+      trialModelDAO.setTrialStatus(runStatus.getTrialID(), runStatus.getStatusCode());
+
+      trialModelDAO.setHandleTrialResultState(trialID, HandleTrialResultState.CHECK_TRIAL_RESULT);
+      handleExperimentState(experimentID);
 
     } catch (InterruptedException | ExecutionException e) {
       e.printStackTrace();
@@ -292,9 +322,9 @@ public class ExperimentTaskScheduler {
           break;
 
         case NOT_FULLFILLED:
-          experimentModelDAO.setRunningState(experimentID, RunningState.EXECUTE_NEW_TRIAL);
+          experimentModelDAO.setRunningState(experimentID, RunningState.DETERMINE_EXECUTE_TRIALS);
           testManagerService.setExperimentRunningState(experimentID,
-              RunningState.EXECUTE_NEW_TRIAL);
+              RunningState.DETERMINE_EXECUTE_TRIALS);
           handleExperimentState(experimentID);
 
           break;

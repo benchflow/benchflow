@@ -1,5 +1,7 @@
 package cloud.benchflow.experimentmanager.models;
 
+import static cloud.benchflow.experimentmanager.models.TrialModel.HandleTrialResultState.CHECK_TRIAL_RESULT;
+
 import cloud.benchflow.faban.client.responses.RunStatus;
 
 import java.util.Date;
@@ -30,6 +32,7 @@ public class TrialModel {
   private String fabanRunID;
   private Date start = new Date();
   private Date lastModified = new Date();
+  private HandleTrialResultState handleTrialResultState;
   private RunStatus.Code status;
   private int numRetries = 0;
 
@@ -39,6 +42,7 @@ public class TrialModel {
 
   public TrialModel(String trialID) {
     this.id = trialID;
+    this.handleTrialResultState = CHECK_TRIAL_RESULT;
   }
 
   @PrePersist
@@ -56,6 +60,14 @@ public class TrialModel {
 
   public Date getLastModified() {
     return lastModified;
+  }
+
+  public HandleTrialResultState getHandleTrialResultState() {
+    return handleTrialResultState;
+  }
+
+  public void setHandleTrialResultState(HandleTrialResultState handleTrialResultState) {
+    this.handleTrialResultState = handleTrialResultState;
   }
 
   public RunStatus.Code getStatus() {
@@ -80,5 +92,9 @@ public class TrialModel {
 
   public void incrementRetries() {
     numRetries++;
+  }
+
+  public enum HandleTrialResultState {
+    CHECK_TRIAL_RESULT, RE_EXECUTE_TRIAL
   }
 }
