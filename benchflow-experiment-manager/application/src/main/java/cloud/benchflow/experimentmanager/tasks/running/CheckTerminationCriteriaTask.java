@@ -1,10 +1,9 @@
 package cloud.benchflow.experimentmanager.tasks.running;
 
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.FailureStatus;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
-
 import java.util.concurrent.Callable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,19 +32,27 @@ public class CheckTerminationCriteriaTask
     int numTrials = experimentModelDAO.getNumTrials(experimentID);
     long numExectuedTrials = experimentModelDAO.getNumExecutedTrials(experimentID);
 
+    FailureStatus failureStatus = experimentModelDAO.getFailureStatus(experimentID);
+
     // TODO - add confidence interval (read termination criteria)
 
-    if (numExectuedTrials < numTrials) {
+    if (failureStatus == null && numExectuedTrials < numTrials) {
 
-      return TerminationCriteriaResult.NOT_FULLFILLED;
+      return TerminationCriteriaResult.NOT_FULFILLED;
+
+    } else if (failureStatus != null) {
+
+      return TerminationCriteriaResult.CANNOT_BE_FULFILLED;
 
     } else {
 
       return TerminationCriteriaResult.FULFILLED;
+
     }
+
   }
 
   public enum TerminationCriteriaResult {
-    NOT_FULLFILLED, FULFILLED, CANNOT_BE_FULFILLED
+    NOT_FULFILLED, FULFILLED, CANNOT_BE_FULFILLED
   }
 }

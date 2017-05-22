@@ -6,6 +6,7 @@ import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.FailureStatus;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.RunningState;
 import cloud.benchflow.experimentmanager.models.TrialModel;
 
@@ -137,6 +138,38 @@ public class BenchFlowExperimentModelDAO extends AbstractDAO {
     datastore.save(experimentModel);
 
     return experimentModel.getTerminatedState();
+  }
+
+  public synchronized void setFailureStatus(String experimentID, FailureStatus failureStatus) {
+
+    logger.info("setFailureStatus: " + experimentID + " state: " + failureStatus.name());
+
+    BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
+
+    if (experimentModel == null) {
+      // should not happen
+      return;
+    }
+
+    experimentModel.setFailureStatus(failureStatus);
+
+    datastore.save(experimentModel);
+
+  }
+
+  public synchronized FailureStatus getFailureStatus(String experimentID) {
+
+    logger.info("getFailureStatus: " + experimentID);
+
+    BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
+
+    if (experimentModel == null) {
+      // should not happen
+      return null;
+    }
+
+    return experimentModel.getFailureStatus();
+
   }
 
   public synchronized int getNumTrialRetries(String experimentID)

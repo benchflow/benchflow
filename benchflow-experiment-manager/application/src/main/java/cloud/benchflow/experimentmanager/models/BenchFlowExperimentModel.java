@@ -32,6 +32,7 @@ public class BenchFlowExperimentModel {
   private BenchFlowExperimentState state;
   private RunningState runningState;
   private TerminatedState terminatedState;
+  private FailureStatus failureStatus = null;
   private int numTrials;
   // TODO - this should be part of the DSL
   private int numTrialRetries = 1;
@@ -92,6 +93,14 @@ public class BenchFlowExperimentModel {
     this.terminatedState = terminatedState;
   }
 
+  public FailureStatus getFailureStatus() {
+    return failureStatus;
+  }
+
+  public void setFailureStatus(FailureStatus failureStatus) {
+    this.failureStatus = failureStatus;
+  }
+
   public int getNumTrials() {
     return numTrials;
   }
@@ -136,5 +145,9 @@ public class BenchFlowExperimentModel {
 
   public enum TerminatedState {
     COMPLETED, FAILURE, ABORTED, ERROR
+  }
+
+  public enum FailureStatus {
+    SUT, LOAD, EXECUTION, SEVERE
   }
 }
