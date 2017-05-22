@@ -9,7 +9,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import cloud.benchflow.experimentmanager.configurations.BenchFlowExperimentManagerConfiguration;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.helpers.MinioTestData;
-import cloud.benchflow.experimentmanager.helpers.TestConstants;
+import cloud.benchflow.experimentmanager.helpers.BenchFlowData;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.TerminatedState;
 import cloud.benchflow.experimentmanager.resources.BenchFlowExperimentResource;
@@ -65,7 +65,7 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(TEST_PORT);
 
-  private String experimentID = TestConstants.BENCHFLOW_EXPERIMENT_ID;
+  private String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_1_TRIAL;
   private MinioService minioServiceSpy;
   private FabanClient fabanClientSpy;
   private ExecutorService executorService;
@@ -78,7 +78,7 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
     fabanClientSpy = Mockito.spy(BenchFlowExperimentManagerApplication.getFabanClient());
     BenchFlowExperimentManagerApplication.setFabanClient(fabanClientSpy);
 
-    executorService = BenchFlowExperimentManagerApplication.getExperimentTaskController()
+    executorService = BenchFlowExperimentManagerApplication.getExperimentTaskScheduler()
         .getExperimentTaskExecutorService();
   }
 
@@ -86,7 +86,8 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
   public void runValidExperiment() throws Exception {
 
     // make sure experiment has been saved to minio
-    minioServiceSpy.saveExperimentDefinition(experimentID, MinioTestData.getExperimentDefinition());
+    minioServiceSpy.saveExperimentDefinition(experimentID,
+        MinioTestData.getExperiment1TrialDefinition());
     minioServiceSpy.saveExperimentDeploymentDescriptor(experimentID,
         MinioTestData.getDeploymentDescriptor());
     minioServiceSpy.saveExperimentBPMNModel(experimentID, MinioTestData.BPM_MODEL_11_PARALLEL_NAME,

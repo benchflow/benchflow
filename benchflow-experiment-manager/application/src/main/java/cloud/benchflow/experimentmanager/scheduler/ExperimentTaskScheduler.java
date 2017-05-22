@@ -1,4 +1,4 @@
-package cloud.benchflow.experimentmanager.tasks;
+package cloud.benchflow.experimentmanager.scheduler;
 
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
@@ -15,29 +15,32 @@ import cloud.benchflow.experimentmanager.tasks.running.HandleTrialResultTask;
 import cloud.benchflow.experimentmanager.tasks.running.ReExecuteTrialTask;
 import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.TrialStatus;
 import cloud.benchflow.experimentmanager.tasks.start.StartTask;
-
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-
+import java.util.concurrent.LinkedBlockingDeque;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19
  */
-public class ExperimentTaskController {
+public class ExperimentTaskScheduler {
 
   private static Logger logger =
-      LoggerFactory.getLogger(ExperimentTaskController.class.getSimpleName());
+      LoggerFactory.getLogger(ExperimentTaskScheduler.class.getSimpleName());
 
   private ConcurrentMap<String, Future> experimentTasks = new ConcurrentHashMap<>();
 
-  // TODO - running queue (1 element)
+  // ready queue
+  private BlockingQueue<String> readyQueue = new LinkedBlockingDeque<>();
 
-  // TODO - ready queue
+  // running queue (1 element)
+  private BlockingQueue<String> runningQueue = new ArrayBlockingQueue<>(1, true);
 
   private BenchFlowExperimentModelDAO experimentModelDAO;
   private TrialModelDAO trialModelDAO;
@@ -45,13 +48,17 @@ public class ExperimentTaskController {
   private ExecutorService experimentTaskExecutorService;
   private BenchFlowTestManagerService testManagerService;
 
-  public ExperimentTaskController(ExecutorService experimentTaskExecutorService) {
+  public ExperimentTaskScheduler(ExecutorService experimentTaskExecutorService) {
 
     this.experimentTaskExecutorService = experimentTaskExecutorService;
 
     this.experimentModelDAO = BenchFlowExperimentManagerApplication.getExperimentModelDAO();
     this.trialModelDAO = BenchFlowExperimentManagerApplication.getTrialModelDAO();
     this.testManagerService = BenchFlowExperimentManagerApplication.getTestManagerService();
+
+    // start dispatcher in separate thread
+    new Thread(new ExperimentDispatcher(readyQueue, runningQueue)).start();
+
   }
 
   // used for testing
@@ -74,9 +81,8 @@ public class ExperimentTaskController {
           break;
 
         case READY:
-          // TODO - we should set the state when the experiment actually has been scheduled
-          setExperimentAsRunning(experimentID);
-          // TODO - put test in shared (with dispatcher) ready queue
+          // put test in shared (with dispatcher) ready queue
+          readyQueue.add(experimentID);
           break;
 
         case RUNNING:
@@ -84,7 +90,8 @@ public class ExperimentTaskController {
           break;
 
         case TERMINATED:
-          // TODO - remove test from running queue so dispatcher can run next test
+          // remove test from running queue so dispatcher can run next experiment
+          runningQueue.remove(experimentID);
           // experiment already executed
           logger.info("Experiment already executed. Nothing to do.");
           break;
@@ -99,18 +106,7 @@ public class ExperimentTaskController {
     }
   }
 
-  private void setExperimentAsRunning(String experimentID) {
-
-    // change state to running and execute new trial
-    experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.RUNNING);
-    experimentModelDAO.setRunningState(experimentID, RunningState.EXECUTE_NEW_TRIAL);
-    // inform test-manager that a new trial is being executed
-    testManagerService.setExperimentRunningState(experimentID, RunningState.EXECUTE_NEW_TRIAL);
-
-    handleExperimentState(experimentID);
-  }
-
-  private synchronized void handleStartState(String experimentID) {
+  private void handleStartState(String experimentID) {
 
     logger.info("handleStartState: " + experimentID);
 
@@ -128,6 +124,7 @@ public class ExperimentTaskController {
         experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.READY);
         handleExperimentState(experimentID);
       } else {
+        experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED);
         experimentModelDAO.setTerminatedState(experimentID,
             BenchFlowExperimentModel.TerminatedState.ERROR);
         testManagerService.setExperimentTerminatedState(experimentID,
@@ -140,7 +137,7 @@ public class ExperimentTaskController {
     }
   }
 
-  private synchronized void handleRunningState(String experimentID) {
+  private void handleRunningState(String experimentID) {
 
     try {
 

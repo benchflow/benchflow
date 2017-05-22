@@ -2,8 +2,8 @@
 # BenchFlow Test Definition
 ###############################################################################
 version: '1'
-name: ParallelMultiple11Activiti5210Test
-description: ParallelMultiple11Activiti5210Test
+name: ParallelMultiple11Activiti5210Test1Trial
+description: ParallelMultiple11Activiti5210Test1Trial
 
 ###############################################################################
 # Test Configuration

@@ -1,0 +1,73 @@
+###############################################################################
+# BenchFlow Test Definition
+###############################################################################
+version: '1'
+name: ParallelMultiple11Activiti5210Test2Trial
+description: ParallelMultiple11Activiti5210Test2Trial
+
+###############################################################################
+# Test Configuration
+###############################################################################
+configuration:
+    goal:
+        type: 'load'
+
+    users: 10
+
+    workload_execution:
+        ramp_up: 30s
+        steady_state: 60s
+        ramp_down: 30s
+
+    termination_criteria:
+        test:
+            max_time: 1h
+        experiment:
+            type: 'fixed'
+            number: 2
+
+###############################################################################
+# SUT info section
+###############################################################################
+sut:
+    name: activiti
+    version: 5.21.0
+    type: WfMS
+
+    configuration:
+
+        target_service:
+            name: activiti
+            endpoint: /activiti-rest
+
+        deployment:
+            activiti: grid
+            db: grid
+
+###############################################################################
+# workload modeling section
+# this is specific to the SUT type
+###############################################################################
+workload:
+    my_workload:
+        type: 'start'
+        operations:
+        - 11ParallelStructured.bpmn
+
+###############################################################################
+# Data Collection section
+###############################################################################
+data_collection:
+    server_side:
+        activti: ['properties', 'stats']
+        db:
+            mysql:
+                environment:
+                    MYSQL_DB_NAME: activiti_production
+                    MYSQL_USER: kermit
+                    MYSQL_USER_PASSWORD: kermit
+                    TABLE_NAMES: ACT_HI_PROCINST,ACT_HI_ACTINST
+                    MYSQL_PORT: '3306'
+                    COMPLETION_QUERY: SELECT+COUNT(*)+FROM+ACT_HI_PROCINST+WHERE+END_TIME_+IS+NULL
+                    COMPLETION_QUERY_VALUE: '0'
+                    COMPLETION_QUERY_METHOD: equal

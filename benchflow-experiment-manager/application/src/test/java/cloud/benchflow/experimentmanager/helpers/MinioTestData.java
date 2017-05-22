@@ -9,8 +9,10 @@ import java.io.InputStream;
  */
 public class MinioTestData {
 
-  private static final String EXPERIMENT_DEFINITION_FILENAME =
-      "src/test/resources/data/ParallelMultiple11/benchflow-test.yml";
+  private static final String EXPERIMENT_1_TRIAL_DEFINITION_FILENAME =
+      "src/test/resources/data/ParallelMultiple11/1-trials/benchflow-test.yml";
+  private static final String EXPERIMENT_2_TRIALS_DEFINITION_FILENAME =
+      "src/test/resources/data/ParallelMultiple11/2-trials/benchflow-test.yml";
   private static final String DEPLOYMENT_DESCRIPTOR_FILENAME =
       "src/test/resources/data/ParallelMultiple11/docker-compose.yml";
   private static final String BPM_MODEL_11_PARALLEL_FILENAME =
@@ -22,8 +24,12 @@ public class MinioTestData {
 
   public static final String BPM_MODEL_11_PARALLEL_NAME = "11ParallelStructured.bpmn";
 
-  public static InputStream getExperimentDefinition() throws FileNotFoundException {
-    return new FileInputStream(EXPERIMENT_DEFINITION_FILENAME);
+  public static InputStream getExperiment1TrialDefinition() throws FileNotFoundException {
+    return new FileInputStream(EXPERIMENT_1_TRIAL_DEFINITION_FILENAME);
+  }
+
+  public static InputStream getExperiment2TrialsDefinition() throws FileNotFoundException {
+    return new FileInputStream(EXPERIMENT_2_TRIALS_DEFINITION_FILENAME);
   }
 
   public static InputStream getDeploymentDescriptor() throws FileNotFoundException {

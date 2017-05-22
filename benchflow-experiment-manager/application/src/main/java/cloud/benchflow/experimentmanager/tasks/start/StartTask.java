@@ -123,7 +123,7 @@ public class StartTask implements Callable<Boolean> {
     } catch (IOException e) {
 
       logger.error(
-          "could not read experiment definition for " + experimentID + " : " + e.getMessage());
+          "could not read experiment bundle files for " + experimentID + " : " + e.getMessage());
 
       return false;
 
