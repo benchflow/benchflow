@@ -13,9 +13,9 @@ import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperime
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
 import cloud.benchflow.experimentmanager.tasks.running.CheckTerminationCriteriaTask;
 import cloud.benchflow.experimentmanager.tasks.running.CheckTerminationCriteriaTask.TerminationCriteriaResult;
+import cloud.benchflow.experimentmanager.tasks.running.CheckTrialResultTask;
 import cloud.benchflow.experimentmanager.tasks.running.CheckTrialResultTask.TrialResult;
 import cloud.benchflow.experimentmanager.tasks.running.DetermineAndExecuteTrialsTask;
-import cloud.benchflow.experimentmanager.tasks.running.CheckTrialResultTask;
 import cloud.benchflow.experimentmanager.tasks.running.ReExecuteTrialTask;
 import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.TrialStatus;
 import cloud.benchflow.experimentmanager.tasks.start.StartTask;
@@ -295,6 +295,10 @@ public class ExperimentTaskScheduler {
               BenchFlowExperimentModel.RunningState.CHECK_TERMINATION_CRITERIA);
           testManagerService.setExperimentRunningState(experimentID,
               RunningState.CHECK_TERMINATION_CRITERIA);
+          break;
+
+        default:
+          // no default
           break;
 
       }
