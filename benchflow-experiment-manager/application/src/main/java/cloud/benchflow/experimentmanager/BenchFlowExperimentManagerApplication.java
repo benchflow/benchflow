@@ -38,7 +38,6 @@ public class BenchFlowExperimentManagerApplication
   private static BenchFlowExperimentModelDAO experimentModelDAO;
   private static TrialModelDAO trialModelDAO;
   private static MinioService minioService;
-  private static FabanClient fabanClient;
   private static FabanManagerService fabanManagerService;
   private static DriversMakerService driversMakerService;
   private static BenchFlowTestManagerService testManagerService;
@@ -61,10 +60,6 @@ public class BenchFlowExperimentManagerApplication
     return minioService;
   }
 
-  public static FabanClient getFabanClient() {
-    return fabanClient;
-  }
-
   public static FabanManagerService getFabanManagerService() {
     return fabanManagerService;
   }
@@ -79,11 +74,6 @@ public class BenchFlowExperimentManagerApplication
 
   public static ExperimentTaskScheduler getExperimentTaskScheduler() {
     return experimentTaskScheduler;
-  }
-
-  // used for testing to insert mock/spy object
-  public static void setFabanClient(FabanClient fabanClient) {
-    BenchFlowExperimentManagerApplication.fabanClient = fabanClient;
   }
 
   // used for testing to insert mock/spy object
@@ -144,6 +134,7 @@ public class BenchFlowExperimentManagerApplication
         .using(configuration.getJerseyClientConfiguration()).build(environment.getName());
 
     MongoClient mongoClient = configuration.getMongoDBFactory().build();
+    FabanClient fabanClient = configuration.getFabanServiceFactory().build();
 
     // services
     ExecutorService experimentTaskExecutorService =
@@ -153,16 +144,17 @@ public class BenchFlowExperimentManagerApplication
     trialModelDAO = new TrialModelDAO(mongoClient);
 
     minioService = configuration.getMinioServiceFactory().build();
-    // TODO - remove and only use FabanManagerService
-    fabanClient = configuration.getFabanServiceFactory().build();
     fabanManagerService = new FabanManagerService(fabanClient);
     driversMakerService = configuration.getDriversMakerServiceFactory().build(client);
     testManagerService = configuration.getTestManagerServiceFactory().build(client);
 
+    experimentTaskScheduler = new ExperimentTaskScheduler(experimentTaskExecutorService);
+
     submitRetries = configuration.getFabanServiceFactory().getSubmitRetries();
 
-    // ensure it is last so other services have been assigned
-    experimentTaskScheduler = new ExperimentTaskScheduler(experimentTaskExecutorService);
+    // initialize to fetch dependencies
+    fabanManagerService.initialize();
+    experimentTaskScheduler.initialize();
 
     // make sure a bucket exists
     minioService.initializeBuckets();

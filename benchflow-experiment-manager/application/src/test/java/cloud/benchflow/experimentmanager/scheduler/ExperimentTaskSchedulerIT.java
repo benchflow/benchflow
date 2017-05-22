@@ -49,9 +49,6 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   private static final int TEST_PORT = 8080;
   private static final String TEST_ADDRESS = "localhost:" + TEST_PORT;
 
-  // TODO - this test is pretty much the same as the BenchFlowExperimentManagerApplictionIT so
-  // TODO - we should consider how to remove redundancy
-
   @Rule
   public final DropwizardAppRule<BenchFlowExperimentManagerConfiguration> RULE =
       new DropwizardAppRule<>(BenchFlowExperimentManagerApplication.class, "../configuration.yml",
@@ -85,7 +82,6 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     BenchFlowExperimentManagerApplication.setMinioService(minioServiceSpy);
 
     // set faban client as mock
-    BenchFlowExperimentManagerApplication.setFabanClient(fabanClientMock);
     FabanManagerService fabanManagerService =
         new FabanManagerService(fabanClientMock, minioServiceSpy);
     BenchFlowExperimentManagerApplication.setFabanManagerService(fabanManagerService);
