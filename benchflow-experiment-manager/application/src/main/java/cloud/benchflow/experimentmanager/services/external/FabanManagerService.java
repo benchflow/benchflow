@@ -39,6 +39,9 @@ public class FabanManagerService {
 
   public FabanManagerService(FabanClient fabanClient) {
     this.fabanClient = fabanClient;
+  }
+
+  public void initialize() {
     this.minioService = BenchFlowExperimentManagerApplication.getMinioService();
   }
 
@@ -46,6 +49,16 @@ public class FabanManagerService {
   public FabanManagerService(FabanClient fabanClient, MinioService minioService) {
     this.fabanClient = fabanClient;
     this.minioService = minioService;
+  }
+
+  // used for testing
+  public FabanClient getFabanClient() {
+    return fabanClient;
+  }
+
+  // used for testing
+  public void setFabanClient(FabanClient fabanClient) {
+    this.fabanClient = fabanClient;
   }
 
   public static String getFabanExperimentID(String experimentID) {

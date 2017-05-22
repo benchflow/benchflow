@@ -53,8 +53,10 @@ public class ExperimentTaskScheduler {
   private BenchFlowTestManagerService testManagerService;
 
   public ExperimentTaskScheduler(ExecutorService experimentTaskExecutorService) {
-
     this.experimentTaskExecutorService = experimentTaskExecutorService;
+  }
+
+  public void initialize() {
 
     this.experimentModelDAO = BenchFlowExperimentManagerApplication.getExperimentModelDAO();
     this.trialModelDAO = BenchFlowExperimentManagerApplication.getTrialModelDAO();
