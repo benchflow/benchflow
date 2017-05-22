@@ -1,7 +1,11 @@
 package cloud.benchflow.dsl.definition.configuration.terminationcriteria
 
+import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol
+import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol.TerminationCriteriaKey
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.experiment.ExperimentTerminationCriteria
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.experiment.ExperimentTerminationCriteriaYamlProtocol._
+import cloud.benchflow.dsl.definition.configuration.terminationcriteria.exploration.ExplorationTerminationCriteria
+import cloud.benchflow.dsl.definition.configuration.terminationcriteria.exploration.ExplorationTerminationCriteriaYamlProtocol._
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.test.TestTerminationCriteria
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.test.TestTerminationCriteriaYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
@@ -15,10 +19,13 @@ import scala.util.Try
  */
 object BenchFlowTestTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
+  val ExplorationKey = YamlString("exploration")
   val TestKey = YamlString("test")
   val ExperimentKey = YamlString("experiment")
 
-  private def keyString(key: YamlString) = "configuration.termination_criteria." + key.value
+  val Level = s"${BenchFlowTestConfigurationYamlProtocol.Level}.${TerminationCriteriaKey.value}"
+
+  private def keyString(key: YamlString) = s"$Level.${key.value}"
 
   implicit object TerminationCriteriaReadFormat extends YamlFormat[Try[BenchFlowTestTerminationCriteria]] {
     override def read(yaml: YamlValue): Try[BenchFlowTestTerminationCriteria] = {
@@ -26,6 +33,10 @@ object BenchFlowTestTerminationCriteriaYamlProtocol extends DefaultYamlProtocol 
       val yamlObject = yaml.asYamlObject
 
       for {
+
+        exploration <- deserializationHandler(
+          yamlObject.getFields(ExplorationKey).headOption.map(_.convertTo[Try[ExplorationTerminationCriteria]].get),
+          keyString(ExplorationKey))
 
         test <- deserializationHandler(
           yamlObject.fields(TestKey).convertTo[Try[TestTerminationCriteria]].get,
@@ -35,7 +46,10 @@ object BenchFlowTestTerminationCriteriaYamlProtocol extends DefaultYamlProtocol 
           yamlObject.fields(ExperimentKey).convertTo[Try[ExperimentTerminationCriteria]].get,
           keyString(ExperimentKey))
 
-      } yield BenchFlowTestTerminationCriteria(test = test, experiment = experiment)
+      } yield BenchFlowTestTerminationCriteria(
+        exploration = exploration,
+        test = test,
+        experiment = experiment)
 
     }
 

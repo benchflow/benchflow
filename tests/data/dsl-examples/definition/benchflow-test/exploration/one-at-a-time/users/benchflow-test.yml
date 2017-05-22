@@ -18,7 +18,7 @@ configuration:
           values: [5, 10, 15, 20]
 
   strategy:
-    selection: complete
+    selection: one-at-a-time
 
   workload_execution:
      ramp_up: 0s
@@ -57,7 +57,7 @@ sut:
 ###############################################################################
 workload:
   mymodel:
-    type: start
+    driver_type: start
     operations:
       - myModel.bpmn
 

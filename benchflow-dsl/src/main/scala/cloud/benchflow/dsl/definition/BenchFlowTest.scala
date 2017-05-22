@@ -14,7 +14,7 @@ import cloud.benchflow.dsl.definition.workload.Workload
 case class BenchFlowTest(
   version: String,
   name: String,
-  description: String,
+  description: Option[String],
   configuration: BenchFlowTestConfiguration,
   sut: Sut,
   workload: Map[String, Workload],

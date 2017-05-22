@@ -1,5 +1,6 @@
 package cloud.benchflow.dsl.definition.datacollection
 
+import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol
 import cloud.benchflow.dsl.definition.datacollection.clientside.ClientSideConfiguration
 import cloud.benchflow.dsl.definition.datacollection.clientside.ClientSideConfigurationYamlProtocol._
 import cloud.benchflow.dsl.definition.datacollection.serverside.ServerSideConfiguration
@@ -18,7 +19,9 @@ object DataCollectionYamlProtocol extends DefaultYamlProtocol {
   val ClientSideKey = YamlString("client_side")
   val ServerSideKey = YamlString("server_side")
 
-  private def keyString(key: YamlString) = "data_collection." + key.value
+  val Level = s"${BenchFlowTestYamlProtocol.DataCollectionKey.value}"
+
+  private def keyString(key: YamlString) = s"$Level.${key.value}"
 
   implicit object DataCollectionReadFormat extends YamlFormat[Try[DataCollection]] {
     override def read(yaml: YamlValue): Try[DataCollection] = {

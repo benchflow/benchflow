@@ -1,5 +1,6 @@
 package cloud.benchflow.dsl.definition.datacollection.serverside.collector
 
+import cloud.benchflow.dsl.definition.datacollection.serverside.ServerSideConfigurationYamlProtocol
 import cloud.benchflow.dsl.definition.datacollection.serverside.collector.environment.Environment
 import cloud.benchflow.dsl.definition.datacollection.serverside.collector.environment.EnvironmentYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
@@ -13,7 +14,9 @@ import scala.util.Try
  */
 object CollectorMultipleEnvironmentYamlProtocol extends DefaultYamlProtocol {
 
-  private def keyString() = "data_collection.server_side.(some collector multiple - environment)"
+  val Level = s"${ServerSideConfigurationYamlProtocol.Level}"
+
+  private def keyString() = s"$Level.(some collector multiple - environment)"
 
   implicit object CollectorMultipleEnvironmentReadFormat extends YamlFormat[Try[CollectorMultipleEnvironment]] {
 

@@ -1,5 +1,7 @@
 package cloud.benchflow.dsl.definition.configuration.terminationcriteria.test
 
+import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowTestTerminationCriteriaYamlProtocol
+import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowTestTerminationCriteriaYamlProtocol.TestKey
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ unsupportedReadOperation, unsupportedWriteOperation }
 import cloud.benchflow.dsl.definition.types.time.Time
@@ -16,7 +18,9 @@ object TestTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
   val MaxTimeKey = YamlString("max_time")
 
-  private def keyString(key: YamlString) = "configuration.termination_criteria.test" + key.value
+  val Level = s"${BenchFlowTestTerminationCriteriaYamlProtocol.Level}.${TestKey.value}"
+
+  private def keyString(key: YamlString) = s"$Level.${key.value}"
 
   implicit object TestTerminationCriteriaReadFormat extends YamlFormat[Try[TestTerminationCriteria]] {
     override def read(yaml: YamlValue): Try[TestTerminationCriteria] = {

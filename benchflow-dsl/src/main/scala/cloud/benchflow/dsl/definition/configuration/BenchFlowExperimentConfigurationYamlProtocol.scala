@@ -1,5 +1,6 @@
 package cloud.benchflow.dsl.definition.configuration
 
+import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol.{ TerminationCriteriaKey, UsersKey, WorkloadExecutionKey }
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowExperimentTerminationCriteria
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowExperimentTerminationCriteriaYamlProtocol._
 import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadExecution
@@ -15,12 +16,7 @@ import scala.util.Try
  */
 object BenchFlowExperimentConfigurationYamlProtocol extends DefaultYamlProtocol {
 
-  val UsersKey = YamlString("users")
-  val WorkloadExecutionKey = YamlString("workload_execution")
-  val StrategyKey = YamlString("strategy")
-  val TerminationCriteriaKey = YamlString("termination_criteria")
-
-  private def keyString(key: YamlString) = "configuration." + key.value
+  private def keyString(key: YamlString) = s"${BenchFlowTestConfigurationYamlProtocol.Level}.${key.value}"
 
   implicit object ExperimentConfigurationReadFormat extends YamlFormat[Try[BenchFlowExperimentConfiguration]] {
 

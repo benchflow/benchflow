@@ -1,5 +1,9 @@
 package cloud.benchflow.dsl.definition.configuration.goal.explorationspace
 
+import cloud.benchflow.dsl.definition.configuration.goal.GoalYamlProtocol
+import cloud.benchflow.dsl.definition.configuration.goal.GoalYamlProtocol.ExplorationSpaceKey
+import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.service.ServiceExplorationSpace
+import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.service.ServiceExplorationSpaceYamlProtocol._
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.workload.WorkloadExplorationSpace
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.workload.WorkloadExplorationSpaceYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
@@ -15,7 +19,9 @@ object ExplorationSpaceYamlProtocol extends DefaultYamlProtocol {
 
   val WorkloadKey = YamlString("workload")
 
-  private def keyString(key: YamlString) = "configuration.goal.exploration_space.workload." + key.value
+  val Level = s"${GoalYamlProtocol.Level}.${ExplorationSpaceKey.value}"
+
+  private def keyString(key: YamlString) = s"$Level.${key.value}"
 
   implicit object ExplorationSpaceReadFormat extends YamlFormat[Try[ExplorationSpace]] {
 
@@ -29,8 +35,15 @@ object ExplorationSpaceYamlProtocol extends DefaultYamlProtocol {
           yamlObject.getFields(WorkloadKey).headOption.map(_.convertTo[Try[WorkloadExplorationSpace]].get),
           keyString(WorkloadKey))
 
+        services <- deserializationHandler(
+          Option(
+            yamlObject.fields.filterNot(value => value._1.equals(WorkloadKey))
+              .map(value => (value._1.convertTo[String], value._2.convertTo[Try[ServiceExplorationSpace]].get))),
+          keyString(YamlString("(some service)")))
+
       } yield ExplorationSpace(
-        workload = workload)
+        workload = workload,
+        services = services)
 
     }
 
@@ -38,10 +51,16 @@ object ExplorationSpaceYamlProtocol extends DefaultYamlProtocol {
   }
 
   implicit object ExplorationSpaceWriteFormat extends YamlFormat[ExplorationSpace] {
-    override def write(obj: ExplorationSpace): YamlValue = YamlObject {
 
-      Map[YamlValue, YamlValue]() ++
+    override def write(obj: ExplorationSpace): YamlValue = {
+
+      val yamlObject = Map[YamlValue, YamlValue]() ++
         obj.workload.map(key => WorkloadKey -> key.toYaml)
+
+      val serviceObject = obj.services.head.map(entry => entry._1.toYaml -> entry._2.toYaml)
+
+      YamlObject(yamlObject ++ serviceObject)
+
     }
 
     override def read(yaml: YamlValue): ExplorationSpace = unsupportedReadOperation

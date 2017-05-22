@@ -61,7 +61,7 @@ class DemoConverterTest extends JUnitSuite {
       |###############################################################################
       |workload:
       |    my_workload:
-      |        type: 'start'
+      |        driver_type: 'start'
       |        operations:
       |        - 11ParallelStructured.bpmn
       |

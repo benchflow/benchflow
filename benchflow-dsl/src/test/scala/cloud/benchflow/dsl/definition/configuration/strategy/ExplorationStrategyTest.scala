@@ -13,27 +13,27 @@ import scala.util.Try
  */
 class ExplorationStrategyTest extends JUnitSuite {
 
-  private val strategySelectionCompleteYaml: String =
+  private val strategySelectionOneAtATimeYaml: String =
     """
-      |selection: complete
+      |selection: one-at-a-time
     """.stripMargin
 
   private val strategyAllYaml: String =
     """
-      |selection: complete
+      |selection: one-at-a-time
       |regression: mars
       |validation: random-validation-set
     """.stripMargin
 
   @Test def strategySelectionComplete(): Unit = {
 
-    val triedStrategy = strategySelectionCompleteYaml.parseYaml.convertTo[Try[ExplorationStrategy]]
+    val triedStrategy = strategySelectionOneAtATimeYaml.parseYaml.convertTo[Try[ExplorationStrategy]]
 
     Assert.assertTrue(triedStrategy.isSuccess)
 
     val selectionCompleteYaml = triedStrategy.get.toYaml
 
-    Assert.assertTrue(selectionCompleteYaml.prettyPrint.contains("selection: complete"))
+    Assert.assertTrue(selectionCompleteYaml.prettyPrint.contains("selection: one-at-a-time"))
 
   }
 
@@ -45,7 +45,7 @@ class ExplorationStrategyTest extends JUnitSuite {
 
     val selectionCompleteYaml = triedStrategy.get.toYaml
 
-    Assert.assertTrue(selectionCompleteYaml.prettyPrint.contains("selection: complete"))
+    Assert.assertTrue(selectionCompleteYaml.prettyPrint.contains("selection: one-at-a-time"))
     Assert.assertTrue(selectionCompleteYaml.prettyPrint.contains("regression: mars"))
     Assert.assertTrue(selectionCompleteYaml.prettyPrint.contains("validation: random-validation-set"))
 

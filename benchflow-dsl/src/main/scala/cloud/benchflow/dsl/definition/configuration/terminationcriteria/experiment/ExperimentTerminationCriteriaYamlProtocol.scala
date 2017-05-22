@@ -1,5 +1,7 @@
 package cloud.benchflow.dsl.definition.configuration.terminationcriteria.experiment
 
+import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowTestTerminationCriteriaYamlProtocol
+import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowTestTerminationCriteriaYamlProtocol.ExperimentKey
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
 import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
@@ -14,7 +16,9 @@ object ExperimentTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
   val TypeKey = YamlString("type")
   val NumberKey = YamlString("number")
 
-  private def keyString(key: YamlString) = "configuration.termination_criteria.experiment." + key.value
+  val Level = s"${BenchFlowTestTerminationCriteriaYamlProtocol.Level}.${ExperimentKey.value}"
+
+  private def keyString(key: YamlString) = s"$Level.${key.value}"
 
   implicit object ExperimentTerminationCriteriaReadFormat extends YamlFormat[Try[ExperimentTerminationCriteria]] {
     override def read(yaml: YamlValue): Try[ExperimentTerminationCriteria] = {

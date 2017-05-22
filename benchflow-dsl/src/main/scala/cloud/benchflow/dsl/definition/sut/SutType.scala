@@ -4,12 +4,11 @@ import cloud.benchflow.dsl.definition.sut.http.Http
 import cloud.benchflow.dsl.definition.sut.wfms.WfMS
 
 /**
+ * @author Simone D'Avico (simonedavico@gmail.com)
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 11.03.17.
- */
-/**
- * *
- * Has to be extended for each SUT type
+ *
+ *  Has to be extended for each SUT type
  */
 trait SutType
 object SutType {

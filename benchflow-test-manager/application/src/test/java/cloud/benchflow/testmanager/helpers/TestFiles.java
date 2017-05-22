@@ -12,7 +12,7 @@ public class TestFiles {
   private static String TESTS_FOLDER = "../../tests/data/dsl-examples/definition/benchflow-test/";
 
   private static String TEST_EXPLORATION_COMPLETE_USERS_FILE =
-      TESTS_FOLDER + "exploration/complete/users/benchflow-test.yml";
+      TESTS_FOLDER + "exploration/one-at-a-time/users/benchflow-test.yml";
 
   public static InputStream getTestExplorationCompleteUsersInputStream()
       throws FileNotFoundException {

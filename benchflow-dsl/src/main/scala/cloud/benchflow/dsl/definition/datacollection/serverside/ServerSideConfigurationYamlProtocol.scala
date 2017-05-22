@@ -1,5 +1,7 @@
 package cloud.benchflow.dsl.definition.datacollection.serverside
 
+import cloud.benchflow.dsl.definition.datacollection.DataCollectionYamlProtocol
+import cloud.benchflow.dsl.definition.datacollection.DataCollectionYamlProtocol.ServerSideKey
 import cloud.benchflow.dsl.definition.datacollection.serverside.collector.Collector
 import cloud.benchflow.dsl.definition.datacollection.serverside.collector.CollectorYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
@@ -13,7 +15,9 @@ import scala.util.Try
  */
 object ServerSideConfigurationYamlProtocol extends DefaultYamlProtocol {
 
-  private def keyString() = "data_collection.server_side"
+  val Level = s"${DataCollectionYamlProtocol.Level}.${ServerSideKey.value}"
+
+  private def keyString() = s"$Level"
 
   implicit object ServerSideConfigurationReadFormat extends YamlFormat[Try[ServerSideConfiguration]] {
 

@@ -4,6 +4,7 @@ import cloud.benchflow.dsl.definition.simone.properties.Properties
 import cloud.benchflow.dsl.definition.simone.{ Driver, DriverConfiguration, Operation }
 
 /**
+ * @author Simone D'Avico (simonedavico@gmail.com)
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 2017-03-18
  */

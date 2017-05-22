@@ -27,7 +27,7 @@ object BenchFlowTestYamlProtocol extends DefaultYamlProtocol {
   val WorkloadKey = YamlString("workload")
   val DataCollectionKey = YamlString("data_collection")
 
-  private def keyString(key: YamlString) = "" + key.value
+  private def keyString(key: YamlString) = s"${key.value}"
 
   implicit object BenchFlowTestReadFormat extends YamlFormat[Try[BenchFlowTest]] {
 
@@ -46,7 +46,7 @@ object BenchFlowTestYamlProtocol extends DefaultYamlProtocol {
           keyString(NameKey))
 
         description <- deserializationHandler(
-          testObject.fields(DescriptionKey).convertTo[String],
+          testObject.getFields(DescriptionKey).headOption.map(_.convertTo[String]),
           keyString(DescriptionKey))
 
         configuration <- deserializationHandler(

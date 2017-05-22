@@ -7,4 +7,6 @@ package cloud.benchflow.dsl.definition.configuration.strategy.validation
 object ValidationStrategyType extends Enumeration {
   type ValidationStrategyType = Value
   val RandomValidationSet = Value("random-validation-set")
+  //  val DynamicSector = Value("dynamic-sector")
+  //  val TenFoldValidation = Value("ten-fold-validation")
 }

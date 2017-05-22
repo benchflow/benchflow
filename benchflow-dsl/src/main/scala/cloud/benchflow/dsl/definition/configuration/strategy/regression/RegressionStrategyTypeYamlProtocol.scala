@@ -12,7 +12,7 @@ import scala.util.{ Failure, Success, Try }
  */
 object RegressionStrategyTypeYamlProtocol extends DefaultYamlProtocol {
 
-  implicit object RegressionStrategyTypeReadyFormat extends YamlFormat[Try[RegressionStrategyType]] {
+  implicit object RegressionStrategyTypeReadFormat extends YamlFormat[Try[RegressionStrategyType]] {
 
     override def read(yaml: YamlValue): Try[RegressionStrategyType] = {
 
