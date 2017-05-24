@@ -29,7 +29,7 @@ object DockerComposeYamlProtocol extends DefaultYamlProtocol {
         nets.nets.map {
           case (netName, netConfig) =>
             netName.toYaml -> netConfig.toYaml
-          case _ => throw new SerializationException("Can't serialize networks")
+          case _ => throw SerializationException("Can't serialize networks")
         })
     }
 

@@ -1,7 +1,9 @@
 package cloud.benchflow.dsl.deployment.docker.service
 
 import net.jcazevedo.moultingyaml._
+
 import scala.collection.mutable.{ Map => MutableMap }
+import scala.util.matching.Regex
 
 /**
  * @author Simone D'Avico (simonedavico@gmail.com)
@@ -23,20 +25,18 @@ object ServiceYamlProtocol extends DefaultYamlProtocol {
 
   implicit object VolumesFromYamlFormat extends YamlFormat[VolumesFrom] {
 
-    val volumesFromRegex = "([a-zA-Z0-9_\\${}]+)(?::(ro|rw))?".r
+    val volumesFromRegex: Regex = "([a-zA-Z0-9_\\${}]+)(?::(ro|rw))?".r
 
     override def write(obj: VolumesFrom): YamlValue = {
 
       YamlObject(
         YamlString("volumes_from") ->
           YamlArray(
-            obj.volumes.map { volume =>
-              volume match {
+            obj.volumes.map {
 
-                case (serviceName, None) => YamlString(serviceName)
-                case (serviceName, Some(accessRights)) => YamlString(s"$serviceName:$accessRights")
+              case (serviceName, None) => YamlString(serviceName)
+              case (serviceName, Some(accessRights)) => YamlString(s"$serviceName:$accessRights")
 
-              }
             }.toVector))
 
     }
@@ -46,13 +46,11 @@ object ServiceYamlProtocol extends DefaultYamlProtocol {
       yaml match {
 
         case YamlArray(yamlVolumesFrom) => VolumesFrom(
-          yamlVolumesFrom map { yamlVolumeFrom =>
+          volumes = yamlVolumesFrom map { yamlVolumeFrom =>
 
             yamlVolumeFrom.convertTo[String] match {
-              case volumesFromRegex(serviceName, null) =>
-                (serviceName, None)
-              case volumesFromRegex(serviceName, accessRights) =>
-                (serviceName, Some(VolumeAccessRights(accessRights)))
+              case volumesFromRegex(serviceName, null) => (serviceName, None)
+              case volumesFromRegex(serviceName, accessRights) => (serviceName, Some(VolumeAccessRights(accessRights)))
             }
           })
 
