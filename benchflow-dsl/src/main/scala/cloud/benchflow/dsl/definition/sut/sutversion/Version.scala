@@ -1,4 +1,4 @@
-package cloud.benchflow.dsl.definition.sut
+package cloud.benchflow.dsl.definition.sut.sutversion
 
 import scala.util.{ Failure, Success, Try }
 

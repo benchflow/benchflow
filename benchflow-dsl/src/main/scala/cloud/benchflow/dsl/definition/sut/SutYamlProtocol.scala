@@ -4,6 +4,9 @@ import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
 import cloud.benchflow.dsl.definition.sut.configuration.SutConfiguration
 import cloud.benchflow.dsl.definition.sut.configuration.SutConfigurationYamlProtocol._
+import cloud.benchflow.dsl.definition.sut.suttype.SutType.SutType
+import cloud.benchflow.dsl.definition.sut.suttype.SutTypeYamlProtocol._
+import cloud.benchflow.dsl.definition.sut.sutversion.Version
 import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 import scala.util.Try
@@ -39,7 +42,7 @@ object SutYamlProtocol extends DefaultYamlProtocol {
           keyString(VersionKey))
 
         sutType <- deserializationHandler(
-          SutType(yamlObject.fields(TypeKey).convertTo[String]),
+          yamlObject.fields(TypeKey).convertTo[Try[SutType]].get,
           keyString(VersionKey))
 
         configuration <- deserializationHandler(
