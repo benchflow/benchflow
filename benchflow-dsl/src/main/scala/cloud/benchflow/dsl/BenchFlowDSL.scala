@@ -4,6 +4,7 @@ import cloud.benchflow.dsl.definition.BenchFlowExperimentYamlProtocol._
 import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
 import cloud.benchflow.dsl.definition.{ BenchFlowExperiment, BenchFlowExperimentYamlBuilder, BenchFlowTest }
+import cloud.benchflow.dsl.dockercompose.DockerComposeYamlBuilder
 import net.jcazevedo.moultingyaml._
 
 import scala.util.{ Failure, Success, Try }
@@ -141,6 +142,20 @@ object BenchFlowDSL {
     val experiment = experimentFromTestYaml(testDefinitionYaml)
 
     new BenchFlowExperimentYamlBuilder(experiment)
+
+  }
+
+  /**
+   * Returns a DockerComposeYamlBuilder for creating a custom docker-compose yaml
+   *
+   * @param dockerComposeYamlString docker-compose.yml
+   * @return
+   */
+  def dockerComposeYamlBuilderFromDockerComposeYaml(dockerComposeYamlString: String): DockerComposeYamlBuilder = {
+
+    val dockerComposeYaml = dockerComposeYamlString.parseYaml
+
+    new DockerComposeYamlBuilder(dockerComposeYaml)
 
   }
 

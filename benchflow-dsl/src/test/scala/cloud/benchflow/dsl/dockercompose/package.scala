@@ -1,0 +1,39 @@
+package cloud.benchflow.dsl
+
+/**
+ * @author Jesper Findahl (jesper.findahl@gmail.com)
+ *         created on 2017-05-25
+ */
+package object dockercompose {
+
+  // TODO - validate with VF it this is a good example
+  val DockerComposeYamlString: String =
+    """
+      |version: '2'
+      |services:
+      |  camunda:
+      |    image: 'camunda/camunda-bpm-platform:tomcat-7.5.0'
+      |    command: bash -c "sleep 20 && /usr/local/bin/configure-and-run.sh"
+      |    environment:
+      |      - DB_DRIVER=com.mysql.jdbc.Driver
+      |      - DB_PASSWORD=${BENCHFLOW_db_MYSQL_PASSWORD}
+      |      - DB_URL=jdbc:mysql://${BENCHFLOW_db_IP}:${BENCHFLOW_db_PORT}/${BENCHFLOW_db_MYSQL_DATABASE}
+      |      - DB_USERNAME=${BENCHFLOW_db_MYSQL_USER}
+      |      - JAVA_OPTS=-Djava.security.egd=file:/dev/./urandom
+      |    network_mode: host
+      |    ports:
+      |      - 8080:8080
+      |
+      |  db:
+      |    image: 'mysql:latest'
+      |    environment:
+      |      - MYSQL_DATABASE=process-engine
+      |      - MYSQL_PASSWORD=camunda
+      |      - MYSQL_ROOT_PASSWORD=camunda
+      |      - MYSQL_USER=camunda
+      |    network_mode: host
+      |    ports:
+      |      - 3306:3306
+    """.stripMargin
+
+}
