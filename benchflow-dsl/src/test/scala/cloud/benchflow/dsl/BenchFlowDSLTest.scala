@@ -129,7 +129,7 @@ class BenchFlowDSLTest extends JUnitSuite {
 
     val expectedList = List.fill(expectedExplorationSpaceSize)(-1)
 
-    val expectedUsersState = (expectedList, explorationSpace.users.get.length)
+    val expectedUsersState = (expectedList, 4)
     val expectedMemoryState = Map(("camunda", (expectedList, 5)))
     val expectedEnvironmentState = Map(
       ("camunda", Map(

@@ -107,11 +107,15 @@ object ExplorationSpaceGenerator {
       usersDimensionLength <- explorationSpace.users.map(_.length)
 
       memoryDimensionLength <- explorationSpace.memory
-        .map(memory => memory.map(_._2.length).product)
+        .map(memory => memory.map {
+          case (_, values) => values.length
+        }.product)
 
       environmentDimensionLength <- explorationSpace.environment
         .map(environmentMap => environmentMap.map {
-          case (_, values) => values.map(_._2.length).product
+          case (_, variablesMap) => variablesMap.map {
+            case (_, values) => values.length
+          }.product
         }).map(_.product)
 
     } yield usersDimensionLength * memoryDimensionLength * environmentDimensionLength

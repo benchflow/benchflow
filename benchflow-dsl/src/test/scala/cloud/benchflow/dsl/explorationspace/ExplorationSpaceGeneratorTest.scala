@@ -60,7 +60,11 @@ class ExplorationSpaceGeneratorTest extends JUnitSuite {
 
     val expectedExplorationSpaceSize = 5 * 4 * 3 * 4
 
-    Assert.assertEquals(expectedExplorationSpaceSize, initialExplorationSpaceState.environmentState.head.head._2.head._2._1.length)
+    Assert.assertEquals(
+      expectedExplorationSpaceSize,
+      initialExplorationSpaceState.usersState.map {
+        case (list, _) => list.length
+      }.get)
 
   }
 
