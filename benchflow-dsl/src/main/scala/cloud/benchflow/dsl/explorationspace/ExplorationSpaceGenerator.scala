@@ -14,16 +14,17 @@ object ExplorationSpaceGenerator {
   type VariableValue = String
   type NumUsers = Int
   type DimensionLength = Int
-
-  case class ExplorationSpaceState(
-    usersState: Option[(Int, DimensionLength)],
-    memoryState: Option[Map[ServiceName, (Int, DimensionLength)]],
-    environmentState: Option[Map[ServiceName, Map[VariableName, (Int, DimensionLength)]]])
+  type Index = Int
 
   case class ExplorationSpace(
     users: Option[List[NumUsers]],
     memory: Option[Map[ServiceName, List[Bytes]]],
     environment: Option[Map[ServiceName, Map[VariableName, List[VariableValue]]]])
+
+  case class ExplorationSpaceState(
+    usersState: Option[(List[Index], DimensionLength)],
+    memoryState: Option[Map[ServiceName, (List[Index], DimensionLength)]],
+    environmentState: Option[Map[ServiceName, Map[VariableName, (List[Index], DimensionLength)]]])
 
   def generateExplorationSpace(test: BenchFlowTest): ExplorationSpace = {
 
@@ -64,19 +65,58 @@ object ExplorationSpaceGenerator {
 
   }
 
-  def generateExplorationSpaceState(explorationSpace: ExplorationSpace): ExplorationSpaceState = {
+  def generateInitialExplorationSpaceState(explorationSpace: ExplorationSpace): ExplorationSpaceState = {
 
-    val usersState = explorationSpace.users.map(list => (0, list.length))
+    val explorationSpaceSizeOption: Option[Int] = calculateExplorationSpaceSize(explorationSpace)
 
-    val memoryState = explorationSpace.memory.map(memory => memory.mapValues(list => (0, list.length)))
+    explorationSpaceSizeOption match {
 
-    val environmentState = explorationSpace.environment.map(
-      environmentMap => environmentMap.mapValues(
-        environment => environment.mapValues(
-          list => (0, list.length))))
+      case None => ExplorationSpaceState(None, None, None)
 
-    ExplorationSpaceState(usersState, memoryState, environmentState)
+      case Some(explorationSpaceSize) => {
+
+        val usersState = explorationSpace.users.map(list => (
+          List.fill(explorationSpaceSize)(-1),
+          list.length))
+
+        val memoryState = explorationSpace.memory.map(memory => memory
+          .mapValues(list => (
+            List.fill(explorationSpaceSize)(-1),
+            list.length)))
+
+        val environmentState = explorationSpace.environment.map(
+          environmentMap => environmentMap.mapValues(
+            environment => environment.mapValues(
+              list => (
+                List.fill(explorationSpaceSize)(-1),
+                list.length))))
+
+        ExplorationSpaceState(usersState, memoryState, environmentState)
+
+      }
+    }
 
   }
 
+  private def calculateExplorationSpaceSize(explorationSpace: ExplorationSpace) = {
+
+    // calculate the overall size of the exploration space, e.g. how many possible experiments
+
+    val explorationSpaceSizeOption: Option[Int] = for {
+
+      usersDimensionLength <- explorationSpace.users.map(_.length)
+
+      memoryDimensionLength <- explorationSpace.memory
+        .map(memory => memory.map(_._2.length).product)
+
+      environmentDimensionLength <- explorationSpace.environment
+        .map(environmentMap => environmentMap.map {
+          case (_, values) => values.map(_._2.length).product
+        }).map(_.product)
+
+    } yield usersDimensionLength * memoryDimensionLength * environmentDimensionLength
+
+    explorationSpaceSizeOption
+
+  }
 }

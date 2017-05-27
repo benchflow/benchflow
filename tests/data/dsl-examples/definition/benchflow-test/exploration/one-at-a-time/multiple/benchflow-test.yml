@@ -19,6 +19,7 @@ configuration:
             range: [1g, 5g]
         environment:
           SIZE_OF_THREADPOOL: ["1","2","3","5"]
+          AN_ENUM: [A,B,C]
       workload:
         users:
           values: [5, 10, 15, 20]

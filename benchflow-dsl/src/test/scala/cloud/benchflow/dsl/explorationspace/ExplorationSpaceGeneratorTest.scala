@@ -32,8 +32,11 @@ class ExplorationSpaceGeneratorTest extends JUnitSuite {
       Bytes.fromString("4g").get,
       Bytes.fromString("5g").get)))
 
-    val expectedValues = List("1", "2", "3", "5")
-    val expectedEnvironmentMap = Map(("camunda", Map(("SIZE_OF_THREADPOOL", expectedValues))))
+    val tpExpectedValues = List("1", "2", "3", "5")
+    val enumExpectedValues = List("A", "B", "C")
+    val expectedEnvironmentMap = Map(("camunda", Map(
+      ("SIZE_OF_THREADPOOL", tpExpectedValues),
+      ("AN_ENUM", enumExpectedValues))))
 
     Assert.assertTrue(explorationSpace.users.isDefined)
     Assert.assertEquals(expectedUsersList, explorationSpace.users.get)
@@ -43,6 +46,22 @@ class ExplorationSpaceGeneratorTest extends JUnitSuite {
 
     Assert.assertTrue(explorationSpace.environment.isDefined)
     Assert.assertEquals(expectedEnvironmentMap, explorationSpace.environment.get)
+  }
+
+  @Test def initialExplorationSpaceTest(): Unit = {
+
+    val testYamlString = Source.fromFile(Paths.get(BenchFlowExplorationMultipleExample).toFile).mkString
+
+    val benchFlowTest = BenchFlowDSL.testFromYaml(testYamlString)
+
+    val explorationSpace = ExplorationSpaceGenerator.generateExplorationSpace(benchFlowTest)
+
+    val initialExplorationSpaceState = ExplorationSpaceGenerator.generateInitialExplorationSpaceState(explorationSpace)
+
+    val expectedExplorationSpaceSize = 5 * 4 * 3 * 4
+
+    Assert.assertEquals(expectedExplorationSpaceSize, initialExplorationSpaceState.environmentState.head.head._2.head._2._1.length)
+
   }
 
 }

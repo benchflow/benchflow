@@ -183,7 +183,7 @@ object BenchFlowDSL {
    */
   def getInitialExplorationSpaceState(explorationSpace: ExplorationSpace): ExplorationSpaceState = {
 
-    ExplorationSpaceGenerator.generateExplorationSpaceState(explorationSpace)
+    ExplorationSpaceGenerator.generateInitialExplorationSpaceState(explorationSpace)
 
   }
 

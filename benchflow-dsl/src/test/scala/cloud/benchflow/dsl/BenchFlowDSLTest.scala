@@ -125,9 +125,16 @@ class BenchFlowDSLTest extends JUnitSuite {
 
     val initialExplorationSpaceState = BenchFlowDSL.getInitialExplorationSpaceState(explorationSpace)
 
-    val expectedUsersState = (0, explorationSpace.users.get.length)
-    val expectedMemoryState = Map(("camunda", (0, 5)))
-    val expectedEnvironmentState = Map(("camunda", Map(("SIZE_OF_THREADPOOL", (0, 4)))))
+    val expectedExplorationSpaceSize = 5 * 4 * 3 * 4
+
+    val expectedList = List.fill(expectedExplorationSpaceSize)(-1)
+
+    val expectedUsersState = (expectedList, explorationSpace.users.get.length)
+    val expectedMemoryState = Map(("camunda", (expectedList, 5)))
+    val expectedEnvironmentState = Map(
+      ("camunda", Map(
+        ("SIZE_OF_THREADPOOL", (expectedList, 4)),
+        ("AN_ENUM", (expectedList, 3)))))
 
     Assert.assertEquals(expectedUsersState, initialExplorationSpaceState.usersState.get)
     Assert.assertEquals(expectedMemoryState, initialExplorationSpaceState.memoryState.get)
