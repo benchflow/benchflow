@@ -187,4 +187,15 @@ object BenchFlowDSL {
 
   }
 
+  /**
+   *
+   * @param explorationSpace
+   * @return a complete exploration space that can be traversed in order
+   */
+  def getOneAtATimeExplorationSpaceState(explorationSpace: ExplorationSpace): ExplorationSpaceState = {
+
+    ExplorationSpaceGenerator.oneAtATimeExplorationSpace(explorationSpace)
+
+  }
+
 }

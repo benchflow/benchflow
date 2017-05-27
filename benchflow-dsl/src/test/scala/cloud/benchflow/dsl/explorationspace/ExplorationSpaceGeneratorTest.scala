@@ -68,4 +68,45 @@ class ExplorationSpaceGeneratorTest extends JUnitSuite {
 
   }
 
+  @Test def oneAtATimeExplorationSpaceTest(): Unit = {
+
+    val testYamlString = Source.fromFile(Paths.get(BenchFlowExplorationMultipleExample).toFile).mkString
+
+    val benchFlowTest = BenchFlowDSL.testFromYaml(testYamlString)
+
+    val explorationSpace = ExplorationSpaceGenerator.generateExplorationSpace(benchFlowTest)
+
+    val expectedExplorationSpaceSize = 5 * 4 * 3 * 4
+
+    val numUsersValues = 4
+    val usersShift = expectedExplorationSpaceSize / numUsersValues
+    val expectedUsersList = List.fill(usersShift)(0) ++
+      List.fill(usersShift)(1) ++
+      List.fill(usersShift)(2) ++
+      List.fill(usersShift)(3)
+
+    val numEnumValues = 4
+    val expectedAnEnumList: List[Int] = (for {
+      _ <- 0 until expectedExplorationSpaceSize / numEnumValues
+      list <- 0 until numEnumValues
+    } yield list)(collection.breakOut)
+
+    val filledList = ExplorationSpaceGenerator.fillList(usersShift, numUsersValues, expectedExplorationSpaceSize)
+
+    Assert.assertEquals(expectedUsersList, filledList)
+
+    val oneAtATimeExplorationSpace = ExplorationSpaceGenerator.oneAtATimeExplorationSpace(explorationSpace)
+
+    Assert.assertEquals(expectedUsersList, oneAtATimeExplorationSpace.usersState.map {
+      case (list, _) => list
+    }.get)
+
+    Assert.assertEquals(
+      expectedAnEnumList,
+      oneAtATimeExplorationSpace.environmentState.get("camunda").get("SIZE_OF_THREADPOOL").map {
+        case (list, _) => list
+      }.get)
+
+  }
+
 }

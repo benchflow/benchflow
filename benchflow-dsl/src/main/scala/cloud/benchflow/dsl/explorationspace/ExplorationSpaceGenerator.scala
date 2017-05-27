@@ -3,6 +3,8 @@ package cloud.benchflow.dsl.explorationspace
 import cloud.benchflow.dsl.definition.BenchFlowTest
 import cloud.benchflow.dsl.definition.types.bytes.Bytes
 
+import scala.collection.mutable
+
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com)
  *         created on 2017-05-25
@@ -79,14 +81,14 @@ object ExplorationSpaceGenerator {
           List.fill(explorationSpaceSize)(-1),
           list.length))
 
-        val memoryState = explorationSpace.memory.map(memory => memory
+        val memoryState = explorationSpace.memory.map(serviceMap => serviceMap
           .mapValues(list => (
             List.fill(explorationSpaceSize)(-1),
             list.length)))
 
         val environmentState = explorationSpace.environment.map(
-          environmentMap => environmentMap.mapValues(
-            environment => environment.mapValues(
+          serviceMap => serviceMap.mapValues(
+            environmentMap => environmentMap.mapValues(
               list => (
                 List.fill(explorationSpaceSize)(-1),
                 list.length))))
@@ -95,6 +97,61 @@ object ExplorationSpaceGenerator {
 
       }
     }
+
+  }
+
+  def oneAtATimeExplorationSpace(explorationSpace: ExplorationSpace): ExplorationSpaceState = {
+
+    val explorationSpaceSizeOption = calculateExplorationSpaceSize(explorationSpace)
+
+    explorationSpaceSizeOption match {
+
+      case None => ExplorationSpaceState(None, None, None)
+
+      case Some(explorationSpaceSize) => {
+
+        var shiftValue = explorationSpaceSize
+
+        val usersStateOption = explorationSpace.users.map {
+          case (list) =>
+            shiftValue = shiftValue / list.length // update shift value
+            (fillList(shiftValue, list.length, explorationSpaceSize), list.length)
+        }
+
+        val memoryStateOption = explorationSpace.memory.map(memory => memory.map {
+          case (serviceName, list) =>
+            shiftValue = shiftValue / list.length // update shift value
+            serviceName -> (fillList(shiftValue, list.length, explorationSpaceSize), list.length)
+        })
+
+        val environmentStateOption = explorationSpace.environment.map(
+          serviceMap => serviceMap.map {
+            case (serviceName, environmentMap) => serviceName -> environmentMap.map {
+              case (variableName, list) =>
+                shiftValue = shiftValue / list.length // update shift value
+                variableName -> (fillList(shiftValue, list.length, explorationSpaceSize), list.length)
+            }
+
+          })
+
+        ExplorationSpaceState(usersState = usersStateOption, memoryStateOption, environmentStateOption)
+
+      }
+
+    }
+
+  }
+
+  def fillList(shift: Int, numValues: Int, explorationSpaceSize: Int): List[Index] = {
+
+    val list = mutable.MutableList[Index]()
+
+    for {
+      _ <- 0 until explorationSpaceSize / (shift * numValues) // how many times to run sequence
+      value: Index <- 0 until numValues // sequence of indexes
+    } yield list ++= List.fill(shift)(value)
+
+    list.toList
 
   }
 
