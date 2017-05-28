@@ -2,6 +2,8 @@ package cloud.benchflow.datamanager.core.backupstorage
 
 import java.io.{ InputStream, OutputStream }
 
+import org.slf4j.LoggerFactory
+
 import scala.collection.JavaConversions.asScalaBuffer
 
 import com.google.api.services.drive.model.File
@@ -9,6 +11,8 @@ import com.google.api.services.drive.model.File
 trait GoogleDriveBackupStorage extends BackupStorage {
   val googleDrive: GoogleDrive
   val baseFolderName: String
+
+  val logger = LoggerFactory.getLogger(this.getClass())
 
   val baseFolder =
     googleDrive.searchFolderByName(baseFolderName)
@@ -50,8 +54,11 @@ trait GoogleDriveBackupStorage extends BackupStorage {
       googleFile.getName,
       googleFile.getMimeType)
 
-  def downloadFile(fileId: String, out: OutputStream): Unit =
+  def downloadFile(fileId: String, out: OutputStream): Unit = {
+    logger.info(s"Downloading file [$fileId]: started")
     googleDrive.downloadStream(fileId, out, false)
+    logger.info(s"Downloading file [$fileId]: finished")
+  }
 
   def uploadFile(
     backupId: Long,
@@ -62,6 +69,7 @@ trait GoogleDriveBackupStorage extends BackupStorage {
     fileName: String,
     contentType: String): Unit = {
     val completeHierarchy = backupId.toString :: serviceName :: folderHierarchy
+    logger.info(s"Uploading started [backupId: $backupId, folders: $folderHierarchy, size: $length, fileName $fileName]")
     val folder =
       completeHierarchy.foldLeft(baseFolder) { (folder, folderName) =>
         getOrCreateFolder(folderName, folder)

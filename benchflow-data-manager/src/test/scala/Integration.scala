@@ -16,6 +16,7 @@ import cloud.benchflow.datamanager.core.backupstorage.{ BackupFile, BackupStorag
 import cloud.benchflow.datamanager.core.datarepository.cassandra.{ Cassandra, CassandraFromConfig }
 import cloud.benchflow.datamanager.core.datarepository.objectstorage.{ ExperimentObjectStorage, ObjectStat }
 import cloud.benchflow.datamanager.service.resources.RootResource
+import cloud.benchflow.datamanager.service.api.Job
 
 class IntegrationTests
     extends WordSpecLike
@@ -93,8 +94,7 @@ class IntegrationTests
 
   val backupManager = new BackupManager(dbProvider, TestBackupStorage, TestObjectStorage)
 
-  "Application" should {
-    val application = new RootResource(backupManager)
+  "BackupManager" should {
 
     "backup experiment data" in {
       val experimentId = "1"
@@ -109,7 +109,10 @@ class IntegrationTests
        * Be careful when writing assertions associated with the result of this call.
        */
       val result =
-        application.backup(experimentId)
+        backupManager.backupExperiment(experimentId);
+
+      result._1 should be(0)
+      result._2 should be(0)
 
       TestBackupStorage
         .listFiles(0, "minio")

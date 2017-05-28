@@ -2,7 +2,7 @@ logging:
   level: Info
   loggers:
     cloud.benchflow.datamanager: DEBUG
-    com.google.api.client.http: All
+    com.google.api.client.http: Warn
 
 minio:
   address: ${env.MINIO_ADDRESS!"SET_ME"}

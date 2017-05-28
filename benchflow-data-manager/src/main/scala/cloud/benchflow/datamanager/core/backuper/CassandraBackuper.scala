@@ -35,7 +35,7 @@ class CassandraBackuper(
 
   val logger = LoggerFactory.getLogger(this.getClass())
 
-  def backup(experimentId: String, backupId: Long): Unit = {
+  def backup(experimentId: String, backupId: Long, jobId: Long): Unit = {
     cassandra.tables.map { table =>
       val adapter = new BackupStorageAdapter(backupStorage, serviceName, List(table))
       cassandra.getJsonStream(table, experimentId).map(stream =>
@@ -47,7 +47,7 @@ class CassandraBackuper(
     ()
   }
 
-  def restore(backupId: Long): Unit = {
+  def restore(backupId: Long, jobId: Long): Unit = {
     val futures = for {
       table <- cassandra.tables
       adapter = new BackupStorageAdapter(backupStorage, serviceName, List(table))
@@ -124,6 +124,8 @@ class DataStorageActor(storage: StorageAdapter, monitor: ActorRef, id: Long) ext
   import akka.stream.actor.ActorSubscriberMessage._
   import cloud.benchflow.datamanager.core.BackupMonitor._
 
+  val logger = LoggerFactory.getLogger(this.getClass())
+
   // TODO: make that a parameter
   val maxBufferSize = 5
   val buffer = scala.collection.mutable.ArrayBuffer.empty[Data]
@@ -139,6 +141,7 @@ class DataStorageActor(storage: StorageAdapter, monitor: ActorRef, id: Long) ext
       if (buffer.size == maxBufferSize) process
     case OnComplete =>
       process
+      logger.info(s"OnComplete $id")
       monitor ! Done(id)
   }
 
