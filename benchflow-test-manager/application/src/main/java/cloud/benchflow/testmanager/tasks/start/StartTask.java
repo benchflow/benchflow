@@ -7,7 +7,7 @@ import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
-import cloud.benchflow.testmanager.tasks.TestTaskScheduler;
+import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;

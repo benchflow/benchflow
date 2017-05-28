@@ -10,7 +10,7 @@ import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentMode
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
-import cloud.benchflow.testmanager.tasks.TestTaskScheduler;
+import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 
 import com.mongodb.MongoClient;
 

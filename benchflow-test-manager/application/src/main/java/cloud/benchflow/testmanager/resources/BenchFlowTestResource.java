@@ -18,7 +18,7 @@ import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
-import cloud.benchflow.testmanager.tasks.TestTaskScheduler;
+import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 import cloud.benchflow.testmanager.tasks.start.StartTask;
 import io.swagger.annotations.Api;
 

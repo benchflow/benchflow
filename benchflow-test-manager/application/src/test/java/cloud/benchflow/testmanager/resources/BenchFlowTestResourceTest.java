@@ -22,7 +22,7 @@ import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
-import cloud.benchflow.testmanager.tasks.TestTaskScheduler;
+import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 
 import java.io.InputStream;
 
@@ -46,8 +46,7 @@ public class BenchFlowTestResourceTest {
   // mocks
   private BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
   private UserDAO userDAOMock = Mockito.mock(UserDAO.class);
-  private TestTaskScheduler testTaskController =
-      Mockito.mock(TestTaskScheduler.class);
+  private TestTaskScheduler testTaskController = Mockito.mock(TestTaskScheduler.class);
   private BenchFlowTestResource resource;
   private ChangeBenchFlowTestStateRequest request;
 

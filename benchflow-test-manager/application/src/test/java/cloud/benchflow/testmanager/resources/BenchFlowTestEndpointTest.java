@@ -12,7 +12,7 @@ import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
-import cloud.benchflow.testmanager.tasks.TestTaskScheduler;
+import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 import io.dropwizard.testing.junit.ResourceTestRule;
 
 import javax.ws.rs.client.Entity;
@@ -34,8 +34,7 @@ public class BenchFlowTestEndpointTest {
 
   private static BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
   private static UserDAO userDAOMock = Mockito.mock(UserDAO.class);
-  private static TestTaskScheduler testTaskControllerMock =
-      Mockito.mock(TestTaskScheduler.class);
+  private static TestTaskScheduler testTaskControllerMock = Mockito.mock(TestTaskScheduler.class);
 
   @ClassRule
   public static final ResourceTestRule resources =
