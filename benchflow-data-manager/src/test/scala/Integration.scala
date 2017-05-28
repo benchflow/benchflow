@@ -15,8 +15,6 @@ import cloud.benchflow.datamanager.core.BackupManager
 import cloud.benchflow.datamanager.core.backupstorage.{ BackupFile, BackupStorage }
 import cloud.benchflow.datamanager.core.datarepository.cassandra.{ Cassandra, CassandraFromConfig }
 import cloud.benchflow.datamanager.core.datarepository.objectstorage.{ ExperimentObjectStorage, ObjectStat }
-import cloud.benchflow.datamanager.service.resources.RootResource
-import cloud.benchflow.datamanager.service.api.Job
 
 class IntegrationTests
     extends WordSpecLike

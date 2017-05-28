@@ -9,7 +9,7 @@ import cloud.benchflow.datamanager.core.datarepository.cassandra.Cassandra;
 import cloud.benchflow.datamanager.core.datarepository.cassandra.CassandraFromConfig;
 import cloud.benchflow.datamanager.core.datarepository.filestorage.ExperimentFileStorage;
 import cloud.benchflow.datamanager.service.configurations.DataManagerConfiguration;
-import cloud.benchflow.datamanager.service.resources.RootResource;
+import cloud.benchflow.datamanager.service.resources.BenchflowExperimentResource;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
 import io.dropwizard.Application;
@@ -48,7 +48,7 @@ public class DataManagerApplication extends Application<DataManagerConfiguration
     BackupManager backupManager =
         new BackupManager(cassandra, googleDrive, minio, system, materializer);
 
-    final RootResource resource = new RootResource(backupManager);
+    final BenchflowExperimentResource resource = new BenchflowExperimentResource(backupManager);
     environment.jersey().register(resource);
   }
 }
