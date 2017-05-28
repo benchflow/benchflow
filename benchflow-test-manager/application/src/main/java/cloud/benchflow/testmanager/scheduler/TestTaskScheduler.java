@@ -17,12 +17,15 @@ import cloud.benchflow.testmanager.tasks.running.RemoveNonReachableExperimentsTa
 import cloud.benchflow.testmanager.tasks.running.ValidatePredictionFunctionTask;
 import cloud.benchflow.testmanager.tasks.running.ValidateTerminationCriteria;
 
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,9 +38,11 @@ public class TestTaskScheduler {
 
   private ConcurrentMap<String, Future> testTasks = new ConcurrentHashMap<>();
 
-  // TODO - running queue (1 element)
+  // ready queue
+  private BlockingQueue<String> readyQueue = new LinkedBlockingQueue<>();
 
-  // TODO - ready queue
+  // running queue (1 element)
+  private BlockingQueue<String> runningQueue = new ArrayBlockingQueue<String>(1, true);
 
   private ExecutorService taskExecutorService;
   private BenchFlowTestModelDAO testModelDAO;
@@ -48,6 +53,10 @@ public class TestTaskScheduler {
 
   public void initialize() {
     this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
+
+    // start dispatcher in separate thead
+    new Thread(new TestDispatcher(readyQueue, runningQueue)).start();
+
   }
 
   // used for testing
@@ -66,31 +75,26 @@ public class TestTaskScheduler {
       switch (testState) {
         case START:
           setNextTestState(testID, BenchFlowTestState.READY);
-
           break;
 
         case READY:
-          setNextTestState(testID, BenchFlowTestState.RUNNING);
-          // TODO - put test in shared (with dispatcher) ready queue
-
+          // put test in shared (with dispatcher) ready queue
+          readyQueue.add(testID);
           break;
 
         case RUNNING:
-
           // handle running states
           handleTestRunningState(testID);
-
           break;
+
         case WAITING:
 
-          // resume running
-
+          handleWaitingState(testID);
           break;
 
         case TERMINATED:
-          // TODO - remove test from running queue so dispatcher can run next test
-          // test already executed
-          logger.info("Test already executed. Nothing to do.");
+          // remove test from running queue so dispatcher can run next test
+          runningQueue.remove(testID);
           break;
 
         default:
@@ -109,6 +113,12 @@ public class TestTaskScheduler {
     testModelDAO.setTestState(testID, testState);
 
     handleTestState(testID);
+  }
+
+  private synchronized void handleWaitingState(String testID) {
+    // TODO - handle received input
+
+    // TODO - put in ready queue
   }
 
   private synchronized void handleTestRunningState(String testID) {
