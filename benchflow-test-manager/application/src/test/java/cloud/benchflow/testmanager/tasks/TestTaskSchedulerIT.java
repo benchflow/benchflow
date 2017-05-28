@@ -38,7 +38,7 @@ import org.mockito.Mockito;
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-27
  */
-public class BenchFlowTestTaskControllerIT extends DockerComposeIT {
+public class TestTaskSchedulerIT extends DockerComposeIT {
 
   @Rule
   public final DropwizardAppRule<BenchFlowTestManagerConfiguration> RULE =
@@ -51,7 +51,7 @@ public class BenchFlowTestTaskControllerIT extends DockerComposeIT {
           ConfigOverride.config("minio.secretKey", MINIO_SECRET_KEY),
           ConfigOverride.config("benchFlowExperimentManager.address", "localhost"));
 
-  private BenchFlowTestTaskController testTaskController;
+  private TestTaskScheduler testTaskController;
   private BenchFlowTestModelDAO testModelDAO;
   private BenchFlowExperimentModelDAO experimentModelDAO;
   private UserDAO userDAO;

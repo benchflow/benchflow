@@ -18,7 +18,7 @@ import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
-import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
+import cloud.benchflow.testmanager.tasks.TestTaskScheduler;
 import cloud.benchflow.testmanager.tasks.start.StartTask;
 import io.swagger.annotations.Api;
 
@@ -60,7 +60,7 @@ public class BenchFlowTestResource {
   private final BenchFlowTestModelDAO testModelDAO;
   private final UserDAO userDAO;
 
-  private final BenchFlowTestTaskController testTaskController;
+  private final TestTaskScheduler testTaskController;
 
   public BenchFlowTestResource() {
     this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
@@ -70,7 +70,7 @@ public class BenchFlowTestResource {
 
   /* used for tests */
   public BenchFlowTestResource(BenchFlowTestModelDAO testModelDAO, UserDAO userDAO,
-      BenchFlowTestTaskController testTaskController) {
+      TestTaskScheduler testTaskController) {
     this.testModelDAO = testModelDAO;
     this.userDAO = userDAO;
     this.testTaskController = testTaskController;

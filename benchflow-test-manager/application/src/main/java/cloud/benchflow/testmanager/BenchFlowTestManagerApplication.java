@@ -10,7 +10,7 @@ import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentMode
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
-import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
+import cloud.benchflow.testmanager.tasks.TestTaskScheduler;
 
 import com.mongodb.MongoClient;
 
@@ -37,7 +37,7 @@ public class BenchFlowTestManagerApplication
   private static UserDAO userDAO;
   private static MinioService minioService;
   private static BenchFlowExperimentManagerService experimentManagerService;
-  private static BenchFlowTestTaskController testTaskController;
+  private static TestTaskScheduler testTaskController;
   private Logger logger =
       LoggerFactory.getLogger(BenchFlowTestManagerApplication.class.getSimpleName());
 
@@ -75,7 +75,7 @@ public class BenchFlowTestManagerApplication
     BenchFlowTestManagerApplication.experimentManagerService = experimentManagerService;
   }
 
-  public static BenchFlowTestTaskController getTestTaskController() {
+  public static TestTaskScheduler getTestTaskController() {
     return testTaskController;
   }
 
@@ -126,7 +126,7 @@ public class BenchFlowTestManagerApplication
     experimentManagerService = configuration.getBenchFlowExperimentManagerServiceFactory()
         .build(configuration, environment);
 
-    testTaskController = new BenchFlowTestTaskController(taskExecutor);
+    testTaskController = new TestTaskScheduler(taskExecutor);
 
     // initialize to fetch dependencies
     testTaskController.initialize();

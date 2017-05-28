@@ -7,7 +7,7 @@ import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
-import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
+import cloud.benchflow.testmanager.tasks.TestTaskScheduler;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -38,7 +38,7 @@ public class StartTask implements Runnable {
   // services
   private final MinioService minioService;
   private final ExplorationModelDAO explorationModelDAO;
-  private final BenchFlowTestTaskController testTaskController;
+  private final TestTaskScheduler testTaskController;
 
   public StartTask(String testID, String testDefinitionYamlString,
       InputStream deploymentDescriptorInputStream, Map<String, InputStream> bpmnModelInputStreams) {
