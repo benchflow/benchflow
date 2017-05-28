@@ -18,8 +18,8 @@ cp ./services/020-java.conf /apps/chaperone.d/020-java.conf
 # Install Java requirements
 
 JAVA_VERSION=8
-JAVA_UPDATE=92
-JAVA_BUILD=14
+JAVA_UPDATE=131
+JAVA_BUILD=11
 JAVA_HOME=/usr/lib/jvm/java${JAVA_VERSION}
 GLIBC_VERSION=2.25-r0
 
@@ -50,8 +50,8 @@ apk add --allow-untrusted glibc-${GLIBC_VERSION}.apk glibc-bin-${GLIBC_VERSION}.
 echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
 
 wget --no-check-certificate --progress=dot:mega --header "Cookie: oraclelicense=accept-securebackup-cookie;" \
-        "http://download.oracle.com/otn-pub/java/jdk/${JAVA_VERSION}u${JAVA_UPDATE}-b${JAVA_BUILD}/jdk-${JAVA_VERSION}u${JAVA_UPDATE}-linux-x64.tar.gz"
-
+        "http://download.oracle.com/otn-pub/java/jdk/${JAVA_VERSION}u${JAVA_UPDATE}-b${JAVA_BUILD}/d54c1d3a095b4ff2b6607d096fa80163/jdk-${JAVA_VERSION}u${JAVA_UPDATE}-linux-x64.tar.gz"
+        
 tar xzf "jdk-${JAVA_VERSION}u${JAVA_UPDATE}-linux-x64.tar.gz"
 
 mkdir -p /usr/lib/jvm

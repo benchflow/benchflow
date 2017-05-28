@@ -84,4 +84,5 @@ public class BenchFlowConstants {
 
     return trialID.substring(0, trialID.lastIndexOf(MODEL_ID_DELIMITER));
   }
+
 }

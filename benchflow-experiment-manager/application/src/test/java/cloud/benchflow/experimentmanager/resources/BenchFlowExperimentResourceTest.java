@@ -3,10 +3,10 @@ package cloud.benchflow.experimentmanager.resources;
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
 
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
-import cloud.benchflow.experimentmanager.helpers.TestConstants;
+import cloud.benchflow.experimentmanager.helpers.BenchFlowData;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
-import cloud.benchflow.experimentmanager.tasks.ExperimentTaskController;
+import cloud.benchflow.experimentmanager.scheduler.ExperimentTaskScheduler;
 
 import javax.ws.rs.WebApplicationException;
 
@@ -27,21 +27,21 @@ public class BenchFlowExperimentResourceTest {
   private MinioService minioMock = Mockito.mock(MinioService.class);
   private BenchFlowExperimentModelDAO experimentModelDAOMock =
       Mockito.mock(BenchFlowExperimentModelDAO.class);
-  private ExperimentTaskController experimentTaskControllerMock =
-      Mockito.mock(ExperimentTaskController.class);
+  private ExperimentTaskScheduler experimentTaskSchedulerMock =
+      Mockito.mock(ExperimentTaskScheduler.class);
 
   private BenchFlowExperimentResource experimentResource;
 
   @Before
   public void setUp() throws Exception {
     experimentResource = new BenchFlowExperimentResource(minioMock, experimentModelDAOMock,
-        experimentTaskControllerMock);
+        experimentTaskSchedulerMock);
   }
 
   @Test
   public void validRequest() throws Exception {
 
-    String experimentID = TestConstants.BENCHFLOW_EXPERIMENT_ID;
+    String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_1_TRIAL;
 
     Mockito.doReturn(true).when(minioMock).isValidExperimentID(experimentID);
 
@@ -53,7 +53,7 @@ public class BenchFlowExperimentResourceTest {
 
     experimentResource.runBenchFlowExperiment(username, testName, testNumber, experimentNumber);
 
-    Mockito.verify(experimentTaskControllerMock, Mockito.times(1))
+    Mockito.verify(experimentTaskSchedulerMock, Mockito.times(1))
         .handleExperimentState(experimentID);
     Mockito.verify(minioMock, Mockito.times(1)).isValidExperimentID(experimentID);
   }
@@ -61,7 +61,7 @@ public class BenchFlowExperimentResourceTest {
   @Test
   public void invalidExperimentID() throws Exception {
 
-    String experimentID = TestConstants.INVALID_BENCHFLOW_EXPERIMENT_ID;
+    String experimentID = BenchFlowData.INVALID_EXPERIMENT_ID;
 
     Mockito.doReturn(false).when(minioMock).isValidExperimentID(experimentID);
 
@@ -76,7 +76,7 @@ public class BenchFlowExperimentResourceTest {
 
     experimentResource.runBenchFlowExperiment(username, testName, testNumber, experimentNumber);
 
-    Mockito.verify(experimentTaskControllerMock, Mockito.times(0))
+    Mockito.verify(experimentTaskSchedulerMock, Mockito.times(0))
         .handleExperimentState(experimentID);
     Mockito.verify(minioMock, Mockito.times(1)).isValidExperimentID(experimentID);
   }

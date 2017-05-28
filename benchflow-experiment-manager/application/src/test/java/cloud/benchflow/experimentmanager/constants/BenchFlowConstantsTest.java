@@ -1,6 +1,6 @@
 package cloud.benchflow.experimentmanager.constants;
 
-import cloud.benchflow.experimentmanager.helpers.TestConstants;
+import cloud.benchflow.experimentmanager.helpers.BenchFlowData;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,9 +13,9 @@ public class BenchFlowConstantsTest {
   public void getExperimentIDFromTrialID() throws Exception {
 
     String trialID =
-        TestConstants.BENCHFLOW_EXPERIMENT_ID + BenchFlowConstants.MODEL_ID_DELIMITER + 1;
+        BenchFlowData.VALID_EXPERIMENT_ID_1_TRIAL + BenchFlowConstants.MODEL_ID_DELIMITER + 1;
 
-    Assert.assertEquals(TestConstants.BENCHFLOW_EXPERIMENT_ID,
+    Assert.assertEquals(BenchFlowData.VALID_EXPERIMENT_ID_1_TRIAL,
         BenchFlowConstants.getExperimentIDFromTrialID(trialID));
   }
 }

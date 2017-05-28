@@ -4,10 +4,11 @@ import cloud.benchflow.experimentmanager.configurations.BenchFlowExperimentManag
 import cloud.benchflow.experimentmanager.resources.BenchFlowExperimentResource;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
+import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
-import cloud.benchflow.experimentmanager.tasks.ExperimentTaskController;
+import cloud.benchflow.experimentmanager.scheduler.ExperimentTaskScheduler;
 import cloud.benchflow.faban.client.FabanClient;
 
 import com.mongodb.MongoClient;
@@ -37,10 +38,10 @@ public class BenchFlowExperimentManagerApplication
   private static BenchFlowExperimentModelDAO experimentModelDAO;
   private static TrialModelDAO trialModelDAO;
   private static MinioService minioService;
-  private static FabanClient fabanClient;
+  private static FabanManagerService fabanManagerService;
   private static DriversMakerService driversMakerService;
   private static BenchFlowTestManagerService testManagerService;
-  private static ExperimentTaskController experimentTaskController;
+  private static ExperimentTaskScheduler experimentTaskScheduler;
   private static int submitRetries;
 
   public static void main(String[] args) throws Exception {
@@ -59,8 +60,8 @@ public class BenchFlowExperimentManagerApplication
     return minioService;
   }
 
-  public static FabanClient getFabanClient() {
-    return fabanClient;
+  public static FabanManagerService getFabanManagerService() {
+    return fabanManagerService;
   }
 
   public static DriversMakerService getDriversMakerService() {
@@ -71,13 +72,13 @@ public class BenchFlowExperimentManagerApplication
     return testManagerService;
   }
 
-  public static ExperimentTaskController getExperimentTaskController() {
-    return experimentTaskController;
+  public static ExperimentTaskScheduler getExperimentTaskScheduler() {
+    return experimentTaskScheduler;
   }
 
   // used for testing to insert mock/spy object
-  public static void setFabanClient(FabanClient fabanClient) {
-    BenchFlowExperimentManagerApplication.fabanClient = fabanClient;
+  public static void setFabanManagerService(FabanManagerService fabanManagerService) {
+    BenchFlowExperimentManagerApplication.fabanManagerService = fabanManagerService;
   }
 
   // used for testing to insert mock/spy object
@@ -90,6 +91,7 @@ public class BenchFlowExperimentManagerApplication
     BenchFlowExperimentManagerApplication.testManagerService = testManagerService;
   }
 
+  // used for testing to insert mock/spy object
   public static void setMinioService(MinioService minioService) {
     BenchFlowExperimentManagerApplication.minioService = minioService;
   }
@@ -132,25 +134,27 @@ public class BenchFlowExperimentManagerApplication
         .using(configuration.getJerseyClientConfiguration()).build(environment.getName());
 
     MongoClient mongoClient = configuration.getMongoDBFactory().build();
+    FabanClient fabanClient = configuration.getFabanServiceFactory().build();
 
     // services
     ExecutorService experimentTaskExecutorService =
         configuration.getExperimentTaskExecutorFactory().build(environment);
-    ExecutorService trialTaskExecutorService =
-        configuration.getTrialTaskExecutorFactory().build(environment);
 
     experimentModelDAO = new BenchFlowExperimentModelDAO(mongoClient);
     trialModelDAO = new TrialModelDAO(mongoClient);
 
     minioService = configuration.getMinioServiceFactory().build();
-    fabanClient = configuration.getFabanServiceFactory().build();
+    fabanManagerService = new FabanManagerService(fabanClient);
     driversMakerService = configuration.getDriversMakerServiceFactory().build(client);
     testManagerService = configuration.getTestManagerServiceFactory().build(client);
 
+    experimentTaskScheduler = new ExperimentTaskScheduler(experimentTaskExecutorService);
+
     submitRetries = configuration.getFabanServiceFactory().getSubmitRetries();
 
-    // ensure it is last so other services have been assigned
-    experimentTaskController = new ExperimentTaskController(experimentTaskExecutorService);
+    // initialize to fetch dependencies
+    fabanManagerService.initialize();
+    experimentTaskScheduler.initialize();
 
     // make sure a bucket exists
     minioService.initializeBuckets();
