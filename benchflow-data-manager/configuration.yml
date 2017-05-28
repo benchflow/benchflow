@@ -15,3 +15,9 @@ googleDrive:
   secret: ${env.GOOGLE_DRIVE_SECRET!"SET_ME"}
   credentialsDir: ${env.GOOGLE_DRIVE_CREDENTIALS_DIR!"./"}
   baseFolderName: ${env.GOOGLE_DRIVE_BASEFOLDER!"benchflow"}
+
+cassandra:
+  host: ${env.CASSANDRA_HOST!"localhost"}
+  keyspace: ${env.CASSANDRA_KEYSPACE!"benchflow"}
+  username: ${env.CASSANDRA_USERNAME!""}
+  password: ${env.CASSANDRA_PASSWORD!""}

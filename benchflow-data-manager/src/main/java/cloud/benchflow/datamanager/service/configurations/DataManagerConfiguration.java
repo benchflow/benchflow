@@ -1,5 +1,6 @@
 package cloud.benchflow.datamanager.service.configurations;
 
+import cloud.benchflow.datamanager.service.configurations.factory.CassandraServiceFactory;
 import cloud.benchflow.datamanager.service.configurations.factory.GoogleDriveServiceFactory;
 import cloud.benchflow.datamanager.service.configurations.factory.MinioServiceFactory;
 
@@ -42,6 +43,22 @@ public class DataManagerConfiguration extends Configuration {
   @JsonProperty("googleDrive")
   public void setGoogleDriveServiceFactory(GoogleDriveServiceFactory googleDriveServiceFactory) {
     this.googleDriveServiceFactory = googleDriveServiceFactory;
+  }
+
+  // Cassandra Service
+  @Valid
+  @NotNull
+  @JsonProperty
+  private CassandraServiceFactory cassandraServiceFactory = new CassandraServiceFactory();
+
+  @JsonProperty("cassandra")
+  public CassandraServiceFactory getCassandraServiceFactory() {
+    return cassandraServiceFactory;
+  }
+
+  @JsonProperty("cassandra")
+  public void setCassandraServiceFactory(CassandraServiceFactory cassandraServiceFactory) {
+    this.cassandraServiceFactory = cassandraServiceFactory;
   }
 
 }

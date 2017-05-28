@@ -6,7 +6,6 @@ import akka.stream.Materializer;
 import cloud.benchflow.datamanager.core.BackupManager;
 import cloud.benchflow.datamanager.core.backupstorage.BackupStorage;
 import cloud.benchflow.datamanager.core.datarepository.cassandra.Cassandra;
-import cloud.benchflow.datamanager.core.datarepository.cassandra.CassandraFromConfig;
 import cloud.benchflow.datamanager.core.datarepository.filestorage.ExperimentFileStorage;
 import cloud.benchflow.datamanager.service.configurations.DataManagerConfiguration;
 import cloud.benchflow.datamanager.service.resources.BenchflowExperimentResource;
@@ -41,7 +40,7 @@ public class DataManagerApplication extends Application<DataManagerConfiguration
     ActorSystem system = ActorSystem.create();
     Materializer materializer = ActorMaterializer.create(system);
 
-    Cassandra cassandra = new CassandraFromConfig(system, materializer);
+    Cassandra cassandra = configuration.getCassandraServiceFactory().build(system, materializer);
     BackupStorage googleDrive = configuration.getGoogleDriveServiceFactory().build();
     ExperimentFileStorage minio = configuration.getMinioServiceFactory().build();
 
