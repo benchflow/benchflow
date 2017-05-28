@@ -139,7 +139,16 @@ public class TestTaskScheduler {
 
     // TODO - handle received input
 
-    // TODO - put in ready queue
+    try {
+
+      // set state as ready
+      testModelDAO.setTestState(testID, BenchFlowTestState.READY);
+
+      handleTestState(testID);
+
+    } catch (BenchFlowTestIDDoesNotExistException e) {
+      e.printStackTrace();
+    }
   }
 
   private synchronized void handleTestRunningState(String testID) {
