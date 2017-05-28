@@ -17,6 +17,7 @@ import cloud.benchflow.testmanager.tasks.running.RemoveNonReachableExperimentsTa
 import cloud.benchflow.testmanager.tasks.running.ValidatePredictionFunctionTask;
 import cloud.benchflow.testmanager.tasks.running.ValidateTerminationCriteria;
 
+import cloud.benchflow.testmanager.tasks.start.StartTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -74,7 +75,7 @@ public class TestTaskScheduler {
 
       switch (testState) {
         case START:
-          setNextTestState(testID, BenchFlowTestState.READY);
+          handleStartState(testID);
           break;
 
         case READY:
@@ -107,12 +108,29 @@ public class TestTaskScheduler {
     }
   }
 
-  private void setNextTestState(String testID, BenchFlowTestState testState)
-      throws BenchFlowTestIDDoesNotExistException {
-    // change state to testState
-    testModelDAO.setTestState(testID, testState);
+  private synchronized void handleStartState(String testID) {
 
-    handleTestState(testID);
+    logger.info("handle start state: " + testID);
+
+    StartTask startTask = new StartTask(testID);
+
+    Future future = taskExecutorService.submit(startTask);
+
+    testTasks.put(testID, future);
+
+    try {
+
+      // wait for task to complete
+      future.get();
+
+      testModelDAO.setTestState(testID, BenchFlowTestState.READY);
+
+      handleTestState(testID);
+
+    } catch (InterruptedException | ExecutionException | BenchFlowTestIDDoesNotExistException e) {
+      e.printStackTrace();
+    }
+
   }
 
   private synchronized void handleWaitingState(String testID) {

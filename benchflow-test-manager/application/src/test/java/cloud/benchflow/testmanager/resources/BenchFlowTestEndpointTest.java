@@ -10,6 +10,7 @@ import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
+import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
@@ -35,13 +36,13 @@ public class BenchFlowTestEndpointTest {
   private static BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
   private static UserDAO userDAOMock = Mockito.mock(UserDAO.class);
   private static TestTaskScheduler testTaskControllerMock = Mockito.mock(TestTaskScheduler.class);
+  private static MinioService minioServiceMock = Mockito.mock(MinioService.class);
 
   @ClassRule
-  public static final ResourceTestRule resources =
-      ResourceTestRule.builder().addProvider(MultiPartFeature.class)
-          .addResource(
-              new BenchFlowTestResource(testModelDAOMock, userDAOMock, testTaskControllerMock))
-          .build();
+  public static final ResourceTestRule resources = ResourceTestRule.builder()
+      .addProvider(MultiPartFeature.class).addResource(new BenchFlowTestResource(testModelDAOMock,
+          userDAOMock, testTaskControllerMock, minioServiceMock))
+      .build();
 
   @Test
   public void runValidBenchFlowTest() throws Exception {

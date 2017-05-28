@@ -13,10 +13,10 @@ import cloud.benchflow.testmanager.helpers.TestFiles;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
+import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
-import cloud.benchflow.testmanager.tasks.start.StartTask;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 
@@ -51,22 +51,24 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
           ConfigOverride.config("minio.secretKey", MINIO_SECRET_KEY),
           ConfigOverride.config("benchFlowExperimentManager.address", "localhost"));
 
-  private TestTaskScheduler testTaskController;
+  private TestTaskScheduler testTaskScheduler;
   private BenchFlowTestModelDAO testModelDAO;
   private BenchFlowExperimentModelDAO experimentModelDAO;
   private UserDAO userDAO;
+  private MinioService minioService;
   private BenchFlowExperimentManagerService experimentManagerService;
   private ExecutorService executorService;
 
   @Before
   public void setUp() throws Exception {
 
-    testTaskController = BenchFlowTestManagerApplication.getTestTaskScheduler();
-    executorService = testTaskController.getTaskExecutorService();
+    testTaskScheduler = BenchFlowTestManagerApplication.getTestTaskScheduler();
+    executorService = testTaskScheduler.getTaskExecutorService();
 
     userDAO = BenchFlowTestManagerApplication.getUserDAO();
     testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
     experimentModelDAO = BenchFlowTestManagerApplication.getExperimentModelDAO();
+    minioService = BenchFlowTestManagerApplication.getMinioService();
     experimentManagerService =
         Mockito.spy(BenchFlowTestManagerApplication.getExperimentManagerService());
     BenchFlowTestManagerApplication.setExperimentManagerService(experimentManagerService);
@@ -92,7 +94,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       experimentModelDAO.setExperimentState(experimentID, TERMINATED, null, COMPLETED);
 
       String testID = BenchFlowConstants.getTestIDFromExperimentID(experimentID);
-      testTaskController.handleTestState(testID);
+      testTaskScheduler.handleTestState(testID);
 
       countDownLatch.countDown();
 
@@ -107,16 +109,24 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
         .toString(TestFiles.getTestExplorationCompleteUsersInputStream(), StandardCharsets.UTF_8);
     InputStream deploymentDescriptorInputStream =
         TestArchives.getValidDeploymentDescriptorInputStream();
-    Map<String, InputStream> bpmnModelsInputStream = TestArchives.getValidBPMNModels();
+    Map<String, InputStream> bpmnModelInputStreams = TestArchives.getValidBPMNModels();
 
-    Thread startTaskThread = new Thread(new StartTask(testID, testDefinitionString,
-        deploymentDescriptorInputStream, bpmnModelsInputStream));
+    // extract contents
+    InputStream definitionInputStream =
+        IOUtils.toInputStream(testDefinitionString, StandardCharsets.UTF_8);
 
-    startTaskThread.start();
+    // save PT archive contents to Minio
+    minioService.saveTestDefinition(testID, definitionInputStream);
+    minioService.saveTestDeploymentDescriptor(testID, deploymentDescriptorInputStream);
 
-    startTaskThread.join();
+    bpmnModelInputStreams.forEach(
+        (fileName, inputStream) -> minioService.saveTestBPMNModel(testID, fileName, inputStream));
 
-    countDownLatch.await(120, TimeUnit.SECONDS);
+    // handle in scheduler
+    testTaskScheduler.handleTestState(testID);
+
+    // wait long enough for all experiments to complete
+    countDownLatch.await(10, TimeUnit.SECONDS);
 
     // wait for last task to finish
     executorService.awaitTermination(1, TimeUnit.SECONDS);
