@@ -5,7 +5,6 @@ import cloud.benchflow.dsl.definition.BenchFlowTest;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
-import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import java.io.IOException;
@@ -31,7 +30,6 @@ public class StartTask implements Runnable {
   // services
   private final MinioService minioService;
   private final ExplorationModelDAO explorationModelDAO;
-  private final TestTaskScheduler testTaskController;
 
   public StartTask(String testID) {
 
@@ -39,7 +37,7 @@ public class StartTask implements Runnable {
 
     this.minioService = BenchFlowTestManagerApplication.getMinioService();
     this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
-    this.testTaskController = BenchFlowTestManagerApplication.getTestTaskScheduler();
+
   }
 
   public static List<Integer> generateExplorationSpace(BenchFlowTest test) {

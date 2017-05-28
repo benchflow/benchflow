@@ -134,6 +134,9 @@ public class TestTaskScheduler {
   }
 
   private synchronized void handleWaitingState(String testID) {
+
+    logger.info("handle waiting state: " + testID);
+
     // TODO - handle received input
 
     // TODO - put in ready queue

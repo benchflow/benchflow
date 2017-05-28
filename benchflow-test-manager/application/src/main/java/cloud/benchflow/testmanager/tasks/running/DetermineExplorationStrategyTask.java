@@ -4,8 +4,6 @@ import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
-import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,12 +19,10 @@ public class DetermineExplorationStrategyTask implements Runnable {
 
   // services
   private final ExplorationModelDAO explorationModelDAO;
-  private final TestTaskScheduler testTaskController;
 
   public DetermineExplorationStrategyTask(String testID) {
     this.testID = testID;
     this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
-    this.testTaskController = BenchFlowTestManagerApplication.getTestTaskScheduler();
   }
 
   @Override

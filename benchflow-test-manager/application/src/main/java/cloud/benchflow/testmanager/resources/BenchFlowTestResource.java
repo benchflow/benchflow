@@ -16,19 +16,16 @@ import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebExcep
 import cloud.benchflow.testmanager.exceptions.web.InvalidTestArchiveWebException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
+import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
-import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
-import cloud.benchflow.testmanager.tasks.start.StartTask;
 import io.swagger.annotations.Api;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -41,7 +38,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
@@ -57,14 +53,11 @@ public class BenchFlowTestResource {
   public static String RUN_PATH = "/run";
   public static String STATE_PATH = "/state";
   public static String STATUS_PATH = "/status";
-
-  private Logger logger = LoggerFactory.getLogger(BenchFlowTestResource.class.getSimpleName());
-
   private final BenchFlowTestModelDAO testModelDAO;
   private final UserDAO userDAO;
-
   private final TestTaskScheduler testTaskScheduler;
   private final MinioService minioService;
+  private Logger logger = LoggerFactory.getLogger(BenchFlowTestResource.class.getSimpleName());
 
 
   public BenchFlowTestResource() {
