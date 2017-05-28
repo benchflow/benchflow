@@ -105,8 +105,8 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
 
     String testID = testModelDAO.addTestModel(testName, user);
 
-    String testDefinitionString = IOUtils
-        .toString(TestFiles.getTestExplorationCompleteUsersInputStream(), StandardCharsets.UTF_8);
+    String testDefinitionString = IOUtils.toString(
+        TestFiles.getTestExplorationOneAtATimeMultipleInputStream(), StandardCharsets.UTF_8);
     InputStream deploymentDescriptorInputStream =
         TestArchives.getValidDeploymentDescriptorInputStream();
     Map<String, InputStream> bpmnModelInputStreams = TestArchives.getValidBPMNModels();

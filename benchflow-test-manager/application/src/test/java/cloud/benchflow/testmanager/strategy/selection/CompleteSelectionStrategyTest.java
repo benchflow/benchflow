@@ -45,10 +45,10 @@ public class CompleteSelectionStrategyTest {
 
     String expectedNumUsers = "5";
 
-    Mockito.doReturn(TestFiles.getTestExplorationCompleteUsersInputStream()).when(minioMock)
+    Mockito.doReturn(TestFiles.getTestExplorationOneAtATimeMultipleInputStream()).when(minioMock)
         .getTestDefinition(testID);
 
-    String testYaml = IOUtils.toString(TestFiles.getTestExplorationCompleteUsersInputStream(),
+    String testYaml = IOUtils.toString(TestFiles.getTestExplorationOneAtATimeMultipleInputStream(),
         StandardCharsets.UTF_8);
 
     BenchFlowTest test = BenchFlowDSL.testFromYaml(testYaml);
@@ -70,7 +70,7 @@ public class CompleteSelectionStrategyTest {
 
     // run the next experiment
     // make sure input stream has not been read already
-    Mockito.doReturn(TestFiles.getTestExplorationCompleteUsersInputStream()).when(minioMock)
+    Mockito.doReturn(TestFiles.getTestExplorationOneAtATimeMultipleInputStream()).when(minioMock)
         .getTestDefinition(testID);
 
     experimentNumbers.add(1L);

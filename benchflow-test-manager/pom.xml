@@ -36,7 +36,7 @@
         <wiremock.version>2.5.1</wiremock.version>
         <dropwizard-swagger.version>1.0.6-1</dropwizard-swagger.version>
         <benchflow-dsl.project.name>benchflow-dsl</benchflow-dsl.project.name>
-        <benchflow-dsl-jar.version>feature-dsl-demo-conversion_046e8d</benchflow-dsl-jar.version>
+        <benchflow-dsl-jar.version>feature-dsl-precompute-exp-space_7d58e8</benchflow-dsl-jar.version>
         <benchflow-dsl.version>0.1.0</benchflow-dsl.version>
         <benchflow-faban-client.project.name>benchflow-faban-client</benchflow-faban-client.project.name>
         <benchflow-faban-client-jar.version>devel_ad148a</benchflow-faban-client-jar.version>
