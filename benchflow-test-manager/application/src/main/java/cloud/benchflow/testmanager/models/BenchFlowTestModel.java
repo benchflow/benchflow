@@ -5,14 +5,11 @@ import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTes
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.DETERMINE_EXPLORATION_STRATEGY;
 
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 import java.util.TreeMap;
-
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Field;
 import org.mongodb.morphia.annotations.Id;
@@ -187,7 +184,15 @@ public class BenchFlowTestModel {
   }
 
   public enum TestRunningState {
-    DETERMINE_EXPLORATION_STRATEGY, ADD_STORED_KNOWLEDGE, DETERMINE_EXECUTE_EXPERIMENTS, HANDLE_EXPERIMENT_RESULT, VALIDATE_TERMINATION_CRITERIA, DERIVE_PREDICTION_FUNCTION, VALIDATE_PREDICTION_FUNCTION, REMOVE_NON_REACHABLE_EXPERIMENTS
+    DETERMINE_EXPLORATION_STRATEGY,
+    ADD_STORED_KNOWLEDGE,
+    DETERMINE_EXECUTE_VALIDATION_SET,
+    DETERMINE_EXECUTE_EXPERIMENTS,
+    HANDLE_EXPERIMENT_RESULT,
+    VALIDATE_TERMINATION_CRITERIA,
+    DERIVE_PREDICTION_FUNCTION,
+    VALIDATE_PREDICTION_FUNCTION,
+    REMOVE_NON_REACHABLE_EXPERIMENTS
   }
 
   public enum TestTerminatedState {

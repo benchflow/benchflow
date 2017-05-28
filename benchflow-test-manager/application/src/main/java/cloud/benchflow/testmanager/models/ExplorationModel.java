@@ -16,6 +16,8 @@ public class ExplorationModel {
 
   private ExperimentSelectionStrategy.Type experimentSelectionType;
 
+  private boolean hasRegressionModel;
+
   public List<Integer> getWorkloadUsersSpace() {
     return workloadUsersSpace;
   }
@@ -30,5 +32,13 @@ public class ExplorationModel {
 
   public void setExperimentSelectionType(ExperimentSelectionStrategy.Type experimentSelectionType) {
     this.experimentSelectionType = experimentSelectionType;
+  }
+
+  public boolean hasRegressionModel() {
+    return hasRegressionModel;
+  }
+
+  public void setHasRegressionModel(boolean hasRegressionModel) {
+    this.hasRegressionModel = hasRegressionModel;
   }
 }

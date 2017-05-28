@@ -1,5 +1,15 @@
 package cloud.benchflow.testmanager.scheduler;
 
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.ADD_STORED_KNOWLEDGE;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.DERIVE_PREDICTION_FUNCTION;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.DETERMINE_EXECUTE_VALIDATION_SET;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.HANDLE_EXPERIMENT_RESULT;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.REMOVE_NON_REACHABLE_EXPERIMENTS;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.VALIDATE_PREDICTION_FUNCTION;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.VALIDATE_TERMINATION_CRITERIA;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState.COMPLETED_WITH_FAILURE;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState.GOAL_REACHED;
 
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
@@ -16,7 +26,7 @@ import cloud.benchflow.testmanager.tasks.running.HandleExperimentResultTask;
 import cloud.benchflow.testmanager.tasks.running.RemoveNonReachableExperimentsTask;
 import cloud.benchflow.testmanager.tasks.running.ValidatePredictionFunctionTask;
 import cloud.benchflow.testmanager.tasks.running.ValidateTerminationCriteria;
-
+import cloud.benchflow.testmanager.tasks.running.ValidateTerminationCriteria.TerminationCriteriaResult;
 import cloud.benchflow.testmanager.tasks.start.StartTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -25,7 +35,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-
 import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -163,33 +172,31 @@ public class TestTaskScheduler {
       switch (testRunningState) {
         case DETERMINE_EXPLORATION_STRATEGY:
           determineExplorationStrategy(testID);
-
           break;
 
         case ADD_STORED_KNOWLEDGE:
           addStoredKnowledge(testID);
+          break;
 
+        case DETERMINE_EXECUTE_VALIDATION_SET:
+          determineExecuteInitialValidationSet(testID);
           break;
 
         case DETERMINE_EXECUTE_EXPERIMENTS:
           determineAndExecuteExperiments(testID);
-
           break;
 
         case HANDLE_EXPERIMENT_RESULT:
           handleExperimentResult(testID);
-
           break;
 
         case VALIDATE_TERMINATION_CRITERIA:
           validateTerminationCriteria(testID);
-
           break;
 
         case DERIVE_PREDICTION_FUNCTION:
-          testModelDAO.setTestRunningState(testID, TestRunningState.VALIDATE_PREDICTION_FUNCTION);
+          testModelDAO.setTestRunningState(testID, VALIDATE_PREDICTION_FUNCTION);
           derivePredictionFunction(testID);
-
           break;
 
         case VALIDATE_PREDICTION_FUNCTION:
@@ -223,7 +230,7 @@ public class TestTaskScheduler {
     // replace with new task
     testTasks.put(testID, future);
 
-    waitForRunningTaskToComplete(testID, future, TestRunningState.ADD_STORED_KNOWLEDGE);
+    waitForRunningTaskToComplete(testID, future, ADD_STORED_KNOWLEDGE);
   }
 
   private void addStoredKnowledge(String testID) {
@@ -233,12 +240,48 @@ public class TestTaskScheduler {
     AddStoredKnowledgeTask task = new AddStoredKnowledgeTask(testID);
 
     // TODO - should go into a stateless queue (so that we can recover)
-    Future<?> future = taskExecutorService.submit(task);
+    Future<Boolean> future = taskExecutorService.submit(task);
 
     // replace with new task
     testTasks.put(testID, future);
 
-    waitForRunningTaskToComplete(testID, future, TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS);
+    try {
+
+      boolean hasRegressionModel = future.get();
+
+      TestRunningState nextState =
+          hasRegressionModel ? DETERMINE_EXECUTE_VALIDATION_SET : DETERMINE_EXECUTE_EXPERIMENTS;
+
+      testModelDAO.setTestRunningState(testID, nextState);
+
+      handleTestState(testID);
+
+    } catch (InterruptedException | ExecutionException e) {
+      // TODO - handle properly
+      e.printStackTrace();
+    } catch (BenchFlowTestIDDoesNotExistException e) {
+      // should not happen since it was added earlier
+      logger.error("test ID does not exist - should not happen");
+    }
+
+
+  }
+
+  private void determineExecuteInitialValidationSet(String testID) {
+
+    // TODO
+
+    try {
+
+      testModelDAO.setTestRunningState(testID, DETERMINE_EXECUTE_EXPERIMENTS);
+
+      handleTestRunningState(testID);
+
+    } catch (BenchFlowTestIDDoesNotExistException e) {
+      e.printStackTrace();
+    }
+
+
   }
 
   private void determineAndExecuteExperiments(String testID) {
@@ -257,7 +300,7 @@ public class TestTaskScheduler {
     // will send the result
     try {
 
-      testModelDAO.setTestRunningState(testID, TestRunningState.HANDLE_EXPERIMENT_RESULT);
+      testModelDAO.setTestRunningState(testID, HANDLE_EXPERIMENT_RESULT);
 
     } catch (BenchFlowTestIDDoesNotExistException e) {
       // should not happen since it was added earlier
@@ -277,7 +320,7 @@ public class TestTaskScheduler {
     // replace with new task
     testTasks.put(testID, future);
 
-    waitForRunningTaskToComplete(testID, future, TestRunningState.VALIDATE_PREDICTION_FUNCTION);
+    waitForRunningTaskToComplete(testID, future, VALIDATE_PREDICTION_FUNCTION);
   }
 
   private void validatePredictionFunction(String testID) {
@@ -298,7 +341,7 @@ public class TestTaskScheduler {
 
       if (acceptablePredictionError) {
 
-        testModelDAO.setTestState(testID, BenchFlowTestState.TERMINATED);
+        testModelDAO.setTestState(testID, TERMINATED);
         testModelDAO.setTestTerminatedState(testID, GOAL_REACHED);
 
         // no need to execute further
@@ -306,7 +349,7 @@ public class TestTaskScheduler {
 
       } else {
 
-        testModelDAO.setTestRunningState(testID, TestRunningState.REMOVE_NON_REACHABLE_EXPERIMENTS);
+        testModelDAO.setTestRunningState(testID, REMOVE_NON_REACHABLE_EXPERIMENTS);
 
         handleTestState(testID);
       }
@@ -332,7 +375,7 @@ public class TestTaskScheduler {
     // replace with new task
     testTasks.put(testID, future);
 
-    waitForRunningTaskToComplete(testID, future, TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS);
+    waitForRunningTaskToComplete(testID, future, DETERMINE_EXECUTE_EXPERIMENTS);
   }
 
   private void validateTerminationCriteria(String testID) {
@@ -342,30 +385,43 @@ public class TestTaskScheduler {
     ValidateTerminationCriteria task = new ValidateTerminationCriteria(testID);
 
     // TODO - should go into a stateless queue (so that we can recover)
-    Future<Boolean> future = taskExecutorService.submit(task);
+    Future<TerminationCriteriaResult> future = taskExecutorService.submit(task);
 
     // replace with new task
     testTasks.put(testID, future);
 
     try {
-      boolean testComplete = future.get();
 
-      if (testComplete) {
+      TerminationCriteriaResult result = future.get();
 
-        testModelDAO.setTestState(testID, BenchFlowTestModel.BenchFlowTestState.TERMINATED);
-        testModelDAO.setTestTerminatedState(testID, GOAL_REACHED);
+      switch (result) {
 
-        testTasks.remove(testID);
+        case CANNOT_REACH_GOAL:
+          testModelDAO.setTestState(testID, TERMINATED);
+          testModelDAO.setTestTerminatedState(testID, COMPLETED_WITH_FAILURE);
+          break;
 
-      } else {
+        case GOAL_REGRESSION_ACCEPTABLE:
+        case GOAL_NO_REGRESSION_EXECUTED:
+          testModelDAO.setTestState(testID, TERMINATED);
+          testModelDAO.setTestTerminatedState(testID, GOAL_REACHED);
+          break;
 
-        // update the running state
-        testModelDAO.setTestRunningState(testID,
-            BenchFlowTestModel.TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS);
+        case GOAL_REGRESSION_NOT_ACCEPTABLE:
+          testModelDAO.setTestRunningState(testID, REMOVE_NON_REACHABLE_EXPERIMENTS);
+          break;
 
-        // run the next state
-        handleTestState(testID);
+        case GOAL_NO_REGRESSION_REMAINING:
+          testModelDAO.setTestRunningState(testID, DETERMINE_EXECUTE_EXPERIMENTS);
+          break;
+
+        default:
+          // no default
+          break;
       }
+
+      // run the next state
+      handleTestState(testID);
 
     } catch (InterruptedException | ExecutionException e) {
       // TODO - handle  properly
@@ -383,34 +439,21 @@ public class TestTaskScheduler {
     HandleExperimentResultTask task = new HandleExperimentResultTask(testID);
 
     // TODO - should go into a stateless queue (so that we can recover)
-    Future<HandleExperimentResultTask.Result> future = taskExecutorService.submit(task);
+    Future<Boolean> future = taskExecutorService.submit(task);
 
     // replace with new task
     testTasks.put(testID, future);
 
     try {
 
-      HandleExperimentResultTask.Result result = future.get();
+      Boolean hasRegressionModel = future.get();
 
-      switch (result) {
-        case COMPLETE_SELECTION:
-          testModelDAO.setTestRunningState(testID, TestRunningState.VALIDATE_TERMINATION_CRITERIA);
+      TestRunningState nextState =
+          hasRegressionModel ? DERIVE_PREDICTION_FUNCTION : VALIDATE_TERMINATION_CRITERIA;
 
-          handleTestState(testID);
+      testModelDAO.setTestRunningState(testID, nextState);
 
-          break;
-
-        case CAN_REACH_GOAL:
-          // TODO
-          break;
-
-        case CANNOT_REACH_GOAL:
-          // TODO
-          break;
-
-        default:
-          break;
-      }
+      handleTestState(testID);
 
     } catch (InterruptedException | ExecutionException e) {
       // TODO - handle  properly

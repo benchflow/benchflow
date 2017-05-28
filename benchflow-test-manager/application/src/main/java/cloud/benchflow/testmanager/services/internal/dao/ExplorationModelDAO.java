@@ -85,4 +85,28 @@ public class ExplorationModelDAO extends DAO {
 
     datastore.save(benchFlowTestModel);
   }
+
+  public synchronized boolean hasRegressionModel(String testID)
+      throws BenchFlowTestIDDoesNotExistException {
+
+    logger.info("hasRegressionModel: " + testID);
+
+    final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
+
+    return benchFlowTestModel.getExplorationModel().hasRegressionModel();
+
+  }
+
+  public synchronized void setHasRegressionModel(String testID, boolean hasRegressionModel)
+      throws BenchFlowTestIDDoesNotExistException {
+
+    logger.info("setHasRegressionModel: " + testID);
+
+    final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
+
+    benchFlowTestModel.getExplorationModel().setHasRegressionModel(hasRegressionModel);
+
+    datastore.save(benchFlowTestModel);
+
+  }
 }

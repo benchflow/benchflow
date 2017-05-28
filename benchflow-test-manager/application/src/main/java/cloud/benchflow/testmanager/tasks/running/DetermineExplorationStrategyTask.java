@@ -37,6 +37,9 @@ public class DetermineExplorationStrategyTask implements Runnable {
 
       explorationModelDAO.setExperimentSelectionStrategy(testID, selectionStrategyType);
 
+      // TODO - change this depending on real value
+      explorationModelDAO.setHasRegressionModel(testID, false);
+
     } catch (BenchFlowTestIDDoesNotExistException e) {
       // should not happen since it has already been added
       logger.error("should not happen");
