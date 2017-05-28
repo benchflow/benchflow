@@ -45,6 +45,9 @@ public class BenchFlowTestTaskController {
 
   public BenchFlowTestTaskController(ExecutorService taskExecutorService) {
     this.taskExecutorService = taskExecutorService;
+  }
+
+  public void initialize() {
     this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
   }
 
