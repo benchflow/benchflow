@@ -65,7 +65,7 @@ public class BenchFlowTestResource {
   public BenchFlowTestResource() {
     this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
     this.userDAO = BenchFlowTestManagerApplication.getUserDAO();
-    this.testTaskController = BenchFlowTestManagerApplication.getTestTaskController();
+    this.testTaskController = BenchFlowTestManagerApplication.getTestTaskScheduler();
   }
 
   /* used for tests */

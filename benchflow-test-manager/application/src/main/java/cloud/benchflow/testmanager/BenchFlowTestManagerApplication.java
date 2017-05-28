@@ -37,7 +37,7 @@ public class BenchFlowTestManagerApplication
   private static UserDAO userDAO;
   private static MinioService minioService;
   private static BenchFlowExperimentManagerService experimentManagerService;
-  private static TestTaskScheduler testTaskController;
+  private static TestTaskScheduler testTaskScheduler;
   private Logger logger =
       LoggerFactory.getLogger(BenchFlowTestManagerApplication.class.getSimpleName());
 
@@ -75,8 +75,8 @@ public class BenchFlowTestManagerApplication
     BenchFlowTestManagerApplication.experimentManagerService = experimentManagerService;
   }
 
-  public static TestTaskScheduler getTestTaskController() {
-    return testTaskController;
+  public static TestTaskScheduler getTestTaskScheduler() {
+    return testTaskScheduler;
   }
 
   @Override
@@ -126,10 +126,10 @@ public class BenchFlowTestManagerApplication
     experimentManagerService = configuration.getBenchFlowExperimentManagerServiceFactory()
         .build(configuration, environment);
 
-    testTaskController = new TestTaskScheduler(taskExecutor);
+    testTaskScheduler = new TestTaskScheduler(taskExecutor);
 
     // initialize to fetch dependencies
-    testTaskController.initialize();
+    testTaskScheduler.initialize();
 
     // make sure a bucket exists
     minioService.initializeBuckets();

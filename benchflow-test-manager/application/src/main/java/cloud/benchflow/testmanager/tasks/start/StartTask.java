@@ -50,7 +50,7 @@ public class StartTask implements Runnable {
 
     this.minioService = BenchFlowTestManagerApplication.getMinioService();
     this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
-    this.testTaskController = BenchFlowTestManagerApplication.getTestTaskController();
+    this.testTaskController = BenchFlowTestManagerApplication.getTestTaskScheduler();
   }
 
   @Override

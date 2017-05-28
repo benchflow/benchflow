@@ -43,7 +43,7 @@ public class BenchFlowExperimentResource {
   private final TestTaskScheduler testTaskController;
 
   public BenchFlowExperimentResource() {
-    this.testTaskController = BenchFlowTestManagerApplication.getTestTaskController();
+    this.testTaskController = BenchFlowTestManagerApplication.getTestTaskScheduler();
     this.experimentModelDAO = BenchFlowTestManagerApplication.getExperimentModelDAO();
     this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
   }

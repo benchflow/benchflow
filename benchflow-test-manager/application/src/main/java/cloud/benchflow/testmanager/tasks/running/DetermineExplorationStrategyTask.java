@@ -26,7 +26,7 @@ public class DetermineExplorationStrategyTask implements Runnable {
   public DetermineExplorationStrategyTask(String testID) {
     this.testID = testID;
     this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
-    this.testTaskController = BenchFlowTestManagerApplication.getTestTaskController();
+    this.testTaskController = BenchFlowTestManagerApplication.getTestTaskScheduler();
   }
 
   @Override

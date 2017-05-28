@@ -12,7 +12,6 @@ import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.helpers.TestFiles;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
-import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
@@ -62,7 +61,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
   @Before
   public void setUp() throws Exception {
 
-    testTaskController = BenchFlowTestManagerApplication.getTestTaskController();
+    testTaskController = BenchFlowTestManagerApplication.getTestTaskScheduler();
     executorService = testTaskController.getTaskExecutorService();
 
     userDAO = BenchFlowTestManagerApplication.getUserDAO();
