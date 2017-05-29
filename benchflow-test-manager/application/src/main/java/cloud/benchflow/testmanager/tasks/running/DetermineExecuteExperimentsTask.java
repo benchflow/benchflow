@@ -1,17 +1,16 @@
 package cloud.benchflow.testmanager.tasks.running;
 
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
+import cloud.benchflow.testmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
-import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
-
-import java.io.InputStream;
+import cloud.benchflow.testmanager.strategy.selection.SelectionStrategy;
+import cloud.benchflow.testmanager.strategy.selection.SelectionStrategy.SelectedExperimentBundle;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,19 +54,23 @@ public class DetermineExecuteExperimentsTask implements Runnable {
       String experimentID = experimentModelDAO.addExperiment(testID);
 
       // get the selection strategy
-      ExperimentSelectionStrategy selectionStrategy =
-          explorationModelDAO.getExperimentSelectionStrategy(testID);
+      SelectionStrategy selectionStrategy = explorationModelDAO.getSelectionStrategy(testID);
 
       // generate the Experiment definition
-      String experimentYaml = selectionStrategy.selectNextExperiment(testID);
-      InputStream experimentYamlInputStream =
-          IOUtils.toInputStream(experimentYaml, StandardCharsets.UTF_8);
+      SelectedExperimentBundle selectedExperimentBundle =
+          selectionStrategy.selectNextExperiment(testID);
+
+      // save exploration point index
+      experimentModelDAO.setExplorationSpaceIndex(experimentID,
+          selectedExperimentBundle.getExplorationSpaceIndex());
 
       // save PE defintion to minio
-      minioService.saveExperimentDefinition(experimentID, experimentYamlInputStream);
+      minioService.saveExperimentDefinition(experimentID, IOUtils.toInputStream(
+          selectedExperimentBundle.getExperimentYamlString(), StandardCharsets.UTF_8));
 
       // save deployment descriptor for experiment
-      minioService.copyDeploymentDescriptorForExperiment(testID, experimentID);
+      minioService.saveExperimentDeploymentDescriptor(experimentID, IOUtils.toInputStream(
+          selectedExperimentBundle.getDeploymentDescriptorYamlString(), StandardCharsets.UTF_8));
 
       // save models for experiment
       List<String> bpmnFileNames = minioService.getAllTestBPMNModels(testID);
@@ -77,7 +80,9 @@ public class DetermineExecuteExperimentsTask implements Runnable {
       // run PE on PEManager
       experimentManagerService.runBenchFlowExperiment(experimentID);
 
-    } catch (BenchFlowTestIDDoesNotExistException e) {
+    } catch (BenchFlowTestIDDoesNotExistException | BenchFlowExperimentIDDoesNotExistException e) {
+      // should not happen
+      // TODO - handle this
       e.printStackTrace();
     }
 

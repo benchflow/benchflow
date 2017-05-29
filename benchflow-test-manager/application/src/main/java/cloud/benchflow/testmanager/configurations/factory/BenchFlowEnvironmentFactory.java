@@ -1,7 +1,6 @@
 package cloud.benchflow.testmanager.configurations.factory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**

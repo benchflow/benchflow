@@ -2,14 +2,10 @@ package cloud.benchflow.testmanager.configurations.factory;
 
 import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfiguration;
 import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Environment;
-
 import javax.ws.rs.client.Client;
-
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**

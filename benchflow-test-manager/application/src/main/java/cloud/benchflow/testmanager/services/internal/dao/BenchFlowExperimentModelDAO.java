@@ -10,9 +10,7 @@ import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExpe
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.RunningState;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.TerminatedState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
-
 import com.mongodb.MongoClient;
-
 import org.mongodb.morphia.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +71,32 @@ public class BenchFlowExperimentModelDAO extends DAO {
     }
 
     return experimentModel;
+  }
+
+  public synchronized void setExplorationSpaceIndex(String experimentID, int index)
+      throws BenchFlowExperimentIDDoesNotExistException {
+
+    logger.info("setExplorationSpaceIndex: " + experimentID);
+
+    final BenchFlowExperimentModel experimentModel;
+    experimentModel = getExperiment(experimentID);
+
+    experimentModel.setExplorationPointIndex(index);
+
+    datastore.save(experimentModel);
+
+  }
+
+  public synchronized int getExplorationSpaceIndex(String experimentID)
+      throws BenchFlowExperimentIDDoesNotExistException {
+
+    logger.info("getExplorationSpaceIndex: " + experimentID);
+
+    final BenchFlowExperimentModel experimentModel;
+    experimentModel = getExperiment(experimentID);
+
+    return experimentModel.getExplorationPointIndex();
+
   }
 
   public synchronized void setExperimentState(String experimentID, BenchFlowExperimentState state,

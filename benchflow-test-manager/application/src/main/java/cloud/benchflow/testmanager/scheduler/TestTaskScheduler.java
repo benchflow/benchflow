@@ -14,13 +14,13 @@ import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminat
 
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
-import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.tasks.running.AddStoredKnowledgeTask;
 import cloud.benchflow.testmanager.tasks.running.DerivePredictionFunctionTask;
 import cloud.benchflow.testmanager.tasks.running.DetermineExecuteExperimentsTask;
+import cloud.benchflow.testmanager.tasks.running.DetermineExecuteInitialValidationSetTask;
 import cloud.benchflow.testmanager.tasks.running.DetermineExplorationStrategyTask;
 import cloud.benchflow.testmanager.tasks.running.HandleExperimentResultTask;
 import cloud.benchflow.testmanager.tasks.running.RemoveNonReachableExperimentsTask;
@@ -269,18 +269,18 @@ public class TestTaskScheduler {
 
   private void determineExecuteInitialValidationSet(String testID) {
 
-    // TODO
+    logger.info("determineExecuteInitialValidationSet with testID: " + testID);
 
-    try {
+    DetermineExecuteInitialValidationSetTask initialValidationSetTask =
+        new DetermineExecuteInitialValidationSetTask(testID);
 
-      testModelDAO.setTestRunningState(testID, DETERMINE_EXECUTE_EXPERIMENTS);
+    // TODO - should go into a stateless queue (so that we can recover)
+    Future future = taskExecutorService.submit(initialValidationSetTask);
 
-      handleTestRunningState(testID);
+    // replace with new task
+    testTasks.put(testID, future);
 
-    } catch (BenchFlowTestIDDoesNotExistException e) {
-      e.printStackTrace();
-    }
-
+    waitForRunningTaskToComplete(testID, future, DETERMINE_EXECUTE_EXPERIMENTS);
 
   }
 

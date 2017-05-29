@@ -17,7 +17,6 @@ import io.minio.errors.InvalidBucketNameException;
 import io.minio.errors.MinioException;
 import io.minio.errors.NoResponseException;
 import io.minio.messages.Item;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -25,7 +24,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -230,6 +228,17 @@ public class MinioService {
         minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + TEST_EXPERIMENT_DEFINITION_FILE_NAME;
 
     removeObject(objectName);
+  }
+
+  public void saveExperimentDeploymentDescriptor(String experimentID,
+      InputStream deploymentDescriptor) {
+
+    logger.info("saveExperimentDeploymentDescriptor: " + experimentID);
+
+    String objectName =
+        minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+
+    putInputStreamObject(deploymentDescriptor, objectName);
   }
 
   private void putInputStreamObject(InputStream inputStream, String objectName) {
