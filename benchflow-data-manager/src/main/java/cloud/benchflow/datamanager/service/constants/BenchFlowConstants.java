@@ -1,6 +1,6 @@
 package cloud.benchflow.datamanager.service.constants;
 
-public class BenchFlowConstants {
+public final class BenchFlowConstants {
 
   // REST API
   public static final String VERSION_1_PATH = "/v1";
@@ -26,6 +26,8 @@ public class BenchFlowConstants {
       TEST_EXPERIMENT_DEFINITION_NAME + YAML_EXTENSION;
   public static final String DEPLOYMENT_DESCRIPTOR_FILE_NAME =
       DEPLOYMENT_DESCRIPTOR_NAME + YAML_EXTENSION;
+
+  private BenchFlowConstants() {}
 
   public static String getTestID(String username, String testName, int testNumber) {
     return username + MODEL_ID_DELIMITER + testName + MODEL_ID_DELIMITER + testNumber;
