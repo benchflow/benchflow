@@ -19,6 +19,18 @@ public class DataManagerConfiguration extends Configuration {
   @JsonProperty
   private MinioServiceFactory minioServiceFactory = new MinioServiceFactory();
 
+  // GoogleDrive Service
+  @Valid
+  @NotNull
+  @JsonProperty
+  private GoogleDriveServiceFactory googleDriveServiceFactory = new GoogleDriveServiceFactory();
+
+  // Cassandra Service
+  @Valid
+  @NotNull
+  @JsonProperty
+  private CassandraServiceFactory cassandraServiceFactory = new CassandraServiceFactory();
+
   @JsonProperty("minio")
   public MinioServiceFactory getMinioServiceFactory() {
     return minioServiceFactory;
@@ -29,12 +41,6 @@ public class DataManagerConfiguration extends Configuration {
     this.minioServiceFactory = minioServiceFactory;
   }
 
-  // GoogleDrive Service
-  @Valid
-  @NotNull
-  @JsonProperty
-  private GoogleDriveServiceFactory googleDriveServiceFactory = new GoogleDriveServiceFactory();
-
   @JsonProperty("googleDrive")
   public GoogleDriveServiceFactory getGoogleDriveServiceFactory() {
     return googleDriveServiceFactory;
@@ -44,12 +50,6 @@ public class DataManagerConfiguration extends Configuration {
   public void setGoogleDriveServiceFactory(GoogleDriveServiceFactory googleDriveServiceFactory) {
     this.googleDriveServiceFactory = googleDriveServiceFactory;
   }
-
-  // Cassandra Service
-  @Valid
-  @NotNull
-  @JsonProperty
-  private CassandraServiceFactory cassandraServiceFactory = new CassandraServiceFactory();
 
   @JsonProperty("cassandra")
   public CassandraServiceFactory getCassandraServiceFactory() {

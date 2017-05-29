@@ -16,6 +16,15 @@ public class MinioServiceFactory {
   @NotEmpty
   private String address;
 
+  @NotEmpty
+  private String accessKey;
+
+  @NotEmpty
+  private String secretKey;
+
+  @NotEmpty
+  private String defaultBucket;
+
   @JsonProperty
   public String getAddress() {
     return address;
@@ -25,9 +34,6 @@ public class MinioServiceFactory {
   public void setAddress(String address) {
     this.address = address;
   }
-
-  @NotEmpty
-  private String accessKey;
 
   @JsonProperty
   public String getAccessKey() {
@@ -39,9 +45,6 @@ public class MinioServiceFactory {
     this.accessKey = accessKey;
   }
 
-  @NotEmpty
-  private String secretKey;
-
   @JsonProperty
   public String getSecretKey() {
     return secretKey;
@@ -51,9 +54,6 @@ public class MinioServiceFactory {
   public void setSecretKey(String secretKey) {
     this.secretKey = secretKey;
   }
-
-  @NotEmpty
-  private String defaultBucket;
 
   @JsonProperty
   public String getDefaultBucket() {
