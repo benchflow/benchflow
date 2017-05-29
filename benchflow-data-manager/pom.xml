@@ -45,6 +45,7 @@
         <maven-surefire-plugin.version>2.7</maven-surefire-plugin.version>
         <maven-project-info-reports-plugin.version>2.8.1</maven-project-info-reports-plugin.version>
         <scalatest-maven-plugin.version>1.0</scalatest-maven-plugin.version>
+        <dropwizard-swagger.version>1.0.6-1</dropwizard-swagger.version>
         <mainClass>cloud.benchflow.datamanager.service.DataManagerApplication</mainClass>
     </properties>
 
@@ -127,6 +128,20 @@
             <groupId>com.typesafe.play</groupId>
             <artifactId>play-json_${scala.minor.version}</artifactId>
             <version>${play-json.version}</version>
+        </dependency>
+        <!--https://github.com/smoketurner/dropwizard-swagger-->
+        <dependency>
+            <groupId>com.smoketurner</groupId>
+            <artifactId>dropwizard-swagger</artifactId>
+            <version>${dropwizard-swagger.version}</version>
+            <exclusions>
+                <!--need this exclusion because of conflict with dropwizard-core-->
+                <!--https://github.com/smoketurner/dropwizard-swagger/issues/72-->
+                <exclusion>
+                    <groupId>org.glassfish.jersey.containers</groupId>
+                    <artifactId>jersey-container-servlet-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

@@ -7,6 +7,7 @@ import cloud.benchflow.datamanager.service.configurations.factory.MinioServiceFa
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.dropwizard.Configuration;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -30,6 +31,11 @@ public class DataManagerConfiguration extends Configuration {
   @NotNull
   @JsonProperty
   private CassandraServiceFactory cassandraServiceFactory = new CassandraServiceFactory();
+
+  // Swagger Configuration
+  @Valid
+  @NotNull
+  private final SwaggerBundleConfiguration swagger = new SwaggerBundleConfiguration();
 
   @JsonProperty("minio")
   public MinioServiceFactory getMinioServiceFactory() {
@@ -59,6 +65,11 @@ public class DataManagerConfiguration extends Configuration {
   @JsonProperty("cassandra")
   public void setCassandraServiceFactory(CassandraServiceFactory cassandraServiceFactory) {
     this.cassandraServiceFactory = cassandraServiceFactory;
+  }
+
+  @JsonProperty("swagger")
+  public SwaggerBundleConfiguration getSwagger() {
+    return swagger;
   }
 
 }

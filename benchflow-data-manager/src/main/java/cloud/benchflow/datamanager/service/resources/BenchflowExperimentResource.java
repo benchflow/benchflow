@@ -8,6 +8,8 @@ import cloud.benchflow.datamanager.service.constants.BenchFlowConstants;
 
 import com.codahale.metrics.annotation.Timed;
 
+import io.swagger.annotations.Api;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -22,6 +24,7 @@ import scala.concurrent.Await;
 import scala.concurrent.duration.Duration;
 
 @Path("/v1/users/{username}/tests/{testName}/{testNumber}/experiments")
+@Api(value = "benchflow-datamanager")
 @Produces(MediaType.APPLICATION_JSON)
 public class BenchflowExperimentResource {
   private final BackupManager backupManager;

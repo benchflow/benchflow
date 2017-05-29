@@ -14,6 +14,8 @@ import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfigurat
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.federecio.dropwizard.swagger.SwaggerBundle;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 public class DataManagerApplication extends Application<DataManagerConfiguration> {
 
@@ -31,6 +33,15 @@ public class DataManagerApplication extends Application<DataManagerConfiguration
     // Dropwizard Template Config
     bootstrap.addBundle(new TemplateConfigBundle(
         new TemplateConfigBundleConfiguration().resourceIncludePath("/app")));
+
+    // Dropwizard Swagger
+    bootstrap.addBundle(new SwaggerBundle<DataManagerConfiguration>() {
+      @Override
+      protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(
+          DataManagerConfiguration configuration) {
+        return configuration.getSwagger();
+      }
+    });
   }
 
   @Override

@@ -4,6 +4,9 @@ logging:
     cloud.benchflow.datamanager: DEBUG
     com.google.api.client.http: Warn
 
+swagger:
+  resourcePackage: cloud.benchflow.datamanager.service.resources
+
 minio:
   address: ${env.MINIO_ADDRESS!"SET_ME"}
   accessKey: ${env.MINIO_ACCESS_KEY!"SET_ME"}
