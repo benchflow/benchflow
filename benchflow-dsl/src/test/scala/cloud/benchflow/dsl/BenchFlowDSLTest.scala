@@ -3,8 +3,10 @@ package cloud.benchflow.dsl
 import java.nio.file.Paths
 
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
+import cloud.benchflow.dsl.definition.types.bytes.{ Bytes, BytesUnit }
 import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
+import cloud.benchflow.dsl.dockercompose.DockerComposeYamlString
 
 import scala.io.Source
 
@@ -78,6 +80,26 @@ class BenchFlowDSLTest extends JUnitSuite {
       Assert.assertTrue(experimentYaml.contains("users: " + numUsers))
 
     })
+
+  }
+
+  @Test def dockerComposeBuilderTest(): Unit = {
+
+    val dockerComposeString = DockerComposeYamlString
+
+    val serviceName = "camunda"
+    val underlying = 500
+    val memLimit: Bytes = new Bytes(underlying = underlying, unit = BytesUnit.MegaBytes)
+    val environmentKey = "DB_DRIVER"
+    val environmentValue = "TEST_ENVIRONMENT_VALUE"
+
+    val generatedComposeString = BenchFlowDSL.dockerComposeYamlBuilderFromDockerComposeYaml(dockerComposeString)
+      .environmentVariable(serviceName, environmentKey, environmentValue)
+      .memLimit(serviceName, memLimit).build()
+
+    Assert.assertTrue(generatedComposeString.contains(s"mem_limit: ${memLimit.underlying}${memLimit.unit}"))
+    Assert.assertTrue(generatedComposeString.contains(s"$environmentKey=$environmentValue"))
+    Assert.assertFalse(generatedComposeString.contains(s"DB_DRIVER=com.mysql.jdbc.Driver"))
 
   }
 
