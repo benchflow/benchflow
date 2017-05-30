@@ -16,17 +16,16 @@ import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebExcep
 import cloud.benchflow.testmanager.exceptions.web.InvalidTestArchiveWebException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
+import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
+import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
-import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
-import cloud.benchflow.testmanager.tasks.start.StartTask;
 import io.swagger.annotations.Api;
-
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -39,7 +38,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
+import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,26 +53,27 @@ public class BenchFlowTestResource {
   public static String RUN_PATH = "/run";
   public static String STATE_PATH = "/state";
   public static String STATUS_PATH = "/status";
-
-  private Logger logger = LoggerFactory.getLogger(BenchFlowTestResource.class.getSimpleName());
-
   private final BenchFlowTestModelDAO testModelDAO;
   private final UserDAO userDAO;
+  private final TestTaskScheduler testTaskScheduler;
+  private final MinioService minioService;
+  private Logger logger = LoggerFactory.getLogger(BenchFlowTestResource.class.getSimpleName());
 
-  private final BenchFlowTestTaskController testTaskController;
 
   public BenchFlowTestResource() {
     this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
     this.userDAO = BenchFlowTestManagerApplication.getUserDAO();
-    this.testTaskController = BenchFlowTestManagerApplication.getTestTaskController();
+    this.testTaskScheduler = BenchFlowTestManagerApplication.getTestTaskScheduler();
+    this.minioService = BenchFlowTestManagerApplication.getMinioService();
   }
 
   /* used for tests */
   public BenchFlowTestResource(BenchFlowTestModelDAO testModelDAO, UserDAO userDAO,
-      BenchFlowTestTaskController testTaskController) {
+      TestTaskScheduler testTaskScheduler, MinioService minioService) {
     this.testModelDAO = testModelDAO;
     this.userDAO = userDAO;
-    this.testTaskController = testTaskController;
+    this.testTaskScheduler = testTaskScheduler;
+    this.minioService = minioService;
   }
 
   @POST
@@ -131,8 +131,24 @@ public class BenchFlowTestResource {
       // save new test
       String testID = testModelDAO.addTestModel(benchFlowTest.name(), user);
 
-      new Thread(new StartTask(testID, testDefinitionYamlString, deploymentDescriptorInputStream,
-          bpmnModelInputStreams)).start();
+      // save files in separate thread to return faster to user
+      new Thread(() -> {
+
+        // extract contents
+        InputStream definitionInputStream =
+            IOUtils.toInputStream(testDefinitionYamlString, StandardCharsets.UTF_8);
+
+        // save PT archive contents to Minio
+        minioService.saveTestDefinition(testID, definitionInputStream);
+        minioService.saveTestDeploymentDescriptor(testID, deploymentDescriptorInputStream);
+
+        bpmnModelInputStreams.forEach((fileName, inputStream) -> minioService
+            .saveTestBPMNModel(testID, fileName, inputStream));
+
+        // delegate to task scheduler
+        testTaskScheduler.handleTestState(testID);
+
+      }).start();
 
       return new RunBenchFlowTestResponse(testID);
 

@@ -11,7 +11,7 @@ import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
-import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
+import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 import io.swagger.annotations.Api;
 
 import javax.validation.Valid;
@@ -40,17 +40,17 @@ public class BenchFlowExperimentResource {
 
   private final BenchFlowExperimentModelDAO experimentModelDAO;
   private final BenchFlowTestModelDAO testModelDAO;
-  private final BenchFlowTestTaskController testTaskController;
+  private final TestTaskScheduler testTaskController;
 
   public BenchFlowExperimentResource() {
-    this.testTaskController = BenchFlowTestManagerApplication.getTestTaskController();
+    this.testTaskController = BenchFlowTestManagerApplication.getTestTaskScheduler();
     this.experimentModelDAO = BenchFlowTestManagerApplication.getExperimentModelDAO();
     this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
   }
 
   /* used for testing */
   public BenchFlowExperimentResource(BenchFlowExperimentModelDAO experimentModelDAO,
-      BenchFlowTestTaskController testTaskController, BenchFlowTestModelDAO testModelDAO) {
+      TestTaskScheduler testTaskController, BenchFlowTestModelDAO testModelDAO) {
     this.experimentModelDAO = experimentModelDAO;
     this.testTaskController = testTaskController;
     this.testModelDAO = testModelDAO;

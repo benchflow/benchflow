@@ -10,7 +10,7 @@ import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExpe
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
-import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
+import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -29,8 +29,7 @@ public class BenchFlowExperimentResourceTest {
   // mocks
   private BenchFlowExperimentModelDAO experimentModelDAOMock =
       Mockito.mock(BenchFlowExperimentModelDAO.class);
-  private BenchFlowTestTaskController testTaskControllerMock =
-      Mockito.mock(BenchFlowTestTaskController.class);
+  private TestTaskScheduler testTaskControllerMock = Mockito.mock(TestTaskScheduler.class);
   private BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
 
   @Rule

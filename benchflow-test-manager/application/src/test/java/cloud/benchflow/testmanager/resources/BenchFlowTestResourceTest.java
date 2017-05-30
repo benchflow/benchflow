@@ -20,9 +20,10 @@ import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebExcep
 import cloud.benchflow.testmanager.exceptions.web.InvalidTestArchiveWebException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
+import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
-import cloud.benchflow.testmanager.tasks.BenchFlowTestTaskController;
+import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 
 import java.io.InputStream;
 
@@ -46,15 +47,16 @@ public class BenchFlowTestResourceTest {
   // mocks
   private BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
   private UserDAO userDAOMock = Mockito.mock(UserDAO.class);
-  private BenchFlowTestTaskController testTaskController =
-      Mockito.mock(BenchFlowTestTaskController.class);
+  private TestTaskScheduler testTaskScheduler = Mockito.mock(TestTaskScheduler.class);
+  private MinioService minioService = Mockito.mock(MinioService.class);
   private BenchFlowTestResource resource;
   private ChangeBenchFlowTestStateRequest request;
 
   @Before
   public void setUp() throws Exception {
 
-    resource = new BenchFlowTestResource(testModelDAOMock, userDAOMock, testTaskController);
+    resource =
+        new BenchFlowTestResource(testModelDAOMock, userDAOMock, testTaskScheduler, minioService);
     request = new ChangeBenchFlowTestStateRequest();
   }
 
