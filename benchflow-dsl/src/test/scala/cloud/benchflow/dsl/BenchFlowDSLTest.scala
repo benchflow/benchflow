@@ -103,4 +103,43 @@ class BenchFlowDSLTest extends JUnitSuite {
 
   }
 
+  @Test def generateExplorationSpaceTest(): Unit = {
+
+    val testYaml = Source.fromFile(Paths.get(BenchFlowExplorationMultipleExample).toFile).mkString
+
+    val explorationSpace = BenchFlowDSL.explorationSpaceFromTestYaml(testYaml)
+
+    Assert.assertTrue(explorationSpace.users.isDefined)
+
+    Assert.assertTrue(explorationSpace.memory.isDefined)
+
+    Assert.assertTrue(explorationSpace.environment.isDefined)
+
+  }
+
+  @Test def initialExplorationSpaceStateTest(): Unit = {
+
+    val testYaml = Source.fromFile(Paths.get(BenchFlowExplorationMultipleExample).toFile).mkString
+
+    val explorationSpace = BenchFlowDSL.explorationSpaceFromTestYaml(testYaml)
+
+    val initialExplorationSpaceState = BenchFlowDSL.getInitialExplorationSpaceState(explorationSpace)
+
+    val expectedExplorationSpaceSize = 5 * 4 * 3 * 4
+
+    val expectedList = List.fill(expectedExplorationSpaceSize)(-1)
+
+    val expectedUsersState = (expectedList, 4)
+    val expectedMemoryState = Map(("camunda", (expectedList, 5)))
+    val expectedEnvironmentState = Map(
+      ("camunda", Map(
+        ("SIZE_OF_THREADPOOL", (expectedList, 4)),
+        ("AN_ENUM", (expectedList, 3)))))
+
+    Assert.assertEquals(expectedUsersState, initialExplorationSpaceState.usersState.get)
+    Assert.assertEquals(expectedMemoryState, initialExplorationSpaceState.memoryState.get)
+    Assert.assertEquals(expectedEnvironmentState, initialExplorationSpaceState.environmentState.get)
+
+  }
+
 }
