@@ -109,14 +109,13 @@ public class BenchFlowTestManagerApplication
 
     logger.info("run");
 
-    // service
-
-    // set the services used by multiple classes
+    // services
 
     // Typically you only create one MongoClient instance for a given MongoDB deployment
     // (e.g. standalone, replica set, or a sharded cluster) and use it across your application.
     // http://mongodb.github.io/mongo-java-driver/3.4/driver/getting-started/quick-start/
     MongoClient mongoClient = configuration.getMongoDBFactory().build();
+    ExecutorService taskExecutor = configuration.getTaskExecutorFactory().build(environment);
 
     testModelDAO = new BenchFlowTestModelDAO(mongoClient);
     explorationModelDAO = new ExplorationModelDAO(mongoClient, testModelDAO);
@@ -127,9 +126,10 @@ public class BenchFlowTestManagerApplication
     experimentManagerService = configuration.getBenchFlowExperimentManagerServiceFactory()
         .build(configuration, environment);
 
-    // has to be last so the other dependencies are already available when instantiating
-    ExecutorService taskExecutor = configuration.getTaskExecutorFactory().build(environment);
     testTaskController = new BenchFlowTestTaskController(taskExecutor);
+
+    // initialize to fetch dependencies
+    testTaskController.initialize();
 
     // make sure a bucket exists
     minioService.initializeBuckets();
