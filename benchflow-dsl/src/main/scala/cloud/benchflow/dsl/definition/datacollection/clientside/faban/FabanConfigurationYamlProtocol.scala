@@ -1,5 +1,7 @@
 package cloud.benchflow.dsl.definition.datacollection.clientside.faban
 
+import cloud.benchflow.dsl.definition.datacollection.clientside.ClientSideConfigurationYamlProtocol
+import cloud.benchflow.dsl.definition.datacollection.clientside.ClientSideConfigurationYamlProtocol.FabanKey
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
 import cloud.benchflow.dsl.definition.types.time.Time
 import cloud.benchflow.dsl.definition.types.time.TimeYamlProtocol._
@@ -17,7 +19,9 @@ object FabanConfigurationYamlProtocol extends DefaultYamlProtocol {
   val IntervalKey = YamlString("interval")
   val WorkloadKey = YamlString("workload")
 
-  private def keyString(key: YamlString) = "data_collection.client_side.faban." + key.value
+  val Level = s"${ClientSideConfigurationYamlProtocol.Level}.${FabanKey.value}"
+
+  private def keyString(key: YamlString) = s"$Level.${key.value}"
 
   implicit object FabanConfigurationReadFormat extends YamlFormat[Try[FabanConfiguration]] {
 

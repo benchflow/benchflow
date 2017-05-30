@@ -1,14 +1,13 @@
 package cloud.benchflow.dsl.definition.configuration.goal
 
+import cloud.benchflow.dsl.definition.configuration.goal.goaltype.GoalType.GoalType
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.ExplorationSpace
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 11.03.17.
  */
-// TODO - read into pre-defined structure
-// TODO - should we have one class per goal type??
 case class Goal(
-  goalType: String, // TODO - define type
+  goalType: GoalType,
   observation: Option[Any], // TODO - define type
   explorationSpace: Option[ExplorationSpace])

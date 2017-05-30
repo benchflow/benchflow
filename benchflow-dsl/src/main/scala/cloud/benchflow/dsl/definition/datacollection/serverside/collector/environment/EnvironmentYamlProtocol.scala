@@ -1,5 +1,6 @@
 package cloud.benchflow.dsl.definition.datacollection.serverside.collector.environment
 
+import cloud.benchflow.dsl.definition.datacollection.serverside.collector.CollectorMultipleEnvironmentYamlProtocol
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
 import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _ }
 
@@ -13,7 +14,9 @@ object EnvironmentYamlProtocol extends DefaultYamlProtocol {
 
   val EnvironmentKey = YamlString("environment")
 
-  private def keyString(yamlString: YamlString) = "data_collection.server_side.(some collector multiple - environment)." + yamlString.value
+  val Level = s"${CollectorMultipleEnvironmentYamlProtocol.Level}"
+
+  private def keyString(key: YamlString) = s"$Level.${key.value}"
 
   implicit object EnvironmentReadFormat extends YamlFormat[Try[Environment]] {
 

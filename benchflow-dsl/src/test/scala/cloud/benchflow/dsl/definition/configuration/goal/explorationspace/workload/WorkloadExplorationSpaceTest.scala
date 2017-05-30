@@ -28,6 +28,8 @@ class WorkloadExplorationSpaceTest extends JUnitSuite {
 
     Assert.assertTrue(workloadExplorationSpaceYaml.prettyPrint.contains("users"))
 
+    Assert.assertTrue(workloadExplorationSpaceYaml.prettyPrint.contains("values"))
+
   }
 
 }

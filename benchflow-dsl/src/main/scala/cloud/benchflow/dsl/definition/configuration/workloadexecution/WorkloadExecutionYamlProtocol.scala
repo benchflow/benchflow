@@ -1,5 +1,7 @@
 package cloud.benchflow.dsl.definition.configuration.workloadexecution
 
+import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol.WorkloadExecutionKey
+import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
 import cloud.benchflow.dsl.definition.types.time.Time
 import cloud.benchflow.dsl.definition.types.time.TimeYamlProtocol._
@@ -17,7 +19,9 @@ object WorkloadExecutionYamlProtocol extends DefaultYamlProtocol {
   val SteadyStateKey = YamlString("steady_state")
   val RampDownKey = YamlString("ramp_down")
 
-  private def keyString(key: YamlString) = "configuration.workload_execution" + key.value
+  val Level = s"${BenchFlowTestConfigurationYamlProtocol.Level}.${WorkloadExecutionKey.value}"
+
+  private def keyString(key: YamlString) = s"$Level.${key.value}"
 
   implicit object WorkloadExecutionReadFormat extends YamlFormat[Try[WorkloadExecution]] {
     override def read(yaml: YamlValue): Try[WorkloadExecution] = {

@@ -3,6 +3,8 @@ package cloud.benchflow.dsl.definition.workload.mix
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
 import cloud.benchflow.dsl.definition.types.percent.Percent
 import cloud.benchflow.dsl.definition.types.percent.PercentYamlProtocol._
+import cloud.benchflow.dsl.definition.workload.WorkloadYamlProtocol
+import cloud.benchflow.dsl.definition.workload.WorkloadYamlProtocol.MixKey
 import net.jcazevedo.moultingyaml._
 
 import scala.util.Try
@@ -19,7 +21,9 @@ object MixYamlProtocol extends DefaultYamlProtocol {
   val SequencesKey = YamlString("sequences")
   val MatrixKey = YamlString("matrix")
 
-  private def keyString(key: YamlString) = "workload.mix." + key.value
+  val Level = s"${WorkloadYamlProtocol.Level}.${MixKey.value}"
+
+  private def keyString(key: YamlString) = s"$Level.${key.value}"
 
   implicit object MixReadFormat extends YamlFormat[Try[Mix]] {
 
@@ -52,7 +56,7 @@ object MixYamlProtocol extends DefaultYamlProtocol {
 
             // TODO - handle case when a valid key is missing
           },
-          keyString(YamlString("mix")))
+          keyString(YamlString("mix"))) // generic string since we don't know exact key
 
       } yield Mix(maxDeviation = maxDeviation, mix = mix)
 

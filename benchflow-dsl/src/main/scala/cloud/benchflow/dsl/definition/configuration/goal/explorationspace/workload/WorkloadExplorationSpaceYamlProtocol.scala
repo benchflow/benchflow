@@ -1,9 +1,11 @@
 package cloud.benchflow.dsl.definition.configuration.goal.explorationspace.workload
 
-import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.workload.users.ExplorationSpaceUsers
-import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.workload.users.ExplorationSpaceUsersYamlProtocol._
+import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.explorationvalues.ExplorationValuesIntYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
 import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
+import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.ExplorationSpaceYamlProtocol
+import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.ExplorationSpaceYamlProtocol.WorkloadKey
+import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.explorationvalues.IntValues
 
 import scala.util.Try
 
@@ -15,7 +17,9 @@ object WorkloadExplorationSpaceYamlProtocol extends DefaultYamlProtocol {
 
   val UsersKey = YamlString("users")
 
-  private def keyString(key: YamlString) = "configuration.goal.exploration_space.workload." + key.value
+  val Level = s"${ExplorationSpaceYamlProtocol.Level}.${WorkloadKey.value}"
+
+  private def keyString(key: YamlString) = s"$Level.${key.value}"
 
   implicit object WorkloadExplorationSpaceReadFormat extends YamlFormat[Try[WorkloadExplorationSpace]] {
 
@@ -26,7 +30,7 @@ object WorkloadExplorationSpaceYamlProtocol extends DefaultYamlProtocol {
       for {
 
         users <- deserializationHandler(
-          yamlObject.getFields(UsersKey).headOption.map(_.convertTo[Try[ExplorationSpaceUsers]].get),
+          yamlObject.getFields(UsersKey).headOption.map(_.convertTo[Try[IntValues]].get),
           keyString(UsersKey))
 
       } yield WorkloadExplorationSpace(

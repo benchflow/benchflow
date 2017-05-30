@@ -1,6 +1,6 @@
 package cloud.benchflow.dsl.definition.configuration.strategy
 
-import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol.ConfigurationKey
+import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol
 import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol.StrategyKey
 import cloud.benchflow.dsl.definition.configuration.strategy.regression.RegressionStrategyType.RegressionStrategyType
 import cloud.benchflow.dsl.definition.configuration.strategy.regression.RegressionStrategyTypeYamlProtocol._
@@ -23,7 +23,9 @@ object ExplorationStrategyYamlProtocol extends DefaultYamlProtocol {
   val ValidationKey = YamlString("validation")
   val RegressionKey = YamlString("regression")
 
-  private def keyString(key: YamlString) = s"${ConfigurationKey.value}.${StrategyKey.value}.${key.value}"
+  val Level = s"${BenchFlowTestConfigurationYamlProtocol.Level}.${StrategyKey.value}"
+
+  private def keyString(key: YamlString) = s"$Level.${key.value}"
 
   implicit object ExplorationStrategyReadFormat extends YamlFormat[Try[ExplorationStrategy]] {
 

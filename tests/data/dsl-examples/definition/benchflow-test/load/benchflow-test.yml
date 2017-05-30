@@ -51,7 +51,7 @@ sut:
 ###############################################################################
 workload:
   mymodel:
-    type: start
+    driver_type: start
     operations:
       - myModel.bpmn
 

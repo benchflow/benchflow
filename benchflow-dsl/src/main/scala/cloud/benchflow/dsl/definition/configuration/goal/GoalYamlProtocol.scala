@@ -1,9 +1,13 @@
 package cloud.benchflow.dsl.definition.configuration.goal
 
+import cloud.benchflow.dsl.definition.configuration.goal.goaltype.GoalType.GoalType
+import cloud.benchflow.dsl.definition.configuration.goal.goaltype.GoalTypeYamlProtocol._
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.ExplorationSpace
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.ExplorationSpaceYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
 import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
+import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol
+import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol.GoalKey
 
 import scala.util.Try
 
@@ -17,7 +21,9 @@ object GoalYamlProtocol extends DefaultYamlProtocol {
   val ObservationKey = YamlString("observation")
   val ExplorationSpaceKey = YamlString("exploration_space")
 
-  private def keyString(key: YamlString) = "configuration.goal." + key.value
+  val Level = s"${BenchFlowTestConfigurationYamlProtocol.Level}.${GoalKey.value}"
+
+  private def keyString(key: YamlString) = s"$Level.${key.value}"
 
   implicit object GoalYamlReadFormat extends YamlFormat[Try[Goal]] {
 
@@ -28,10 +34,11 @@ object GoalYamlProtocol extends DefaultYamlProtocol {
       for {
 
         goalType <- deserializationHandler(
-          yamlObject.fields(TypeKey).convertTo[String],
+          yamlObject.fields(TypeKey).convertTo[Try[GoalType]].get,
           keyString(TypeKey))
 
         observation <- Try(Option(None)) // TODO - define
+
         explorationSpace <- deserializationHandler(
           yamlObject.getFields(ExplorationSpaceKey).headOption.map(_.convertTo[Try[ExplorationSpace]].get),
           keyString(ExplorationSpaceKey))

@@ -1,6 +1,8 @@
 package cloud.benchflow.dsl.definition.sut.configuration
 
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
+import cloud.benchflow.dsl.definition.sut.SutYamlProtocol
+import cloud.benchflow.dsl.definition.sut.SutYamlProtocol.ConfigurationKey
 import cloud.benchflow.dsl.definition.sut.configuration.targetservice.TargetService
 import cloud.benchflow.dsl.definition.sut.configuration.targetservice.TargetServiceYamlProtocol._
 import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
@@ -16,7 +18,9 @@ object SutConfigurationYamlProtocol extends DefaultYamlProtocol {
   val TargetServiceKey = YamlString("target_service")
   val DeploymentKey = YamlString("deployment")
 
-  private def keyString(key: YamlString) = "sut.configuration." + key.value
+  val Level = s"${SutYamlProtocol.Level}.${ConfigurationKey.value}"
+
+  private def keyString(key: YamlString) = s"$Level.${key.value}"
 
   implicit object SutConfigurationReadFormat extends YamlFormat[Try[SutConfiguration]] {
 

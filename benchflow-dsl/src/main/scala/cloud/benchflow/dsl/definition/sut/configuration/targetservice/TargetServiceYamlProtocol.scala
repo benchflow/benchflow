@@ -1,6 +1,8 @@
 package cloud.benchflow.dsl.definition.sut.configuration.targetservice
 
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
+import cloud.benchflow.dsl.definition.sut.configuration.SutConfigurationYamlProtocol
+import cloud.benchflow.dsl.definition.sut.configuration.SutConfigurationYamlProtocol.TargetServiceKey
 import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 import scala.util.Try
@@ -15,7 +17,9 @@ object TargetServiceYamlProtocol extends DefaultYamlProtocol {
   val EndpointKey = YamlString("endpoint")
   val SutReadyLogCheckKey = YamlString("sut_ready_log_check")
 
-  private def keyString(key: YamlString) = "sut.configuration.target_service" + key.value
+  val Level = s"${SutConfigurationYamlProtocol.Level}.${TargetServiceKey.value}"
+
+  private def keyString(key: YamlString) = s"$Level.${key.value}"
 
   implicit object TargetServiceReadFormat extends YamlFormat[Try[TargetService]] {
     override def read(yaml: YamlValue): Try[TargetService] = {

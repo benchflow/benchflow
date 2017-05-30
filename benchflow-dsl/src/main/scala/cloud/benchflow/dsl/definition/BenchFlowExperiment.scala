@@ -1,8 +1,9 @@
 package cloud.benchflow.dsl.definition
 
-import cloud.benchflow.dsl.definition.configuration.{ BenchFlowTestConfiguration, BenchFlowExperimentConfiguration }
+import cloud.benchflow.dsl.definition.configuration.BenchFlowExperimentConfiguration
 import cloud.benchflow.dsl.definition.datacollection.DataCollection
 import cloud.benchflow.dsl.definition.sut.Sut
+import cloud.benchflow.dsl.definition.version.Version.Version
 import cloud.benchflow.dsl.definition.workload.Workload
 
 /**
@@ -10,9 +11,9 @@ import cloud.benchflow.dsl.definition.workload.Workload
  *         created on 2017-03-24
  */
 case class BenchFlowExperiment(
-  version: String,
+  version: Version,
   name: String,
-  description: String,
+  description: Option[String],
   configuration: BenchFlowExperimentConfiguration,
   sut: Sut,
   workload: Map[String, Workload],

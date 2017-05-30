@@ -1,5 +1,7 @@
 package cloud.benchflow.dsl.definition.configuration.terminationcriteria
 
+import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowTestTerminationCriteriaYamlProtocol.ExperimentKey
+import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowTestTerminationCriteriaYamlProtocol.Level
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.experiment.ExperimentTerminationCriteria
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.experiment.ExperimentTerminationCriteriaYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
@@ -13,9 +15,7 @@ import scala.util.Try
  */
 object BenchFlowExperimentTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
-  val ExperimentKey = YamlString("experiment")
-
-  private def keyString(key: YamlString) = "configuration.termination_criteria." + key.value
+  private def keyString(key: YamlString) = s"$Level.${key.value}"
 
   implicit object ExperimentOnlyTerminationCriteriaReadFormat extends YamlFormat[Try[BenchFlowExperimentTerminationCriteria]] {
     override def read(yaml: YamlValue): Try[BenchFlowExperimentTerminationCriteria] = {

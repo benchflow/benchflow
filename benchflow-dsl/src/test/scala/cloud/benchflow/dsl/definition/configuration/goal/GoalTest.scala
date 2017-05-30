@@ -14,7 +14,17 @@ import scala.util.Try
 class GoalTest extends JUnitSuite {
 
   private val completeGoalYaml: String =
-    """type: load
+    """type: exploration
+      |
+      |exploration_space:
+      | workload:
+      |   users:
+      |     values: [1,2,10,32]
+      |
+    """.stripMargin
+
+  private val wrongGoalYaml: String =
+    """type: some_goal
       |
       |exploration_space:
       | workload:
@@ -33,7 +43,15 @@ class GoalTest extends JUnitSuite {
 
     Assert.assertTrue(goalYaml.prettyPrint.contains("exploration_space:"))
 
-    Assert.assertTrue(goalYaml.prettyPrint.contains("type: load"))
+    Assert.assertTrue(goalYaml.prettyPrint.contains("type: exploration"))
+
+  }
+
+  @Test def wrongGoal(): Unit = {
+
+    val triedGoal = wrongGoalYaml.parseYaml.convertTo[Try[Goal]]
+
+    Assert.assertTrue(triedGoal.isFailure)
 
   }
 

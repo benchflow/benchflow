@@ -68,7 +68,7 @@ class BenchFlowDSLTest extends JUnitSuite {
 
     val extractedTestYaml = BenchFlowDSL.testToYamlString(benchFlowTest)
 
-    Assert.assertTrue(extractedTestYaml.contains("selection: complete"))
+    Assert.assertTrue(extractedTestYaml.contains("selection: one-at-a-time"))
 
     benchFlowTest.configuration.goal.explorationSpace.get.workload.get.users.get.values.foreach(numUsers => {
 

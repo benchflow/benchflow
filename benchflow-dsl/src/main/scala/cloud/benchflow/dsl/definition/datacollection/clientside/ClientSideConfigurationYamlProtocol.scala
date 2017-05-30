@@ -1,5 +1,7 @@
 package cloud.benchflow.dsl.definition.datacollection.clientside
 
+import cloud.benchflow.dsl.definition.datacollection.DataCollectionYamlProtocol
+import cloud.benchflow.dsl.definition.datacollection.DataCollectionYamlProtocol.ClientSideKey
 import cloud.benchflow.dsl.definition.datacollection.clientside.faban.FabanConfiguration
 import cloud.benchflow.dsl.definition.datacollection.clientside.faban.FabanConfigurationYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler
@@ -16,7 +18,9 @@ object ClientSideConfigurationYamlProtocol extends DefaultYamlProtocol {
 
   val FabanKey = YamlString("faban")
 
-  private def keyString(key: YamlString) = "data_collection.client_side." + key.value
+  val Level = s"${DataCollectionYamlProtocol.Level}.${ClientSideKey.value}"
+
+  private def keyString(key: YamlString) = s"$Level.${key.value}"
 
   implicit object ClientSideConfigurationReadFormat extends YamlFormat[Try[ClientSideConfiguration]] {
     override def read(yaml: YamlValue): Try[ClientSideConfiguration] = {

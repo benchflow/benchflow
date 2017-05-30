@@ -3,6 +3,7 @@ package cloud.benchflow.dsl.definition
 import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfiguration
 import cloud.benchflow.dsl.definition.datacollection.DataCollection
 import cloud.benchflow.dsl.definition.sut.Sut
+import cloud.benchflow.dsl.definition.version.Version.Version
 import cloud.benchflow.dsl.definition.workload.Workload
 
 /**
@@ -12,20 +13,10 @@ import cloud.benchflow.dsl.definition.workload.Workload
  */
 
 case class BenchFlowTest(
-  version: String,
+  version: Version,
   name: String,
-  description: String,
+  description: Option[String],
   configuration: BenchFlowTestConfiguration,
   sut: Sut,
   workload: Map[String, Workload],
   dataCollection: Option[DataCollection])
-
-//case class BenchFlowTest(name: String,
-//                         description: String,
-//                         sut: Sut,
-//                         trials: TotalTrials,
-//                         goal: Goal,
-//                         drivers: Seq[Driver[_ <: Operation]],
-//                         loadFunction: LoadFunction,
-//                         properties: Option[Properties],
-//                         sutConfiguration: SutConfiguration)

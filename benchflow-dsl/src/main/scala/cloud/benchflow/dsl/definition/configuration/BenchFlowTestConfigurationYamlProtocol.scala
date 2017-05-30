@@ -26,7 +26,9 @@ object BenchFlowTestConfigurationYamlProtocol extends DefaultYamlProtocol {
   val StrategyKey = YamlString("strategy")
   val TerminationCriteriaKey = YamlString("termination_criteria")
 
-  private def keyString(key: YamlString) = s"${ConfigurationKey.value}.${key.value}"
+  val Level = s"${ConfigurationKey.value}"
+
+  private def keyString(key: YamlString) = s"$Level.${key.value}"
 
   implicit object ConfigurationReadFormat extends YamlFormat[Try[BenchFlowTestConfiguration]] {
 

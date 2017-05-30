@@ -7,6 +7,8 @@ import cloud.benchflow.dsl.definition.datacollection.DataCollectionYamlProtocol.
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
 import cloud.benchflow.dsl.definition.sut.Sut
 import cloud.benchflow.dsl.definition.sut.SutYamlProtocol._
+import cloud.benchflow.dsl.definition.version.Version.Version
+import cloud.benchflow.dsl.definition.version.VersionYamlProtocol._
 import cloud.benchflow.dsl.definition.workload.Workload
 import cloud.benchflow.dsl.definition.workload.WorkloadYamlProtocol._
 import net.jcazevedo.moultingyaml.{ YamlString, _ }
@@ -27,7 +29,7 @@ object BenchFlowTestYamlProtocol extends DefaultYamlProtocol {
   val WorkloadKey = YamlString("workload")
   val DataCollectionKey = YamlString("data_collection")
 
-  private def keyString(key: YamlString) = "" + key.value
+  private def keyString(key: YamlString) = s"${key.value}"
 
   implicit object BenchFlowTestReadFormat extends YamlFormat[Try[BenchFlowTest]] {
 
@@ -38,7 +40,7 @@ object BenchFlowTestYamlProtocol extends DefaultYamlProtocol {
       for {
 
         version <- deserializationHandler(
-          testObject.fields(VersionKey).convertTo[String],
+          testObject.fields(VersionKey).convertTo[Try[Version]].get,
           keyString(VersionKey))
 
         name <- deserializationHandler(
@@ -46,7 +48,7 @@ object BenchFlowTestYamlProtocol extends DefaultYamlProtocol {
           keyString(NameKey))
 
         description <- deserializationHandler(
-          testObject.fields(DescriptionKey).convertTo[String],
+          testObject.getFields(DescriptionKey).headOption.map(_.convertTo[String]),
           keyString(DescriptionKey))
 
         configuration <- deserializationHandler(
