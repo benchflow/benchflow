@@ -11,7 +11,7 @@ import scala.io.Source
  * @author Jesper Findahl (jesper.findahl@gmail.com)
  *         created on 2017-06-01
  */
-class ExplorationSpaceTest extends JUnitSuite {
+class ExplorationSpaceDimensionsTest extends JUnitSuite {
 
   @Test def generateExplorationSpaceTest(): Unit = {
 

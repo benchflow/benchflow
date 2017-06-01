@@ -13,7 +13,7 @@ import scala.io.Source
  * @author Jesper Findahl (jesper.findahl@gmail.com)
  *         created on 2017-05-26
  */
-class ExplorationSpaceGeneratorTest extends JUnitSuite {
+class ExplorationSpaceDimensionsGeneratorTest extends JUnitSuite {
 
   @Test def generationTest(): Unit = {
 
@@ -21,7 +21,7 @@ class ExplorationSpaceGeneratorTest extends JUnitSuite {
 
     val benchFlowTest = BenchFlowDSL.testFromYaml(testYamlString)
 
-    val explorationSpace = ExplorationSpaceGenerator.generateExplorationSpace(benchFlowTest)
+    val explorationSpace = ExplorationSpaceGenerator.generateExplorationSpaceDimensions(benchFlowTest)
 
     val expectedUsersList = List(5, 10, 15, 20)
 
@@ -54,7 +54,7 @@ class ExplorationSpaceGeneratorTest extends JUnitSuite {
 
     val benchFlowTest = BenchFlowDSL.testFromYaml(testYamlString)
 
-    val explorationSpace = ExplorationSpaceGenerator.generateExplorationSpace(benchFlowTest)
+    val explorationSpace = ExplorationSpaceGenerator.generateExplorationSpaceDimensions(benchFlowTest)
 
     val initialExplorationSpaceState = ExplorationSpaceGenerator.generateInitialExplorationSpaceState(explorationSpace)
 
@@ -74,7 +74,7 @@ class ExplorationSpaceGeneratorTest extends JUnitSuite {
 
     val benchFlowTest = BenchFlowDSL.testFromYaml(testYamlString)
 
-    val explorationSpace = ExplorationSpaceGenerator.generateExplorationSpace(benchFlowTest)
+    val explorationSpace = ExplorationSpaceGenerator.generateExplorationSpaceDimensions(benchFlowTest)
 
     val expectedExplorationSpaceSize = 5 * 4 * 3 * 4
 

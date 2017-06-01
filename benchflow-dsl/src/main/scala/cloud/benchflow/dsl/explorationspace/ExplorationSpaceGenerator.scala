@@ -18,7 +18,7 @@ object ExplorationSpaceGenerator {
   type DimensionLength = Int
   type Index = Int
 
-  case class ExplorationSpace(
+  case class ExplorationSpaceDimensions(
     users: Option[List[NumUsers]],
     memory: Option[Map[ServiceName, List[Bytes]]],
     environment: Option[Map[ServiceName, Map[VariableName, List[VariableValue]]]])
@@ -28,7 +28,7 @@ object ExplorationSpaceGenerator {
     memoryState: Option[Map[ServiceName, (List[Index], DimensionLength)]],
     environmentState: Option[Map[ServiceName, Map[VariableName, (List[Index], DimensionLength)]]])
 
-  def generateExplorationSpace(test: BenchFlowTest): ExplorationSpace = {
+  def generateExplorationSpaceDimensions(test: BenchFlowTest): ExplorationSpaceDimensions = {
 
     val users: Option[List[NumUsers]] = test.configuration.goal.explorationSpace.flatMap(
       _.workload.flatMap(
@@ -63,11 +63,11 @@ object ExplorationSpaceGenerator {
 
     } yield environmentVariables
 
-    ExplorationSpace(users, memory, environment)
+    ExplorationSpaceDimensions(users, memory, environment)
 
   }
 
-  def generateInitialExplorationSpaceState(explorationSpace: ExplorationSpace): ExplorationSpaceState = {
+  def generateInitialExplorationSpaceState(explorationSpace: ExplorationSpaceDimensions): ExplorationSpaceState = {
 
     val explorationSpaceSizeOption: Option[Int] = calculateExplorationSpaceSize(explorationSpace)
 
@@ -100,7 +100,7 @@ object ExplorationSpaceGenerator {
 
   }
 
-  def oneAtATimeExplorationSpace(explorationSpace: ExplorationSpace): ExplorationSpaceState = {
+  def oneAtATimeExplorationSpace(explorationSpace: ExplorationSpaceDimensions): ExplorationSpaceState = {
 
     val explorationSpaceSizeOption = calculateExplorationSpaceSize(explorationSpace)
 
@@ -155,7 +155,7 @@ object ExplorationSpaceGenerator {
 
   }
 
-  private def calculateExplorationSpaceSize(explorationSpace: ExplorationSpace) = {
+  private def calculateExplorationSpaceSize(explorationSpace: ExplorationSpaceDimensions) = {
 
     // calculate the overall size of the exploration space, e.g. how many possible experiments
 
