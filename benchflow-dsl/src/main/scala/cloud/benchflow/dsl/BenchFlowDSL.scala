@@ -161,41 +161,4 @@ object BenchFlowDSL {
 
   }
 
-  /**
-   *
-   * @param testDefinitionYaml benchflow-test.yml
-   * @throws cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
-   * @return ExplorationSpace
-   */
-  @throws(classOf[BenchFlowDeserializationException])
-  def explorationSpaceFromTestYaml(testDefinitionYaml: String): ExplorationSpace = {
-
-    val test = testFromYaml(testDefinitionYaml)
-
-    ExplorationSpaceGenerator.generateExplorationSpace(test)
-
-  }
-
-  /**
-   *
-   * @param explorationSpace
-   * @return initial state of exploration space
-   */
-  def getInitialExplorationSpaceState(explorationSpace: ExplorationSpace): ExplorationSpaceState = {
-
-    ExplorationSpaceGenerator.generateInitialExplorationSpaceState(explorationSpace)
-
-  }
-
-  /**
-   *
-   * @param explorationSpace
-   * @return a complete exploration space that can be traversed in order
-   */
-  def getOneAtATimeExplorationSpaceState(explorationSpace: ExplorationSpace): ExplorationSpaceState = {
-
-    ExplorationSpaceGenerator.oneAtATimeExplorationSpace(explorationSpace)
-
-  }
-
 }
