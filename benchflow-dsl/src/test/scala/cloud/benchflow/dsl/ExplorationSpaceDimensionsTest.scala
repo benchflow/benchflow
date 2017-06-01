@@ -13,11 +13,11 @@ import scala.io.Source
  */
 class ExplorationSpaceDimensionsTest extends JUnitSuite {
 
-  @Test def generateExplorationSpaceTest(): Unit = {
+  @Test def explorationSpaceDimensionsFromTestYamlTest(): Unit = {
 
     val testYaml = Source.fromFile(Paths.get(BenchFlowExplorationMultipleExample).toFile).mkString
 
-    val explorationSpace = ExplorationSpace.explorationSpaceFromTestYaml(testYaml)
+    val explorationSpace = ExplorationSpace.explorationSpaceDimensionsFromTestYaml(testYaml)
 
     Assert.assertTrue(explorationSpace.users.isDefined)
 
@@ -27,28 +27,15 @@ class ExplorationSpaceDimensionsTest extends JUnitSuite {
 
   }
 
-  @Test def initialExplorationSpaceStateTest(): Unit = {
+  @Test def explorationSpaceFromTestYamlTest(): Unit = {
 
     val testYaml = Source.fromFile(Paths.get(BenchFlowExplorationMultipleExample).toFile).mkString
 
     val explorationSpace = ExplorationSpace.explorationSpaceFromTestYaml(testYaml)
 
-    val initialExplorationSpaceState = ExplorationSpace.getInitialExplorationSpaceState(explorationSpace)
-
     val expectedExplorationSpaceSize = 5 * 4 * 3 * 4
 
-    val expectedList = List.fill(expectedExplorationSpaceSize)(-1)
-
-    val expectedUsersState = (expectedList, 4)
-    val expectedMemoryState = Map(("camunda", (expectedList, 5)))
-    val expectedEnvironmentState = Map(
-      ("camunda", Map(
-        ("SIZE_OF_THREADPOOL", (expectedList, 4)),
-        ("AN_ENUM", (expectedList, 3)))))
-
-    Assert.assertEquals(expectedUsersState, initialExplorationSpaceState.usersState.get)
-    Assert.assertEquals(expectedMemoryState, initialExplorationSpaceState.memoryState.get)
-    Assert.assertEquals(expectedEnvironmentState, initialExplorationSpaceState.environmentState.get)
+    Assert.assertEquals(expectedExplorationSpaceSize, explorationSpace.usersDimension.get.length)
 
   }
 

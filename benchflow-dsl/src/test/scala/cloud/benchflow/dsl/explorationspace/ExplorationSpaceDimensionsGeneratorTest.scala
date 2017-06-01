@@ -2,10 +2,11 @@ package cloud.benchflow.dsl.explorationspace
 
 import java.nio.file.Paths
 
+import cloud.benchflow.dsl.BenchFlowDSL
+import cloud.benchflow.dsl.BenchFlowExplorationMultipleExample
 import cloud.benchflow.dsl.definition.types.bytes.Bytes
 import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
-import cloud.benchflow.dsl.{ BenchFlowDSL, BenchFlowExplorationMultipleExample }
 
 import scala.io.Source
 
@@ -15,13 +16,13 @@ import scala.io.Source
  */
 class ExplorationSpaceDimensionsGeneratorTest extends JUnitSuite {
 
-  @Test def generationTest(): Unit = {
+  @Test def extractExplorationSpaceDimensionsTest(): Unit = {
 
     val testYamlString = Source.fromFile(Paths.get(BenchFlowExplorationMultipleExample).toFile).mkString
 
     val benchFlowTest = BenchFlowDSL.testFromYaml(testYamlString)
 
-    val explorationSpace = ExplorationSpaceGenerator.generateExplorationSpaceDimensions(benchFlowTest)
+    val explorationSpace = ExplorationSpaceGenerator.extractExplorationSpaceDimensions(benchFlowTest)
 
     val expectedUsersList = List(5, 10, 15, 20)
 
@@ -48,64 +49,70 @@ class ExplorationSpaceDimensionsGeneratorTest extends JUnitSuite {
     Assert.assertEquals(expectedEnvironmentMap, explorationSpace.environment.get)
   }
 
-  @Test def initialExplorationSpaceTest(): Unit = {
+  @Test def fillListWithIndicesTest(): Unit = {
 
-    val testYamlString = Source.fromFile(Paths.get(BenchFlowExplorationMultipleExample).toFile).mkString
-
-    val benchFlowTest = BenchFlowDSL.testFromYaml(testYamlString)
-
-    val explorationSpace = ExplorationSpaceGenerator.generateExplorationSpaceDimensions(benchFlowTest)
-
-    val initialExplorationSpaceState = ExplorationSpaceGenerator.generateInitialExplorationSpaceState(explorationSpace)
-
-    val expectedExplorationSpaceSize = 5 * 4 * 3 * 4
+    val expectedFirstList = List(0, 0, 1, 1, 2, 2)
+    val firstBlockSize = 2
+    val firstNumValues = 3
+    val firstListLength = 6
 
     Assert.assertEquals(
-      expectedExplorationSpaceSize,
-      initialExplorationSpaceState.usersState.map {
-        case (list, _) => list.length
-      }.get)
+      expectedFirstList,
+      ExplorationSpaceGenerator.fillListWithIndices(firstBlockSize, firstNumValues, firstListLength))
+
+    val expectedSecondList = List(0, 1, 2, 0, 1, 2)
+    val secondBlockSize = 1
+    val secondNumValues = 3
+    val secondListLength = 6
+
+    Assert.assertEquals(
+      expectedSecondList,
+      ExplorationSpaceGenerator.fillListWithIndices(secondBlockSize, secondNumValues, secondListLength))
 
   }
 
-  @Test def oneAtATimeExplorationSpaceTest(): Unit = {
+  @Test def generateExplorationSpaceTest(): Unit = {
 
     val testYamlString = Source.fromFile(Paths.get(BenchFlowExplorationMultipleExample).toFile).mkString
 
     val benchFlowTest = BenchFlowDSL.testFromYaml(testYamlString)
 
-    val explorationSpace = ExplorationSpaceGenerator.generateExplorationSpaceDimensions(benchFlowTest)
+    val explorationSpaceDimensions = ExplorationSpaceGenerator.extractExplorationSpaceDimensions(benchFlowTest)
 
     val expectedExplorationSpaceSize = 5 * 4 * 3 * 4
 
     val numUsersValues = 4
-    val usersShift = expectedExplorationSpaceSize / numUsersValues
-    val expectedUsersList = List.fill(usersShift)(0) ++
-      List.fill(usersShift)(1) ++
-      List.fill(usersShift)(2) ++
-      List.fill(usersShift)(3)
+    val userValues = List(5, 10, 15, 20)
+    val usersBlockSize = expectedExplorationSpaceSize / numUsersValues
+    val expectedUsersIndiciesList = List.fill(usersBlockSize)(0) ++
+      List.fill(usersBlockSize)(1) ++
+      List.fill(usersBlockSize)(2) ++
+      List.fill(usersBlockSize)(3)
 
-    val numEnumValues = 4
-    val expectedAnEnumList: List[Int] = (for {
-      _ <- 0 until expectedExplorationSpaceSize / numEnumValues
-      list <- 0 until numEnumValues
+    val expectedUsersList = expectedUsersIndiciesList.map(index => userValues(index))
+
+    // the last generated list
+    val numSizeThreadPollValues = 4
+    val sizeThreadPoolValues = List("1", "2", "3", "5")
+    val expectedSizeThreadPoolIndicesList: List[Int] = (for {
+      _ <- 0 until expectedExplorationSpaceSize / numSizeThreadPollValues
+      list <- 0 until numSizeThreadPollValues
     } yield list)(collection.breakOut)
+    val expectedSizeThreadPoolList = expectedSizeThreadPoolIndicesList.map(index => sizeThreadPoolValues(index))
 
-    val filledList = ExplorationSpaceGenerator.fillList(usersShift, numUsersValues, expectedExplorationSpaceSize)
+    // test filled list
+    val filledList = ExplorationSpaceGenerator.fillListWithIndices(usersBlockSize, numUsersValues, expectedExplorationSpaceSize)
 
-    Assert.assertEquals(expectedUsersList, filledList)
+    Assert.assertEquals(expectedUsersIndiciesList, filledList)
 
-    val oneAtATimeExplorationSpace = ExplorationSpaceGenerator.oneAtATimeExplorationSpace(explorationSpace)
+    // test exploration space generation
+    val explorationSpace = ExplorationSpaceGenerator.generateExplorationSpace(explorationSpaceDimensions)
 
-    Assert.assertEquals(expectedUsersList, oneAtATimeExplorationSpace.usersState.map {
-      case (list, _) => list
-    }.get)
+    Assert.assertEquals(expectedUsersList, explorationSpace.usersDimension.get)
 
     Assert.assertEquals(
-      expectedAnEnumList,
-      oneAtATimeExplorationSpace.environmentState.get("camunda").get("SIZE_OF_THREADPOOL").map {
-        case (list, _) => list
-      }.get)
+      expectedSizeThreadPoolList,
+      explorationSpace.environmentDimension.get("camunda")("SIZE_OF_THREADPOOL"))
 
   }
 

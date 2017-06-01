@@ -11,6 +11,7 @@ import scala.collection.mutable
  */
 object ExplorationSpaceGenerator {
 
+  // types for easier readability
   type ServiceName = String
   type VariableName = String
   type VariableValue = String
@@ -23,18 +24,28 @@ object ExplorationSpaceGenerator {
     memory: Option[Map[ServiceName, List[Bytes]]],
     environment: Option[Map[ServiceName, Map[VariableName, List[VariableValue]]]])
 
-  case class ExplorationSpaceState(
-    usersState: Option[(List[Index], DimensionLength)],
-    memoryState: Option[Map[ServiceName, (List[Index], DimensionLength)]],
-    environmentState: Option[Map[ServiceName, Map[VariableName, (List[Index], DimensionLength)]]])
+  case class ExplorationSpace(
+    usersDimension: Option[List[NumUsers]],
+    memoryDimension: Option[Map[ServiceName, List[Bytes]]],
+    environmentDimension: Option[Map[ServiceName, Map[VariableName, List[VariableValue]]]])
 
-  def generateExplorationSpaceDimensions(test: BenchFlowTest): ExplorationSpaceDimensions = {
+  /**
+   * Extracts the exploration space dimensions of the provided BenchFlow test.
+   *
+   * @param test the test to extract from
+   * @return the extracted exploration space dimensions
+   */
+  def extractExplorationSpaceDimensions(test: BenchFlowTest): ExplorationSpaceDimensions = {
 
+    // traverses the exploration space definition of a BenchFlowTest object
+
+    // get the specified user values
     val users: Option[List[NumUsers]] = test.configuration.goal.explorationSpace.flatMap(
       _.workload.flatMap(
         _.users.map(
           _.values)))
 
+    // get the specified memory values per service
     val memory: Option[Map[ServiceName, List[Bytes]]] = for {
 
       explorationSpace <- test.configuration.goal.explorationSpace
@@ -50,6 +61,7 @@ object ExplorationSpaceGenerator {
 
     } yield serviceMemorySpace
 
+    // get the specified environment variable values per variable and service
     val environment: Option[Map[ServiceName, Map[VariableName, List[VariableValue]]]] = for {
 
       explorationSpace <- test.configuration.goal.explorationSpace
@@ -67,74 +79,57 @@ object ExplorationSpaceGenerator {
 
   }
 
-  def generateInitialExplorationSpaceState(explorationSpace: ExplorationSpaceDimensions): ExplorationSpaceState = {
+  /**
+   * Generates the complete exploration space from the provided exploration space dimensions by building the
+   * cartesian product of the dimensions.
+   *
+   * @param explorationSpaceDimensions the possible dimensions in the exploration space and their possible values
+   * @return the complete exploration space
+   */
+  def generateExplorationSpace(explorationSpaceDimensions: ExplorationSpaceDimensions): ExplorationSpace = {
 
-    val explorationSpaceSizeOption: Option[Int] = calculateExplorationSpaceSize(explorationSpace)
-
-    explorationSpaceSizeOption match {
-
-      case None => ExplorationSpaceState(None, None, None)
-
-      case Some(explorationSpaceSize) => {
-
-        val usersState = explorationSpace.users.map(list => (
-          List.fill(explorationSpaceSize)(-1),
-          list.length))
-
-        val memoryState = explorationSpace.memory.map(serviceMap => serviceMap
-          .mapValues(list => (
-            List.fill(explorationSpaceSize)(-1),
-            list.length)))
-
-        val environmentState = explorationSpace.environment.map(
-          serviceMap => serviceMap.mapValues(
-            environmentMap => environmentMap.mapValues(
-              list => (
-                List.fill(explorationSpaceSize)(-1),
-                list.length))))
-
-        ExplorationSpaceState(usersState, memoryState, environmentState)
-
-      }
-    }
-
-  }
-
-  def oneAtATimeExplorationSpace(explorationSpace: ExplorationSpaceDimensions): ExplorationSpaceState = {
-
-    val explorationSpaceSizeOption = calculateExplorationSpaceSize(explorationSpace)
+    val explorationSpaceSizeOption = calculateExplorationSpaceSize(explorationSpaceDimensions)
 
     explorationSpaceSizeOption match {
 
-      case None => ExplorationSpaceState(None, None, None)
+      // if the exploration space dimension is not defined return an empty exploration space
+      case None => ExplorationSpace(None, None, None)
 
       case Some(explorationSpaceSize) => {
 
-        var shiftValue = explorationSpaceSize
+        // for each dimension generate the possible values so that all possible values in the
+        // exploration space is generated. It is done according to the cartesian product.
 
-        val usersStateOption = explorationSpace.users.map {
+        // the initial block size
+        var blockSize = explorationSpaceSize
+
+        // generate all the possible user values
+        val usersDimensionOption = explorationSpaceDimensions.users.map {
           case (list) =>
-            shiftValue = shiftValue / list.length // update shift value
-            (fillList(shiftValue, list.length, explorationSpaceSize), list.length)
+            blockSize = blockSize / list.length // update blockSize value
+            fillListWithIndices(blockSize, list.length, explorationSpaceSize)
+              .map(index => list(index))
         }
 
-        val memoryStateOption = explorationSpace.memory.map(memory => memory.map {
+        // generate all the possible memory values per service
+        val memoryDimensionOption = explorationSpaceDimensions.memory.map(memory => memory.map {
           case (serviceName, list) =>
-            shiftValue = shiftValue / list.length // update shift value
-            serviceName -> (fillList(shiftValue, list.length, explorationSpaceSize), list.length)
+            blockSize = blockSize / list.length // update blockSize value
+            serviceName -> fillListWithIndices(blockSize, list.length, explorationSpaceSize).map(index => list(index))
         })
 
-        val environmentStateOption = explorationSpace.environment.map(
+        // generate all the possible environment values per environment names and service
+        val environmentDimensionOption = explorationSpaceDimensions.environment.map(
           serviceMap => serviceMap.map {
             case (serviceName, environmentMap) => serviceName -> environmentMap.map {
               case (variableName, list) =>
-                shiftValue = shiftValue / list.length // update shift value
-                variableName -> (fillList(shiftValue, list.length, explorationSpaceSize), list.length)
+                blockSize = blockSize / list.length // update blockSize value
+                variableName -> fillListWithIndices(blockSize, list.length, explorationSpaceSize).map(index => list(index))
             }
 
           })
 
-        ExplorationSpaceState(usersState = usersStateOption, memoryStateOption, environmentStateOption)
+        ExplorationSpace(usersDimension = usersDimensionOption, memoryDimensionOption, environmentDimensionOption)
 
       }
 
@@ -142,33 +137,52 @@ object ExplorationSpaceGenerator {
 
   }
 
-  def fillList(shift: Int, numValues: Int, explorationSpaceSize: Int): List[Index] = {
+  /**
+   *
+   * Fills a list with indices for calculating the cartesian product.
+   * If we want to create the list [0,0,1,1,2,2] we would pass: blockSize = 2, numValues = 3, listLength = 6
+   * If we want to create the list [0,1,2,0,1,2] we would pass: blockSize = 1, numValues = 3, listLength = 6
+   *
+   * @param blockSize  decides the size of the blocks of a given value
+   * @param numValues  how many possible indices should be generated
+   * @param listLength the total length of the list
+   * @return a list filled with indices according to the specified parameters
+   */
+  def fillListWithIndices(blockSize: Int, numValues: Int, listLength: Int): List[Index] = {
 
+    // create the list where to store the values
     val list = mutable.MutableList[Index]()
 
     for {
-      _ <- 0 until explorationSpaceSize / (shift * numValues) // how many times to run sequence
-      value: Index <- 0 until numValues // sequence of indexes
-    } yield list ++= List.fill(shift)(value)
+      _ <- 0 until listLength / (blockSize * numValues) // how many times to produce a given sequence
+      value: Index <- 0 until numValues // the sequence of indices
+    } yield list ++= List.fill(blockSize)(value) // builds the list with the given value a blockSize number of times
 
     list.toList
 
   }
 
-  private def calculateExplorationSpaceSize(explorationSpace: ExplorationSpaceDimensions) = {
+  /**
+   * Calculates the cartesian product of all possible values in the exploration space
+   *
+   * @param explorationSpaceDimensions the dimensions of the exploration space
+   * @return an option with the size of the exploration space. None if empty.
+   */
+  private def calculateExplorationSpaceSize(explorationSpaceDimensions: ExplorationSpaceDimensions): Option[Int] = {
 
     // calculate the overall size of the exploration space, e.g. how many possible experiments
+    // it is the cartesian product of the possible values
 
     val explorationSpaceSizeOption: Option[Int] = for {
 
-      usersDimensionLength <- explorationSpace.users.map(_.length)
+      usersDimensionLength <- explorationSpaceDimensions.users.map(_.length)
 
-      memoryDimensionLength <- explorationSpace.memory
+      memoryDimensionLength <- explorationSpaceDimensions.memory
         .map(memory => memory.map {
           case (_, values) => values.length
         }.product)
 
-      environmentDimensionLength <- explorationSpace.environment
+      environmentDimensionLength <- explorationSpaceDimensions.environment
         .map(environmentMap => environmentMap.map {
           case (_, variablesMap) => variablesMap.map {
             case (_, values) => values.length
