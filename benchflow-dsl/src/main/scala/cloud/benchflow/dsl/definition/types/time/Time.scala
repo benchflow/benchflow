@@ -1,9 +1,9 @@
 package cloud.benchflow.dsl.definition.types.time
 
-import java.time.{ Duration, LocalTime }
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit._
 import java.time.temporal.{ ChronoUnit, TemporalUnit }
+import java.time.{ Duration, LocalTime }
 
 import cloud.benchflow.dsl.definition.types.time.Time._
 

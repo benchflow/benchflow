@@ -1,13 +1,13 @@
 package cloud.benchflow.dsl.definition.configuration.goal
 
-import cloud.benchflow.dsl.definition.configuration.goal.goaltype.GoalType.GoalType
-import cloud.benchflow.dsl.definition.configuration.goal.goaltype.GoalTypeYamlProtocol._
-import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.ExplorationSpace
-import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.ExplorationSpaceYamlProtocol._
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
-import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol
 import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol.GoalKey
+import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.ExplorationSpace
+import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.ExplorationSpaceYamlProtocol._
+import cloud.benchflow.dsl.definition.configuration.goal.goaltype.GoalType.GoalType
+import cloud.benchflow.dsl.definition.configuration.goal.goaltype.GoalTypeYamlProtocol._
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
