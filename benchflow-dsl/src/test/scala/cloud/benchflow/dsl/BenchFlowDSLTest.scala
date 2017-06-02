@@ -4,9 +4,9 @@ import java.nio.file.Paths
 
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
 import cloud.benchflow.dsl.definition.types.bytes.{ Bytes, BytesUnit }
+import cloud.benchflow.dsl.dockercompose.DockerComposeYamlString
 import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
-import cloud.benchflow.dsl.dockercompose.DockerComposeYamlString
 
 import scala.io.Source
 

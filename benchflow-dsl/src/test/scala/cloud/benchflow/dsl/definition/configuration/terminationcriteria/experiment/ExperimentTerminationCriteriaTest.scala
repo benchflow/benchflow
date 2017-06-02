@@ -1,9 +1,9 @@
 package cloud.benchflow.dsl.definition.configuration.terminationcriteria.experiment
 
+import cloud.benchflow.dsl.definition.configuration.terminationcriteria.experiment.ExperimentTerminationCriteriaYamlProtocol._
+import net.jcazevedo.moultingyaml._
 import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
-import net.jcazevedo.moultingyaml._
-import cloud.benchflow.dsl.definition.configuration.terminationcriteria.experiment.ExperimentTerminationCriteriaYamlProtocol._
 
 import scala.util.Try
 

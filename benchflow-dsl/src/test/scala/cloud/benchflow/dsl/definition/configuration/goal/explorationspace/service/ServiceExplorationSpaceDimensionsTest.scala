@@ -1,9 +1,9 @@
 package cloud.benchflow.dsl.definition.configuration.goal.explorationspace.service
 
+import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.service.ServiceExplorationSpaceYamlProtocol._
+import net.jcazevedo.moultingyaml._
 import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
-import net.jcazevedo.moultingyaml._
-import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.service.ServiceExplorationSpaceYamlProtocol._
 
 import scala.util.Try
 

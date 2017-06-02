@@ -1,10 +1,10 @@
 package cloud.benchflow.dsl.definition.configuration.goal.explorationspace.explorationvalues
 
+import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.explorationvalues.ExplorationValuesIntYamlProtocol._
 import net.jcazevedo.moultingyaml._
 import org.junit.{ Assert, Test }
 import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitSuite
-import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.explorationvalues.ExplorationValuesIntYamlProtocol._
 
 import scala.util.Try
 
