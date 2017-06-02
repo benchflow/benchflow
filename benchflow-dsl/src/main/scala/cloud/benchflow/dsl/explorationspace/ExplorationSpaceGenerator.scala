@@ -1,5 +1,6 @@
 package cloud.benchflow.dsl.explorationspace
 
+import cloud.benchflow.dsl.ExplorationSpace.ExperimentIndex
 import cloud.benchflow.dsl.definition.BenchFlowTest
 import cloud.benchflow.dsl.definition.types.bytes.Bytes
 
@@ -25,9 +26,15 @@ object ExplorationSpaceGenerator {
     environment: Option[Map[ServiceName, Map[VariableName, List[VariableValue]]]])
 
   case class ExplorationSpace(
+    size: Int,
     usersDimension: Option[List[NumUsers]],
     memoryDimension: Option[Map[ServiceName, List[Bytes]]],
     environmentDimension: Option[Map[ServiceName, Map[VariableName, List[VariableValue]]]])
+
+  case class ExplorationSpacePoint(
+    users: Option[NumUsers],
+    memory: Option[Map[ServiceName, Bytes]],
+    environment: Option[Map[ServiceName, Map[VariableName, VariableValue]]])
 
   /**
    * Extracts the exploration space dimensions of the provided BenchFlow test.
@@ -93,7 +100,7 @@ object ExplorationSpaceGenerator {
     explorationSpaceSizeOption match {
 
       // if the exploration space dimension is not defined return an empty exploration space
-      case None => ExplorationSpace(None, None, None)
+      case None => ExplorationSpace(0, None, None, None)
 
       case Some(explorationSpaceSize) => {
 
@@ -129,7 +136,7 @@ object ExplorationSpaceGenerator {
 
           })
 
-        ExplorationSpace(usersDimension = usersDimensionOption, memoryDimensionOption, environmentDimensionOption)
+        ExplorationSpace(explorationSpaceSize, usersDimension = usersDimensionOption, memoryDimensionOption, environmentDimensionOption)
 
       }
 
@@ -194,4 +201,74 @@ object ExplorationSpaceGenerator {
     explorationSpaceSizeOption
 
   }
+
+  /**
+   * Find the index of the given experiment configuration in the exploration space
+   * by traversing the space and performing the intersection of the found possible indices
+   *
+   * @param explorationSpace
+   * @param explorationSpacePoint
+   * @return
+   */
+  def getExperimentIndex(
+    explorationSpace: ExplorationSpace,
+    explorationSpacePoint: ExplorationSpacePoint): Option[ExperimentIndex] = {
+
+    // create a set with all indices
+    val allIndicesSet = (0 until explorationSpace.size).toSet
+
+    val userIndicesOption = for {
+
+      pointNumUsers <- explorationSpacePoint.users
+      list <- explorationSpace.usersDimension
+
+    } yield getIndicesSet(list)({ case (num, _) => num == pointNumUsers })
+
+    var memoryIndices = allIndicesSet
+
+    explorationSpacePoint.memory match {
+      case Some(pointMemoryMap) => explorationSpace.memoryDimension match {
+        case Some(memoryMap) => for {
+          (serviceName, list) <- memoryMap
+          if pointMemoryMap.keySet.contains(serviceName)
+        } yield memoryIndices = memoryIndices intersect
+          getIndicesSet[Bytes](list)({ case (value, _) => pointMemoryMap(serviceName) == value })
+        case None => memoryIndices
+      }
+      case None => memoryIndices
+    }
+
+    var environmentIndices = allIndicesSet
+
+    explorationSpacePoint.environment match {
+      case Some(pointServiceMap) => explorationSpace.environmentDimension match {
+        case Some(serviceMap) => for {
+          (serviceName, environmentMap) <- serviceMap
+          if pointServiceMap.keySet.contains(serviceName)
+          (variableName, list) <- environmentMap
+          if pointServiceMap(serviceName).contains(variableName)
+        } yield environmentIndices = environmentIndices intersect getIndicesSet(list)({ case (value, _) => pointServiceMap(serviceName)(variableName) == value })
+        case None => environmentIndices
+      }
+      case None => environmentIndices
+    }
+
+    val candidateSet = userIndicesOption match {
+      case Some(userIndicesSet) => userIndicesSet intersect memoryIndices intersect environmentIndices
+      case None => allIndicesSet intersect memoryIndices intersect environmentIndices
+    }
+
+    // there cannot be more than one candidate 
+    if (candidateSet.size > 1) {
+      None
+    } else {
+      Some(candidateSet.head)
+    }
+
+  }
+
+  def getIndicesSet[T](list: List[T])(filter: ((T, Int)) => Boolean): Set[ExperimentIndex] =
+    list.zipWithIndex.filter(filter).map {
+      case (_, i) => i
+    }.toSet
 }

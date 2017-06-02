@@ -11,7 +11,7 @@ import scala.io.Source
  * @author Jesper Findahl (jesper.findahl@gmail.com)
  *         created on 2017-06-01
  */
-class ExplorationSpaceDimensionsTest extends JUnitSuite {
+class ExplorationSpaceTest extends JUnitSuite {
 
   @Test def explorationSpaceDimensionsFromTestYamlTest(): Unit = {
 
@@ -36,6 +36,14 @@ class ExplorationSpaceDimensionsTest extends JUnitSuite {
     val expectedExplorationSpaceSize = 5 * 4 * 3 * 4
 
     Assert.assertEquals(expectedExplorationSpaceSize, explorationSpace.usersDimension.get.length)
+
+  }
+
+  @Test def generateExperimentBundleWithNumberTest(): Unit = {
+
+  }
+
+  @Test def generateExperimentBundleWithConfigurationTest(): Unit = {
 
   }
 

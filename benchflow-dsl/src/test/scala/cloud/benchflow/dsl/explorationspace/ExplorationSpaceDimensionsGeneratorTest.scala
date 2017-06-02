@@ -2,9 +2,9 @@ package cloud.benchflow.dsl.explorationspace
 
 import java.nio.file.Paths
 
-import cloud.benchflow.dsl.BenchFlowDSL
-import cloud.benchflow.dsl.BenchFlowExplorationMultipleExample
+import cloud.benchflow.dsl.{ BenchFlowDSL, BenchFlowExplorationMultipleExample }
 import cloud.benchflow.dsl.definition.types.bytes.Bytes
+import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpacePoint
 import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
 
@@ -113,6 +113,49 @@ class ExplorationSpaceDimensionsGeneratorTest extends JUnitSuite {
     Assert.assertEquals(
       expectedSizeThreadPoolList,
       explorationSpace.environmentDimension.get("camunda")("SIZE_OF_THREADPOOL"))
+
+  }
+
+  @Test def experimentIndexTest(): Unit = {
+
+    val testYamlString = Source.fromFile(Paths.get(BenchFlowExplorationMultipleExample).toFile).mkString
+
+    val benchFlowTest = BenchFlowDSL.testFromYaml(testYamlString)
+
+    val explorationSpaceDimensions = ExplorationSpaceGenerator.extractExplorationSpaceDimensions(benchFlowTest)
+
+    val explorationSpace = ExplorationSpaceGenerator.generateExplorationSpace(explorationSpaceDimensions)
+
+    val expectedExperimentIndex = 10
+
+    val explorationSpacePoint = ExplorationSpacePoint(
+      users = Some(5),
+      memory = Some(Map("camunda" -> Bytes.fromString("1g").get)),
+      environment = Some(Map("camunda" -> Map("AN_ENUM" -> "C", "SIZE_OF_THREADPOOL" -> "3"))))
+
+    val experimentIndexOption = ExplorationSpaceGenerator.getExperimentIndex(explorationSpace, explorationSpacePoint)
+
+    Assert.assertEquals(expectedExperimentIndex, experimentIndexOption.get)
+
+  }
+
+  @Test def getIndicesSetTest(): Unit = {
+
+    val integerList = List(1, 1, 2, 2, 3, 4, 1)
+
+    val integerSet = ExplorationSpaceGenerator.getIndicesSet(integerList)({ case (value, _) => value == 1 })
+
+    val expectedIntegerSet = Set(0, 1, 6)
+
+    Assert.assertEquals(expectedIntegerSet, integerSet)
+
+    val stringList = List("A", "A", "B", "B", "A")
+
+    val stringSet = ExplorationSpaceGenerator.getIndicesSet(stringList)({ case (value, _) => value == "A" })
+
+    val expectedStringSet = Set(0, 1, 4)
+
+    Assert.assertEquals(expectedStringSet, stringSet)
 
   }
 

@@ -1,10 +1,9 @@
 package cloud.benchflow.dsl
 
 import cloud.benchflow.dsl.BenchFlowDSL.testFromYaml
-import cloud.benchflow.dsl.definition.configuration.BenchFlowExperimentConfiguration
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
 import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator
-import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpaceDimensions
+import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.{ ExplorationSpace, ExplorationSpaceDimensions, ExplorationSpacePoint }
 
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com)
@@ -14,7 +13,7 @@ object ExplorationSpace {
 
   type ExperimentDefinitionYamlString = String
   type DockerComposeYamlString = String
-  type ExperimentNumber = Int
+  type ExperimentIndex = Int
 
   /**
    *
@@ -52,46 +51,83 @@ object ExplorationSpace {
   /**
    *
    * @param explorationSpace         the exploration space where the experiment is
-   * @param experimentNumber         the number of the experiment (index)
+   * @param experimentIndex          the index of the experiment
    * @param testDefinitionYamlString the test definition to build the experiment definition from as a YAML string
    * @param dockerComposeYamlString  the docker compose to build the experiment docker-compose from as a YAML string
    * @return a tuple of experiment definition YAML string and docker compose YAML string
    */
   def generateExperimentBundle(
-    explorationSpace: ExplorationSpaceDimensions,
-    experimentNumber: ExperimentNumber,
+    explorationSpace: ExplorationSpace,
+    experimentIndex: ExperimentIndex,
     testDefinitionYamlString: String,
     dockerComposeYamlString: String): (ExperimentDefinitionYamlString, DockerComposeYamlString) = {
 
-    // get the experiment configuration from the exploration space
+    // build the experiment definition
+    var experimentBuilder = BenchFlowDSL.experimentYamlBuilderFromTestYaml(testDefinitionYamlString)
 
-    // generate the experiment definition YAML
+    experimentBuilder = explorationSpace.usersDimension match {
+      case Some(list) => experimentBuilder.numUsers(list(experimentIndex))
+      case None => experimentBuilder
+    }
 
-    // generate the docker compose YAML
-    ("to do", "to do")
+    val experimentDefinitionYamlString = experimentBuilder.build()
+
+    // build the docker compose YAML
+    var dockerComposeBuilder = BenchFlowDSL.dockerComposeYamlBuilderFromDockerComposeYaml(dockerComposeYamlString)
+
+    explorationSpace.memoryDimension match {
+      case Some(map) => map foreach {
+        case (serviceName, list) => dockerComposeBuilder = dockerComposeBuilder.memLimit(serviceName, list(experimentIndex))
+      }
+      case None => // nothing to do
+    }
+
+    explorationSpace.environmentDimension match {
+      case Some(serviceMap) => serviceMap foreach {
+        case (serviceName, environmentMap) => environmentMap foreach {
+          case (environmentVariable, list) => dockerComposeBuilder = dockerComposeBuilder.environmentVariable(
+            serviceName,
+            environmentVariable,
+            list(experimentIndex))
+        }
+      }
+      case None => // nothing to do
+    }
+
+    val newDockerComposeYamlString = dockerComposeBuilder.build()
+
+    (experimentDefinitionYamlString, newDockerComposeYamlString)
   }
 
   /**
+   * Generates and experiment bundle from the given exploration space point. Assumes the point exists in the
+   * exploraiton space.
    *
    * @param explorationSpace         the exploration space where the experiment is
-   * @param experimentConfiguration  the configuration for the experiment to be generated
+   * @param explorationSpacePoint    the point in the exploration space from which to generate the experiment
    * @param testDefinitionYamlString the test definition to build the experiment definition from as a YAML string
    * @param dockerComposeYamlString  the docker compose to build the experiment docker-compose from as a YAML string
-   * @return a tuple of experiment definition YAML string, docker compose YAML string and experiment number (index in exploration space)
+   * @return a tuple of experiment definition YAML string, docker compose YAML string and experiment number
+   *         (index in exploration space) as an Option. None if point could not be found.
    */
   def generateExperimentBundle(
-    explorationSpace: ExplorationSpaceDimensions,
-    experimentConfiguration: BenchFlowExperimentConfiguration,
+    explorationSpace: ExplorationSpace,
+    explorationSpacePoint: ExplorationSpacePoint,
     testDefinitionYamlString: String,
-    dockerComposeYamlString: String): (ExperimentDefinitionYamlString, DockerComposeYamlString, ExperimentNumber) = {
+    dockerComposeYamlString: String): Option[(ExperimentDefinitionYamlString, DockerComposeYamlString, ExperimentIndex)] = {
 
-    // find the index of the given experiment configuration in the exploration space
+    ExplorationSpaceGenerator.getExperimentIndex(explorationSpace, explorationSpacePoint) match {
+      case None => None
+      case Some(experimentIndex) =>
 
-    // generate the experiment definition YAML
+        val (experimentDefinitionYamlString, newDockerComposeYamlString) = generateExperimentBundle(
+          explorationSpace,
+          experimentIndex,
+          testDefinitionYamlString,
+          dockerComposeYamlString)
 
-    // generate the docker compose YAML
-
-    ("to do", "to do", -1)
+        Some(experimentDefinitionYamlString, newDockerComposeYamlString, experimentIndex)
+    }
 
   }
 
