@@ -247,7 +247,8 @@ object ExplorationSpaceGenerator {
           if pointServiceMap.keySet.contains(serviceName)
           (variableName, list) <- environmentMap
           if pointServiceMap(serviceName).contains(variableName)
-        } yield environmentIndices = environmentIndices intersect getIndicesSet(list)({ case (value, _) => pointServiceMap(serviceName)(variableName) == value })
+        } yield environmentIndices = environmentIndices intersect
+          getIndicesSet(list)({ case (value, _) => pointServiceMap(serviceName)(variableName) == value })
         case None => environmentIndices
       }
       case None => environmentIndices
