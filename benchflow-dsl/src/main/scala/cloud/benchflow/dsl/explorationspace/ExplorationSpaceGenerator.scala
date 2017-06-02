@@ -20,6 +20,8 @@ object ExplorationSpaceGenerator {
   type DimensionLength = Int
   type Index = Int
 
+  // these case classes flattens the structure in the DSL for easier readability
+  // and access.
   case class ExplorationSpaceDimensions(
     users: Option[List[NumUsers]],
     memory: Option[Map[ServiceName, List[Bytes]]],
