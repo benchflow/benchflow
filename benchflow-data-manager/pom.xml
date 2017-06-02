@@ -46,8 +46,17 @@
         <maven-project-info-reports-plugin.version>2.8.1</maven-project-info-reports-plugin.version>
         <scalatest-maven-plugin.version>1.0</scalatest-maven-plugin.version>
         <dropwizard-swagger.version>1.0.6-1</dropwizard-swagger.version>
+        <docker-compose-rule-junit4.version>0.31.1</docker-compose-rule-junit4.version>
         <mainClass>cloud.benchflow.datamanager.service.DataManagerApplication</mainClass>
     </properties>
+
+    <repositories>
+        <!-- for docker-compose-rule -->
+        <repository>
+            <id>palantir</id>
+            <url>https://dl.bintray.com/palantir/releases</url>
+        </repository>
+    </repositories>
 
     <dependencyManagement>
         <dependencies>
@@ -70,6 +79,18 @@
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
+            <version>${dropwizard.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-testing</artifactId>
+            <version>${dropwizard.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-client</artifactId>
+            <version>${dropwizard.version}</version>
         </dependency>
         <dependency>
             <groupId>de.thomaskrille</groupId>
@@ -142,6 +163,13 @@
                     <artifactId>jersey-container-servlet-core</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <!--https://github.com/palantir/docker-compose-rule-->
+        <!--This is a library for executing JUnit tests that interact with Docker Compose managed containers-->
+        <dependency>
+            <groupId>com.palantir.docker.compose</groupId>
+            <artifactId>docker-compose-rule-junit4</artifactId>
+            <version>${docker-compose-rule-junit4.version}</version>
         </dependency>
     </dependencies>
 
@@ -293,6 +321,19 @@
                   <goals>
                     <goal>test</goal>
                   </goals>
+                  <configuration>
+                    <suffixes>(Test|Spec)</suffixes>
+                  </configuration>
+                </execution>
+                <execution>
+                  <id>integration-test</id>
+                  <phase>integration-test</phase>
+                  <goals>
+                    <goal>test</goal>
+                  </goals>
+                  <configuration>
+                    <suffixes>IT</suffixes>
+                  </configuration>
                 </execution>
               </executions>
             </plugin>

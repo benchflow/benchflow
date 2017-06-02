@@ -23,7 +23,7 @@ class TestStorage extends StorageAdapter {
   def nextId: Long = store.size
 }
 
-class DataStorageTests extends TestKit(ActorSystem("QuickStart"))
+class DataStorageTest extends TestKit(ActorSystem("QuickStart"))
     with ImplicitSender
     with WordSpecLike
     with Matchers
