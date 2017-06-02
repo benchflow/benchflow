@@ -204,7 +204,7 @@ object ExplorationSpaceGenerator {
 
   /**
    * Find the index of the given experiment configuration in the exploration space
-   * by traversing the space and performing the intersection of the found possible indices
+   * by traversing the space and performing the intersection of the possible indices found.
    *
    * @param explorationSpace
    * @param explorationSpacePoint
@@ -214,9 +214,10 @@ object ExplorationSpaceGenerator {
     explorationSpace: ExplorationSpace,
     explorationSpacePoint: ExplorationSpacePoint): Option[ExperimentIndex] = {
 
-    // create a set with all indices
+    // create a set with all indices in the exploration space
     val allIndicesSet = (0 until explorationSpace.size).toSet
 
+    // get the potential indices for number of users
     val userIndicesOption = for {
 
       pointNumUsers <- explorationSpacePoint.users
@@ -224,42 +225,19 @@ object ExplorationSpaceGenerator {
 
     } yield getIndicesSet(list)({ case (num, _) => num == pointNumUsers })
 
-    var memoryIndices = allIndicesSet
+    // get the potential indices for memory
+    val memoryIndices: Set[Index] = getMemoryIndices(allIndicesSet, explorationSpacePoint, explorationSpace)
 
-    explorationSpacePoint.memory match {
-      case Some(pointMemoryMap) => explorationSpace.memoryDimension match {
-        case Some(memoryMap) => for {
-          (serviceName, list) <- memoryMap
-          if pointMemoryMap.keySet.contains(serviceName)
-        } yield memoryIndices = memoryIndices intersect
-          getIndicesSet[Bytes](list)({ case (value, _) => pointMemoryMap(serviceName) == value })
-        case None => memoryIndices
-      }
-      case None => memoryIndices
-    }
+    // get the potential indices for environment variables
+    val environmentIndices: Set[Index] = getEnvironmentIndices(allIndicesSet, explorationSpacePoint, explorationSpace)
 
-    var environmentIndices = allIndicesSet
-
-    explorationSpacePoint.environment match {
-      case Some(pointServiceMap) => explorationSpace.environmentDimension match {
-        case Some(serviceMap) => for {
-          (serviceName, environmentMap) <- serviceMap
-          if pointServiceMap.keySet.contains(serviceName)
-          (variableName, list) <- environmentMap
-          if pointServiceMap(serviceName).contains(variableName)
-        } yield environmentIndices = environmentIndices intersect
-          getIndicesSet(list)({ case (value, _) => pointServiceMap(serviceName)(variableName) == value })
-        case None => environmentIndices
-      }
-      case None => environmentIndices
-    }
-
+    // compute the intersection to find the right point
     val candidateSet = userIndicesOption match {
       case Some(userIndicesSet) => userIndicesSet intersect memoryIndices intersect environmentIndices
       case None => allIndicesSet intersect memoryIndices intersect environmentIndices
     }
 
-    // there cannot be more than one candidate 
+    // there should not be more than one candidate
     if (candidateSet.size > 1) {
       None
     } else {
@@ -268,6 +246,59 @@ object ExplorationSpaceGenerator {
 
   }
 
+  private def getMemoryIndices(
+    allIndicesSet: Set[Index],
+    explorationSpacePoint: ExplorationSpacePoint,
+    explorationSpace: ExplorationSpace): Set[Index] = {
+
+    var memoryIndices = allIndicesSet
+
+    explorationSpacePoint.memory match {
+      case Some(pointMemoryMap) => explorationSpace.memoryDimension match {
+        case Some(memoryMap) => for {
+          (serviceName, list) <- memoryMap
+          if pointMemoryMap.keySet.contains(serviceName) // check if exploration space contains the service name
+        } yield memoryIndices = memoryIndices intersect
+          getIndicesSet[Bytes](list)({ case (value, _) => pointMemoryMap(serviceName) == value })
+        case None => // do nothing, we return all values to ensure intersection can be calculated correctly
+      }
+      case None => // do nothing, we return all values to ensure intersection can be calculated correctly
+    }
+
+    memoryIndices
+  }
+
+  private def getEnvironmentIndices(
+    allIndicesSet: Set[Index],
+    explorationSpacePoint: ExplorationSpacePoint,
+    explorationSpace: ExplorationSpace): Set[Index] = {
+
+    var environmentIndices = allIndicesSet
+
+    explorationSpacePoint.environment match {
+      case Some(pointServiceMap) => explorationSpace.environmentDimension match {
+        case Some(serviceMap) => for {
+          (serviceName, environmentMap) <- serviceMap
+          if pointServiceMap.keySet.contains(serviceName) // check if exploration space contains the service name
+          (variableName, list) <- environmentMap
+          if pointServiceMap(serviceName).contains(variableName) // check if variable name exists
+        } yield environmentIndices = environmentIndices intersect
+          getIndicesSet(list)({ case (value, _) => pointServiceMap(serviceName)(variableName) == value })
+        case None => // do nothing, we return all values to ensure intersection can be calculated correctly
+      }
+      case None => // do nothing, we return all values to ensure intersection can be calculated correctly
+    }
+    environmentIndices
+  }
+
+  /**
+   * Get the indices of the elements in the list that fulfills the filter criteria.
+   *
+   * @param list   the list to search
+   * @param filter the filter criteria
+   * @tparam T the type in the list
+   * @return a set of indicies fulfilling the filter criteria
+   */
   def getIndicesSet[T](list: List[T])(filter: ((T, Int)) => Boolean): Set[ExperimentIndex] =
     list.zipWithIndex.filter(filter).map {
       case (_, i) => i
