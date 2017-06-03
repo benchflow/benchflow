@@ -116,7 +116,7 @@ object ExplorationSpaceGenerator {
         val usersDimensionOption = explorationSpaceDimensions.users.map {
           case (list) =>
             blockSize = blockSize / list.length // update blockSize value
-            fillListWithIndices(blockSize, list.length, explorationSpaceSize)
+            computeOrderOfValuesForDimension(blockSize, list.length, explorationSpaceSize)
               .map(index => list(index))
         }
 
@@ -124,7 +124,7 @@ object ExplorationSpaceGenerator {
         val memoryDimensionOption = explorationSpaceDimensions.memory.map(memory => memory.map {
           case (serviceName, list) =>
             blockSize = blockSize / list.length // update blockSize value
-            serviceName -> fillListWithIndices(blockSize, list.length, explorationSpaceSize).map(index => list(index))
+            serviceName -> computeOrderOfValuesForDimension(blockSize, list.length, explorationSpaceSize).map(index => list(index))
         })
 
         // generate all the possible environment values per environment names and service
@@ -133,7 +133,7 @@ object ExplorationSpaceGenerator {
             case (serviceName, environmentMap) => serviceName -> environmentMap.map {
               case (variableName, list) =>
                 blockSize = blockSize / list.length // update blockSize value
-                variableName -> fillListWithIndices(blockSize, list.length, explorationSpaceSize).map(index => list(index))
+                variableName -> computeOrderOfValuesForDimension(blockSize, list.length, explorationSpaceSize).map(index => list(index))
             }
 
           })
@@ -148,7 +148,8 @@ object ExplorationSpaceGenerator {
 
   /**
    *
-   * Fills a list with indices for calculating the cartesian product.
+   * Fills a list with indices that indicate the order of values for a dimension in the cartesian product.
+   *
    * If we want to create the list [0,0,1,1,2,2] we would pass: blockSize = 2, numValues = 3, listLength = 6
    * If we want to create the list [0,1,2,0,1,2] we would pass: blockSize = 1, numValues = 3, listLength = 6
    *
@@ -157,7 +158,7 @@ object ExplorationSpaceGenerator {
    * @param listLength the total length of the list
    * @return a list filled with indices according to the specified parameters
    */
-  def fillListWithIndices(blockSize: Int, numValues: Int, listLength: Int): List[Index] = {
+  def computeOrderOfValuesForDimension(blockSize: Int, numValues: Int, listLength: Int): List[Index] = {
 
     // create the list where to store the values
     val list = mutable.MutableList[Index]()

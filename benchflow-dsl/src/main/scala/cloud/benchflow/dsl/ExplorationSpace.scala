@@ -107,7 +107,7 @@ object ExplorationSpace {
    * @param testDefinitionYamlString the test definition to build the experiment definition from as a YAML string
    * @param dockerComposeYamlString  the docker compose to build the experiment docker-compose from as a YAML string
    * @return a tuple of experiment definition YAML string, docker compose YAML string and the experiment index as an Option.
-    *         It returns Some if a point was found, or None if a point could not be found or if multiple points were found.
+   *         It returns Some if a point was found, or None if a point could not be found or if multiple points were found.
    */
   def generateExperimentBundle(
     explorationSpace: ExplorationSpace,

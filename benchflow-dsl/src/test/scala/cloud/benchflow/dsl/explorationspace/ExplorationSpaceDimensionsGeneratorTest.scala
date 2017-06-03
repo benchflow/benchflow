@@ -58,7 +58,7 @@ class ExplorationSpaceDimensionsGeneratorTest extends JUnitSuite {
 
     Assert.assertEquals(
       expectedFirstList,
-      ExplorationSpaceGenerator.fillListWithIndices(firstBlockSize, firstNumValues, firstListLength))
+      ExplorationSpaceGenerator.computeOrderOfValuesForDimension(firstBlockSize, firstNumValues, firstListLength))
 
     val expectedSecondList = List(0, 1, 2, 0, 1, 2)
     val secondBlockSize = 1
@@ -67,7 +67,7 @@ class ExplorationSpaceDimensionsGeneratorTest extends JUnitSuite {
 
     Assert.assertEquals(
       expectedSecondList,
-      ExplorationSpaceGenerator.fillListWithIndices(secondBlockSize, secondNumValues, secondListLength))
+      ExplorationSpaceGenerator.computeOrderOfValuesForDimension(secondBlockSize, secondNumValues, secondListLength))
 
   }
 
@@ -101,7 +101,7 @@ class ExplorationSpaceDimensionsGeneratorTest extends JUnitSuite {
     val expectedSizeThreadPoolList = expectedSizeThreadPoolIndicesList.map(index => sizeThreadPoolValues(index))
 
     // test filled list
-    val filledList = ExplorationSpaceGenerator.fillListWithIndices(usersBlockSize, numUsersValues, expectedExplorationSpaceSize)
+    val filledList = ExplorationSpaceGenerator.computeOrderOfValuesForDimension(usersBlockSize, numUsersValues, expectedExplorationSpaceSize)
 
     Assert.assertEquals(expectedUsersIndiciesList, filledList)
 
