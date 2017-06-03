@@ -1,7 +1,7 @@
 package cloud.benchflow.dsl.deployment.docker.compose
 
-import cloud.benchflow.dsl.deployment.docker.service._
 import cloud.benchflow.dsl.deployment.docker.service.ServiceYamlProtocol._
+import cloud.benchflow.dsl.deployment.docker.service._
 import net.jcazevedo.moultingyaml._
 
 /**

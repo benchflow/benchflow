@@ -1,7 +1,7 @@
 package cloud.benchflow.dsl.definition.configuration.workloadexecution
 
-import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol.WorkloadExecutionKey
 import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol
+import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol.WorkloadExecutionKey
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
 import cloud.benchflow.dsl.definition.types.time.Time
 import cloud.benchflow.dsl.definition.types.time.TimeYamlProtocol._

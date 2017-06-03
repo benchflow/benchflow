@@ -4,9 +4,9 @@ import java.nio.file.Paths
 
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
 import cloud.benchflow.dsl.definition.types.bytes.{ Bytes, BytesUnit }
+import cloud.benchflow.dsl.dockercompose.DockerComposeYamlString
 import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
-import cloud.benchflow.dsl.dockercompose.DockerComposeYamlString
 
 import scala.io.Source
 
@@ -100,45 +100,6 @@ class BenchFlowDSLTest extends JUnitSuite {
     Assert.assertTrue(generatedComposeString.contains(s"mem_limit: ${memLimit.underlying}${memLimit.unit}"))
     Assert.assertTrue(generatedComposeString.contains(s"$environmentKey=$environmentValue"))
     Assert.assertFalse(generatedComposeString.contains(s"DB_DRIVER=com.mysql.jdbc.Driver"))
-
-  }
-
-  @Test def generateExplorationSpaceTest(): Unit = {
-
-    val testYaml = Source.fromFile(Paths.get(BenchFlowExplorationMultipleExample).toFile).mkString
-
-    val explorationSpace = BenchFlowDSL.explorationSpaceFromTestYaml(testYaml)
-
-    Assert.assertTrue(explorationSpace.users.isDefined)
-
-    Assert.assertTrue(explorationSpace.memory.isDefined)
-
-    Assert.assertTrue(explorationSpace.environment.isDefined)
-
-  }
-
-  @Test def initialExplorationSpaceStateTest(): Unit = {
-
-    val testYaml = Source.fromFile(Paths.get(BenchFlowExplorationMultipleExample).toFile).mkString
-
-    val explorationSpace = BenchFlowDSL.explorationSpaceFromTestYaml(testYaml)
-
-    val initialExplorationSpaceState = BenchFlowDSL.getInitialExplorationSpaceState(explorationSpace)
-
-    val expectedExplorationSpaceSize = 5 * 4 * 3 * 4
-
-    val expectedList = List.fill(expectedExplorationSpaceSize)(-1)
-
-    val expectedUsersState = (expectedList, 4)
-    val expectedMemoryState = Map(("camunda", (expectedList, 5)))
-    val expectedEnvironmentState = Map(
-      ("camunda", Map(
-        ("SIZE_OF_THREADPOOL", (expectedList, 4)),
-        ("AN_ENUM", (expectedList, 3)))))
-
-    Assert.assertEquals(expectedUsersState, initialExplorationSpaceState.usersState.get)
-    Assert.assertEquals(expectedMemoryState, initialExplorationSpaceState.memoryState.get)
-    Assert.assertEquals(expectedEnvironmentState, initialExplorationSpaceState.environmentState.get)
 
   }
 

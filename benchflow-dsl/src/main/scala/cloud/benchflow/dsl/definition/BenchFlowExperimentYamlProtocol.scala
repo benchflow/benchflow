@@ -1,5 +1,6 @@
 package cloud.benchflow.dsl.definition
 
+import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol.{ ConfigurationKey, DataCollectionKey, DescriptionKey, NameKey, SutKey, VersionKey, WorkloadKey }
 import cloud.benchflow.dsl.definition.configuration.BenchFlowExperimentConfiguration
 import cloud.benchflow.dsl.definition.configuration.BenchFlowExperimentConfigurationYamlProtocol._
 import cloud.benchflow.dsl.definition.datacollection.DataCollection
@@ -7,13 +8,11 @@ import cloud.benchflow.dsl.definition.datacollection.DataCollectionYamlProtocol.
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
 import cloud.benchflow.dsl.definition.sut.Sut
 import cloud.benchflow.dsl.definition.sut.SutYamlProtocol._
+import cloud.benchflow.dsl.definition.version.Version.Version
+import cloud.benchflow.dsl.definition.version.VersionYamlProtocol._
 import cloud.benchflow.dsl.definition.workload.Workload
 import cloud.benchflow.dsl.definition.workload.WorkloadYamlProtocol._
 import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
-import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol.{ ConfigurationKey, DataCollectionKey, DescriptionKey }
-import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol.{ NameKey, SutKey, VersionKey, WorkloadKey }
-import cloud.benchflow.dsl.definition.version.Version.Version
-import cloud.benchflow.dsl.definition.version.VersionYamlProtocol._
 
 import scala.util.Try
 

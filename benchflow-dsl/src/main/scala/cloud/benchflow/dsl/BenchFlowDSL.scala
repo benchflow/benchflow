@@ -5,8 +5,6 @@ import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
 import cloud.benchflow.dsl.definition.{ BenchFlowExperiment, BenchFlowExperimentYamlBuilder, BenchFlowTest }
 import cloud.benchflow.dsl.dockercompose.DockerComposeYamlBuilder
-import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator
-import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.{ ExplorationSpace, ExplorationSpaceState }
 import net.jcazevedo.moultingyaml._
 
 import scala.util.{ Failure, Success, Try }
@@ -158,32 +156,6 @@ object BenchFlowDSL {
     val dockerComposeYaml = dockerComposeYamlString.parseYaml
 
     new DockerComposeYamlBuilder(dockerComposeYaml)
-
-  }
-
-  /**
-   *
-   * @param testDefinitionYaml benchflow-test.yml
-   * @throws cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
-   * @return ExplorationSpace
-   */
-  @throws(classOf[BenchFlowDeserializationException])
-  def explorationSpaceFromTestYaml(testDefinitionYaml: String): ExplorationSpace = {
-
-    val test = testFromYaml(testDefinitionYaml)
-
-    ExplorationSpaceGenerator.generateExplorationSpace(test)
-
-  }
-
-  /**
-   *
-   * @param explorationSpace
-   * @return initial state of exploration space
-   */
-  def getInitialExplorationSpaceState(explorationSpace: ExplorationSpace): ExplorationSpaceState = {
-
-    ExplorationSpaceGenerator.generateInitialExplorationSpaceState(explorationSpace)
 
   }
 

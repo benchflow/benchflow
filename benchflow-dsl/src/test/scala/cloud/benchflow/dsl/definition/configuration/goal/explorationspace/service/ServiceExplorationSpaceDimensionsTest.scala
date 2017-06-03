@@ -1,9 +1,9 @@
 package cloud.benchflow.dsl.definition.configuration.goal.explorationspace.service
 
+import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.service.ServiceExplorationSpaceYamlProtocol._
+import net.jcazevedo.moultingyaml._
 import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
-import net.jcazevedo.moultingyaml._
-import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.service.ServiceExplorationSpaceYamlProtocol._
 
 import scala.util.Try
 
@@ -11,7 +11,7 @@ import scala.util.Try
  * @author Jesper Findahl (jesper.findahl@gmail.com)
  *         created on 2017-05-23
  */
-class ServiceExplorationSpaceTest extends JUnitSuite {
+class ServiceExplorationSpaceDimensionsTest extends JUnitSuite {
 
   private val serviceExplorationSpace: String =
     """

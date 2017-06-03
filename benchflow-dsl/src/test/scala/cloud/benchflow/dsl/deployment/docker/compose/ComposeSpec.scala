@@ -10,8 +10,9 @@ import org.scalatest.{ FlatSpec, Matchers }
  */
 class ComposeSpec extends FlatSpec with Matchers {
 
-  import net.jcazevedo.moultingyaml._
   import DockerComposeYamlProtocol._
+  import net.jcazevedo.moultingyaml._
+
   import scala.collection.mutable.{ Map => MutableMap }
 
   "Compose File" should "parse correctly" in {
