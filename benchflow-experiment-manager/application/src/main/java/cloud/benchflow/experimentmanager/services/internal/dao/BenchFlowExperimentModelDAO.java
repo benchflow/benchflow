@@ -9,9 +9,7 @@ import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFl
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.FailureStatus;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.RunningState;
 import cloud.benchflow.experimentmanager.models.TrialModel;
-
 import com.mongodb.MongoClient;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

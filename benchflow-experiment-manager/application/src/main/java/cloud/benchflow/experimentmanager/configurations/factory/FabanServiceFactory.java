@@ -2,14 +2,10 @@ package cloud.benchflow.experimentmanager.configurations.factory;
 
 import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.configurations.FabanClientConfigImpl;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import javax.validation.constraints.NotNull;
-
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**

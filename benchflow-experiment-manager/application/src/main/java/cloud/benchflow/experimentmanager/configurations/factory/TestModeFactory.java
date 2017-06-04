@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 public class TestModeFactory {
 
   @NotNull
-  boolean mockFaban;
+  private boolean mockFaban;
 
   @JsonProperty
   public boolean isMockFaban() {

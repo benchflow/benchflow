@@ -3,9 +3,7 @@ package cloud.benchflow.experimentmanager.models;
 import static cloud.benchflow.experimentmanager.models.TrialModel.HandleTrialResultState.CHECK_TRIAL_RESULT;
 
 import cloud.benchflow.faban.client.responses.RunStatus;
-
 import java.util.Date;
-
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Field;
 import org.mongodb.morphia.annotations.Id;
