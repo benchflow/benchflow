@@ -6,6 +6,7 @@ import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerS
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
 import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
+import cloud.benchflow.experimentmanager.services.external.test.FabanManagerServiceMock;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
 import cloud.benchflow.experimentmanager.scheduler.ExperimentTaskScheduler;
@@ -144,9 +145,15 @@ public class BenchFlowExperimentManagerApplication
     trialModelDAO = new TrialModelDAO(mongoClient);
 
     minioService = configuration.getMinioServiceFactory().build();
-    fabanManagerService = new FabanManagerService(fabanClient);
     driversMakerService = configuration.getDriversMakerServiceFactory().build(client);
     testManagerService = configuration.getTestManagerServiceFactory().build(client);
+
+    // start in test mode or not
+    if (configuration.getTestModeFactory().isMockFaban()) {
+      fabanManagerService = new FabanManagerServiceMock(fabanClient);
+    } else {
+      fabanManagerService = new FabanManagerService(fabanClient);
+    }
 
     experimentTaskScheduler = new ExperimentTaskScheduler(experimentTaskExecutorService);
 

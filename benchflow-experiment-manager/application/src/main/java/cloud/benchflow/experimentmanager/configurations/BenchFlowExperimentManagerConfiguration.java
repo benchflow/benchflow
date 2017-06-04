@@ -8,6 +8,7 @@ import cloud.benchflow.experimentmanager.configurations.factory.MongoDBFactory;
 import cloud.benchflow.experimentmanager.configurations.factory.TaskExecutorFactory;
 import cloud.benchflow.experimentmanager.configurations.factory.TestManagerServiceFactory;
 
+import cloud.benchflow.experimentmanager.configurations.factory.TestModeFactory;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.dropwizard.Configuration;
@@ -155,4 +156,18 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
     this.experimentTaskExecutorServiceFactory = taskExecutorServiceFactory;
   }
 
+  // Test Mode
+  @Valid
+  @NotNull
+  private TestModeFactory testModeFactory = new TestModeFactory();
+
+  @JsonProperty("testMode")
+  public TestModeFactory getTestModeFactory() {
+    return testModeFactory;
+  }
+
+  @JsonProperty("testMode")
+  public void setTestModeFactory(TestModeFactory testModeFactory) {
+    this.testModeFactory = testModeFactory;
+  }
 }

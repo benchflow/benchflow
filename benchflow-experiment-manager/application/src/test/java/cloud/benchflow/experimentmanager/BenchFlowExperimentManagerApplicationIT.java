@@ -8,8 +8,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 
 import cloud.benchflow.experimentmanager.configurations.BenchFlowExperimentManagerConfiguration;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
-import cloud.benchflow.experimentmanager.helpers.MinioTestData;
 import cloud.benchflow.experimentmanager.helpers.BenchFlowData;
+import cloud.benchflow.experimentmanager.helpers.MinioTestData;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.TerminatedState;
 import cloud.benchflow.experimentmanager.resources.BenchFlowExperimentResource;
@@ -22,20 +22,15 @@ import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.responses.DeployStatus;
 import cloud.benchflow.faban.client.responses.RunId;
 import cloud.benchflow.faban.client.responses.RunStatus;
-
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
-
 import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -66,10 +61,11 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(TEST_PORT);
 
-  private String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_1_TRIAL;
   private MinioService minioServiceSpy;
   private FabanClient fabanClientSpy;
   private ExecutorService executorService;
+
+  private String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_1_TRIAL;
 
   @Before
   public void setUp() throws Exception {
@@ -99,6 +95,8 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
         MinioTestData.getDeploymentDescriptor());
     minioServiceSpy.saveExperimentBPMNModel(experimentID, MinioTestData.BPM_MODEL_11_PARALLEL_NAME,
         MinioTestData.get11ParallelStructuredModel());
+    minioServiceSpy.saveExperimentBPMNModel(experimentID, MinioTestData.BPM_MODEL_MOCK_NAME,
+        MinioTestData.getMockModel());
 
     // make sure also drivers-maker benchmark is returned
     Mockito.doReturn(MinioTestData.getGeneratedBenchmark()).when(minioServiceSpy)

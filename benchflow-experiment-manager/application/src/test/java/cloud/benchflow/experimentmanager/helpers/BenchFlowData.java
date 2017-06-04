@@ -14,6 +14,10 @@ public class BenchFlowData {
   public static String VALID_TEST_ID_2_TRIAL =
       "benchflow.ParallelMultiple11Activiti5210Test2Trial.1";
 
+  public static String SCENARIO_ALWAYS_COMPLETED_EXPERIMENT_ID = "benchflow.alwaysCompleted.1.1";
+  public static String SCENARIO_FAIL_FIRST_EXEC_EXPERIMENT_ID = "benchflow.failfirstexecution.1.1";
+  public static String NO_SCENARIO_EXPERIMENT_ID = "benchflow.noScenario.1.1";
+
   public static final String VALID_EXPERIMENT_ID_1_TRIAL =
       VALID_TEST_ID_1_TRIAL + BenchFlowConstants.MODEL_ID_DELIMITER + EXPERIMENT_NUMBER;
   public static final String VALID_EXPERIMENT_ID_2_TRIAL =

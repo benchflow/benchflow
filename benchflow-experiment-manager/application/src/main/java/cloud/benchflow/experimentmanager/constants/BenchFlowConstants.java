@@ -76,6 +76,14 @@ public class BenchFlowConstants {
     return Integer.parseInt(trialNumber);
   }
 
+  public static String getTestNameFromTrialID(String trialID) {
+
+    String[] trialIDArray = trialID.split(MODEL_ID_DELIMITER_REGEX);
+
+    return trialIDArray[1];
+
+  }
+
   public static String getTrialID(String experimentID, long trialNumber) {
     return experimentID + BenchFlowConstants.MODEL_ID_DELIMITER + trialNumber;
   }

@@ -86,3 +86,6 @@ testManager:
 experimentTaskExecutor:
   minThreads: 5
   maxThreads: 15
+
+testMode:
+  mockFaban: ${env.MOCK_FABAN!false?c}
