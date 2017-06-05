@@ -16,17 +16,18 @@ import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerS
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
+import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
-
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -54,6 +55,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
   private TestTaskScheduler testTaskScheduler;
   private BenchFlowTestModelDAO testModelDAO;
   private BenchFlowExperimentModelDAO experimentModelDAO;
+  private ExplorationModelDAO explorationModelDAO;
   private UserDAO userDAO;
   private MinioService minioService;
   private BenchFlowExperimentManagerService experimentManagerService;
@@ -68,6 +70,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     userDAO = BenchFlowTestManagerApplication.getUserDAO();
     testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
     experimentModelDAO = BenchFlowTestManagerApplication.getExperimentModelDAO();
+    explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
     minioService = BenchFlowTestManagerApplication.getMinioService();
     experimentManagerService =
         Mockito.spy(BenchFlowTestManagerApplication.getExperimentManagerService());
@@ -134,8 +137,17 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     // assert that all experiments have been executed
     Assert.assertEquals(0, countDownLatch.getCount());
 
-    // asssert that test has been set as TERMINATED
+    // assert that test has been set as TERMINATED
     Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
         testModelDAO.getTestState(testID));
+
+    // assert that the complete exploration space has been execution
+    List<Integer> expectedIndices = new ArrayList<>();
+    for (int i = 0; i < expectedExperiments; i++) {
+      expectedIndices.add(i);
+    }
+
+    Assert.assertEquals(expectedIndices, explorationModelDAO.getExplorationPointIndices(testID));
+
   }
 }
