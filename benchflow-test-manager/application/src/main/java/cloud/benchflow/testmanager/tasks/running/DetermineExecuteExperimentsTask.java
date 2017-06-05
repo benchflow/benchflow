@@ -64,6 +64,12 @@ public class DetermineExecuteExperimentsTask implements Runnable {
       experimentModelDAO.setExplorationSpaceIndex(experimentID,
           selectedExperimentBundle.getExplorationSpaceIndex());
 
+      // set experiment as selected
+      explorationModelDAO.addExecutedExplorationPoint(
+          testID,
+          selectedExperimentBundle.getExplorationSpaceIndex()
+      );
+
       // save PE defintion to minio
       minioService.saveExperimentDefinition(experimentID, IOUtils.toInputStream(
           selectedExperimentBundle.getExperimentYamlString(), StandardCharsets.UTF_8));

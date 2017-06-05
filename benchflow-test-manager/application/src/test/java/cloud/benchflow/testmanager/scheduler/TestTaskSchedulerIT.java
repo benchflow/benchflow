@@ -75,7 +75,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
   }
 
   @Test
-  public void runCompleteExploration() throws Exception {
+  public void runCompleteExplorationUsers() throws Exception {
 
     /*
      Since we have many asynchronous tasks running we set a countdown
@@ -106,7 +106,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     String testID = testModelDAO.addTestModel(testName, user);
 
     String testDefinitionString = IOUtils.toString(
-        TestFiles.getTestExplorationOneAtATimeMultipleInputStream(), StandardCharsets.UTF_8);
+        TestFiles.getTestExplorationOneAtATimeUsersInputStream(), StandardCharsets.UTF_8);
     InputStream deploymentDescriptorInputStream =
         TestArchives.getValidDeploymentDescriptorInputStream();
     Map<String, InputStream> bpmnModelInputStreams = TestArchives.getValidBPMNModels();

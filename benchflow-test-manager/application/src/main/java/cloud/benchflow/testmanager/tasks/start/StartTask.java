@@ -72,18 +72,18 @@ public class StartTask implements Runnable {
 
       if (test.configuration().strategy().isDefined()) {
 
-        // get and save exploration space
-        JavaCompatExplorationSpace explorationSpace =
-            ExplorationSpace.explorationSpaceFromTestYaml(testDefinitionYamlString);
-
-        explorationModelDAO.setExplorationSpace(testID, explorationSpace);
-
-        // get and save exploration space dimensions
-        JavaCompatExplorationSpaceDimensions explorationSpaceDimensions =
-            cloud.benchflow.dsl.ExplorationSpace
-                .explorationSpaceDimensionsFromTestYaml(testDefinitionYamlString);
-
-        explorationModelDAO.setExplorationSpaceDimensions(testID, explorationSpaceDimensions);
+        //        // get and save exploration space
+        //        JavaCompatExplorationSpace explorationSpace =
+        //            ExplorationSpace.explorationSpaceFromTestYaml(testDefinitionYamlString);
+        //
+        //        explorationModelDAO.setExplorationSpace(testID, explorationSpace);
+        //
+        //        // get and save exploration space dimensions
+        //        JavaCompatExplorationSpaceDimensions explorationSpaceDimensions =
+        //            cloud.benchflow.dsl.ExplorationSpace
+        //                .explorationSpaceDimensionsFromTestYaml(testDefinitionYamlString);
+        //
+        //        explorationModelDAO.setExplorationSpaceDimensions(testID, explorationSpaceDimensions);
 
         // get and save selection strategy
         Value selectionStrategyTypeValue = test.configuration().strategy().get().selection();

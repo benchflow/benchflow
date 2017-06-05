@@ -14,9 +14,18 @@ public class TestFiles {
   private static String TEST_EXPLORATION_ONE_AT_A_TIME_MULTIPLE_FILE =
       LOCAL_TESTS_FOLDER + "exploration/one-at-a-time/multiple/benchflow-test.yml";
 
+  private static String TEST_EXPLORATION_ONE_AT_A_TIME_USERS_FILE =
+      LOCAL_TESTS_FOLDER + "exploration/one-at-a-time/users/benchflow-test.yml";
+
   public static InputStream getTestExplorationOneAtATimeMultipleInputStream()
       throws FileNotFoundException {
 
     return new FileInputStream(TEST_EXPLORATION_ONE_AT_A_TIME_MULTIPLE_FILE);
+  }
+
+  public static InputStream getTestExplorationOneAtATimeUsersInputStream()
+      throws FileNotFoundException {
+
+    return new FileInputStream(TEST_EXPLORATION_ONE_AT_A_TIME_USERS_FILE);
   }
 }

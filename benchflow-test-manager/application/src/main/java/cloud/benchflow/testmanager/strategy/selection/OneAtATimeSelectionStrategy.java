@@ -1,6 +1,7 @@
 package cloud.benchflow.testmanager.strategy.selection;
 
 import cloud.benchflow.dsl.ExplorationSpace;
+import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.dsl.explorationspace.javatypes.JavaCompatExplorationSpace;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
@@ -64,13 +65,15 @@ public class OneAtATimeSelectionStrategy implements SelectionStrategy {
             explorationPointIndices.stream().max(Integer::compareTo).orElse(0) + 1;
       }
 
-      JavaCompatExplorationSpace explorationSpace = explorationModelDAO.getExplorationSpace(testID);
-
       String testDefinitionYamlString =
           IOUtils.toString(minioService.getTestDefinition(testID), StandardCharsets.UTF_8);
 
       String deploymentDescriptorYamlString = IOUtils
           .toString(minioService.getTestDeploymentDescriptor(testID), StandardCharsets.UTF_8);
+
+      //      JavaCompatExplorationSpace explorationSpace = explorationModelDAO.getExplorationSpace(testID);
+      JavaCompatExplorationSpace explorationSpace =
+          ExplorationSpace.explorationSpaceFromTestYaml(testDefinitionYamlString);
 
       // get the experiment bundle for the given point
       // <ExperimentDefinition, DeploymentDescriptor>
@@ -82,7 +85,8 @@ public class OneAtATimeSelectionStrategy implements SelectionStrategy {
           experimentBundle._2(), // deployment descriptor
           nextExplorationPoint);
 
-    } catch (IOException | BenchFlowTestIDDoesNotExistException e) {
+    } catch (IOException | BenchFlowTestIDDoesNotExistException
+        | BenchFlowDeserializationException e) {
       // should not happen
       // TODO - handle me
       e.printStackTrace();
@@ -93,14 +97,27 @@ public class OneAtATimeSelectionStrategy implements SelectionStrategy {
 
   public boolean isTestComplete(String testID) throws BenchFlowTestIDDoesNotExistException {
 
-    // get exploration space
-    JavaCompatExplorationSpace explorationSpace = explorationModelDAO.getExplorationSpace(testID);
+    try {
+      String testDefinitionYamlString =
+          IOUtils.toString(minioService.getTestDefinition(testID), StandardCharsets.UTF_8);
 
-    // get the executed exploration points
-    List<Integer> explorationPointIndices = explorationModelDAO.getExplorationPointIndices(testID);
+      // get exploration space
+      // JavaCompatExplorationSpace explorationSpace = explorationModelDAO.getExplorationSpace(testID);
+      JavaCompatExplorationSpace explorationSpace =
+          ExplorationSpace.explorationSpaceFromTestYaml(testDefinitionYamlString);
 
-    // if the exploration size equals the number executed points it is complete
-    return explorationSpace.getSize() == explorationPointIndices.size();
+      // get the executed exploration points
+      List<Integer> explorationPointIndices =
+          explorationModelDAO.getExplorationPointIndices(testID);
+
+      // if the exploration size equals the number executed points it is complete
+      return explorationSpace.getSize() == explorationPointIndices.size();
+
+    } catch (IOException | BenchFlowDeserializationException e) {
+      e.printStackTrace();
+    }
+
+    return true;
   }
 
 }
