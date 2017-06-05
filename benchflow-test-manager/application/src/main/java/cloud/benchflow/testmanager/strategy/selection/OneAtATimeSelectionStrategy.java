@@ -95,29 +95,4 @@ public class OneAtATimeSelectionStrategy implements SelectionStrategy {
     return null;
   }
 
-  public boolean isTestComplete(String testID) throws BenchFlowTestIDDoesNotExistException {
-
-    try {
-      String testDefinitionYamlString =
-          IOUtils.toString(minioService.getTestDefinition(testID), StandardCharsets.UTF_8);
-
-      // get exploration space
-      // JavaCompatExplorationSpace explorationSpace = explorationModelDAO.getExplorationSpace(testID);
-      JavaCompatExplorationSpace explorationSpace =
-          ExplorationSpace.explorationSpaceFromTestYaml(testDefinitionYamlString);
-
-      // get the executed exploration points
-      List<Integer> explorationPointIndices =
-          explorationModelDAO.getExplorationPointIndices(testID);
-
-      // if the exploration size equals the number executed points it is complete
-      return explorationSpace.getSize() == explorationPointIndices.size();
-
-    } catch (IOException | BenchFlowDeserializationException e) {
-      e.printStackTrace();
-    }
-
-    return true;
-  }
-
 }
