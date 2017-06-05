@@ -1,7 +1,7 @@
 package cloud.benchflow.testmanager.models;
 
-import cloud.benchflow.dsl.explorationspace.javatypes.JavaCompatExplorationSpace;
-import cloud.benchflow.dsl.explorationspace.javatypes.JavaCompatExplorationSpaceDimensions;
+import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpace;
+import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpaceDimensions;
 import cloud.benchflow.testmanager.strategy.regression.RegressionStrategy;
 import cloud.benchflow.testmanager.strategy.selection.SelectionStrategy;
 import cloud.benchflow.testmanager.strategy.validation.ValidationStrategy;
@@ -18,8 +18,8 @@ public class ExplorationModel {
 
   private GoalType goalType;
 
-  private JavaCompatExplorationSpaceDimensions explorationSpaceDimensions;
-  private JavaCompatExplorationSpace explorationSpace;
+  private ExplorationSpaceDimensions explorationSpaceDimensions;
+  private ExplorationSpace explorationSpace;
 
   private List<Integer> executedExplorationPointIndices = new ArrayList<>();
 
@@ -37,20 +37,19 @@ public class ExplorationModel {
     this.goalType = goalType;
   }
 
-  public JavaCompatExplorationSpaceDimensions getExplorationSpaceDimensions() {
+  public ExplorationSpaceDimensions getExplorationSpaceDimensions() {
     return explorationSpaceDimensions;
   }
 
-  public void setExplorationSpaceDimensions(
-      JavaCompatExplorationSpaceDimensions explorationSpaceDimensions) {
+  public void setExplorationSpaceDimensions(ExplorationSpaceDimensions explorationSpaceDimensions) {
     this.explorationSpaceDimensions = explorationSpaceDimensions;
   }
 
-  public JavaCompatExplorationSpace getExplorationSpace() {
+  public ExplorationSpace getExplorationSpace() {
     return explorationSpace;
   }
 
-  public void setExplorationSpace(JavaCompatExplorationSpace explorationSpace) {
+  public void setExplorationSpace(ExplorationSpace explorationSpace) {
     this.explorationSpace = explorationSpace;
   }
 

@@ -3,6 +3,8 @@ package cloud.benchflow.testmanager.tasks.running;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.strategy.selection.OneAtATimeSelectionStrategy;
+import cloud.benchflow.testmanager.strategy.validation.CompleteExplorationValidationStrategy;
+import cloud.benchflow.testmanager.strategy.validation.ValidationStrategy;
 import cloud.benchflow.testmanager.tasks.running.ValidateTerminationCriteria.TerminationCriteriaResult;
 import java.util.concurrent.Callable;
 import org.slf4j.Logger;
@@ -30,9 +32,6 @@ public class ValidateTerminationCriteria implements Callable<TerminationCriteria
 
     logger.info("running: " + testID);
 
-    OneAtATimeSelectionStrategy oneAtATimeSelectionStrategy =
-        (OneAtATimeSelectionStrategy) explorationModelDAO.getSelectionStrategy(testID);
-
     // TODO - check if can reach goal
     boolean canReachGoal = true;
 
@@ -42,7 +41,11 @@ public class ValidateTerminationCriteria implements Callable<TerminationCriteria
     // TODO - handle cases with regression model
 
 
-    if (oneAtATimeSelectionStrategy.isTestComplete(testID)) {
+    // cases with no regression model, e.g. complete exploration
+
+    ValidationStrategy validationStrategy = new CompleteExplorationValidationStrategy();
+
+    if (validationStrategy.isTestComplete(testID)) {
       return TerminationCriteriaResult.GOAL_NO_REGRESSION_EXECUTED;
     }
 

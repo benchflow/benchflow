@@ -1,13 +1,14 @@
 package cloud.benchflow.testmanager.services.internal.dao;
 
-import cloud.benchflow.dsl.explorationspace.javatypes.JavaCompatExplorationSpace;
-import cloud.benchflow.dsl.explorationspace.javatypes.JavaCompatExplorationSpaceDimensions;
+import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpace;
+import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpaceDimensions;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.ExplorationModel.GoalType;
 import cloud.benchflow.testmanager.strategy.regression.MarsRegressionStrategy;
 import cloud.benchflow.testmanager.strategy.regression.RegressionStrategy;
 import cloud.benchflow.testmanager.strategy.selection.OneAtATimeSelectionStrategy;
+import cloud.benchflow.testmanager.strategy.selection.RandomBreakdownSelectionStrategy;
 import cloud.benchflow.testmanager.strategy.selection.SelectionStrategy;
 import cloud.benchflow.testmanager.strategy.validation.RandomValidationSetValidationStrategy;
 import cloud.benchflow.testmanager.strategy.validation.ValidationStrategy;
@@ -54,8 +55,8 @@ public class ExplorationModelDAO extends DAO {
 
   }
 
-  public synchronized JavaCompatExplorationSpaceDimensions getExplorationSpaceDimensions(
-      String testID) throws BenchFlowTestIDDoesNotExistException {
+  public synchronized ExplorationSpaceDimensions getExplorationSpaceDimensions(String testID)
+      throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("getExplorationSpaceDimensions: " + testID);
 
@@ -66,7 +67,7 @@ public class ExplorationModelDAO extends DAO {
   }
 
   public synchronized void setExplorationSpaceDimensions(String testID,
-      JavaCompatExplorationSpaceDimensions explorationSpaceDimensions)
+      ExplorationSpaceDimensions explorationSpaceDimensions)
       throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("setExplorationSpaceDimensions: " + testID);
@@ -80,7 +81,7 @@ public class ExplorationModelDAO extends DAO {
 
   }
 
-  public synchronized JavaCompatExplorationSpace getExplorationSpace(String testID)
+  public synchronized ExplorationSpace getExplorationSpace(String testID)
       throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("getExplorationSpace: " + testID);
@@ -91,8 +92,8 @@ public class ExplorationModelDAO extends DAO {
 
   }
 
-  public synchronized void setExplorationSpace(String testID,
-      JavaCompatExplorationSpace explorationSpace) throws BenchFlowTestIDDoesNotExistException {
+  public synchronized void setExplorationSpace(String testID, ExplorationSpace explorationSpace)
+      throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("setExplorationSpace: " + testID);
 
@@ -134,8 +135,13 @@ public class ExplorationModelDAO extends DAO {
     final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
 
     switch (benchFlowTestModel.getExplorationModel().getSelectionStrategyType()) {
+
       case ONE_AT_A_TIME:
         return new OneAtATimeSelectionStrategy();
+
+      case RANDOM_BREAKDOWN:
+        return new RandomBreakdownSelectionStrategy();
+
       default:
         logger.info("not yet implemented");
         return null;

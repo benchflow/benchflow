@@ -11,7 +11,7 @@ public interface SelectionStrategy {
 
   SelectedExperimentBundle selectNextExperiment(String testID);
 
-  public class SelectedExperimentBundle {
+  class SelectedExperimentBundle {
     private String experimentYamlString;
     private String deploymentDescriptorYamlString;
     private int explorationSpaceIndex;

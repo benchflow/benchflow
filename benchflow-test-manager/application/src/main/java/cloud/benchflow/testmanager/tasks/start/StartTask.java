@@ -5,13 +5,10 @@ import static cloud.benchflow.testmanager.strategy.selection.SelectionStrategy.T
 import static cloud.benchflow.testmanager.strategy.selection.SelectionStrategy.Type.RANDOM_BREAKDOWN;
 
 import cloud.benchflow.dsl.BenchFlowDSL;
-import cloud.benchflow.dsl.ExplorationSpace;
 import cloud.benchflow.dsl.definition.BenchFlowTest;
 import cloud.benchflow.dsl.definition.configuration.goal.goaltype.GoalType;
 import cloud.benchflow.dsl.definition.configuration.strategy.selection.SelectionStrategyType;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
-import cloud.benchflow.dsl.explorationspace.javatypes.JavaCompatExplorationSpace;
-import cloud.benchflow.dsl.explorationspace.javatypes.JavaCompatExplorationSpaceDimensions;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.models.ExplorationModel;
@@ -72,6 +69,7 @@ public class StartTask implements Runnable {
 
       if (test.configuration().strategy().isDefined()) {
 
+        // TODO - in future PR
         //        // get and save exploration space
         //        JavaCompatExplorationSpace explorationSpace =
         //            ExplorationSpace.explorationSpaceFromTestYaml(testDefinitionYamlString);

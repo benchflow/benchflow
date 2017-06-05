@@ -10,5 +10,6 @@ public interface ValidationStrategy {
   }
 
   // TODO - add validation
+  boolean isTestComplete(String testID);
 
 }

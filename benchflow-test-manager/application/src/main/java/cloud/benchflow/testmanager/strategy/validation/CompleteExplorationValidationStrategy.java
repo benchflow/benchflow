@@ -2,7 +2,7 @@ package cloud.benchflow.testmanager.strategy.validation;
 
 import cloud.benchflow.dsl.ExplorationSpace;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
-import cloud.benchflow.dsl.explorationspace.javatypes.JavaCompatExplorationSpace;
+import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.services.external.MinioService;
@@ -42,7 +42,7 @@ public class CompleteExplorationValidationStrategy implements ValidationStrategy
 
       // get exploration space
       // JavaCompatExplorationSpace explorationSpace = explorationModelDAO.getExplorationSpace(testID);
-      JavaCompatExplorationSpace explorationSpace =
+      ExplorationSpaceGenerator.ExplorationSpace explorationSpace =
           ExplorationSpace.explorationSpaceFromTestYaml(testDefinitionYamlString);
 
       // get the executed exploration points
@@ -50,9 +50,10 @@ public class CompleteExplorationValidationStrategy implements ValidationStrategy
           explorationModelDAO.getExplorationPointIndices(testID);
 
       // if the exploration size equals the number executed points it is complete
-      return explorationSpace.getSize() == explorationPointIndices.size();
+      return explorationSpace.size() == explorationPointIndices.size();
 
-    } catch (IOException | BenchFlowDeserializationException | BenchFlowTestIDDoesNotExistException e) {
+    } catch (IOException | BenchFlowDeserializationException
+        | BenchFlowTestIDDoesNotExistException e) {
       // should not happen
       // TODO - handle me
       e.printStackTrace();

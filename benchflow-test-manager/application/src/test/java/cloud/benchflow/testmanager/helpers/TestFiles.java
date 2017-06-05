@@ -17,6 +17,9 @@ public class TestFiles {
   private static String TEST_EXPLORATION_ONE_AT_A_TIME_USERS_FILE =
       LOCAL_TESTS_FOLDER + "exploration/one-at-a-time/users/benchflow-test.yml";
 
+  private static String TEST_EXPLORATION_RANDOM_USERS_FILE =
+      LOCAL_TESTS_FOLDER + "exploration/random_breakdown/users/benchflow-test.yml";
+
   public static InputStream getTestExplorationOneAtATimeMultipleInputStream()
       throws FileNotFoundException {
 
@@ -27,5 +30,11 @@ public class TestFiles {
       throws FileNotFoundException {
 
     return new FileInputStream(TEST_EXPLORATION_ONE_AT_A_TIME_USERS_FILE);
+  }
+
+  public static InputStream getTestExplorationRandomUsersInputStream()
+      throws FileNotFoundException {
+
+    return new FileInputStream(TEST_EXPLORATION_RANDOM_USERS_FILE);
   }
 }
