@@ -7,24 +7,60 @@ import cloud.benchflow.experimentmanager.configurations.factory.MinioServiceFact
 import cloud.benchflow.experimentmanager.configurations.factory.MongoDBFactory;
 import cloud.benchflow.experimentmanager.configurations.factory.TaskExecutorFactory;
 import cloud.benchflow.experimentmanager.configurations.factory.TestManagerServiceFactory;
-
+import cloud.benchflow.experimentmanager.configurations.factory.TestModeFactory;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import io.dropwizard.Configuration;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 public class BenchFlowExperimentManagerConfiguration extends Configuration {
 
   // see http://www.dropwizard.io/1.0.6/docs/manual/core.html#configuration
-
-  // Jersey Client Configuration
   @Valid
   @NotNull
   private JerseyClientConfiguration jerseyClient = new JerseyClientConfiguration();
+
+  @Valid
+  @NotNull
+  private final SwaggerBundleConfiguration swagger = new SwaggerBundleConfiguration();
+
+  @Valid
+  @NotNull
+  @JsonProperty
+  private BenchFlowEnvironmentFactory benchFlowEnvironmentFactory =
+      new BenchFlowEnvironmentFactory();
+
+  @Valid
+  @NotNull
+  private MongoDBFactory mongoDBFactory = new MongoDBFactory();
+
+  @Valid
+  @NotNull
+  @JsonProperty
+  private MinioServiceFactory minioServiceFactory = new MinioServiceFactory();
+
+  @Valid
+  @NotNull
+  private FabanServiceFactory fabanServiceFactory = new FabanServiceFactory();
+
+  @Valid
+  @NotNull
+  private DriversMakerServiceFactory driversMakerServiceFactory = new DriversMakerServiceFactory();
+
+  @Valid
+  @NotNull
+  private TestManagerServiceFactory testManagerServiceFactory = new TestManagerServiceFactory();
+
+  @Valid
+  @NotNull
+  private TaskExecutorFactory experimentTaskExecutorServiceFactory = new TaskExecutorFactory();
+
+  @Valid
+  @NotNull
+  private TestModeFactory testModeFactory = new TestModeFactory();
+
 
   @JsonProperty("jerseyClient")
   public JerseyClientConfiguration getJerseyClientConfiguration() {
@@ -36,22 +72,12 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
     this.jerseyClient = jerseyClient;
   }
 
-  // Swagger Configuration
-  @Valid
-  @NotNull
-  private final SwaggerBundleConfiguration swagger = new SwaggerBundleConfiguration();
 
   @JsonProperty("swagger")
   public SwaggerBundleConfiguration getSwagger() {
     return swagger;
   }
 
-  // BenchFlow Environment Configuration
-  @Valid
-  @NotNull
-  @JsonProperty
-  private BenchFlowEnvironmentFactory benchFlowEnvironmentFactory =
-      new BenchFlowEnvironmentFactory();
 
   @JsonProperty("benchFlowEnvironment")
   public BenchFlowEnvironmentFactory getBenchFlowEnvironmentFactory() {
@@ -64,10 +90,6 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
     this.benchFlowEnvironmentFactory = benchFlowEnvironmentFactory;
   }
 
-  // MongoDB Configuration
-  @Valid
-  @NotNull
-  private MongoDBFactory mongoDBFactory = new MongoDBFactory();
 
   @JsonProperty("mongoDB")
   public MongoDBFactory getMongoDBFactory() {
@@ -79,11 +101,6 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
     this.mongoDBFactory = mongoDBFactory;
   }
 
-  // Minio Service
-  @Valid
-  @NotNull
-  @JsonProperty
-  private MinioServiceFactory minioServiceFactory = new MinioServiceFactory();
 
   @JsonProperty("minio")
   public MinioServiceFactory getMinioServiceFactory() {
@@ -95,10 +112,6 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
     this.minioServiceFactory = minioServiceFactory;
   }
 
-  // Faban
-  @Valid
-  @NotNull
-  private FabanServiceFactory fabanServiceFactory = new FabanServiceFactory();
 
   @JsonProperty("faban")
   public FabanServiceFactory getFabanServiceFactory() {
@@ -110,10 +123,6 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
     this.fabanServiceFactory = fabanServiceFactory;
   }
 
-  // Drivers Maker
-  @Valid
-  @NotNull
-  private DriversMakerServiceFactory driversMakerServiceFactory = new DriversMakerServiceFactory();
 
   @JsonProperty("driversMaker")
   public DriversMakerServiceFactory getDriversMakerServiceFactory() {
@@ -125,25 +134,18 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
     this.driversMakerServiceFactory = driversMakerServiceFactory;
   }
 
-  // Performance-Test-Manager Service
-  @Valid
-  @NotNull
-  private TestManagerServiceFactory testManagerServiceFactory = new TestManagerServiceFactory();
 
   @JsonProperty("testManager")
   public TestManagerServiceFactory getTestManagerServiceFactory() {
     return testManagerServiceFactory;
   }
 
+
   @JsonProperty("testManager")
   public void setTestManagerServiceFactory(TestManagerServiceFactory testManagerServiceFactory) {
     this.testManagerServiceFactory = testManagerServiceFactory;
   }
 
-  // Experiment Task Executor
-  @Valid
-  @NotNull
-  private TaskExecutorFactory experimentTaskExecutorServiceFactory = new TaskExecutorFactory();
 
   @JsonProperty("experimentTaskExecutor")
   public TaskExecutorFactory getExperimentTaskExecutorFactory() {
@@ -155,4 +157,14 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
     this.experimentTaskExecutorServiceFactory = taskExecutorServiceFactory;
   }
 
+
+  @JsonProperty("testMode")
+  public TestModeFactory getTestModeFactory() {
+    return testModeFactory;
+  }
+
+  @JsonProperty("testMode")
+  public void setTestModeFactory(TestModeFactory testModeFactory) {
+    this.testModeFactory = testModeFactory;
+  }
 }

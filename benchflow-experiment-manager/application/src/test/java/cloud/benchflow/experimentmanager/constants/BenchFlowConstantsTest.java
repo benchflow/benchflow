@@ -1,7 +1,6 @@
 package cloud.benchflow.experimentmanager.constants;
 
 import cloud.benchflow.experimentmanager.helpers.BenchFlowData;
-
 import org.junit.Assert;
 import org.junit.Test;
 

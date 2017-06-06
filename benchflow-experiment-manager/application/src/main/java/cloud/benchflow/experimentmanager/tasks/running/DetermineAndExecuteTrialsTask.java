@@ -7,9 +7,7 @@ import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperime
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
 import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial;
 import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.TrialStatus;
-
 import java.util.concurrent.Callable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

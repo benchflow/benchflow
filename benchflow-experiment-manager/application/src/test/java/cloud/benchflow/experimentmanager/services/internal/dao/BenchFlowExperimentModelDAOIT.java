@@ -6,9 +6,7 @@ import cloud.benchflow.experimentmanager.DockerComposeIT;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.helpers.BenchFlowData;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
-
 import com.mongodb.MongoClient;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

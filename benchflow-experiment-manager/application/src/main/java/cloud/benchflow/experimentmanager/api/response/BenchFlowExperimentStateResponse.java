@@ -1,9 +1,7 @@
 package cloud.benchflow.experimentmanager.api.response;
 
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**

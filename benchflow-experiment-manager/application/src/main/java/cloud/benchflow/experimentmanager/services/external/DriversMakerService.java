@@ -3,13 +3,11 @@ package cloud.benchflow.experimentmanager.services.external;
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 
 import cloud.benchflow.experimentmanager.exceptions.web.BenchmarkGenerationException;
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
