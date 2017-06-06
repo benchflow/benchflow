@@ -19,8 +19,15 @@ import org.slf4j.LoggerFactory;
  */
 public class FabanManagerServiceMock extends FabanManagerService {
 
+  // the scenarios can be expressed using any case (upper,lower, camel...)
+  // however in order to be used in the switch statement we can only use on case
+  // by converting the received test name to lower case we can match with
+  // the strings below
+
+  // default if test name doesn't match any scenario
   private static final String SCENARIO_ALWAYS_COMPLETED = "alwayscompleted";
   private static final String SCENARIO_FAIL_FIRST_EXECUTION = "failfirstexecution";
+  private static final String SCENARIO_ALWAYS_FAIL = "alwaysfail";
 
   private static Logger logger =
       LoggerFactory.getLogger(FabanManagerServiceMock.class.getSimpleName());
@@ -74,9 +81,9 @@ public class FabanManagerServiceMock extends FabanManagerService {
 
     switch (scenario.toLowerCase()) {
 
-      case SCENARIO_ALWAYS_COMPLETED:
+      case SCENARIO_ALWAYS_FAIL:
 
-        trialStatus = new TrialStatus(trialID, Code.COMPLETED);
+        trialStatus = new TrialStatus(trialID, Code.FAILED);
 
         break;
 
@@ -85,9 +92,11 @@ public class FabanManagerServiceMock extends FabanManagerService {
         trialStatus = handleFailFirstExecution(trialID);
         break;
 
+      case SCENARIO_ALWAYS_COMPLETED:
       default:
-        // no scenario defined so we fail
-        trialStatus = new TrialStatus(trialID, Code.FAILED);
+
+        trialStatus = new TrialStatus(trialID, Code.COMPLETED);
+
         break;
 
     }

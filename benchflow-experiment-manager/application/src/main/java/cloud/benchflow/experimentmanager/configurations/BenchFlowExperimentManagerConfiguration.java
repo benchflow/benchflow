@@ -83,6 +83,7 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   public BenchFlowEnvironmentFactory getBenchFlowEnvironmentFactory() {
     return benchFlowEnvironmentFactory;
   }
+
   @JsonProperty("benchFlowEnvironment")
   public void setBenchFlowEnvironmentFactory(
       BenchFlowEnvironmentFactory benchFlowEnvironmentFactory) {

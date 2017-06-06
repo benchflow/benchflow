@@ -8,6 +8,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 
 import cloud.benchflow.experimentmanager.configurations.BenchFlowExperimentManagerConfiguration;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
+import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.helpers.BenchFlowData;
 import cloud.benchflow.experimentmanager.helpers.MinioTestData;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
@@ -35,8 +36,7 @@ import org.mockito.Mockito;
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-06-04
  */
-public class BenchFlowExperimentManagerApplicationTestModeIT
-    extends DockerComposeIT {
+public class BenchFlowExperimentManagerApplicationTestModeIT extends DockerComposeIT {
 
   private static final int TEST_PORT = 8080;
   private static final String TEST_ADDRESS = "localhost:" + TEST_PORT;
@@ -79,31 +79,16 @@ public class BenchFlowExperimentManagerApplicationTestModeIT
 
     String experimentID = BenchFlowData.SCENARIO_ALWAYS_COMPLETED_EXPERIMENT_ID;
 
-    setUpMocks(experimentID);
+    runAlwaysCompleteOrDefaultOrFailFirst(experimentID);
 
-    Response response = client.target(String.format("http://localhost:%d", RULE.getLocalPort()))
-        .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
-        .path(BenchFlowExperimentResource.RUN_ACTION_PATH).request().post(null);
+  }
 
-    Assert.assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+  @Test
+  public void runNoScenarioSpecified() throws Exception {
 
-    BenchFlowExperimentModelDAO experimentModelDAO = new BenchFlowExperimentModelDAO(mongoClient);
+    String experimentID = BenchFlowData.NO_SCENARIO_EXPERIMENT_ID;
 
-    Assert.assertNotNull(experimentModelDAO.getExperimentModel(experimentID));
-
-    // wait long enough for tasks to start to be executed
-    executorService.awaitTermination(2, TimeUnit.SECONDS);
-
-    Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
-        experimentModelDAO.getExperimentState(experimentID));
-    Assert.assertEquals(TerminatedState.COMPLETED,
-        experimentModelDAO.getTerminatedState(experimentID));
-
-    long expectedExecutedTrials = 2;
-    long executedTrials = BenchFlowExperimentManagerApplication.getExperimentModelDAO()
-        .getNumExecutedTrials(experimentID);
-
-    Assert.assertEquals(expectedExecutedTrials, executedTrials);
+    runAlwaysCompleteOrDefaultOrFailFirst(experimentID);
 
   }
 
@@ -112,32 +97,7 @@ public class BenchFlowExperimentManagerApplicationTestModeIT
 
     String experimentID = BenchFlowData.SCENARIO_FAIL_FIRST_EXEC_EXPERIMENT_ID;
 
-    setUpMocks(experimentID);
-
-    Response response = client.target(String.format("http://localhost:%d", RULE.getLocalPort()))
-        .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
-        .path(BenchFlowExperimentResource.RUN_ACTION_PATH).request().post(null);
-
-    Assert.assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
-
-    BenchFlowExperimentModelDAO experimentModelDAO = new BenchFlowExperimentModelDAO(mongoClient);
-
-    Assert.assertNotNull(experimentModelDAO.getExperimentModel(experimentID));
-
-    // wait long enough for tasks to start to be executed
-    executorService.awaitTermination(2, TimeUnit.SECONDS);
-
-    Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
-        experimentModelDAO.getExperimentState(experimentID));
-    Assert.assertEquals(TerminatedState.COMPLETED,
-        experimentModelDAO.getTerminatedState(experimentID));
-
-    // assert expected number of executions
-    long expectedExecutedTrials = 2;
-    long executedTrials = BenchFlowExperimentManagerApplication.getExperimentModelDAO()
-        .getNumExecutedTrials(experimentID);
-
-    Assert.assertEquals(expectedExecutedTrials, executedTrials);
+    runAlwaysCompleteOrDefaultOrFailFirst(experimentID);
 
     // assert that retries is 1
     int numTrials = 2;
@@ -152,10 +112,40 @@ public class BenchFlowExperimentManagerApplicationTestModeIT
 
   }
 
-  @Test
-  public void runNoScenario() throws Exception {
+  private void runAlwaysCompleteOrDefaultOrFailFirst(String experimentID)
+      throws FileNotFoundException, InterruptedException,
+      BenchFlowExperimentIDDoesNotExistException {
+    setUpMocks(experimentID);
 
-    String experimentID = BenchFlowData.NO_SCENARIO_EXPERIMENT_ID;
+    Response response = client.target(String.format("http://localhost:%d", RULE.getLocalPort()))
+        .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
+        .path(BenchFlowExperimentResource.RUN_ACTION_PATH).request().post(null);
+
+    Assert.assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
+    BenchFlowExperimentModelDAO experimentModelDAO = new BenchFlowExperimentModelDAO(mongoClient);
+
+    Assert.assertNotNull(experimentModelDAO.getExperimentModel(experimentID));
+
+    // wait long enough for tasks to start to be executed
+    executorService.awaitTermination(2, TimeUnit.SECONDS);
+
+    Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
+        experimentModelDAO.getExperimentState(experimentID));
+    Assert.assertEquals(TerminatedState.COMPLETED,
+        experimentModelDAO.getTerminatedState(experimentID));
+
+    long expectedExecutedTrials = 2;
+    long executedTrials = BenchFlowExperimentManagerApplication.getExperimentModelDAO()
+        .getNumExecutedTrials(experimentID);
+
+    Assert.assertEquals(expectedExecutedTrials, executedTrials);
+  }
+
+  @Test
+  public void runAlwaysFailScenario() throws Exception {
+
+    String experimentID = BenchFlowData.SCENARIO_ALWAYS_FAIL_EXPERIMENT_ID;
 
     setUpMocks(experimentID);
 
