@@ -27,7 +27,6 @@ import cloud.benchflow.faban.client.exceptions.JarFileNotFoundException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.DeployStatus;
 import cloud.benchflow.faban.client.responses.RunId;
-import cloud.benchflow.faban.client.responses.RunStatus;
 import cloud.benchflow.faban.client.responses.RunStatus.Code;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.dropwizard.testing.ConfigOverride;
@@ -41,7 +40,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 /**

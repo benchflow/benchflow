@@ -16,10 +16,10 @@ public class Hashing {
 
   public static String hashKey(String key)
       throws UnsupportedEncodingException, NoSuchAlgorithmException {
-    return Hashing.MD5(key);
+    return Hashing.hashMD5(key);
   }
 
-  private static String MD5(String key)
+  private static String hashMD5(String key)
       throws UnsupportedEncodingException, NoSuchAlgorithmException {
     byte[] bytesOfMessage = key.getBytes("UTF-8");
     MessageDigest md = MessageDigest.getInstance("MD5");

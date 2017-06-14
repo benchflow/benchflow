@@ -1,5 +1,6 @@
 package cloud.benchflow.experimentmanager.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
 import java.util.TreeMap;
 import org.mongodb.morphia.annotations.Entity;
@@ -20,11 +21,18 @@ import org.mongodb.morphia.utils.IndexType;
     fields = {@Field(value = "hashedID", type = IndexType.HASHED)})})
 public class BenchFlowExperimentModel {
 
+  /**
+   * NOTE: This class is also annotated with Jackson annotation since we then easily can return it
+   * when the user asks for the status of a given test. This annotation is not needed to store in
+   * MongoDB.
+   */
+
   public static final String ID_FIELD_NAME = "id";
   public static final String HASHED_ID_FIELD_NAME = "hashedID";
   @Id
   private String id;
   // used for potential sharding in the future
+  @JsonIgnore
   private String hashedID;
   private Date start = new Date();
   private Date lastModified = new Date();
@@ -117,6 +125,11 @@ public class BenchFlowExperimentModel {
     trials.put(index, trialModel);
   }
 
+  public TreeMap<Long, TrialModel> getTrials() {
+    return trials;
+  }
+
+  @JsonIgnore
   public long getNumExecutedTrials() {
 
     if (trials.size() == 0) {
@@ -127,6 +140,7 @@ public class BenchFlowExperimentModel {
     return trials.lastEntry().getKey();
   }
 
+  @JsonIgnore
   public String getLastExecutedTrialID() {
 
     // assumes that trials have been inserted in order (highest key is last)

@@ -18,7 +18,8 @@ public class BenchFlowConstants {
   public static final String GENERATED_BENCHMARK_FILENAME = "benchflow-benchmark.jar";
   public static final String FABAN_CONFIG_FILENAME = "run.xml";
   public static final String MINIO_ID_DELIMITER = "/";
-  // TODO - is this correct with only one bucket and it is called tests? Maybe better then just 'benchflow'?
+  // TODO - is this correct with only one bucket and it is called tests? Maybe better
+  // then just 'benchflow'?
   public static final String TESTS_BUCKET = "tests";
   // MongoDB
   public static final String DB_NAME = "benchflow-experiment-manager";

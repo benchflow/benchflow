@@ -126,14 +126,14 @@ public class BenchFlowExperimentManagerApplication
 
     logger.info("run");
 
-    Client client = new JerseyClientBuilder(environment)
+    final Client client = new JerseyClientBuilder(environment)
         .using(configuration.getJerseyClientConfiguration()).build(environment.getName());
 
     MongoClient mongoClient = configuration.getMongoDBFactory().build();
     FabanClient fabanClient = configuration.getFabanServiceFactory().build();
 
     // services
-    ExecutorService experimentTaskExecutorService =
+    final ExecutorService experimentTaskExecutorService =
         configuration.getExperimentTaskExecutorFactory().build(environment);
 
     experimentModelDAO = new BenchFlowExperimentModelDAO(mongoClient);

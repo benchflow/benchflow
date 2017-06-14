@@ -61,6 +61,10 @@ public class CheckTrialResultTask implements Callable<TrialResult> {
           trialResult = TrialResult.FAILURE;
           break;
 
+        default:
+          // no default
+          break;
+
       }
 
       if (trialResult == TrialResult.FAILURE && retries >= maxRetries) {

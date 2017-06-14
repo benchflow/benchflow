@@ -62,13 +62,14 @@ public class StartTask implements Callable<Boolean> {
       BenchFlowExperiment experiment =
           BenchFlowDSL.experimentFromExperimentYaml(experimentYamlString);
 
-      int nTrials = experiment.configuration().terminationCriteria().get().experiment().number();
+      int numTrials = experiment.configuration().terminationCriteria().get().experiment().number();
 
       // save number of trials
-      experimentModelDAO.setNumTrials(experimentID, nTrials);
+      experimentModelDAO.setNumTrials(experimentID, numTrials);
 
-      // convert to old version and save to minio, and also a new experimentID to send to DriversMaker
-      // generate DriversMaker compatible files on minio
+      // Convert to old version and save to minio, and also a new experimentID to
+      // send to DriversMaker.
+      // Generate DriversMaker compatible files on minio
       DriversMakerCompatibleID driversMakerCompatibleID =
           new DriversMakerCompatibleID(experimentID);
 
@@ -80,9 +81,10 @@ public class StartTask implements Callable<Boolean> {
           experimentNumber);
 
       // generate benchmark from DriversMaker (one per experiment)
-      // TODO - is driversMakerService responsible to generate the trialIDs, otherwise I think we should just pass the trialID to the driversMakerService
+      // TODO - is driversMakerService responsible to generate the trialIDs,
+      // otherwise I (JF) think we should just pass the trialID to the driversMakerService
 
-      driversMakerService.generateBenchmark(experimentName, experimentNumber, nTrials);
+      driversMakerService.generateBenchmark(experimentName, experimentNumber, numTrials);
 
       fabanManagerService.deployExperimentToFaban(experimentID, driversMakerExperimentID,
           experimentNumber);

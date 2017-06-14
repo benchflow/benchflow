@@ -3,6 +3,7 @@ package cloud.benchflow.experimentmanager.models;
 import static cloud.benchflow.experimentmanager.models.TrialModel.HandleTrialResultState.CHECK_TRIAL_RESULT;
 
 import cloud.benchflow.faban.client.responses.RunStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Field;
@@ -21,11 +22,18 @@ import org.mongodb.morphia.utils.IndexType;
     fields = {@Field(value = "hashedID", type = IndexType.HASHED)})})
 public class TrialModel {
 
+  /**
+   * NOTE: This class is also annotated with Jackson annotation since we then easily can return it
+   * when the user asks for the status of a given test. This annotation is not needed to store in
+   * MongoDB.
+   */
+
   public static final String ID_FIELD_NAME = "id";
   public static final String HASHED_ID_FIELD_NAME = "hashedID";
   @Id
   private String id;
   // used for potential sharding in the future
+  @JsonIgnore
   private String hashedID;
   private String fabanRunID;
   private Date start = new Date();

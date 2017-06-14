@@ -77,7 +77,8 @@ public class FabanManagerService {
     String fabanExperimentId = getFabanExperimentID(experimentID);
 
     // DEPLOY TO FABAN
-    // get the generated benchflow-benchmark.jar from minioService and save to disk so that it can be sent
+    // get the generated benchflow-benchmark.jar from minioService and save to disk
+    // so that it can be sent
     InputStream fabanBenchmark =
         minioService.getDriversMakerGeneratedBenchmark(driversMakerExperimentID, experimentNumber);
 
@@ -149,7 +150,8 @@ public class FabanManagerService {
   public TrialStatus pollForTrialStatus(String trialID, RunId runId) throws RunIdNotFoundException {
 
     // B) wait/poll for trial to complete and store the trial result in the DB
-    // TODO - is this the status we want to use? No it is a subset, should also include metrics computation status
+    // TODO - is this the status we want to use? No it is a subset, should also
+    // include metrics computation status
     RunStatus status = fabanClient.status(runId);
 
     // workaround for issue #409 (FabanClient throws an exception when status is UNKNOWN)
