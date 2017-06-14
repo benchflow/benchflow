@@ -22,7 +22,6 @@ import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.Tria
 import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.responses.DeployStatus;
 import cloud.benchflow.faban.client.responses.RunId;
-import cloud.benchflow.faban.client.responses.RunStatus;
 import cloud.benchflow.faban.client.responses.RunStatus.Code;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.dropwizard.client.JerseyClientBuilder;
@@ -167,4 +166,5 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
 
     Assert.assertEquals(Response.Status.PRECONDITION_FAILED.getStatusCode(), response.getStatus());
   }
+
 }

@@ -34,6 +34,7 @@ public class BenchFlowExperimentResource {
 
   public static final String RUN_ACTION_PATH = "/run";
   public static final String ACTION_PATH = "/state";
+  public static final String STATUS_PATH = "/status";
 
   private static Logger logger =
       LoggerFactory.getLogger(BenchFlowExperimentResource.class.getSimpleName());
@@ -107,6 +108,21 @@ public class BenchFlowExperimentResource {
           + e.getMessage());
       throw new WebApplicationException(BenchFlowConstants.INVALID_EXPERIMENT_ID_MESSAGE);
     }
+  }
+
+  @GET
+  @Path("/status")
+  @Produces(MediaType.APPLICATION_JSON)
+  public BenchFlowExperimentModel getExperimentStatus(@PathParam("username") String username,
+      @PathParam("testName") String testName, @PathParam("testNumber") int testNumber,
+      @PathParam("experimentNumber") int experimentNumber) {
+
+    String experimentID =
+        BenchFlowConstants.getExperimentID(username, testName, testNumber, experimentNumber);
+
+    logger.info("GET " + BenchFlowConstants.getPathFromExperimentID(experimentID) + ACTION_PATH);
+
+    return experimentModelDAO.getExperimentModel(experimentID);
   }
 
   @PUT
