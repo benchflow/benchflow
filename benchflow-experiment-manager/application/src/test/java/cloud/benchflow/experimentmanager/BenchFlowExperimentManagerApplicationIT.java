@@ -18,10 +18,12 @@ import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
 import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
+import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.TrialStatus;
 import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.responses.DeployStatus;
 import cloud.benchflow.faban.client.responses.RunId;
 import cloud.benchflow.faban.client.responses.RunStatus;
+import cloud.benchflow.faban.client.responses.RunStatus.Code;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.testing.ConfigOverride;
@@ -62,24 +64,21 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
   public WireMockRule wireMockRule = new WireMockRule(TEST_PORT);
 
   private MinioService minioServiceSpy;
-  private FabanClient fabanClientSpy;
+  private FabanClient fabanClientMock = Mockito.mock(FabanClient.class);
   private ExecutorService executorService;
 
   private String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_1_TRIAL;
+  private FabanManagerService fabanManagerServiceSpy;
 
   @Before
   public void setUp() throws Exception {
     minioServiceSpy = Mockito.spy(BenchFlowExperimentManagerApplication.getMinioService());
+
     BenchFlowExperimentManagerApplication.setMinioService(minioServiceSpy);
 
-    FabanManagerService fabanManagerService =
-        BenchFlowExperimentManagerApplication.getFabanManagerService();
+    fabanManagerServiceSpy = Mockito.spy(new FabanManagerService(fabanClientMock, minioServiceSpy));
 
-    fabanClientSpy = Mockito.spy(fabanManagerService.getFabanClient());
-    fabanManagerService.setFabanClient(fabanClientSpy);
-
-    BenchFlowExperimentManagerApplication
-        .setFabanManagerService(new FabanManagerService(fabanClientSpy, minioServiceSpy));
+    BenchFlowExperimentManagerApplication.setFabanManagerService(fabanManagerServiceSpy);
 
     executorService = BenchFlowExperimentManagerApplication.getExperimentTaskScheduler()
         .getExperimentTaskExecutorService();
@@ -107,17 +106,17 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
         .getDriversMakerGeneratedFabanConfiguration(Mockito.anyString(), Mockito.anyLong(),
             Mockito.anyLong());
 
-    Mockito.doReturn(new DeployStatus(201)).when(fabanClientSpy).deploy(Mockito.any());
+    Mockito.doReturn(new DeployStatus(201)).when(fabanClientMock).deploy(Mockito.any());
 
     RunId fabanRunId = new RunId("test.faban-id");
+    String trialID = experimentID + BenchFlowConstants.MODEL_ID_DELIMITER + 1;
 
-    Mockito.doReturn(fabanRunId).when(fabanClientSpy).submit(Mockito.anyString(),
+    Mockito.doReturn(fabanRunId).when(fabanClientMock).submit(Mockito.anyString(),
         Mockito.anyString(), Mockito.any(File.class));
 
-    Mockito.doReturn(new RunStatus("COMPLETED", fabanRunId)).when(fabanClientSpy)
-        .status(fabanRunId);
-
-    String trialID = experimentID + BenchFlowConstants.MODEL_ID_DELIMITER + 1;
+    // we mock this because otherwise waits 60s for first request to Faban
+    Mockito.doReturn(new TrialStatus(trialID, Code.COMPLETED)).when(fabanManagerServiceSpy)
+        .pollForTrialStatus(trialID, fabanRunId);
 
     // Drivers Maker Stub
     stubFor(post(urlEqualTo(DriversMakerService.GENERATE_BENCHMARK_PATH))
@@ -145,8 +144,9 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
 
     Assert.assertNotNull(experimentModelDAO.getExperimentModel(experimentID));
 
+    // TODO - alternative would be to have configuration setting to change first polling to 0s
     // wait long enough for tasks to start to be executed
-    executorService.awaitTermination(2, TimeUnit.SECONDS);
+    executorService.awaitTermination(10, TimeUnit.SECONDS);
 
     Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
         experimentModelDAO.getExperimentState(experimentID));

@@ -152,11 +152,19 @@ public class FabanManagerService {
     // TODO - is this the status we want to use? No it is a subset, should also include metrics computation status
     RunStatus status = fabanClient.status(runId);
 
+    // workaround for issue #409 (FabanClient throws an exception when status is UNKNOWN)
+    // wait 60s before polling (Faban needs time to setup)
+    try {
+      Thread.sleep(60 * 1000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
     while (status.getStatus().equals(QUEUED) || status.getStatus().equals(RECEIVED)
         || status.getStatus().equals(STARTED)) {
 
       try {
-        Thread.sleep(1000);
+        Thread.sleep(30 * 1000);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }

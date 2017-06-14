@@ -20,6 +20,7 @@ import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
 import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
+import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.TrialStatus;
 import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.exceptions.ConfigFileNotFoundException;
 import cloud.benchflow.faban.client.exceptions.JarFileNotFoundException;
@@ -27,6 +28,7 @@ import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.DeployStatus;
 import cloud.benchflow.faban.client.responses.RunId;
 import cloud.benchflow.faban.client.responses.RunStatus;
+import cloud.benchflow.faban.client.responses.RunStatus.Code;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
@@ -39,6 +41,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 /**
@@ -70,6 +73,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   private ExperimentTaskScheduler experimentTaskScheduler;
   private ExecutorService experimentTaskExecutorServer;
   private BenchFlowExperimentModelDAO experimentModelDAO;
+  private FabanManagerService fabanManagerServiceSpy;
 
   @Before
   public void setUp() throws Exception {
@@ -82,9 +86,8 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     BenchFlowExperimentManagerApplication.setMinioService(minioServiceSpy);
 
     // set faban client as mock
-    FabanManagerService fabanManagerService =
-        new FabanManagerService(fabanClientMock, minioServiceSpy);
-    BenchFlowExperimentManagerApplication.setFabanManagerService(fabanManagerService);
+    fabanManagerServiceSpy = Mockito.spy(new FabanManagerService(fabanClientMock, minioServiceSpy));
+    BenchFlowExperimentManagerApplication.setFabanManagerService(fabanManagerServiceSpy);
 
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment1TrialDefinition())
         .when(minioServiceSpy)
@@ -312,7 +315,10 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     Mockito.doReturn(runId).when(fabanClientMock).submit(Mockito.matches(fabanExperimentId),
         Mockito.matches(getFabanTrialID(trialID)), Mockito.any(File.class));
 
-    Mockito.doReturn(new RunStatus("COMPLETED", runId)).when(fabanClientMock).status(runId);
+    // TODO - alternative would be to have configuration setting to change first polling to 0s
+    // we mock this because otherwise we have to wait for first polling (60s)
+    Mockito.doReturn(new TrialStatus(trialID, Code.COMPLETED)).when(fabanManagerServiceSpy)
+        .pollForTrialStatus(trialID, runId);
 
   }
 
@@ -334,9 +340,11 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     Mockito.doReturn(runId).when(fabanClientMock).submit(Mockito.matches(fabanExperimentId),
         Mockito.matches(getFabanTrialID(trialID)), Mockito.any(File.class));
 
-    Mockito.doReturn(new RunStatus("FAILED", runId)).doReturn(new RunStatus("COMPLETED", runId))
-        .when(fabanClientMock).status(runId);
-
+    // TODO - alternative would be to have configuration setting to change first polling to 0s
+    // we mock this because otherwise we have to wait for first polling (60s)
+    Mockito.doReturn(new TrialStatus(trialID, Code.FAILED))
+        .doReturn(new TrialStatus(trialID, Code.COMPLETED)).when(fabanManagerServiceSpy)
+        .pollForTrialStatus(trialID, runId);
 
   }
 
@@ -358,7 +366,10 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     Mockito.doReturn(runId).when(fabanClientMock).submit(Mockito.matches(fabanExperimentId),
         Mockito.matches(getFabanTrialID(trialID)), Mockito.any(File.class));
 
-    Mockito.doReturn(new RunStatus("FAILED", runId)).when(fabanClientMock).status(runId);
+    // TODO - alternative would be to have configuration setting to change first polling to 0s
+    // we mock this because otherwise we have to wait for first polling (60s)
+    Mockito.doReturn(new TrialStatus(trialID, Code.FAILED)).when(fabanManagerServiceSpy)
+        .pollForTrialStatus(trialID, runId);
 
 
   }
