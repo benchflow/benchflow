@@ -1,9 +1,14 @@
 package cloud.benchflow.dsl.demo
 
+// need to import writers specifically otherwise can't find right protocol (at least when used in the same method)
 import cloud.benchflow.dsl.definition.BenchFlowExperiment
-import cloud.benchflow.dsl.definition.datacollection.serverside.collector.CollectorMultipleEnvironmentYamlProtocol._
+import cloud.benchflow.dsl.definition.datacollection.serverside.collector.CollectorMultipleEnvironmentYamlProtocol.CollectorMultipleEnvironmentWriteFormat
 import cloud.benchflow.dsl.definition.datacollection.serverside.collector.{ CollectorMultiple, CollectorMultipleEnvironment }
-import cloud.benchflow.dsl.definition.sut.configuration.targetservice.TargetServiceYamlProtocol._
+import cloud.benchflow.dsl.definition.sut.configuration.targetservice.TargetServiceYamlProtocol.TargetServiceWriteFormat
+import cloud.benchflow.dsl.definition.types.percent.Percent
+import cloud.benchflow.dsl.definition.types.percent.PercentYamlProtocol._
+import cloud.benchflow.dsl.definition.workload.Workload
+import cloud.benchflow.dsl.definition.workload.mix.{ FixedSequenceMix, FlatMix, FlatSequenceMix, MatrixMix }
 import net.jcazevedo.moultingyaml._
 
 import scala.util.Properties
@@ -14,51 +19,204 @@ import scala.util.Properties
  */
 object DemoConverter {
 
+  val tab = "  "
+
   //noinspection ScalaStyle
   def convertExperimentToPreviousYamlString(benchFlowExperiment: BenchFlowExperiment): String = {
-
-    val tab = "  "
 
     val yamlStringBuilder = StringBuilder.newBuilder
 
     yamlStringBuilder.append("testName" + ": " + benchFlowExperiment.name)
     yamlStringBuilder.append(Properties.lineSeparator)
 
-    yamlStringBuilder.append("description" + ": " + benchFlowExperiment.description)
-    yamlStringBuilder.append(Properties.lineSeparator)
+    benchFlowExperiment.description match {
+      case Some(description) =>
+        yamlStringBuilder.append("description" + ": " + description)
+        yamlStringBuilder.append(Properties.lineSeparator)
 
-    yamlStringBuilder.append("trials" + ": " + benchFlowExperiment.configuration.terminationCriteria.get.experiment.number)
-    yamlStringBuilder.append(Properties.lineSeparator)
+      case None => // don't add the description
+    }
 
-    yamlStringBuilder.append("users" + ": " + benchFlowExperiment.configuration.users.get)
-    yamlStringBuilder.append(Properties.lineSeparator)
+    benchFlowExperiment.configuration.terminationCriteria match {
 
-    yamlStringBuilder.append(Properties.lineSeparator)
+      case Some(terminationCriteria) =>
+        yamlStringBuilder.append("trials" + ": " + terminationCriteria.experiment.number)
+        yamlStringBuilder.append(Properties.lineSeparator)
 
-    // Execution
-    yamlStringBuilder.append("execution" + ": ")
-    yamlStringBuilder.append(Properties.lineSeparator)
-    yamlStringBuilder.append(tab + "rampUp" + ": " + benchFlowExperiment.configuration.workloadExecution.get.rampUp.toSecondsPart)
-    yamlStringBuilder.append(Properties.lineSeparator)
-    yamlStringBuilder.append(tab + "steadyState" + ": " + benchFlowExperiment.configuration.workloadExecution.get.steadyState.toSecondsPart)
-    yamlStringBuilder.append(Properties.lineSeparator)
-    yamlStringBuilder.append(tab + "rampDown" + ": " + benchFlowExperiment.configuration.workloadExecution.get.rampDown.toSecondsPart)
-    yamlStringBuilder.append(Properties.lineSeparator)
+      case None => // don't add trials
+    }
 
-    yamlStringBuilder.append(Properties.lineSeparator)
+    benchFlowExperiment.configuration.users match {
 
-    // sut
-    yamlStringBuilder.append("sut" + ": ")
-    yamlStringBuilder.append(Properties.lineSeparator)
-    yamlStringBuilder.append(tab + "name" + ": " + benchFlowExperiment.sut.name)
-    yamlStringBuilder.append(Properties.lineSeparator)
-    yamlStringBuilder.append(tab + "type" + ": " + "WfMS") // this is hardcoded because of the case of the letters
-    yamlStringBuilder.append(Properties.lineSeparator)
-    yamlStringBuilder.append(tab + "version" + ": " + benchFlowExperiment.sut.version.toString)
-    yamlStringBuilder.append(Properties.lineSeparator)
+      case Some(users) =>
+
+        yamlStringBuilder.append("users" + ": " + users)
+        yamlStringBuilder.append(Properties.lineSeparator)
+
+      case None => // don't add users
+
+    }
 
     yamlStringBuilder.append(Properties.lineSeparator)
 
+    appendExecution(benchFlowExperiment, yamlStringBuilder)
+
+    appendSut(benchFlowExperiment, yamlStringBuilder)
+
+    appendProperties(yamlStringBuilder)
+
+    appendDrivers(yamlStringBuilder)
+
+    // currently only supports 1 workload
+    val firstWorkload = benchFlowExperiment.workload(benchFlowExperiment.workload.keySet.head)
+
+    appendDriversOperations(yamlStringBuilder, firstWorkload)
+
+    appendDriversMix(yamlStringBuilder, firstWorkload)
+
+    yamlStringBuilder.append(Properties.lineSeparator)
+
+    appendSutConfiguration(benchFlowExperiment, yamlStringBuilder)
+
+    appendDataCollection(benchFlowExperiment, yamlStringBuilder)
+
+    yamlStringBuilder.append(Properties.lineSeparator)
+
+    yamlStringBuilder.toString()
+
+  }
+
+  def appendDataCollection(benchFlowExperiment: BenchFlowExperiment, yamlStringBuilder: StringBuilder): Unit = {
+    // data collection
+    yamlStringBuilder.append(Properties.lineSeparator)
+
+    benchFlowExperiment.dataCollection match {
+
+      case Some(dataCollection) =>
+        yamlStringBuilder.append(tab + "benchflowConfig" + ": ")
+        yamlStringBuilder.append(Properties.lineSeparator)
+
+        dataCollection.serverSide match {
+
+          case Some(serverSideConfiguration) =>
+            serverSideConfiguration.configurationMap.foreach {
+
+              case (key: String, value: CollectorMultiple) =>
+
+                yamlStringBuilder.append((tab * 2) + key + ": ")
+                yamlStringBuilder.append(Properties.lineSeparator)
+
+                value.collectors.foreach(name => {
+                  yamlStringBuilder.append((tab * 2) + "- " + name)
+                  yamlStringBuilder.append(Properties.lineSeparator)
+                })
+
+              case (key: String, value: CollectorMultipleEnvironment) =>
+                yamlStringBuilder.append((tab * 2) + key + ": ")
+                yamlStringBuilder.append(Properties.lineSeparator + (tab * 2))
+
+                yamlStringBuilder.append(
+                  CollectorMultipleEnvironmentWriteFormat.write(value).prettyPrint
+                    .replace("\n", "\n" + (tab * 3))
+                    .replace("environment:", "config:")
+                    .replace("mysql:", "- mysql:"))
+                yamlStringBuilder.append(Properties.lineSeparator)
+
+              case (_, _) =>
+            }
+
+          case None => // don't add server side config
+        }
+
+      case None => // don't add data collection
+    }
+
+  }
+
+  def appendSutConfiguration(benchFlowExperiment: BenchFlowExperiment, yamlStringBuilder: StringBuilder): Unit = {
+    // sutConfiguration
+    yamlStringBuilder.append("sutConfiguration" + ": ")
+    yamlStringBuilder.append(Properties.lineSeparator)
+
+    yamlStringBuilder.append(tab + "targetService" + ": ")
+    yamlStringBuilder.append(Properties.lineSeparator + (tab * 2))
+
+    yamlStringBuilder.append(TargetServiceWriteFormat.write(benchFlowExperiment.sut.configuration.targetService).prettyPrint.replace("\n", "\n" + (tab * 2)))
+    yamlStringBuilder.append(Properties.lineSeparator)
+
+    yamlStringBuilder.append(tab + "deploy" + ": ")
+    yamlStringBuilder.append(Properties.lineSeparator)
+    benchFlowExperiment.sut.configuration.deployment.foreach {
+      case (key, value) => {
+        yamlStringBuilder.append((tab * 2) + key + ": " + value)
+        yamlStringBuilder.append(Properties.lineSeparator)
+      }
+    }
+  }
+
+  def appendDriversMix(yamlStringBuilder: StringBuilder, firstWorkload: Workload): Unit = {
+    // drivers mix
+    firstWorkload.mix match {
+      case Some(mix) =>
+
+        yamlStringBuilder.append((tab * 2) + "mix" + ":")
+        yamlStringBuilder.append(Properties.lineSeparator)
+
+        // add mix
+        mix.mix match {
+
+          case FixedSequenceMix(seqMix: Seq[String]) =>
+            yamlStringBuilder.append((tab * 3) + "fixedSequence" + ": " + seqMix.toYaml.print(flowStyle = Flow))
+
+          case FlatMix(flatMix: Seq[Percent]) =>
+            yamlStringBuilder.append((tab * 3) + "flat" + ": " + flatMix.map(x => s"${(x.underlying * 100).toInt}%").toYaml.print(flowStyle = Flow))
+
+          case FlatSequenceMix(mixPercents: Seq[Percent], sequences: Seq[Seq[String]]) =>
+            yamlStringBuilder.append((tab * 3) + "flat" + ": " + mixPercents.map(x => s"${(x.underlying * 100).toInt}%").toYaml.print(flowStyle = Flow))
+            yamlStringBuilder.append((tab * 3) + "sequences" + ": " + sequences.toYaml.print(flowStyle = Flow))
+
+          case MatrixMix(matrixMix: Seq[Seq[Percent]]) =>
+            yamlStringBuilder.append((tab * 3) + "matrix" + ": " + matrixMix.map(
+              _.map(x => s"${(x.underlying * 100).toInt}%")).toYaml.print(flowStyle = Flow))
+        }
+
+        // add deviation
+        mix.maxDeviation match {
+          case Some(deviation) =>
+            yamlStringBuilder.append((tab * 3) + "deviation" + ": " + (deviation.underlying * 100).toInt.toYaml.prettyPrint)
+            yamlStringBuilder.append(Properties.lineSeparator)
+
+          case None => // don't add deviation
+
+        }
+
+      case None => // don't add mix
+    }
+  }
+
+  def appendDriversOperations(yamlStringBuilder: StringBuilder, firstWorkload: Workload): Unit = {
+    // drivers operations
+    yamlStringBuilder.append((tab * 2) + "operations" + ": ")
+    yamlStringBuilder.append(Properties.lineSeparator)
+    firstWorkload.operations.foreach(operation => {
+      yamlStringBuilder.append((tab * 2) + "- " + operation)
+      yamlStringBuilder.append(Properties.lineSeparator)
+    })
+  }
+
+  def appendDrivers(yamlStringBuilder: StringBuilder): Unit = {
+    // drivers
+    yamlStringBuilder.append("drivers" + ": ")
+    yamlStringBuilder.append(Properties.lineSeparator)
+    yamlStringBuilder.append("- start" + ": ")
+    yamlStringBuilder.append(Properties.lineSeparator)
+    yamlStringBuilder.append((tab * 2) + "configuration" + ": ")
+    yamlStringBuilder.append(Properties.lineSeparator)
+    yamlStringBuilder.append((tab * 3) + "max90th" + ": " + "60")
+    yamlStringBuilder.append(Properties.lineSeparator)
+  }
+
+  def appendProperties(yamlStringBuilder: StringBuilder): Unit = {
     // properties
     yamlStringBuilder.append("properties" + ": ")
     yamlStringBuilder.append(Properties.lineSeparator)
@@ -70,78 +228,43 @@ object DemoConverter {
     yamlStringBuilder.append(Properties.lineSeparator)
 
     yamlStringBuilder.append(Properties.lineSeparator)
-
-    // drivers
-    yamlStringBuilder.append("drivers" + ": ")
-    yamlStringBuilder.append(Properties.lineSeparator)
-    yamlStringBuilder.append("- start" + ": ")
-    yamlStringBuilder.append(Properties.lineSeparator)
-    yamlStringBuilder.append((tab * 2) + "configuration" + ": ")
-    yamlStringBuilder.append(Properties.lineSeparator)
-    yamlStringBuilder.append((tab * 3) + "max90th" + ": " + "60")
-    yamlStringBuilder.append(Properties.lineSeparator)
-
-    yamlStringBuilder.append((tab * 2) + "operations" + ": ")
-    yamlStringBuilder.append(Properties.lineSeparator)
-    val operationsHead = benchFlowExperiment.workload.keySet.head
-    benchFlowExperiment.workload(operationsHead).operations.foreach(operation => {
-      yamlStringBuilder.append((tab * 2) + "- " + operation)
-      yamlStringBuilder.append(Properties.lineSeparator)
-    })
-
-    yamlStringBuilder.append(Properties.lineSeparator)
-
-    // sutConfiguration
-    yamlStringBuilder.append("sutConfiguration" + ": ")
-    yamlStringBuilder.append(Properties.lineSeparator)
-
-    yamlStringBuilder.append(tab + "targetService" + ": ")
-    yamlStringBuilder.append(Properties.lineSeparator + (tab * 2))
-    yamlStringBuilder.append(benchFlowExperiment.sut.configuration.targetService.toYaml.prettyPrint.replace("\n", "\n" + (tab * 2)))
-    yamlStringBuilder.append(Properties.lineSeparator)
-
-    yamlStringBuilder.append(tab + "deploy" + ": ")
-    yamlStringBuilder.append(Properties.lineSeparator)
-    benchFlowExperiment.sut.configuration.deployment.foreach {
-      case (key, value) => {
-        yamlStringBuilder.append((tab * 2) + key + ": " + value)
-        yamlStringBuilder.append(Properties.lineSeparator)
-      }
-    }
-
-    yamlStringBuilder.append(Properties.lineSeparator)
-
-    yamlStringBuilder.append(tab + "benchflowConfig" + ": ")
-    yamlStringBuilder.append(Properties.lineSeparator)
-
-    benchFlowExperiment.dataCollection.get.serverSide.get.configurationMap.foreach {
-      case (key: String, value: CollectorMultiple) =>
-
-        yamlStringBuilder.append((tab * 2) + key + ": ")
-        yamlStringBuilder.append(Properties.lineSeparator)
-
-        value.collectors.foreach(name => {
-          yamlStringBuilder.append((tab * 2) + "- " + name)
-          yamlStringBuilder.append(Properties.lineSeparator)
-        })
-
-      case (key: String, value: CollectorMultipleEnvironment) =>
-        yamlStringBuilder.append((tab * 2) + key + ": ")
-        yamlStringBuilder.append(Properties.lineSeparator + (tab * 2))
-
-        yamlStringBuilder.append(value.toYaml.prettyPrint
-          .replace("\n", "\n" + (tab * 3))
-          .replace("environment:", "config:")
-          .replace("mysql:", "- mysql:"))
-        yamlStringBuilder.append(Properties.lineSeparator)
-
-      case (_, _) =>
-    }
-
-    yamlStringBuilder.append(Properties.lineSeparator)
-
-    yamlStringBuilder.toString()
-
   }
 
+  def appendSut(benchFlowExperiment: BenchFlowExperiment, yamlStringBuilder: StringBuilder): Unit = {
+    // sut
+    yamlStringBuilder.append("sut" + ": ")
+    yamlStringBuilder.append(Properties.lineSeparator)
+    yamlStringBuilder.append(tab + "name" + ": " + benchFlowExperiment.sut.name)
+    yamlStringBuilder.append(Properties.lineSeparator)
+    yamlStringBuilder.append(tab + "type" + ": " + "WfMS") // this is hardcoded because of the case of the letters
+    yamlStringBuilder.append(Properties.lineSeparator)
+    yamlStringBuilder.append(tab + "version" + ": " + benchFlowExperiment.sut.version.toString)
+    yamlStringBuilder.append(Properties.lineSeparator)
+
+    yamlStringBuilder.append(Properties.lineSeparator)
+  }
+
+  def appendExecution(benchFlowExperiment: BenchFlowExperiment, yamlStringBuilder: StringBuilder): Unit = {
+
+    benchFlowExperiment.configuration.workloadExecution match {
+
+      case Some(workloadExecution) =>
+        // Execution
+        yamlStringBuilder.append("execution" + ": ")
+        yamlStringBuilder.append(Properties.lineSeparator)
+
+        yamlStringBuilder.append(tab + "rampUp" + ": " + workloadExecution.rampUp.toSecondsPart)
+        yamlStringBuilder.append(Properties.lineSeparator)
+        yamlStringBuilder.append(tab + "steadyState" + ": " + workloadExecution.steadyState.toSecondsPart)
+        yamlStringBuilder.append(Properties.lineSeparator)
+        yamlStringBuilder.append(tab + "rampDown" + ": " + workloadExecution.rampDown.toSecondsPart)
+        yamlStringBuilder.append(Properties.lineSeparator)
+
+        yamlStringBuilder.append(Properties.lineSeparator)
+
+      case None => // don't add workload execution
+
+    }
+
+  }
 }
