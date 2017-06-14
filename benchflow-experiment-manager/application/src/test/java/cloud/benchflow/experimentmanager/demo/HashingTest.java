@@ -10,6 +10,7 @@ import org.junit.Test;
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-13
  */
 public class HashingTest {
+
   @Test
   public void hashKey() throws Exception {
 
