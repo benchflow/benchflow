@@ -1,8 +1,13 @@
 package cloud.benchflow.dsl.demo
 
 import cloud.benchflow.dsl.BenchFlowDSL
-import org.junit.Test
+import cloud.benchflow.dsl.definition.workload.Workload
+import cloud.benchflow.dsl.definition.workload.WorkloadYamlProtocol._
+import net.jcazevedo.moultingyaml._
+import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
+
+import scala.util.Try
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch)
@@ -64,6 +69,12 @@ class DemoConverterTest extends JUnitSuite {
       |        driver_type: 'start'
       |        operations:
       |        - 11ParallelStructured.bpmn
+      |        - 12ParallelStructured.bpmn
+      |
+      |        mix:
+      |            flat: [50%, 50%]
+      |            max_deviation: 20%
+      |
       |
       |###############################################################################
       |# Data Collection section
@@ -110,6 +121,12 @@ class DemoConverterTest extends JUnitSuite {
       |      max90th: 60
       |    operations:
       |    - 11ParallelStructured.bpmn
+      |    - 12ParallelStructured.bpmn
+      |
+      |    mix:
+      |      flat: [50%, 50%]
+      |      deviation: 20
+      |
       |
       |sutConfiguration:
       |
@@ -133,7 +150,7 @@ class DemoConverterTest extends JUnitSuite {
       |          MYSQL_USER: kermit
       |          MYSQL_USER_PASSWORD: kermit
       |          TABLE_NAMES: ACT_HI_PROCINST,ACT_HI_ACTINST
-      |          MYSQL_PORT: 3306
+      |          MYSQL_PORT: '3306'
       |          COMPLETION_QUERY: SELECT+COUNT(*)+FROM+ACT_HI_PROCINST+WHERE+END_TIME_+IS+NULL
       |          COMPLETION_QUERY_VALUE: '0'
       |          COMPLETION_QUERY_METHOD: equal""".stripMargin
@@ -144,20 +161,177 @@ class DemoConverterTest extends JUnitSuite {
 
     val convertedExperimentYamlString: String = DemoConverter.convertExperimentToPreviousYamlString(benchFlowExperiment)
 
-    //    val convertedYamlObject = convertedExperimentYamlString.parseYaml
-    //    val expectedYamlObject = expectedExperimentYaml.parseYaml
+    val convertedYamlObject = convertedExperimentYamlString.parseYaml
+    val expectedYamlObject = expectedExperimentYaml.parseYaml
 
-    //    Assert.assertEquals(expectedYamlObject, convertedYamlObject)
+    // TODO - it is difficult to assert that result is as expected since the order is not always the same
+    // improve this test so it can be done automatically
 
-    //    print(convertedExperimentYamlString)
-    //
-    //    print("============================")
-    //
-    //    print(convertedYamlObject.prettyPrint)
-    //
-    //    print("============================")
-    //
-    //    print(expectedYamlObject.prettyPrint)
+    print("====== CONVERTED ========= \n")
+
+    print(convertedYamlObject.prettyPrint)
+
+    print("====== EXPECTED ========== \n")
+
+    print(expectedYamlObject.prettyPrint)
+
+    // uncomment to check manually that result is as expected
+    //    Assert.assertEquals(expectedYamlObject.prettyPrint, convertedYamlObject.prettyPrint)
+
+  }
+
+  @Test def flatMixTest(): Unit = {
+
+    val workloadString =
+      """
+        |driver_type: 'start'
+        |operations:
+        |- 11ParallelStructured.bpmn
+        |- 12ParallelStructured.bpmn
+        |
+        |mix:
+        |  flat: [50%, 50%]
+        |  max_deviation: 20%
+      """.stripMargin
+
+    val expectedFlatMixString =
+      """    mix:
+        |      flat: [50%, 50%]
+        |      deviation: 20
+        |
+        |""".stripMargin
+
+    val stringBuilder = StringBuilder.newBuilder
+
+    val workloadTry = workloadString.parseYaml.convertTo[Try[Workload]]
+
+    Assert.assertTrue(workloadTry.isSuccess)
+
+    val workload = workloadTry.get
+
+    DemoConverter.appendDriversMix(stringBuilder, workload)
+
+    val convertedMix = stringBuilder.toString
+
+    Assert.assertEquals(expectedFlatMixString, convertedMix)
+
+  }
+
+  @Test def fixedSequenceMixTest(): Unit = {
+
+    val workloadString =
+      """
+        |driver_type: 'start'
+        |operations:
+        |- 11ParallelStructured.bpmn
+        |- 12ParallelStructured.bpmn
+        |
+        |mix:
+        |  fixed_sequence: [11ParallelStructured.bpmn, 12ParallelStructured.bpmn]
+        |  max_deviation: 20%
+      """.stripMargin
+
+    val expectedFixedSequenceMixString =
+      """    mix:
+        |      fixedSequence: [11ParallelStructured.bpmn, 12ParallelStructured.bpmn]
+        |      deviation: 20
+        |
+        |""".stripMargin
+
+    val stringBuilder = StringBuilder.newBuilder
+
+    val workloadTry = workloadString.parseYaml.convertTo[Try[Workload]]
+
+    Assert.assertTrue(workloadTry.isSuccess)
+
+    val workload = workloadTry.get
+
+    DemoConverter.appendDriversMix(stringBuilder, workload)
+
+    val convertedMix = stringBuilder.toString
+
+    Assert.assertEquals(expectedFixedSequenceMixString, convertedMix)
+
+  }
+
+  @Test def flatSequenceMixTest(): Unit = {
+
+    val workloadString =
+      """
+        |driver_type: 'start'
+        |operations:
+        |- 11ParallelStructured.bpmn
+        |- 12ParallelStructured.bpmn
+        |
+        |mix:
+        |  flat: [40%, 60%]
+        |  sequences:
+        |  - [11ParallelStructured.bpmn, 12ParallelStructured.bpmn]
+        |  - [12ParallelStructured.bpmn, 11ParallelStructured.bpmn]
+        |  max_deviation: 20%
+      """.stripMargin
+
+    val expectedFlatSequenceMixString =
+      """    mix:
+        |      flat: [40%, 60%]
+        |      sequences: [[11ParallelStructured.bpmn, 12ParallelStructured.bpmn], [12ParallelStructured.bpmn,
+        |    11ParallelStructured.bpmn]]
+        |      deviation: 20
+        |
+        |""".stripMargin
+
+    val stringBuilder = StringBuilder.newBuilder
+
+    val workloadTry = workloadString.parseYaml.convertTo[Try[Workload]]
+
+    Assert.assertTrue(workloadTry.isSuccess)
+
+    val workload = workloadTry.get
+
+    DemoConverter.appendDriversMix(stringBuilder, workload)
+
+    val convertedMix = stringBuilder.toString
+
+    Assert.assertEquals(expectedFlatSequenceMixString, convertedMix)
+
+  }
+
+  @Test def matrixMixTest(): Unit = {
+
+    val workloadString =
+      """
+        |driver_type: 'start'
+        |operations:
+        |- 11ParallelStructured.bpmn
+        |- 12ParallelStructured.bpmn
+        |
+        |mix:
+        |  matrix:
+        |  - [20%,80%]
+        |  - [40%,50%]
+        |  max_deviation: 20%
+      """.stripMargin
+
+    val expectedMatrixMixString =
+      """    mix:
+        |      matrix: [[20%, 80%], [40%, 50%]]
+        |      deviation: 20
+        |
+        |""".stripMargin
+
+    val stringBuilder = StringBuilder.newBuilder
+
+    val workloadTry = workloadString.parseYaml.convertTo[Try[Workload]]
+
+    Assert.assertTrue(workloadTry.isSuccess)
+
+    val workload = workloadTry.get
+
+    DemoConverter.appendDriversMix(stringBuilder, workload)
+
+    val convertedMix = stringBuilder.toString
+
+    Assert.assertEquals(expectedMatrixMixString, convertedMix)
 
   }
 
