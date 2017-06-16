@@ -176,6 +176,59 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
 
   }
 
+  @Test
+  public void runOneAtATimeExplorationUsersMemoryEnvironment() throws Exception {
+
+    String testName = "WfMSTest";
+    int expectedNumExperiments = 16;
+
+    String testID = testModelDAO.addTestModel(testName, user);
+
+    String testDefinitionString =
+        IOUtils.toString(TestFiles.getTestExplorationOneAtATimeUsersMemoryEnvironmentInputStream(),
+            StandardCharsets.UTF_8);
+
+    CountDownLatch countDownLatch =
+        setUpExplorationMocks(testID, expectedNumExperiments, testDefinitionString);
+
+    // handle in scheduler
+    testTaskScheduler.handleTestState(testID);
+
+    // wait long enough for all experiments to complete
+    countDownLatch.await(10, TimeUnit.SECONDS);
+
+    // wait for last task to finish
+    executorService.awaitTermination(1, TimeUnit.SECONDS);
+
+    // assert that all experiments have been executed
+    Assert.assertEquals(0, countDownLatch.getCount());
+
+    // assert that test has been set as TERMINATED
+    Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
+        testModelDAO.getTestState(testID));
+
+    // assert that the complete exploration space has been execution
+    List<Integer> expectedIndices = new ArrayList<>();
+    for (int i = 0; i < expectedNumExperiments; i++) {
+      expectedIndices.add(i);
+    }
+
+    Assert.assertEquals(expectedIndices,
+        explorationModelDAO.getExecutedExplorationPointIndices(testID));
+
+    // assert that deployment descriptor has changed
+    String deploymentDescriptor1 = IOUtils.toString(minioService.getExperimentDeploymentDescriptor(
+        testID + BenchFlowConstants.MODEL_ID_DELIMITER + 1), StandardCharsets.UTF_8);
+    // assert memory limit added
+    Assert.assertTrue(deploymentDescriptor1.contains("mem_limit: 500m"));
+
+    // assert environment changed
+    Assert.assertTrue(deploymentDescriptor1.contains("SIZE_OF_THREADPOOL=1"));
+    Assert.assertTrue(deploymentDescriptor1.contains("AN_ENUM=A"));
+
+
+  }
+
   private CountDownLatch setUpExplorationMocks(String testID, int expectedNumExperiments,
       String testDefinitionString) throws IOException {
 

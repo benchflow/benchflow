@@ -241,6 +241,16 @@ public class MinioService {
     putInputStreamObject(deploymentDescriptor, objectName);
   }
 
+  public InputStream getExperimentDeploymentDescriptor(String experimentID) {
+
+    logger.info("getExperimentDeploymentDescriptor: " + experimentID);
+
+    String objectName =
+        minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+
+    return getInputStreamObject(objectName);
+  }
+
   private void putInputStreamObject(InputStream inputStream, String objectName) {
 
     logger.info("putInputStreamObject: " + objectName);
