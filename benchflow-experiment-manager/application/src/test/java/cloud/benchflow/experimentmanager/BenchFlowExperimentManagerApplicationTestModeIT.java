@@ -175,6 +175,54 @@ public class BenchFlowExperimentManagerApplicationTestModeIT extends DockerCompo
 
   }
 
+  @Test
+  public void runFailEverySecondExperimentScenario() throws Exception {
+
+    String testID = BenchFlowData.SCENARIO_FAIL_EVERY_SECOND_EXPERIMENT_TEST_ID;
+
+    for (int i = 1; i <= 5; i++) {
+
+      String experimentID = testID + BenchFlowConstants.MODEL_ID_DELIMITER + i;
+
+      setUpMocks(experimentID);
+
+      Response response = client.target(String.format("http://localhost:%d", RULE.getLocalPort()))
+          .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
+          .path(BenchFlowExperimentResource.RUN_ACTION_PATH).request().post(null);
+
+      Assert.assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
+      BenchFlowExperimentModelDAO experimentModelDAO = new BenchFlowExperimentModelDAO(mongoClient);
+
+      Assert.assertNotNull(experimentModelDAO.getExperimentModel(experimentID));
+
+      // wait long enough for tasks to start to be executed
+      executorService.awaitTermination(2, TimeUnit.SECONDS);
+
+      Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
+          experimentModelDAO.getExperimentState(experimentID));
+
+      long expectedExecutedTrials;
+      if (i % 2 == 0) {
+        Assert.assertEquals(TerminatedState.FAILURE,
+            experimentModelDAO.getTerminatedState(experimentID));
+        expectedExecutedTrials = 1;
+      } else {
+        Assert.assertEquals(TerminatedState.COMPLETED,
+            experimentModelDAO.getTerminatedState(experimentID));
+        expectedExecutedTrials = 2;
+      }
+
+
+      long executedTrials = BenchFlowExperimentManagerApplication.getExperimentModelDAO()
+          .getNumExecutedTrials(experimentID);
+
+      Assert.assertEquals(expectedExecutedTrials, executedTrials);
+
+    }
+
+  }
+
   private void setUpMocks(String experimentID) throws FileNotFoundException {
 
     int numTrials = 2;

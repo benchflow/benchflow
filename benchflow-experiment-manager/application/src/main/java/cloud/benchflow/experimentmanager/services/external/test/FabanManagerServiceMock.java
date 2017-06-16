@@ -28,11 +28,12 @@ public class FabanManagerServiceMock extends FabanManagerService {
   private static final String SCENARIO_ALWAYS_COMPLETED = "alwayscompleted";
   private static final String SCENARIO_FAIL_FIRST_EXECUTION = "failfirstexecution";
   private static final String SCENARIO_ALWAYS_FAIL = "alwaysfail";
+  private static final String SCENARIO_FAIL_EVERY_SECOND_EXPERIMENT = "faileverysecondexperiment";
 
   private static Logger logger =
       LoggerFactory.getLogger(FabanManagerServiceMock.class.getSimpleName());
 
-  private Map<String, Integer> runIdMap = new HashMap<>();
+  private Map<String, Integer> trialRunIdMap = new HashMap<>();
 
   private long runIdCounter = 0;
 
@@ -58,10 +59,10 @@ public class FabanManagerServiceMock extends FabanManagerService {
 
     RunId runId = new RunId(fabanID, Long.toString(runIdCounter++));
 
-    if (!runIdMap.containsKey(trialID)) {
-      runIdMap.put(trialID, 1);
+    if (!trialRunIdMap.containsKey(trialID)) {
+      trialRunIdMap.put(trialID, 1);
     } else {
-      runIdMap.put(trialID, runIdMap.get(trialID) + 1);
+      trialRunIdMap.put(trialID, trialRunIdMap.get(trialID) + 1);
     }
 
     return runId;
@@ -92,6 +93,11 @@ public class FabanManagerServiceMock extends FabanManagerService {
         trialStatus = handleFailFirstExecution(trialID);
         break;
 
+      case SCENARIO_FAIL_EVERY_SECOND_EXPERIMENT:
+
+        trialStatus = handleFailEverySecondExperiment(trialID);
+        break;
+
       case SCENARIO_ALWAYS_COMPLETED:
       default:
 
@@ -107,9 +113,21 @@ public class FabanManagerServiceMock extends FabanManagerService {
 
   private TrialStatus handleFailFirstExecution(String trialID) {
 
-    int numExecutions = runIdMap.get(trialID);
+    int numExecutions = trialRunIdMap.get(trialID);
 
     if (numExecutions < 2) {
+      return new TrialStatus(trialID, Code.FAILED);
+    }
+
+    return new TrialStatus(trialID, Code.COMPLETED);
+
+  }
+
+  private TrialStatus handleFailEverySecondExperiment(String trialID) {
+
+    int experimentNumber = BenchFlowConstants.getExperimentNumberFromTrialID(trialID);
+
+    if (experimentNumber % 2 == 0) {
       return new TrialStatus(trialID, Code.FAILED);
     }
 

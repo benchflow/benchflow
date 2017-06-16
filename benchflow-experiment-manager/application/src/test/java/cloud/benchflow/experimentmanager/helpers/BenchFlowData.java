@@ -17,6 +17,8 @@ public class BenchFlowData {
   public static String SCENARIO_ALWAYS_COMPLETED_EXPERIMENT_ID = "benchflow.alwaysCompleted.1.1";
   public static String SCENARIO_FAIL_FIRST_EXEC_EXPERIMENT_ID = "benchflow.failFirstExecution.1.1";
   public static String SCENARIO_ALWAYS_FAIL_EXPERIMENT_ID = "benchflow.alwaysFail.1.1";
+  public static String SCENARIO_FAIL_EVERY_SECOND_EXPERIMENT_TEST_ID =
+      "benchflow.failEverySecondExperiment.1";
   public static String NO_SCENARIO_EXPERIMENT_ID = "benchflow.noScenario.1.1";
 
   public static final String VALID_EXPERIMENT_ID_1_TRIAL =
