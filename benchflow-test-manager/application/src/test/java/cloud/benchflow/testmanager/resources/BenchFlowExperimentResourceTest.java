@@ -8,10 +8,9 @@ import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
+import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
-import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

@@ -6,7 +6,6 @@ import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.services.external.MinioService;
-import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

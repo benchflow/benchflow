@@ -7,12 +7,10 @@ import cloud.benchflow.testmanager.DockerComposeIT;
 import cloud.benchflow.testmanager.archive.TestArchives;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import io.minio.MinioClient;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;

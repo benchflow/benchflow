@@ -2,7 +2,6 @@ package cloud.benchflow.testmanager.tasks.running;
 
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
-import cloud.benchflow.testmanager.strategy.selection.OneAtATimeSelectionStrategy;
 import cloud.benchflow.testmanager.strategy.validation.CompleteExplorationValidationStrategy;
 import cloud.benchflow.testmanager.strategy.validation.ValidationStrategy;
 import cloud.benchflow.testmanager.tasks.running.ValidateTerminationCriteria.TerminationCriteriaResult;

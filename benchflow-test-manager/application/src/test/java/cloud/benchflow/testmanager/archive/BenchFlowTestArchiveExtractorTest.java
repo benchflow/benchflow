@@ -3,7 +3,6 @@ package cloud.benchflow.testmanager.archive;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
