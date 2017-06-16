@@ -1,20 +1,13 @@
 package cloud.benchflow.testmanager.strategy.selection;
 
-import cloud.benchflow.dsl.BenchFlowDSL;
-import cloud.benchflow.dsl.definition.BenchFlowTest;
 import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.helpers.TestFiles;
 import cloud.benchflow.testmanager.services.external.MinioService;
-import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
-import cloud.benchflow.testmanager.tasks.start.StartTask;
+import cloud.benchflow.testmanager.strategy.selection.SelectionStrategy.SelectedExperimentBundle;
 
-import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.ArrayList;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +20,6 @@ public class OneAtATimeSelectionStrategyTest {
 
   private MinioService minioMock = Mockito.mock(MinioService.class);
   private ExplorationModelDAO explorationModelDAOMock = Mockito.mock(ExplorationModelDAO.class);
-  private BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
 
   private OneAtATimeSelectionStrategy oneAtATimeSelectionStrategy;
 
@@ -35,52 +27,41 @@ public class OneAtATimeSelectionStrategyTest {
   public void setUp() throws Exception {
 
     oneAtATimeSelectionStrategy =
-        new OneAtATimeSelectionStrategy(minioMock, explorationModelDAOMock, testModelDAOMock);
+        new OneAtATimeSelectionStrategy(minioMock, explorationModelDAOMock);
   }
 
   @Test
-  public void selectNextExperiment() throws Exception {
+  public void selectNextExperimentFirstIndex() throws Exception {
 
     String testID = TestConstants.VALID_TEST_ID;
 
-    String expectedNumUsers = "5";
+    // return test definition
+    Mockito.doReturn(TestFiles.getTestExplorationOneAtATimeUsersMemoryEnvironmentInputStream())
+        .when(minioMock).getTestDefinition(testID);
+    // return deployment descriptor
+    Mockito.doReturn(TestFiles.getDeploymentDescriptor()).when(minioMock)
+        .getTestDeploymentDescriptor(testID);
 
-    Mockito.doReturn(TestFiles.getTestExplorationOneAtATimeMultipleInputStream()).when(minioMock)
-        .getTestDefinition(testID);
+    // return empty exploration point indices list
+    Mockito.doReturn(new ArrayList<>()).when(explorationModelDAOMock)
+        .getExplorationPointIndices(testID);
 
-    String testYaml = IOUtils.toString(TestFiles.getTestExplorationOneAtATimeMultipleInputStream(),
-        StandardCharsets.UTF_8);
+    SelectedExperimentBundle experimentBundle =
+        oneAtATimeSelectionStrategy.selectNextExperiment(testID);
 
-    BenchFlowTest test = BenchFlowDSL.testFromYaml(testYaml);
+    Assert.assertEquals(0, experimentBundle.getExplorationSpaceIndex());
 
-    //    List<Integer> selectionStrategy = StartTask.generateExplorationSpace(test);
-    //
-    //    Mockito.doReturn(selectionStrategy).when(explorationModelDAOMock)
-    //        .getExplorationPointIndices(testID);
-    //
-    //    Set<Long> experimentNumbers = new HashSet<>();
-    //    // ensure that experiment is available in DB
-    //    experimentNumbers.add(0L);
-    //
-    //    Mockito.doReturn(experimentNumbers).when(testModelDAOMock).getExperimentNumbers(testID);
-    //
-    //    String experimentYaml = oneAtATimeSelectionStrategy.selectNextExperiment(testID);
-    //
-    //    Assert.assertNotNull(experimentYaml);
-    //    Assert.assertTrue(experimentYaml.contains("users: " + expectedNumUsers));
-    //
-    //    // run the next experiment
-    //    // make sure input stream has not been read already
-    //    Mockito.doReturn(TestFiles.getTestExplorationOneAtATimeMultipleInputStream()).when(minioMock)
-    //        .getTestDefinition(testID);
-    //
-    //    experimentNumbers.add(1L);
-    //
-    //    experimentYaml = oneAtATimeSelectionStrategy.selectNextExperiment(testID);
-    //
-    //    expectedNumUsers = "10";
-    //
-    //    Assert.assertNotNull(experimentYaml);
-    //    Assert.assertTrue(experimentYaml.contains("users: " + expectedNumUsers));
+    // assert memory limit added
+    Assert.assertTrue(
+        experimentBundle.getDeploymentDescriptorYamlString().contains("mem_limit: 500m"));
+
+    // assert environment changed
+    Assert.assertTrue(
+        experimentBundle.getDeploymentDescriptorYamlString().contains("SIZE_OF_THREADPOOL=1"));
+    Assert.assertTrue(experimentBundle.getDeploymentDescriptorYamlString().contains("AN_ENUM=A"));
+
+    // assert number of users is correct
+    Assert.assertTrue(experimentBundle.getExperimentYamlString().contains("users: 5"));
+
   }
 }

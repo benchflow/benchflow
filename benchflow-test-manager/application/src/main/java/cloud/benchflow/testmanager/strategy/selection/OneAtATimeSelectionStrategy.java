@@ -26,21 +26,18 @@ public class OneAtATimeSelectionStrategy implements SelectionStrategy {
 
   private final MinioService minioService;
   private final ExplorationModelDAO explorationModelDAO;
-  private final BenchFlowTestModelDAO testModelDAO;
 
   public OneAtATimeSelectionStrategy() {
 
     this.minioService = BenchFlowTestManagerApplication.getMinioService();
     this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
-    this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
   }
 
   // only used for testing
   public OneAtATimeSelectionStrategy(MinioService minioService,
-      ExplorationModelDAO explorationModelDAO, BenchFlowTestModelDAO testModelDAO) {
+      ExplorationModelDAO explorationModelDAO) {
     this.minioService = minioService;
     this.explorationModelDAO = explorationModelDAO;
-    this.testModelDAO = testModelDAO;
   }
 
   @Override

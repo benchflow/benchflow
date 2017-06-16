@@ -11,8 +11,8 @@ public class TestFiles {
 
   private static String LOCAL_TESTS_FOLDER = "src/test/resources/data/";
 
-  private static String TEST_EXPLORATION_ONE_AT_A_TIME_MULTIPLE_FILE =
-      LOCAL_TESTS_FOLDER + "exploration/one-at-a-time/multiple/benchflow-test.yml";
+  private static String TEST_EXPLORATION_ONE_AT_A_TIME_USERS_MEMORY_ENVIRONMENT_FILE =
+      LOCAL_TESTS_FOLDER + "exploration/one-at-a-time/users-memory-environment/benchflow-test.yml";
 
   private static String TEST_EXPLORATION_ONE_AT_A_TIME_USERS_FILE =
       LOCAL_TESTS_FOLDER + "exploration/one-at-a-time/users/benchflow-test.yml";
@@ -20,10 +20,13 @@ public class TestFiles {
   private static String TEST_EXPLORATION_RANDOM_USERS_FILE =
       LOCAL_TESTS_FOLDER + "exploration/random_breakdown/users/benchflow-test.yml";
 
-  public static InputStream getTestExplorationOneAtATimeMultipleInputStream()
+  private static String TEST_DEPLOYMENT_DESCRIPTOR =
+      LOCAL_TESTS_FOLDER + "deployment/docker-compose.yml";
+
+  public static InputStream getTestExplorationOneAtATimeUsersMemoryEnvironmentInputStream()
       throws FileNotFoundException {
 
-    return new FileInputStream(TEST_EXPLORATION_ONE_AT_A_TIME_MULTIPLE_FILE);
+    return new FileInputStream(TEST_EXPLORATION_ONE_AT_A_TIME_USERS_MEMORY_ENVIRONMENT_FILE);
   }
 
   public static InputStream getTestExplorationOneAtATimeUsersInputStream()
@@ -36,5 +39,10 @@ public class TestFiles {
       throws FileNotFoundException {
 
     return new FileInputStream(TEST_EXPLORATION_RANDOM_USERS_FILE);
+  }
+
+  public static InputStream getDeploymentDescriptor() throws FileNotFoundException {
+
+    return new FileInputStream(TEST_DEPLOYMENT_DESCRIPTOR);
   }
 }
