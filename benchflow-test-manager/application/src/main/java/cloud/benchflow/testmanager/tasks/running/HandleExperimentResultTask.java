@@ -9,30 +9,25 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-05-05
  */
-public class HandleExperimentResultTask implements Callable<Boolean> {
+public class HandleExperimentResultTask implements Runnable {
 
   private static Logger logger =
       LoggerFactory.getLogger(HandleExperimentResultTask.class.getSimpleName());
   private final String testID;
 
-  private ExplorationModelDAO explorationModelDAO;
-
   public HandleExperimentResultTask(String testID) {
 
     this.testID = testID;
 
-    this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
   }
 
   @Override
-  public Boolean call() throws Exception {
-
+  public void run() {
     logger.info("running: " + testID);
 
     // TODO - get results when needed
 
-    return explorationModelDAO.hasRegressionModel(testID);
-
   }
+
 
 }

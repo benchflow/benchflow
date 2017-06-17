@@ -446,14 +446,17 @@ public class TestTaskScheduler {
     HandleExperimentResultTask task = new HandleExperimentResultTask(testID);
 
     // TODO - should go into a stateless queue (so that we can recover)
-    Future<Boolean> future = taskExecutorService.submit(task);
+    Future<?> future = taskExecutorService.submit(task);
 
     // replace with new task
     testTasks.put(testID, future);
 
     try {
 
-      Boolean hasRegressionModel = future.get();
+      // wait for task to complete
+      future.get();
+
+      Boolean hasRegressionModel = explorationModelDAO.hasRegressionModel(testID);
 
       TestRunningState nextState =
           hasRegressionModel ? DERIVE_PREDICTION_FUNCTION : VALIDATE_TERMINATION_CRITERIA;
