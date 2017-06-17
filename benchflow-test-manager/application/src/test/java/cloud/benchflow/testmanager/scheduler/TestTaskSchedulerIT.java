@@ -160,20 +160,19 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
         testModelDAO.getTestState(testID));
 
     // assert that the complete exploration space has been execution
-    List<Integer> notExpectedIndices = new ArrayList<>();
-    for (int i = 0; i < expectedNumExperiments; i++) {
-      notExpectedIndices.add(i);
-    }
-
     List<Integer> explorationPointIndices =
         explorationModelDAO.getExecutedExplorationPointIndices(testID);
 
     Assert.assertEquals(expectedNumExperiments, explorationPointIndices.size());
-    Assert.assertNotEquals(notExpectedIndices, explorationPointIndices);
 
     // sort the list and check that all expected values are there
+    List<Integer> sortedIndices = new ArrayList<>();
+    for (int i = 0; i < expectedNumExperiments; i++) {
+      sortedIndices.add(i);
+    }
+
     explorationPointIndices.sort(Integer::compareTo);
-    Assert.assertEquals(notExpectedIndices, explorationPointIndices);
+    Assert.assertEquals(sortedIndices, explorationPointIndices);
 
   }
 
