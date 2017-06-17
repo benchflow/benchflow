@@ -75,12 +75,12 @@ public class BenchFlowTestEndpointTest {
     Assert.assertTrue(testResponse.getTestID().contains(benchFlowTestName));
   }
 
-  @Test
-  public void runInvalidBundleBenchFlowTest() throws Exception {
-
-    // TODO
-
-  }
+  //  @Test
+  //  public void runInvalidBundleBenchFlowTest() throws Exception {
+  //
+  //    // TODO
+  //
+  //  }
 
   @Test
   public void changeBenchFlowTestState() throws Exception {

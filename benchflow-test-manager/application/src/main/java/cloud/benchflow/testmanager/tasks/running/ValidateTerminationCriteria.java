@@ -32,10 +32,10 @@ public class ValidateTerminationCriteria implements Callable<TerminationCriteria
     logger.info("running: " + testID);
 
     // TODO - check if can reach goal
-    boolean canReachGoal = true;
+    //    boolean canReachGoal = true;
 
     // has regression model
-    boolean hasRegressionModel = explorationModelDAO.hasRegressionModel(testID);
+    //    boolean hasRegressionModel = explorationModelDAO.hasRegressionModel(testID);
 
     // TODO - handle cases with regression model
 

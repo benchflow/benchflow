@@ -7,7 +7,9 @@ import static cloud.benchflow.testmanager.strategy.selection.SelectionStrategy.T
 import cloud.benchflow.dsl.BenchFlowDSL;
 import cloud.benchflow.dsl.definition.BenchFlowTest;
 import cloud.benchflow.dsl.definition.configuration.goal.goaltype.GoalType;
+import cloud.benchflow.dsl.definition.configuration.strategy.regression.RegressionStrategyType;
 import cloud.benchflow.dsl.definition.configuration.strategy.selection.SelectionStrategyType;
+import cloud.benchflow.dsl.definition.configuration.strategy.validation.ValidationStrategyType;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
@@ -156,6 +158,9 @@ public class StartTask implements Runnable {
       Value validationStrategyTypeValue) {
 
     // to be changed when more strategies are added
+    if (validationStrategyTypeValue.equals(ValidationStrategyType.RandomValidationSet())) {
+      return ValidationStrategy.Type.RANDOM_VALIDATION_SET;
+    }
 
     return ValidationStrategy.Type.RANDOM_VALIDATION_SET;
 
@@ -165,6 +170,9 @@ public class StartTask implements Runnable {
       Value regressionStrategyTypeValue) {
 
     // to be changed when more strategies are added
+    if (regressionStrategyTypeValue.equals(RegressionStrategyType.Mars())) {
+      return RegressionStrategy.Type.MARS;
+    }
 
     return RegressionStrategy.Type.MARS;
 
