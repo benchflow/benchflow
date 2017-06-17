@@ -5,7 +5,7 @@ import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.Termin
 
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.DockerComposeIT;
-import cloud.benchflow.testmanager.archive.TestArchives;
+import cloud.benchflow.testmanager.bundle.TestBundle;
 import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfiguration;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.helpers.TestConstants;
@@ -124,7 +124,8 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       expectedIndices.add(i);
     }
 
-    Assert.assertEquals(expectedIndices, explorationModelDAO.getExecutedExplorationPointIndices(testID));
+    Assert.assertEquals(expectedIndices,
+        explorationModelDAO.getExecutedExplorationPointIndices(testID));
 
   }
 
@@ -164,7 +165,8 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       notExpectedIndices.add(i);
     }
 
-    List<Integer> explorationPointIndices = explorationModelDAO.getExecutedExplorationPointIndices(testID);
+    List<Integer> explorationPointIndices =
+        explorationModelDAO.getExecutedExplorationPointIndices(testID);
 
     Assert.assertEquals(expectedNumExperiments, explorationPointIndices.size());
     Assert.assertNotEquals(notExpectedIndices, explorationPointIndices);
@@ -200,14 +202,14 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     }).when(experimentManagerService).runBenchFlowExperiment(Matchers.anyString());
 
     InputStream deploymentDescriptorInputStream =
-        TestArchives.getValidDeploymentDescriptorInputStream();
-    Map<String, InputStream> bpmnModelInputStreams = TestArchives.getValidBPMNModels();
+        TestBundle.getValidDeploymentDescriptorInputStream();
+    Map<String, InputStream> bpmnModelInputStreams = TestBundle.getValidBPMNModels();
 
     // extract contents
     InputStream definitionInputStream =
         IOUtils.toInputStream(testDefinitionString, StandardCharsets.UTF_8);
 
-    // save PT archive contents to Minio
+    // save Test Bundle contents to Minio
     minioService.saveTestDefinition(testID, definitionInputStream);
     minioService.saveTestDeploymentDescriptor(testID, deploymentDescriptorInputStream);
 

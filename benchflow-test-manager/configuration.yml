@@ -67,7 +67,7 @@ mongoDB:
   # TODO - we want to authenticate?
 
 benchFlowExperimentManager:
-  address: ${env.PEM_ADDRESS!"SET_ME"}
+  address: ${env.EM_ADDRESS!"SET_ME"}
 
 minio:
   address: ${env.MINIO_ADDRESS!"SET_ME"}

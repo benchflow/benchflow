@@ -4,22 +4,20 @@ import cloud.benchflow.faban.client.responses.RunStatus;
 import cloud.benchflow.testmanager.api.request.ChangeBenchFlowTestStateRequest;
 import cloud.benchflow.testmanager.api.response.ChangeBenchFlowTestStateResponse;
 import cloud.benchflow.testmanager.api.response.RunBenchFlowTestResponse;
-import cloud.benchflow.testmanager.archive.TestArchives;
+import cloud.benchflow.testmanager.bundle.TestBundle;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
+import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
-import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 import io.dropwizard.testing.junit.ResourceTestRule;
-
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
@@ -57,7 +55,7 @@ public class BenchFlowTestEndpointTest {
         .addTestModel(Mockito.matches(benchFlowTestName), Mockito.any(User.class));
 
     FileDataBodyPart fileDataBodyPart = new FileDataBodyPart("benchFlowTestBundle",
-        TestArchives.getValidTestArchiveFile(), MediaType.APPLICATION_OCTET_STREAM_TYPE);
+        TestBundle.getValidTestBundleFile(), MediaType.APPLICATION_OCTET_STREAM_TYPE);
 
     MultiPart multiPart = new MultiPart();
     multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
@@ -78,7 +76,7 @@ public class BenchFlowTestEndpointTest {
   }
 
   @Test
-  public void runInvalidArchiveBenchFlowTest() throws Exception {
+  public void runInvalidBundleBenchFlowTest() throws Exception {
 
     // TODO
 

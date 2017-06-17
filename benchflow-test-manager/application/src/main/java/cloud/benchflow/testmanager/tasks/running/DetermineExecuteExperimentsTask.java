@@ -68,7 +68,7 @@ public class DetermineExecuteExperimentsTask implements Runnable {
       explorationModelDAO.addExecutedExplorationPoint(testID,
           selectedExperimentBundle.getExplorationSpaceIndex());
 
-      // save PE definition to minio
+      // save experiment definition on minio
       minioService.saveExperimentDefinition(experimentID, IOUtils.toInputStream(
           selectedExperimentBundle.getExperimentYamlString(), StandardCharsets.UTF_8));
 
@@ -81,7 +81,7 @@ public class DetermineExecuteExperimentsTask implements Runnable {
       bpmnFileNames.forEach(
           fileName -> minioService.copyBPMNModelForExperiment(testID, experimentID, fileName));
 
-      // run PE on PEManager
+      // run experiment on Experiment Manager
       experimentManagerService.runBenchFlowExperiment(experimentID);
 
     } catch (BenchFlowTestIDDoesNotExistException | BenchFlowExperimentIDDoesNotExistException e) {

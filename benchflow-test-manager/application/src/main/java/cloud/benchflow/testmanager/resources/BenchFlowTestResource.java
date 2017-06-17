@@ -7,13 +7,13 @@ import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.api.request.ChangeBenchFlowTestStateRequest;
 import cloud.benchflow.testmanager.api.response.ChangeBenchFlowTestStateResponse;
 import cloud.benchflow.testmanager.api.response.RunBenchFlowTestResponse;
-import cloud.benchflow.testmanager.archive.BenchFlowTestArchiveExtractor;
+import cloud.benchflow.testmanager.bundle.BenchFlowTestBundleExtractor;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
-import cloud.benchflow.testmanager.exceptions.InvalidTestArchiveException;
+import cloud.benchflow.testmanager.exceptions.InvalidTestBundleException;
 import cloud.benchflow.testmanager.exceptions.UserIDAlreadyExistsException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebException;
-import cloud.benchflow.testmanager.exceptions.web.InvalidTestArchiveWebException;
+import cloud.benchflow.testmanager.exceptions.web.InvalidTestBundleWebException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
@@ -90,7 +90,7 @@ public class BenchFlowTestResource {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
 
-    ZipInputStream archiveZipInputStream = new ZipInputStream(benchFlowTestBundle);
+    ZipInputStream testBundleZipInputStream = new ZipInputStream(benchFlowTestBundle);
 
     User user = new User(username);
 
@@ -108,24 +108,24 @@ public class BenchFlowTestResource {
 
     try {
 
-      // validate archive
-      // Get the contents of archive and check if valid Test ID
-      String testDefinitionYamlString =
-          BenchFlowTestArchiveExtractor.extractBenchFlowTestDefinitionString(archiveZipInputStream);
+      // validate test bundle
+      // Get the contents of bundle and check if valid Test ID
+      String testDefinitionYamlString = BenchFlowTestBundleExtractor
+          .extractBenchFlowTestDefinitionString(testBundleZipInputStream);
 
       if (testDefinitionYamlString == null) {
-        throw new InvalidTestArchiveException();
+        throw new InvalidTestBundleException();
       }
 
       BenchFlowTest benchFlowTest = BenchFlowDSL.testFromYaml(testDefinitionYamlString);
 
-      InputStream deploymentDescriptorInputStream = BenchFlowTestArchiveExtractor
-          .extractDeploymentDescriptorInputStream(archiveZipInputStream);
+      InputStream deploymentDescriptorInputStream = BenchFlowTestBundleExtractor
+          .extractDeploymentDescriptorInputStream(testBundleZipInputStream);
       Map<String, InputStream> bpmnModelInputStreams =
-          BenchFlowTestArchiveExtractor.extractBPMNModelInputStreams(archiveZipInputStream);
+          BenchFlowTestBundleExtractor.extractBPMNModelInputStreams(testBundleZipInputStream);
 
       if (deploymentDescriptorInputStream == null || bpmnModelInputStreams.size() == 0) {
-        throw new InvalidTestArchiveException();
+        throw new InvalidTestBundleException();
       }
 
       // save new test
@@ -138,7 +138,7 @@ public class BenchFlowTestResource {
         InputStream definitionInputStream =
             IOUtils.toInputStream(testDefinitionYamlString, StandardCharsets.UTF_8);
 
-        // save PT archive contents to Minio
+        // save Test Bundle contents to Minio
         minioService.saveTestDefinition(testID, definitionInputStream);
         minioService.saveTestDeploymentDescriptor(testID, deploymentDescriptorInputStream);
 
@@ -152,8 +152,8 @@ public class BenchFlowTestResource {
 
       return new RunBenchFlowTestResponse(testID);
 
-    } catch (IOException | InvalidTestArchiveException | BenchFlowDeserializationException e) {
-      throw new InvalidTestArchiveWebException();
+    } catch (IOException | InvalidTestBundleException | BenchFlowDeserializationException e) {
+      throw new InvalidTestBundleWebException();
     }
   }
 
@@ -170,7 +170,7 @@ public class BenchFlowTestResource {
     logger
         .info("request received: PUT " + BenchFlowConstants.getPathFromTestID(testID) + STATE_PATH);
 
-    // TODO - handle the actual state change (e.g. on PE Manager)
+    // TODO - handle the actual state change (e.g. on Experiment Manager)
 
     // update the state
     BenchFlowTestModel.BenchFlowTestState newState = null;

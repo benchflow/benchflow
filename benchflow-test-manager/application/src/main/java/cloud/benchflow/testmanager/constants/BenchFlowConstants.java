@@ -13,7 +13,7 @@ public class BenchFlowConstants {
   public static final String TESTS_PATH = "/tests/";
   public static final String EXPERIMENTS_PATH = "/experiments/";
   public static final String TRIALS_PATH = "/trials/";
-  // Archive
+  // Test Bundle
   public static final String DEPLOYMENT_DESCRIPTOR_NAME = "docker-compose";
   public static final String TEST_EXPERIMENT_DEFINITION_NAME = "benchflow-test";
   public static final String BPMN_MODELS_FOLDER_NAME = "models";

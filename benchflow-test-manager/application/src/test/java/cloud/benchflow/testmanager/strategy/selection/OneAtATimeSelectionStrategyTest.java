@@ -7,15 +7,8 @@ import cloud.benchflow.testmanager.helpers.TestFiles;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
-import cloud.benchflow.testmanager.tasks.start.StartTask;
-
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

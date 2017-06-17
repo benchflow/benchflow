@@ -45,7 +45,7 @@ public class BenchFlowExperimentModelDAO extends DAO {
     BenchFlowExperimentModel experimentModel =
         new BenchFlowExperimentModel(testID, experimentNumber);
 
-    // first save the PE model and then add it to PT Model
+    // first save the Experiment Model and then add it to Test Model
     datastore.save(experimentModel);
 
     benchFlowTestModel.addExperimentModel(experimentModel);

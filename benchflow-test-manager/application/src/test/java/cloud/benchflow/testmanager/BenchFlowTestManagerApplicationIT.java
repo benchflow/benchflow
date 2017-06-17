@@ -2,7 +2,7 @@ package cloud.benchflow.testmanager;
 
 import cloud.benchflow.testmanager.api.request.ChangeBenchFlowTestStateRequest;
 import cloud.benchflow.testmanager.api.response.RunBenchFlowTestResponse;
-import cloud.benchflow.testmanager.archive.TestArchives;
+import cloud.benchflow.testmanager.bundle.TestBundle;
 import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfiguration;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.helpers.TestConstants;
@@ -16,12 +16,10 @@ import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import io.dropwizard.util.Duration;
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
@@ -62,7 +60,7 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
     User user = BenchFlowConstants.BENCHFLOW_USER;
 
     FileDataBodyPart fileDataBodyPart = new FileDataBodyPart("benchFlowTestBundle",
-        TestArchives.getValidTestArchiveFile(), MediaType.APPLICATION_OCTET_STREAM_TYPE);
+        TestBundle.getValidTestBundleFile(), MediaType.APPLICATION_OCTET_STREAM_TYPE);
 
     MultiPart multiPart = new MultiPart();
     multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);

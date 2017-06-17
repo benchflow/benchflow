@@ -5,11 +5,11 @@ import javax.ws.rs.WebApplicationException;
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 15.02.17.
  */
-public class InvalidTestArchiveWebException extends WebApplicationException {
+public class InvalidTestBundleWebException extends WebApplicationException {
 
-  private static String message = "Invalid BenchFlow Test archive";
+  private static String message = "Invalid BenchFlow Test Bundle";
 
-  public InvalidTestArchiveWebException() {
+  public InvalidTestBundleWebException() {
     super(message);
   }
 }
