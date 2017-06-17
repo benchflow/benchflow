@@ -46,6 +46,9 @@ public class OneAtATimeSelectionStrategyTest {
 
     BenchFlowTest test = BenchFlowDSL.testFromYaml(testYaml);
 
+    // TODO - should be implemented. Currently commented out since high level case is
+    // covered in TestTaskSchedulerIT
+
     //    List<Integer> selectionStrategy = StartTask.generateExplorationSpace(test);
     //
     //    Mockito.doReturn(selectionStrategy).when(explorationModelDAOMock)
