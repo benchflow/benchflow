@@ -52,7 +52,7 @@ public class OneAtATimeSelectionStrategy implements SelectionStrategy {
 
       // get executed exploration points
       List<Integer> explorationPointIndices =
-          explorationModelDAO.getExplorationPointIndices(testID);
+          explorationModelDAO.getExecutedExplorationPointIndices(testID);
 
       // next experiment to be executed
       int nextExplorationPoint;

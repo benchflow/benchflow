@@ -105,7 +105,7 @@ public class ExplorationModelDAO extends DAO {
 
   }
 
-  public synchronized List<Integer> getExplorationPointIndices(String testID)
+  public synchronized List<Integer> getExecutedExplorationPointIndices(String testID)
       throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("getExecutedExplorationPointIndices: " + testID);

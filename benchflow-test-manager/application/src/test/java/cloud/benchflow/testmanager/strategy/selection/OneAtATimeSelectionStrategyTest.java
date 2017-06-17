@@ -56,7 +56,7 @@ public class OneAtATimeSelectionStrategyTest {
     //    List<Integer> selectionStrategy = StartTask.generateExplorationSpace(test);
     //
     //    Mockito.doReturn(selectionStrategy).when(explorationModelDAOMock)
-    //        .getExplorationPointIndices(testID);
+    //        .getExecutedExplorationPointIndices(testID);
     //
     //    Set<Long> experimentNumbers = new HashSet<>();
     //    // ensure that experiment is available in DB

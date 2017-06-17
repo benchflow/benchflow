@@ -49,7 +49,7 @@ public class RandomBreakdownSelectionStrategy implements SelectionStrategy {
 
       // get executed exploration points
       List<Integer> explorationPointIndices =
-          explorationModelDAO.getExplorationPointIndices(testID);
+          explorationModelDAO.getExecutedExplorationPointIndices(testID);
 
       String testDefinitionYamlString =
           IOUtils.toString(minioService.getTestDefinition(testID), StandardCharsets.UTF_8);

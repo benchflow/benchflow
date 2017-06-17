@@ -124,7 +124,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       expectedIndices.add(i);
     }
 
-    Assert.assertEquals(expectedIndices, explorationModelDAO.getExplorationPointIndices(testID));
+    Assert.assertEquals(expectedIndices, explorationModelDAO.getExecutedExplorationPointIndices(testID));
 
   }
 
@@ -164,7 +164,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       notExpectedIndices.add(i);
     }
 
-    List<Integer> explorationPointIndices = explorationModelDAO.getExplorationPointIndices(testID);
+    List<Integer> explorationPointIndices = explorationModelDAO.getExecutedExplorationPointIndices(testID);
 
     Assert.assertEquals(expectedNumExperiments, explorationPointIndices.size());
     Assert.assertNotEquals(notExpectedIndices, explorationPointIndices);

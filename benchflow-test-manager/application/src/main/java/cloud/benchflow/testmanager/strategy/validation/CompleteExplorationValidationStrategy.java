@@ -47,7 +47,7 @@ public class CompleteExplorationValidationStrategy implements ValidationStrategy
 
       // get the executed exploration points
       List<Integer> explorationPointIndices =
-          explorationModelDAO.getExplorationPointIndices(testID);
+          explorationModelDAO.getExecutedExplorationPointIndices(testID);
 
       // if the exploration size equals the number executed points it is complete
       return explorationSpace.size() == explorationPointIndices.size();
