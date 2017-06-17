@@ -2,7 +2,6 @@ package cloud.benchflow.testmanager.tasks.running;
 
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
-import cloud.benchflow.testmanager.strategy.selection.OneAtATimeSelectionStrategy;
 import cloud.benchflow.testmanager.strategy.validation.CompleteExplorationValidationStrategy;
 import cloud.benchflow.testmanager.strategy.validation.ValidationStrategy;
 import cloud.benchflow.testmanager.tasks.running.ValidateTerminationCriteria.TerminationCriteriaResult;
@@ -40,20 +39,23 @@ public class ValidateTerminationCriteria implements Callable<TerminationCriteria
 
     // TODO - handle cases with regression model
 
-
     // cases with no regression model, e.g. complete exploration
 
     ValidationStrategy validationStrategy = new CompleteExplorationValidationStrategy();
 
     if (validationStrategy.isTestComplete(testID)) {
-      return TerminationCriteriaResult.GOAL_NO_REGRESSION_EXECUTED;
+      return TerminationCriteriaResult.GOAL_REACHABLE_NO_REGRESSION_EXPERIMENTS_EXECUTED;
     }
 
-    return TerminationCriteriaResult.GOAL_NO_REGRESSION_REMAINING;
+    return TerminationCriteriaResult.GOAL_REACHABLE_NO_REGRESSION_EXPERIMENTS_REMAINING;
 
   }
 
   public enum TerminationCriteriaResult {
-    CANNOT_REACH_GOAL, GOAL_NO_REGRESSION_REMAINING, GOAL_NO_REGRESSION_EXECUTED, GOAL_REGRESSION_NOT_ACCEPTABLE, GOAL_REGRESSION_ACCEPTABLE
+    GOAL_NOT_REACHABLE,
+    GOAL_REACHABLE_NO_REGRESSION_EXPERIMENTS_REMAINING,
+    GOAL_REACHABLE_NO_REGRESSION_EXPERIMENTS_EXECUTED,
+    GOAL_REACHABLE_REGRESSION_PREDICTION_NOT_ACCEPTABLE,
+    GOAL_REACHABLE_REGRESSION_PREDICTION_ACCEPTABLE
   }
 }

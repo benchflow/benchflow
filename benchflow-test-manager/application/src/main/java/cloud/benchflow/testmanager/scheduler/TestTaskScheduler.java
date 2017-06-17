@@ -13,7 +13,6 @@ import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminat
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState.GOAL_REACHED;
 
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
-import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState;
@@ -403,22 +402,22 @@ public class TestTaskScheduler {
 
       switch (result) {
 
-        case CANNOT_REACH_GOAL:
+        case GOAL_NOT_REACHABLE:
           testModelDAO.setTestState(testID, TERMINATED);
           testModelDAO.setTestTerminatedState(testID, COMPLETED_WITH_FAILURE);
           break;
 
-        case GOAL_REGRESSION_ACCEPTABLE:
-        case GOAL_NO_REGRESSION_EXECUTED:
+        case GOAL_REACHABLE_REGRESSION_PREDICTION_ACCEPTABLE:
+        case GOAL_REACHABLE_NO_REGRESSION_EXPERIMENTS_EXECUTED:
           testModelDAO.setTestState(testID, TERMINATED);
           testModelDAO.setTestTerminatedState(testID, GOAL_REACHED);
           break;
 
-        case GOAL_REGRESSION_NOT_ACCEPTABLE:
+        case GOAL_REACHABLE_REGRESSION_PREDICTION_NOT_ACCEPTABLE:
           testModelDAO.setTestRunningState(testID, REMOVE_NON_REACHABLE_EXPERIMENTS);
           break;
 
-        case GOAL_NO_REGRESSION_REMAINING:
+        case GOAL_REACHABLE_NO_REGRESSION_EXPERIMENTS_REMAINING:
           testModelDAO.setTestRunningState(testID, DETERMINE_EXECUTE_EXPERIMENTS);
           break;
 
