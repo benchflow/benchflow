@@ -13,10 +13,12 @@ import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminat
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState.GOAL_REACHED;
 
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
+import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
+import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.tasks.running.AddStoredKnowledgeTask;
 import cloud.benchflow.testmanager.tasks.running.DerivePredictionFunctionTask;
 import cloud.benchflow.testmanager.tasks.running.DetermineExecuteExperimentsTask;
@@ -56,6 +58,7 @@ public class TestTaskScheduler {
 
   private ExecutorService taskExecutorService;
   private BenchFlowTestModelDAO testModelDAO;
+  private ExplorationModelDAO explorationModelDAO;
 
   public TestTaskScheduler(ExecutorService taskExecutorService) {
     this.taskExecutorService = taskExecutorService;
@@ -63,6 +66,7 @@ public class TestTaskScheduler {
 
   public void initialize() {
     this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
+    this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
 
     // start dispatcher in separate thead
     new Thread(new TestDispatcher(readyQueue, runningQueue)).start();
@@ -240,14 +244,17 @@ public class TestTaskScheduler {
     AddStoredKnowledgeTask task = new AddStoredKnowledgeTask(testID);
 
     // TODO - should go into a stateless queue (so that we can recover)
-    Future<Boolean> future = taskExecutorService.submit(task);
+    Future<?> future = taskExecutorService.submit(task);
 
     // replace with new task
     testTasks.put(testID, future);
 
     try {
 
-      boolean hasRegressionModel = future.get();
+      // wait for task to complete
+      future.get();
+
+      boolean hasRegressionModel = explorationModelDAO.hasRegressionModel(testID);
 
       TestRunningState nextState =
           hasRegressionModel ? DETERMINE_EXECUTE_VALIDATION_SET : DETERMINE_EXECUTE_EXPERIMENTS;
