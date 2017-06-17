@@ -28,7 +28,7 @@ public class OneAtATimeSelectionStrategyTest {
   public void setUp() throws Exception {
 
     oneAtATimeSelectionStrategy =
-        new OneAtATimeSelectionStrategy(minioMock, explorationModelDAOMock, testModelDAOMock);
+        new OneAtATimeSelectionStrategy(minioMock, explorationModelDAOMock);
   }
 
   @Test
