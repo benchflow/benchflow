@@ -3,13 +3,10 @@ package cloud.benchflow.testmanager.models;
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 
 import cloud.benchflow.faban.client.responses.RunStatus;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Field;
 import org.mongodb.morphia.annotations.Id;
@@ -38,6 +35,7 @@ public class BenchFlowExperimentModel {
   private String testID;
   @JsonIgnore
   private long number;
+  private int explorationPointIndex;
   private Date start = new Date();
   private Date lastModified = new Date();
   private BenchFlowExperimentState state;
@@ -71,6 +69,14 @@ public class BenchFlowExperimentModel {
 
   public long getNumber() {
     return number;
+  }
+
+  public int getExplorationPointIndex() {
+    return explorationPointIndex;
+  }
+
+  public void setExplorationPointIndex(int explorationPointIndex) {
+    this.explorationPointIndex = explorationPointIndex;
   }
 
   public Date getStart() {

@@ -15,14 +15,15 @@ public class AddStoredKnowledgeTask implements Runnable {
 
   public AddStoredKnowledgeTask(String testID) {
     this.testID = testID;
+
   }
 
   @Override
   public void run() {
-
     logger.info("running: " + testID);
 
     // TODO - add stored knowledge
-
   }
+
+
 }

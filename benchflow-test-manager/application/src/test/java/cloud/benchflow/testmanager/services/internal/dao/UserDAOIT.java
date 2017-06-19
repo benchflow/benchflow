@@ -7,11 +7,9 @@ import static org.junit.Assert.assertEquals;
 import cloud.benchflow.testmanager.DockerComposeIT;
 import cloud.benchflow.testmanager.exceptions.UserIDAlreadyExistsException;
 import cloud.benchflow.testmanager.models.User;
-
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

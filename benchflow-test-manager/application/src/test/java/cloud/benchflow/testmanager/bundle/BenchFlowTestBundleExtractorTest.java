@@ -1,25 +1,21 @@
-package cloud.benchflow.testmanager.archive;
+package cloud.benchflow.testmanager.bundle;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 16.02.17.
  */
-public class BenchFlowTestArchiveExtractorTest {
-  @Before
-  public void setUp() throws Exception {}
+public class BenchFlowTestBundleExtractorTest {
 
   @Test
   public void extractBenchFlowTestDefinition() throws Exception {
 
-    String ptDefinition = BenchFlowTestArchiveExtractor
-        .extractBenchFlowTestDefinitionString(TestArchives.getInValidTestArchiveZip());
+    String ptDefinition = BenchFlowTestBundleExtractor
+        .extractBenchFlowTestDefinitionString(TestBundle.getInValidTestBundleZip());
 
     Assert.assertNotNull(ptDefinition);
 
@@ -29,8 +25,8 @@ public class BenchFlowTestArchiveExtractorTest {
   @Test
   public void extractDeploymentDescriptor() throws Exception {
 
-    InputStream deploymentDescriptorInputStream = BenchFlowTestArchiveExtractor
-        .extractDeploymentDescriptorInputStream(TestArchives.getValidTestArchiveZip());
+    InputStream deploymentDescriptorInputStream = BenchFlowTestBundleExtractor
+        .extractDeploymentDescriptorInputStream(TestBundle.getValidTestBundleZip());
 
     Assert.assertNotNull(deploymentDescriptorInputStream);
 
@@ -43,10 +39,10 @@ public class BenchFlowTestArchiveExtractorTest {
   @Test
   public void extractBPMNModels() throws Exception {
 
-    int numberOfModels = TestArchives.BPMN_MODELS_COUNT;
+    int numberOfModels = TestBundle.BPMN_MODELS_COUNT;
 
-    Map<String, InputStream> bpmnModels = BenchFlowTestArchiveExtractor
-        .extractBPMNModelInputStreams(TestArchives.getValidTestArchiveZip());
+    Map<String, InputStream> bpmnModels = BenchFlowTestBundleExtractor
+        .extractBPMNModelInputStreams(TestBundle.getValidTestBundleZip());
 
     Assert.assertEquals(numberOfModels, bpmnModels.size());
   }

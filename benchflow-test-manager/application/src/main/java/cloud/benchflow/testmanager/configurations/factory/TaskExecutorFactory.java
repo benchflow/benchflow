@@ -1,16 +1,13 @@
 package cloud.benchflow.testmanager.configurations.factory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.annotation.Nonnull;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;

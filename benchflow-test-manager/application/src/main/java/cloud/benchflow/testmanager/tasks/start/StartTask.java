@@ -1,20 +1,32 @@
 package cloud.benchflow.testmanager.tasks.start;
 
+import static cloud.benchflow.testmanager.strategy.selection.SelectionStrategy.Type.BOUNDARY_FIRST;
+import static cloud.benchflow.testmanager.strategy.selection.SelectionStrategy.Type.ONE_AT_A_TIME;
+import static cloud.benchflow.testmanager.strategy.selection.SelectionStrategy.Type.RANDOM_BREAKDOWN;
+
 import cloud.benchflow.dsl.BenchFlowDSL;
 import cloud.benchflow.dsl.definition.BenchFlowTest;
+import cloud.benchflow.dsl.definition.configuration.goal.goaltype.GoalType;
+import cloud.benchflow.dsl.definition.configuration.strategy.regression.RegressionStrategyType;
+import cloud.benchflow.dsl.definition.configuration.strategy.selection.SelectionStrategyType;
+import cloud.benchflow.dsl.definition.configuration.strategy.validation.ValidationStrategyType;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
+import cloud.benchflow.testmanager.models.ExplorationModel;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
+import cloud.benchflow.testmanager.strategy.regression.RegressionStrategy;
+import cloud.benchflow.testmanager.strategy.selection.SelectionStrategy;
+import cloud.benchflow.testmanager.strategy.selection.SelectionStrategy.Type;
+import cloud.benchflow.testmanager.strategy.validation.ValidationStrategy;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.collection.JavaConverters;
+import scala.Enumeration.Value;
+import scala.Option;
 
 /**
  * Prepares the test for running.
@@ -40,35 +52,10 @@ public class StartTask implements Runnable {
 
   }
 
-  public static List<Integer> generateExplorationSpace(BenchFlowTest test) {
-
-    // generate exploration space if any
-
-    // TODO - replace this with calculating all possible combinations
-    // something like this https://blog.balfes.net/2015/06/08/finding-every-possible-combination-of-array-entries-from-multiple-lists-with-unknown-bounds-in-java/
-
-    if (test.configuration().goal().explorationSpace().isDefined()) {
-
-      if (test.configuration().goal().explorationSpace().get().workload().isDefined()) {
-
-        return JavaConverters
-            .asJavaCollectionConverter(test.configuration().goal().explorationSpace().get()
-                .workload().get().users().get().values())
-            .asJavaCollection().stream().map(object -> (Integer) object)
-            .collect(Collectors.toList());
-      }
-    }
-
-    return null;
-  }
-
   @Override
   public void run() {
 
     logger.info("running: " + testID);
-
-    // TODO - handle different SUT types
-    // TODO - check that termination criteria with time has not been exceeded
 
     try {
 
@@ -77,10 +64,54 @@ public class StartTask implements Runnable {
 
       BenchFlowTest test = BenchFlowDSL.testFromYaml(testDefinitionYamlString);
 
-      List<Integer> workloadUserSpace = generateExplorationSpace(test);
+      // save goal type
+      Value goalTypeValue = test.configuration().goal().goalType();
+      ExplorationModel.GoalType goalType = convertGoalTypeToJavaType(goalTypeValue);
+      explorationModelDAO.setGoalType(testID, goalType);
 
-      if (workloadUserSpace != null) {
-        explorationModelDAO.setWorkloadUserSpace(testID, workloadUserSpace);
+      if (test.configuration().strategy().isDefined()) {
+
+        // TODO - in future PR
+        //        // get and save exploration space
+        //        JavaCompatExplorationSpace explorationSpace =
+        //            ExplorationSpace.explorationSpaceFromTestYaml(testDefinitionYamlString);
+        //
+        //        explorationModelDAO.setExplorationSpace(testID, explorationSpace);
+        //
+        //        // get and save exploration space dimensions
+        //        JavaCompatExplorationSpaceDimensions explorationSpaceDimensions =
+        //            cloud.benchflow.dsl.ExplorationSpace
+        //                .explorationSpaceDimensionsFromTestYaml(testDefinitionYamlString);
+        //
+        //        explorationModelDAO.setExplorationSpaceDimensions(testID, explorationSpaceDimensions);
+
+        // get and save selection strategy
+        Value selectionStrategyTypeValue = test.configuration().strategy().get().selection();
+        Type selectionStrategyType = convertSelectionStrategyToJavaType(selectionStrategyTypeValue);
+
+        explorationModelDAO.setSelectionStrategyType(testID, selectionStrategyType);
+
+        // get and save validation strategy
+        Option<Value> validationStrategyOption = test.configuration().strategy().get().validation();
+
+        if (validationStrategyOption.isDefined()) {
+          Value validationStrategyValue = validationStrategyOption.get();
+          ValidationStrategy.Type validationStrategyType =
+              convertValidationStrategyToJavaType(validationStrategyValue);
+          explorationModelDAO.setValidationStrategyType(testID, validationStrategyType);
+        }
+
+        // get and save regression strategy
+        Option<Value> regressionStrategyOption = test.configuration().strategy().get().regression();
+        explorationModelDAO.setHasRegressionModel(testID, regressionStrategyOption.isDefined());
+
+        if (regressionStrategyOption.isDefined()) {
+          Value regressionStrategyTypeValue = validationStrategyOption.get();
+          RegressionStrategy.Type regressionStrategyType =
+              convertRegressionStrategyToJavaType(regressionStrategyTypeValue);
+          explorationModelDAO.setRegressionStrategyType(testID, regressionStrategyType);
+        }
+
       }
 
     } catch (BenchFlowDeserializationException | BenchFlowTestIDDoesNotExistException
@@ -91,6 +122,59 @@ public class StartTask implements Runnable {
     }
 
     logger.info("completed: " + testID);
+
+  }
+
+  private SelectionStrategy.Type convertSelectionStrategyToJavaType(
+      Value selectionStrategyTypeValue) {
+
+    if (selectionStrategyTypeValue.equals(SelectionStrategyType.OneAtATime())) {
+      return ONE_AT_A_TIME;
+    }
+
+    if (selectionStrategyTypeValue.equals(SelectionStrategyType.RandomBreakDown())) {
+      return RANDOM_BREAKDOWN;
+    }
+
+    return BOUNDARY_FIRST;
+
+  }
+
+  private ExplorationModel.GoalType convertGoalTypeToJavaType(Value goalTypeValue) {
+
+    if (goalTypeValue.equals(GoalType.Load())) {
+      return ExplorationModel.GoalType.LOAD;
+    }
+
+    if (goalTypeValue.equals(GoalType.Configuration())) {
+      return ExplorationModel.GoalType.CONFIGURATION;
+    }
+
+    return ExplorationModel.GoalType.EXPLORATION;
+
+  }
+
+  private ValidationStrategy.Type convertValidationStrategyToJavaType(
+      Value validationStrategyTypeValue) {
+
+    // to be changed when more strategies are added
+    if (validationStrategyTypeValue.equals(ValidationStrategyType.RandomValidationSet())) {
+      return ValidationStrategy.Type.RANDOM_VALIDATION_SET;
+    }
+
+    return ValidationStrategy.Type.RANDOM_VALIDATION_SET;
+
+  }
+
+  private RegressionStrategy.Type convertRegressionStrategyToJavaType(
+      Value regressionStrategyTypeValue) {
+
+    // to be changed when more strategies are added
+    if (regressionStrategyTypeValue.equals(RegressionStrategyType.Mars())) {
+      return RegressionStrategy.Type.MARS;
+    }
+
+    return RegressionStrategy.Type.MARS;
 
   }
 }

@@ -1,4 +1,4 @@
-package cloud.benchflow.testmanager.archive;
+package cloud.benchflow.testmanager.bundle;
 
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.BPMN_MODELS_FOLDER_NAME;
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.DEPLOYMENT_DESCRIPTOR_NAME;
@@ -19,7 +19,7 @@ import java.util.zip.ZipInputStream;
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 15.02.17.
  */
-public class BenchFlowTestArchiveExtractor {
+public class BenchFlowTestBundleExtractor {
 
   //    benchflow-test.yaml or .yml
   //    docker-compose.yaml or .yml
@@ -38,73 +38,73 @@ public class BenchFlowTestArchiveExtractor {
   /**
    * Extract test definition as a string.
    *
-   * @param benchFlowTestArchive test bundle zip
+   * @param benchFlowTestBundle test bundle zip
    * @return test definition String
    * @throws IOException if test definition cannot be found
    */
-  public static String extractBenchFlowTestDefinitionString(ZipInputStream benchFlowTestArchive)
+  public static String extractBenchFlowTestDefinitionString(ZipInputStream benchFlowTestBundle)
       throws IOException {
 
-    return (String) extractBenchFlowTestDefinitionObject(benchFlowTestArchive, ReturnType.STRING,
+    return (String) extractBenchFlowTestDefinitionObject(benchFlowTestBundle, ReturnType.STRING,
         isExpConfig);
   }
 
   /**
    * Extract test definition as an input stream.
    *
-   * @param benchFlowTestArchive test bundle zip
+   * @param benchFlowTestBundle test bundle zip
    * @return test definition InputStream
    * @throws IOException if test definition cannot be found
    */
   public static InputStream extractBenchFlowTestDefinitionInputStream(
-      ZipInputStream benchFlowTestArchive) throws IOException {
+      ZipInputStream benchFlowTestBundle) throws IOException {
 
-    return (InputStream) extractBenchFlowTestDefinitionObject(benchFlowTestArchive,
+    return (InputStream) extractBenchFlowTestDefinitionObject(benchFlowTestBundle,
         ReturnType.INPUT_STREAM, isExpConfig);
   }
 
   /**
    * Extract deployment descriptor as an input stream.
    *
-   * @param benchFlowTestArchive test bundle zip
+   * @param benchFlowTestBundle test bundle zip
    * @return deployment descriptor InputStream
    * @throws IOException if deployment descriptor cannot be found
    */
   public static InputStream extractDeploymentDescriptorInputStream(
-      ZipInputStream benchFlowTestArchive) throws IOException {
+      ZipInputStream benchFlowTestBundle) throws IOException {
 
-    return (InputStream) extractBenchFlowTestDefinitionObject(benchFlowTestArchive,
+    return (InputStream) extractBenchFlowTestDefinitionObject(benchFlowTestBundle,
         ReturnType.INPUT_STREAM, isDeploymentDescriptor);
   }
 
   /**
    * Extract deployment descriptor as a string.
    *
-   * @param benchFlowTestArchive test bundle zip
+   * @param benchFlowTestBundle test bundle zip
    * @return deployment descriptor String
    * @throws IOException if deployment descriptor cannot be found
    */
-  public static String extractDeploymentDescriptorString(ZipInputStream benchFlowTestArchive)
+  public static String extractDeploymentDescriptorString(ZipInputStream benchFlowTestBundle)
       throws IOException {
 
-    return (String) extractBenchFlowTestDefinitionObject(benchFlowTestArchive, ReturnType.STRING,
+    return (String) extractBenchFlowTestDefinitionObject(benchFlowTestBundle, ReturnType.STRING,
         isDeploymentDescriptor);
   }
 
-  private static Object extractBenchFlowTestDefinitionObject(ZipInputStream benchFlowTestArchive,
+  private static Object extractBenchFlowTestDefinitionObject(ZipInputStream benchFlowTestBundle,
       ReturnType returnType, Predicate<ZipEntry> isFile) throws IOException {
 
     ZipEntry zipEntry;
 
-    while ((zipEntry = benchFlowTestArchive.getNextEntry()) != null) {
+    while ((zipEntry = benchFlowTestBundle.getNextEntry()) != null) {
 
       if (isFile.test(zipEntry)) {
 
         switch (returnType) {
           case INPUT_STREAM:
-            return readZipEntryToInputStream(benchFlowTestArchive);
+            return readZipEntryToInputStream(benchFlowTestBundle);
           case STRING:
-            return readZipEntryToString(benchFlowTestArchive);
+            return readZipEntryToString(benchFlowTestBundle);
           default:
             return null;
         }
@@ -117,12 +117,12 @@ public class BenchFlowTestArchiveExtractor {
   /**
    * Extract BPMN models.
    *
-   * @param benchFlowTestArchive test bundle zip
+   * @param benchFlowTestBundle test bundle zip
    * @return Map with BPMN model filename and InputStream
    * @throws IOException if file cannot be found
    */
   public static Map<String, InputStream> extractBPMNModelInputStreams(
-      ZipInputStream benchFlowTestArchive) throws IOException {
+      ZipInputStream benchFlowTestBundle) throws IOException {
 
     // TODO - validate that the names are the same as in the test definition
 
@@ -136,13 +136,13 @@ public class BenchFlowTestArchiveExtractor {
 
     ZipEntry zipEntry;
 
-    while ((zipEntry = benchFlowTestArchive.getNextEntry()) != null) {
+    while ((zipEntry = benchFlowTestBundle.getNextEntry()) != null) {
 
       if (!zipEntry.isDirectory() && isBPMNModel.test(zipEntry)) {
 
         String fileName = zipEntry.getName().substring(zipEntry.getName().lastIndexOf("/") + 1);
 
-        InputStream data = readZipEntryToInputStream(benchFlowTestArchive);
+        InputStream data = readZipEntryToInputStream(benchFlowTestBundle);
 
         models.put(fileName, data);
       }

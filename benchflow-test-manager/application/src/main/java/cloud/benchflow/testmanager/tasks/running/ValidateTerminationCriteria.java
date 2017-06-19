@@ -2,17 +2,17 @@ package cloud.benchflow.testmanager.tasks.running;
 
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
-import cloud.benchflow.testmanager.strategy.selection.CompleteSelectionStrategy;
-
+import cloud.benchflow.testmanager.strategy.validation.CompleteExplorationValidationStrategy;
+import cloud.benchflow.testmanager.strategy.validation.ValidationStrategy;
+import cloud.benchflow.testmanager.tasks.running.ValidateTerminationCriteria.TerminationCriteriaResult;
 import java.util.concurrent.Callable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-05-05
  */
-public class ValidateTerminationCriteria implements Callable<Boolean> {
+public class ValidateTerminationCriteria implements Callable<TerminationCriteriaResult> {
 
   private static Logger logger =
       LoggerFactory.getLogger(HandleExperimentResultTask.class.getSimpleName());
@@ -27,13 +27,31 @@ public class ValidateTerminationCriteria implements Callable<Boolean> {
   }
 
   @Override
-  public Boolean call() throws Exception {
+  public TerminationCriteriaResult call() throws Exception {
 
     logger.info("running: " + testID);
 
-    CompleteSelectionStrategy completeSelectionStrategy =
-        (CompleteSelectionStrategy) explorationModelDAO.getExperimentSelectionStrategy(testID);
+    // TODO - check if can reach goal
+    //    boolean canReachGoal = true;
 
-    return completeSelectionStrategy.isTestComplete(testID);
+    // has regression model
+    //    boolean hasRegressionModel = explorationModelDAO.hasRegressionModel(testID);
+
+    // TODO - handle cases with regression model
+
+    // cases with no regression model, e.g. complete exploration
+
+    ValidationStrategy validationStrategy = new CompleteExplorationValidationStrategy();
+
+    if (validationStrategy.isTestComplete(testID)) {
+      return TerminationCriteriaResult.GOAL_REACHABLE_NO_REGRESSION_EXPERIMENTS_EXECUTED;
+    }
+
+    return TerminationCriteriaResult.GOAL_REACHABLE_NO_REGRESSION_EXPERIMENTS_REMAINING;
+
+  }
+
+  public enum TerminationCriteriaResult {
+    GOAL_NOT_REACHABLE, GOAL_REACHABLE_NO_REGRESSION_EXPERIMENTS_REMAINING, GOAL_REACHABLE_NO_REGRESSION_EXPERIMENTS_EXECUTED, GOAL_REACHABLE_REGRESSION_PREDICTION_NOT_ACCEPTABLE, GOAL_REACHABLE_REGRESSION_PREDICTION_ACCEPTABLE
   }
 }

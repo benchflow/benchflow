@@ -9,14 +9,32 @@ import java.io.InputStream;
  */
 public class TestFiles {
 
-  private static String TESTS_FOLDER = "src/test/resources/data/";
+  private static String LOCAL_TESTS_FOLDER = "src/test/resources/data/";
 
-  private static String TEST_EXPLORATION_COMPLETE_USERS_FILE =
-      TESTS_FOLDER + "exploration/complete/users/benchflow-test.yml";
+  private static String TEST_EXPLORATION_ONE_AT_A_TIME_MULTIPLE_FILE =
+      LOCAL_TESTS_FOLDER + "exploration/one-at-a-time/multiple/benchflow-test.yml";
 
-  public static InputStream getTestExplorationCompleteUsersInputStream()
+  private static String TEST_EXPLORATION_ONE_AT_A_TIME_USERS_FILE =
+      LOCAL_TESTS_FOLDER + "exploration/one-at-a-time/users/benchflow-test.yml";
+
+  private static String TEST_EXPLORATION_RANDOM_USERS_FILE =
+      LOCAL_TESTS_FOLDER + "exploration/random_breakdown/users/benchflow-test.yml";
+
+  public static InputStream getTestExplorationOneAtATimeMultipleInputStream()
       throws FileNotFoundException {
 
-    return new FileInputStream(TEST_EXPLORATION_COMPLETE_USERS_FILE);
+    return new FileInputStream(TEST_EXPLORATION_ONE_AT_A_TIME_MULTIPLE_FILE);
+  }
+
+  public static InputStream getTestExplorationOneAtATimeUsersInputStream()
+      throws FileNotFoundException {
+
+    return new FileInputStream(TEST_EXPLORATION_ONE_AT_A_TIME_USERS_FILE);
+  }
+
+  public static InputStream getTestExplorationRandomUsersInputStream()
+      throws FileNotFoundException {
+
+    return new FileInputStream(TEST_EXPLORATION_RANDOM_USERS_FILE);
   }
 }

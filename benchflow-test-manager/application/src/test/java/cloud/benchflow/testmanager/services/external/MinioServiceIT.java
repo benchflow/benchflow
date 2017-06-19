@@ -4,15 +4,13 @@ import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_EXPERIMENT
 import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_TEST_ID;
 
 import cloud.benchflow.testmanager.DockerComposeIT;
-import cloud.benchflow.testmanager.archive.TestArchives;
+import cloud.benchflow.testmanager.bundle.TestBundle;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import io.minio.MinioClient;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,11 +46,11 @@ public class MinioServiceIT extends DockerComposeIT {
 
     minioService = new MinioService(minioClient);
 
-    ptDefinitionInputStream = TestArchives.getValidTestDefinitionInputStream();
+    ptDefinitionInputStream = TestBundle.getValidTestDefinitionInputStream();
 
-    deploymentDescriptorInputStream = TestArchives.getValidDeploymentDescriptorInputStream();
+    deploymentDescriptorInputStream = TestBundle.getValidDeploymentDescriptorInputStream();
 
-    bpmnModelsMap = TestArchives.getValidBPMNModels();
+    bpmnModelsMap = TestBundle.getValidBPMNModels();
   }
 
   @Test
@@ -67,7 +65,7 @@ public class MinioServiceIT extends DockerComposeIT {
     String receivedString = IOUtils.toString(
         new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)), StandardCharsets.UTF_8);
 
-    Assert.assertEquals(TestArchives.getValidTestDefinitionString(), receivedString);
+    Assert.assertEquals(TestBundle.getValidTestDefinitionString(), receivedString);
 
     minioService.removeTestDefinition(VALID_TEST_ID);
 
@@ -88,7 +86,7 @@ public class MinioServiceIT extends DockerComposeIT {
     String receivedString = IOUtils.toString(
         new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)), StandardCharsets.UTF_8);
 
-    Assert.assertEquals(TestArchives.getValidDeploymentDescriptorString(), receivedString);
+    Assert.assertEquals(TestBundle.getValidDeploymentDescriptorString(), receivedString);
 
     minioService.removeTestDeploymentDescriptor(VALID_TEST_ID);
 
@@ -113,7 +111,7 @@ public class MinioServiceIT extends DockerComposeIT {
 
       //            String receivedString = IOUtils.toString(new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)), StandardCharsets.UTF_8);
       //
-      //            Assert.assertEquals(TestArchives.getValidDeploymentDescriptorString(), receivedString);
+      //            Assert.assertEquals(TestBundle.getValidDeploymentDescriptorString(), receivedString);
 
       minioService.removeTestBPMNModel(VALID_TEST_ID, name);
 
@@ -135,7 +133,7 @@ public class MinioServiceIT extends DockerComposeIT {
     String receivedString = IOUtils.toString(
         new ByteArrayInputStream(IOUtils.toByteArray(receivedInputStream)), StandardCharsets.UTF_8);
 
-    Assert.assertEquals(TestArchives.getValidTestDefinitionString(), receivedString);
+    Assert.assertEquals(TestBundle.getValidTestDefinitionString(), receivedString);
 
     minioService.removeExperimentDefinition(VALID_EXPERIMENT_ID);
 

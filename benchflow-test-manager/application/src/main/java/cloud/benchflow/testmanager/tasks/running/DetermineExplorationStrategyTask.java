@@ -1,9 +1,5 @@
 package cloud.benchflow.testmanager.tasks.running;
 
-import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
-import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
-import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
-import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,30 +13,17 @@ public class DetermineExplorationStrategyTask implements Runnable {
 
   private final String testID;
 
-  // services
-  private final ExplorationModelDAO explorationModelDAO;
-
   public DetermineExplorationStrategyTask(String testID) {
     this.testID = testID;
-    this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
   }
 
   @Override
   public void run() {
 
-    // TODO - read this from BenchFlowTest
+    logger.info("running: " + testID);
 
-    ExperimentSelectionStrategy.Type selectionStrategyType =
-        ExperimentSelectionStrategy.Type.COMPLETE_SELECTION;
+    // TODO - this is covered by StartTask
+    // TODO - consider to keep or not
 
-    try {
-
-      explorationModelDAO.setExperimentSelectionStrategy(testID, selectionStrategyType);
-
-    } catch (BenchFlowTestIDDoesNotExistException e) {
-      // should not happen since it has already been added
-      logger.error("should not happen");
-      e.printStackTrace();
-    }
   }
 }

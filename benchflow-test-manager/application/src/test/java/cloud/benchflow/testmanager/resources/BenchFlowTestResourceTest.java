@@ -13,23 +13,20 @@ import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTes
 import cloud.benchflow.testmanager.api.request.ChangeBenchFlowTestStateRequest;
 import cloud.benchflow.testmanager.api.response.ChangeBenchFlowTestStateResponse;
 import cloud.benchflow.testmanager.api.response.RunBenchFlowTestResponse;
-import cloud.benchflow.testmanager.archive.TestArchives;
+import cloud.benchflow.testmanager.bundle.TestBundle;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebException;
-import cloud.benchflow.testmanager.exceptions.web.InvalidTestArchiveWebException;
+import cloud.benchflow.testmanager.exceptions.web.InvalidTestBundleWebException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
+import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
-import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
-
 import java.io.InputStream;
-
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -72,7 +69,7 @@ public class BenchFlowTestResourceTest {
   @Test
   public void runBenchFlowTestValid() throws Exception {
 
-    InputStream expArchive = TestArchives.getValidTestArchive();
+    InputStream testBundle = TestBundle.getValidTestBundle();
 
     String expectedTestID =
         TEST_USER_NAME + MODEL_ID_DELIMITER + VALID_BENCHFLOW_TEST_NAME + MODEL_ID_DELIMITER + 1;
@@ -80,7 +77,7 @@ public class BenchFlowTestResourceTest {
     Mockito.doReturn(expectedTestID).when(testModelDAOMock)
         .addTestModel(Mockito.matches(VALID_BENCHFLOW_TEST_NAME), Mockito.any(User.class));
 
-    RunBenchFlowTestResponse response = resource.runBenchFlowTest(TEST_USER_NAME, expArchive);
+    RunBenchFlowTestResponse response = resource.runBenchFlowTest(TEST_USER_NAME, testBundle);
 
     Assert.assertTrue(response.getTestID().contains(VALID_BENCHFLOW_TEST_NAME));
   }
@@ -88,11 +85,11 @@ public class BenchFlowTestResourceTest {
   @Test
   public void runInvalidBenchFlowTest() throws Exception {
 
-    InputStream expArchive = TestArchives.getNoDefinitionTestArchive();
+    InputStream testBundle = TestBundle.getNoDefinitionTestBundle();
 
-    exception.expect(InvalidTestArchiveWebException.class);
+    exception.expect(InvalidTestBundleWebException.class);
 
-    resource.runBenchFlowTest(TEST_USER_NAME, expArchive);
+    resource.runBenchFlowTest(TEST_USER_NAME, testBundle);
   }
 
   @Test

@@ -1,11 +1,9 @@
 package cloud.benchflow.testmanager.services.external;
 
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

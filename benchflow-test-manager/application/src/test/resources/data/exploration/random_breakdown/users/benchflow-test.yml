@@ -10,7 +10,7 @@ description: A WfMS test
 ###############################################################################
 configuration:
   goal:
-    type: load
+    type: exploration
 
     exploration_space:
       workload:
@@ -18,7 +18,7 @@ configuration:
           values: [5, 10, 15, 20]
 
   strategy:
-    selection: complete
+    selection: random_breakdown
 
   workload_execution:
      ramp_up: 0s
@@ -57,7 +57,7 @@ sut:
 ###############################################################################
 workload:
   mymodel:
-    type: start
+    driver_type: start
     operations:
       - myModel.bpmn
 

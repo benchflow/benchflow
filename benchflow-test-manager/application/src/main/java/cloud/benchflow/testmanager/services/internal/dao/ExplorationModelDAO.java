@@ -1,14 +1,19 @@
 package cloud.benchflow.testmanager.services.internal.dao;
 
+import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpace;
+import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpaceDimensions;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
-import cloud.benchflow.testmanager.strategy.selection.CompleteSelectionStrategy;
-import cloud.benchflow.testmanager.strategy.selection.ExperimentSelectionStrategy;
-
+import cloud.benchflow.testmanager.models.ExplorationModel.GoalType;
+import cloud.benchflow.testmanager.strategy.regression.MarsRegressionStrategy;
+import cloud.benchflow.testmanager.strategy.regression.RegressionStrategy;
+import cloud.benchflow.testmanager.strategy.selection.OneAtATimeSelectionStrategy;
+import cloud.benchflow.testmanager.strategy.selection.RandomBreakdownSelectionStrategy;
+import cloud.benchflow.testmanager.strategy.selection.SelectionStrategy;
+import cloud.benchflow.testmanager.strategy.validation.RandomValidationSetValidationStrategy;
+import cloud.benchflow.testmanager.strategy.validation.ValidationStrategy;
 import com.mongodb.MongoClient;
-
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,63 +31,212 @@ public class ExplorationModelDAO extends DAO {
     this.testModelDAO = testModelDAO;
   }
 
-  public synchronized List<Integer> getWorkloadUserSpace(String testID)
+  public synchronized GoalType getGoalType(String testID)
       throws BenchFlowTestIDDoesNotExistException {
 
-    logger.info("getWorkloadUserSpace: " + testID);
+    logger.info("getGoalType: " + testID);
 
     final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
 
-    return benchFlowTestModel.getExplorationModel().getWorkloadUsersSpace();
+    return benchFlowTestModel.getExplorationModel().getGoalType();
+
   }
 
-  public synchronized void setWorkloadUserSpace(String testID, List<Integer> workloadUserSpace)
+  public synchronized void setGoalType(String testID, GoalType goalType)
       throws BenchFlowTestIDDoesNotExistException {
 
-    logger.info("setWorkloadUserSpace: " + testID);
+    logger.info("setGoalType: " + testID);
 
     final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
 
-    benchFlowTestModel.getExplorationModel().setWorkloadUsersSpace(workloadUserSpace);
+    benchFlowTestModel.getExplorationModel().setGoalType(goalType);
+
+    datastore.save(benchFlowTestModel);
+
+  }
+
+  public synchronized ExplorationSpaceDimensions getExplorationSpaceDimensions(String testID)
+      throws BenchFlowTestIDDoesNotExistException {
+
+    logger.info("getExplorationSpaceDimensions: " + testID);
+
+    final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
+
+    return benchFlowTestModel.getExplorationModel().getExplorationSpaceDimensions();
+
+  }
+
+  public synchronized void setExplorationSpaceDimensions(String testID,
+      ExplorationSpaceDimensions explorationSpaceDimensions)
+      throws BenchFlowTestIDDoesNotExistException {
+
+    logger.info("setExplorationSpaceDimensions: " + testID);
+
+    final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
+
+    benchFlowTestModel.getExplorationModel()
+        .setExplorationSpaceDimensions(explorationSpaceDimensions);
+
+    datastore.save(benchFlowTestModel);
+
+  }
+
+  public synchronized ExplorationSpace getExplorationSpace(String testID)
+      throws BenchFlowTestIDDoesNotExistException {
+
+    logger.info("getExplorationSpace: " + testID);
+
+    final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
+
+    return benchFlowTestModel.getExplorationModel().getExplorationSpace();
+
+  }
+
+  public synchronized void setExplorationSpace(String testID, ExplorationSpace explorationSpace)
+      throws BenchFlowTestIDDoesNotExistException {
+
+    logger.info("setExplorationSpace: " + testID);
+
+    final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
+
+    benchFlowTestModel.getExplorationModel().setExplorationSpace(explorationSpace);
+
+    datastore.save(benchFlowTestModel);
+
+  }
+
+  public synchronized List<Integer> getExecutedExplorationPointIndices(String testID)
+      throws BenchFlowTestIDDoesNotExistException {
+
+    logger.info("getExecutedExplorationPointIndices: " + testID);
+
+    final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
+
+    return benchFlowTestModel.getExplorationModel().getExecutedExplorationPointIndices();
+  }
+
+  public synchronized void addExecutedExplorationPoint(String testID, int explorationPointIndex)
+      throws BenchFlowTestIDDoesNotExistException {
+
+    logger.info("addExecutedExplorationPoint: " + testID);
+
+    final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
+
+    benchFlowTestModel.getExplorationModel().addExecutedExplorationPoint(explorationPointIndex);
 
     datastore.save(benchFlowTestModel);
   }
 
-  public synchronized ExperimentSelectionStrategy getExperimentSelectionStrategy(String testID)
+  public synchronized SelectionStrategy getSelectionStrategy(String testID)
       throws BenchFlowTestIDDoesNotExistException {
 
-    logger.info("getExperimentSelectionStrategy: " + testID);
+    logger.info("getSelectionStrategy: " + testID);
 
     final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
 
-    switch (benchFlowTestModel.getExplorationModel().getExperimentSelectionType()) {
-      case COMPLETE_SELECTION:
-        return new CompleteSelectionStrategy();
+    switch (benchFlowTestModel.getExplorationModel().getSelectionStrategyType()) {
+
+      case ONE_AT_A_TIME:
+        return new OneAtATimeSelectionStrategy();
+
+      case RANDOM_BREAKDOWN:
+        return new RandomBreakdownSelectionStrategy();
+
       default:
         logger.info("not yet implemented");
         return null;
     }
   }
 
-  public synchronized ExperimentSelectionStrategy.Type getExperimentSelectionStrategyType(
-      String testID) throws BenchFlowTestIDDoesNotExistException {
+  public synchronized void setSelectionStrategyType(String testID,
+      SelectionStrategy.Type strategyType) throws BenchFlowTestIDDoesNotExistException {
 
-    logger.info("getExperimentSelectionStrategyType: " + testID);
-
-    final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
-
-    return benchFlowTestModel.getExplorationModel().getExperimentSelectionType();
-  }
-
-  public synchronized void setExperimentSelectionStrategy(String testID,
-      ExperimentSelectionStrategy.Type strategyType) throws BenchFlowTestIDDoesNotExistException {
-
-    logger.info("setExperimentSelectionStrategy: " + testID);
+    logger.info("setSelectionStrategyType: " + testID);
 
     final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
 
-    benchFlowTestModel.getExplorationModel().setExperimentSelectionType(strategyType);
+    benchFlowTestModel.getExplorationModel().setSelectionStrategyType(strategyType);
 
     datastore.save(benchFlowTestModel);
+  }
+
+  public synchronized ValidationStrategy getValidationStrategy(String testID)
+      throws BenchFlowTestIDDoesNotExistException {
+
+    logger.info("getValidationStrategy: " + testID);
+
+    final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
+
+    switch (benchFlowTestModel.getExplorationModel().getValidationStrategyType()) {
+      case RANDOM_VALIDATION_SET:
+        return new RandomValidationSetValidationStrategy();
+      default:
+        logger.info("not yet implemented");
+        return null;
+    }
+  }
+
+  public synchronized void setValidationStrategyType(String testID,
+      ValidationStrategy.Type strategyType) throws BenchFlowTestIDDoesNotExistException {
+
+    logger.info("setValidationStrategyType: " + testID);
+
+    final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
+
+    benchFlowTestModel.getExplorationModel().setValidationStrategyType(strategyType);
+
+    datastore.save(benchFlowTestModel);
+  }
+
+  public synchronized RegressionStrategy getRegressionStrategy(String testID)
+      throws BenchFlowTestIDDoesNotExistException {
+
+    logger.info("getRegressionStrategy: " + testID);
+
+    final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
+
+    switch (benchFlowTestModel.getExplorationModel().getRegressionStrategyType()) {
+      case MARS:
+        return new MarsRegressionStrategy();
+      default:
+        logger.info("not yet implemented");
+        return null;
+    }
+  }
+
+  public synchronized void setRegressionStrategyType(String testID,
+      RegressionStrategy.Type strategyType) throws BenchFlowTestIDDoesNotExistException {
+
+    logger.info("setRegressionStrategyType: " + testID);
+
+    final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
+
+    benchFlowTestModel.getExplorationModel().setRegressionStrategyType(strategyType);
+
+    datastore.save(benchFlowTestModel);
+  }
+
+  public synchronized boolean hasRegressionModel(String testID)
+      throws BenchFlowTestIDDoesNotExistException {
+
+    logger.info("hasRegressionModel: " + testID);
+
+    final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
+
+    return benchFlowTestModel.getExplorationModel().hasRegressionModel();
+
+  }
+
+  public synchronized void setHasRegressionModel(String testID, boolean hasRegressionModel)
+      throws BenchFlowTestIDDoesNotExistException {
+
+    logger.info("setHasRegressionModel: " + testID);
+
+    final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
+
+    benchFlowTestModel.getExplorationModel().setHasRegressionModel(hasRegressionModel);
+
+    datastore.save(benchFlowTestModel);
+
   }
 }

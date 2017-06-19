@@ -5,7 +5,7 @@ import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.Termin
 
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.DockerComposeIT;
-import cloud.benchflow.testmanager.archive.TestArchives;
+import cloud.benchflow.testmanager.bundle.TestBundle;
 import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfiguration;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.helpers.TestConstants;
@@ -16,18 +16,21 @@ import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerS
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
+import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
-
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.io.IOUtils;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -54,10 +57,12 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
   private TestTaskScheduler testTaskScheduler;
   private BenchFlowTestModelDAO testModelDAO;
   private BenchFlowExperimentModelDAO experimentModelDAO;
+  private ExplorationModelDAO explorationModelDAO;
   private UserDAO userDAO;
   private MinioService minioService;
   private BenchFlowExperimentManagerService experimentManagerService;
   private ExecutorService executorService;
+  private User user;
 
   @Before
   public void setUp() throws Exception {
@@ -68,59 +73,34 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     userDAO = BenchFlowTestManagerApplication.getUserDAO();
     testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
     experimentModelDAO = BenchFlowTestManagerApplication.getExperimentModelDAO();
+    explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
     minioService = BenchFlowTestManagerApplication.getMinioService();
     experimentManagerService =
         Mockito.spy(BenchFlowTestManagerApplication.getExperimentManagerService());
     BenchFlowTestManagerApplication.setExperimentManagerService(experimentManagerService);
+
+    user = userDAO.addUser(TestConstants.TEST_USER_NAME);
+
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    userDAO.removeUser(user.getUsername());
   }
 
   @Test
-  public void runCompleteExploration() throws Exception {
-
-    /*
-     Since we have many asynchronous tasks running we set a countdown
-     latch to count down to the expected number of experiments.
-     If something does not work we have a max waiting time.
-    */
+  public void runOneAtATimeExplorationUsers() throws Exception {
 
     String testName = "WfMSTest";
-    int expectedExperiments = 4;
-
-    CountDownLatch countDownLatch = new CountDownLatch(expectedExperiments);
-
-    Mockito.doAnswer(invocationOnMock -> {
-      String experimentID = (String) invocationOnMock.getArguments()[0];
-
-      experimentModelDAO.setExperimentState(experimentID, TERMINATED, null, COMPLETED);
-
-      String testID = BenchFlowConstants.getTestIDFromExperimentID(experimentID);
-      testTaskScheduler.handleTestState(testID);
-
-      countDownLatch.countDown();
-
-      return null;
-    }).when(experimentManagerService).runBenchFlowExperiment(Matchers.anyString());
-
-    User user = userDAO.addUser(TestConstants.TEST_USER_NAME);
+    int expectedNumExperiments = 4;
 
     String testID = testModelDAO.addTestModel(testName, user);
 
     String testDefinitionString = IOUtils
-        .toString(TestFiles.getTestExplorationCompleteUsersInputStream(), StandardCharsets.UTF_8);
-    InputStream deploymentDescriptorInputStream =
-        TestArchives.getValidDeploymentDescriptorInputStream();
-    Map<String, InputStream> bpmnModelInputStreams = TestArchives.getValidBPMNModels();
+        .toString(TestFiles.getTestExplorationOneAtATimeUsersInputStream(), StandardCharsets.UTF_8);
 
-    // extract contents
-    InputStream definitionInputStream =
-        IOUtils.toInputStream(testDefinitionString, StandardCharsets.UTF_8);
-
-    // save PT archive contents to Minio
-    minioService.saveTestDefinition(testID, definitionInputStream);
-    minioService.saveTestDeploymentDescriptor(testID, deploymentDescriptorInputStream);
-
-    bpmnModelInputStreams.forEach(
-        (fileName, inputStream) -> minioService.saveTestBPMNModel(testID, fileName, inputStream));
+    CountDownLatch countDownLatch =
+        setUpExplorationMocks(testID, expectedNumExperiments, testDefinitionString);
 
     // handle in scheduler
     testTaskScheduler.handleTestState(testID);
@@ -134,8 +114,108 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     // assert that all experiments have been executed
     Assert.assertEquals(0, countDownLatch.getCount());
 
-    // asssert that test has been set as TERMINATED
+    // assert that test has been set as TERMINATED
     Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
         testModelDAO.getTestState(testID));
+
+    // assert that the complete exploration space has been execution
+    List<Integer> expectedIndices = new ArrayList<>();
+    for (int i = 0; i < expectedNumExperiments; i++) {
+      expectedIndices.add(i);
+    }
+
+    Assert.assertEquals(expectedIndices,
+        explorationModelDAO.getExecutedExplorationPointIndices(testID));
+
+  }
+
+  @Test
+  public void runRandomBreakdownExplorationUsers() throws Exception {
+
+    String testName = "WfMSTest";
+    int expectedNumExperiments = 4;
+
+    String testID = testModelDAO.addTestModel(testName, user);
+
+    String testDefinitionString = IOUtils
+        .toString(TestFiles.getTestExplorationRandomUsersInputStream(), StandardCharsets.UTF_8);
+
+    CountDownLatch countDownLatch =
+        setUpExplorationMocks(testID, expectedNumExperiments, testDefinitionString);
+
+    // handle in scheduler
+    testTaskScheduler.handleTestState(testID);
+
+    // wait long enough for all experiments to complete
+    countDownLatch.await(10, TimeUnit.SECONDS);
+
+    // wait for last task to finish
+    executorService.awaitTermination(1, TimeUnit.SECONDS);
+
+    // assert that all experiments have been executed
+    Assert.assertEquals(0, countDownLatch.getCount());
+
+    // assert that test has been set as TERMINATED
+    Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
+        testModelDAO.getTestState(testID));
+
+    // assert that the complete exploration space has been execution
+    List<Integer> explorationPointIndices =
+        explorationModelDAO.getExecutedExplorationPointIndices(testID);
+
+    Assert.assertEquals(expectedNumExperiments, explorationPointIndices.size());
+
+    // sort the list and check that all expected values are there
+    List<Integer> sortedIndices = new ArrayList<>();
+    for (int i = 0; i < expectedNumExperiments; i++) {
+      sortedIndices.add(i);
+    }
+
+    explorationPointIndices.sort(Integer::compareTo);
+    Assert.assertEquals(sortedIndices, explorationPointIndices);
+
+  }
+
+  private CountDownLatch setUpExplorationMocks(String testID, int expectedNumExperiments,
+      String testDefinitionString) throws IOException {
+
+    /*
+     Since we have many asynchronous tasks running we set a countdown
+     latch to count down to the expected number of experiments.
+     If something does not work we have a max waiting time.
+    */
+
+    CountDownLatch countDownLatch = new CountDownLatch(expectedNumExperiments);
+
+    Mockito.doAnswer(invocationOnMock -> {
+      String experimentID = (String) invocationOnMock.getArguments()[0];
+
+      experimentModelDAO.setExperimentState(experimentID, TERMINATED, null, COMPLETED);
+
+      String testIDFromExperimentID = BenchFlowConstants.getTestIDFromExperimentID(experimentID);
+      testTaskScheduler.handleTestState(testIDFromExperimentID);
+
+      countDownLatch.countDown();
+
+      return null;
+    }).when(experimentManagerService).runBenchFlowExperiment(Matchers.anyString());
+
+    InputStream deploymentDescriptorInputStream =
+        TestBundle.getValidDeploymentDescriptorInputStream();
+    Map<String, InputStream> bpmnModelInputStreams = TestBundle.getValidBPMNModels();
+
+    // extract contents
+    InputStream definitionInputStream =
+        IOUtils.toInputStream(testDefinitionString, StandardCharsets.UTF_8);
+
+    // save Test Bundle contents to Minio
+    minioService.saveTestDefinition(testID, definitionInputStream);
+    minioService.saveTestDeploymentDescriptor(testID, deploymentDescriptorInputStream);
+
+    bpmnModelInputStreams.forEach(
+        (fileName, inputStream) -> minioService.saveTestBPMNModel(testID, fileName, inputStream));
+
+    return countDownLatch;
+
   }
 }
