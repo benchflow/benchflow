@@ -9,9 +9,12 @@ services:
       - DB_URL=jdbc:mysql://${BENCHFLOW_db_IP}:${BENCHFLOW_db_PORT}/${BENCHFLOW_db_MYSQL_DATABASE}
       - DB_USERNAME=${BENCHFLOW_db_MYSQL_USER}
       - JAVA_OPTS=-Djava.security.egd=file:/dev/./urandom
+    #The Camunda's way to disable examples (https://github.com/camunda/docker-camunda-bpm-platform#clean-distro-without-webapps-and-examples)
     volumes:
       - /home/vferme/webapps:/camunda/webapps/camunda-invoice/
       - /home/vferme/webapps:/camunda/webapps/examples/
+      # - data:/camunda/webapps/camunda-invoice/:rw
+      # - data:/camunda/webapps/examples/:rw
     network_mode: host
     ports:
       - 8080:8080
@@ -26,3 +29,7 @@ services:
     network_mode: host
     ports:
       - 3306:3306
+
+# volumes:
+#   data:
+#     driver: local
