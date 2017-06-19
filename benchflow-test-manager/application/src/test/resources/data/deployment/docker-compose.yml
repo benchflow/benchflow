@@ -1,0 +1,35 @@
+version: '2'
+services:
+  camunda:
+    image: 'camunda/camunda-bpm-platform:tomcat-7.5.0'
+    command: bash -c "sleep 40 && /usr/local/bin/configure-and-run.sh"
+    environment:
+      - DB_DRIVER=com.mysql.jdbc.Driver
+      - DB_PASSWORD=${BENCHFLOW_db_MYSQL_PASSWORD}
+      - DB_URL=jdbc:mysql://${BENCHFLOW_db_IP}:${BENCHFLOW_db_PORT}/${BENCHFLOW_db_MYSQL_DATABASE}
+      - DB_USERNAME=${BENCHFLOW_db_MYSQL_USER}
+      - JAVA_OPTS=-Djava.security.egd=file:/dev/./urandom
+    #The Camunda's way to disable examples (https://github.com/camunda/docker-camunda-bpm-platform#clean-distro-without-webapps-and-examples)
+    volumes:
+      - /home/vferme/webapps:/camunda/webapps/camunda-invoice/
+      - /home/vferme/webapps:/camunda/webapps/examples/
+      # - data:/camunda/webapps/camunda-invoice/:rw
+      # - data:/camunda/webapps/examples/:rw
+    network_mode: host
+    ports:
+      - 8080:8080
+
+  db:
+    image: 'mysql:5.7.17'
+    environment:
+      - MYSQL_DATABASE=process-engine
+      - MYSQL_PASSWORD=camunda
+      - MYSQL_ROOT_PASSWORD=camunda
+      - MYSQL_USER=camunda
+    network_mode: host
+    ports:
+      - 3306:3306
+
+# volumes:
+#   data:
+#     driver: local
