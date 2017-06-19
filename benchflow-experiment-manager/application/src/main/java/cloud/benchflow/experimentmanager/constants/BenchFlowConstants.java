@@ -94,4 +94,12 @@ public class BenchFlowConstants {
     return trialID.substring(0, trialID.lastIndexOf(MODEL_ID_DELIMITER));
   }
 
+  public static int getExperimentNumberFromTrialID(String trialID) {
+
+    String[] trialIDArray = trialID.split(MODEL_ID_DELIMITER_REGEX);
+    String experimentNumber = trialIDArray[3];
+
+    return Integer.parseInt(experimentNumber);
+  }
+
 }
