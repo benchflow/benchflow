@@ -76,6 +76,12 @@ public class RunInfo implements Response {
     Elements result = runInfo.select("td#Result");
 
     switch (result.text()) {
+      case "PASSED":
+        this.result = Result.PASSED;
+        break;
+      case "FAILED":
+        this.result = Result.FAILED;
+        break;
       case "N/A":
         this.result = Result.NA;
         break;
@@ -93,9 +99,13 @@ public class RunInfo implements Response {
 
   /**
    * Possible result codes.
+   *
+   * Sources:
+   *  - All possible values assigned to the result variable in: https://github.com/akara/faban/blob/master/harness/src/com/sun/faban/harness/webclient/RunResult.java
+   *  - All possible values assigned to the runInfo[2] variable in: https://github.com/akara/faban/blob/master/harness/src/com/sun/faban/harness/webclient/Results.java
    */
   public enum Result {
-    NA, NOT_AVAILABLE, UNKNOWN
+    PASSED, FAILED, NA, NOT_AVAILABLE, UNKNOWN
   }
 
   @Override
