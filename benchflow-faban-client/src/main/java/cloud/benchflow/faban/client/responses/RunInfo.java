@@ -15,7 +15,7 @@ import org.jsoup.select.Elements;
  */
 public class RunInfo implements Response {
 
-  //Most of the types could be N/A, that is why most of them are threatened as String
+  //Most of the types could be N/A, that is why most of them are treated as String
   //See: https://github.com/akara/faban/blob/master/harness/src/com/sun/faban/harness/webclient/Results.java#L382
   private String description;
   private Result result;
