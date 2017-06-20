@@ -2,7 +2,7 @@ package cloud.benchflow.faban.client.commands;
 
 import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
-import cloud.benchflow.faban.client.configurations.StatusConfig;
+import cloud.benchflow.faban.client.configurations.RunConfig;
 import cloud.benchflow.faban.client.exceptions.FabanClientException;
 import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
@@ -23,7 +23,7 @@ import org.apache.http.impl.client.HttpClients;
 /**
  * @author Simone D'Avico (simonedavico@gmail.com) - Created on 28/10/15.
  */
-public class StatusCommand extends Configurable<StatusConfig> implements Command<RunStatus> {
+public class StatusCommand extends Configurable<RunConfig> implements Command<RunStatus> {
 
   private static String STATUS_PATH = "/status";
 

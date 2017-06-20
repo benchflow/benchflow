@@ -2,7 +2,7 @@ package cloud.benchflow.faban.client.commands;
 
 import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
-import cloud.benchflow.faban.client.configurations.StatusConfig;
+import cloud.benchflow.faban.client.configurations.RunConfig;
 import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
 import cloud.benchflow.faban.client.exceptions.FabanClientException;
 import cloud.benchflow.faban.client.exceptions.MalformedURIException;
@@ -29,7 +29,7 @@ import org.apache.http.message.BasicNameValuePair;
 /**
  * @author Simone D'Avico (simonedavico@gmail.com) - Created on 29/10/15.
  */
-public class KillCommand extends Configurable<StatusConfig> implements Command<RunStatus> {
+public class KillCommand extends Configurable<RunConfig> implements Command<RunStatus> {
 
   private static String KILL_URL = "/kill";
 
