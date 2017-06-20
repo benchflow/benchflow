@@ -10,14 +10,17 @@ package cloud.benchflow.faban.client.exceptions;
  * Throwable so that the client has to decide how to handle the case, according to its
  * business logic
  */
-public class RunIdNotFoundException extends FabanClientThrowable {
+public class EmptyHarnessResponseRuntimeException extends FabanClientThrowable {
 
-  public RunIdNotFoundException(String message) {
+  public EmptyHarnessResponseRuntimeException() {
+    super();
+  }
+
+  public EmptyHarnessResponseRuntimeException(String message) {
     super(message);
   }
 
-  public RunIdNotFoundException(String message, Throwable cause) {
+  public EmptyHarnessResponseRuntimeException(String message, Throwable cause) {
     super(message, cause);
   }
-
 }
