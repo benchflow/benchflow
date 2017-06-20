@@ -2,8 +2,8 @@ package cloud.benchflow.faban.client.commands;
 
 import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
-import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
-import cloud.benchflow.faban.client.exceptions.MalformedURIException;
+import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseRuntimeException;
+import cloud.benchflow.faban.client.exceptions.MalformedURIRuntimeException;
 import cloud.benchflow.faban.client.responses.RunId;
 import cloud.benchflow.faban.client.responses.RunQueue;
 import java.io.BufferedReader;
@@ -45,7 +45,7 @@ public class PendingCommand extends Configurable implements Command<RunQueue> {
       int status = resp.getStatusLine().getStatusCode();
 
       if (status == HttpStatus.SC_NO_CONTENT) {
-        throw new EmptyHarnessResponseException(
+        throw new EmptyHarnessResponseRuntimeException(
             "Harness returned empty response to pending request");
       }
 
@@ -65,8 +65,8 @@ public class PendingCommand extends Configurable implements Command<RunQueue> {
       return queue;
 
     } catch (URISyntaxException e) {
-      throw new MalformedURIException("Malformed pending request to faban harness: " + e.getInput(),
-          e);
+      throw new MalformedURIRuntimeException(
+          "Malformed pending request to faban harness: " + e.getInput(), e);
     }
 
   }

@@ -43,6 +43,8 @@ public class FabanClientDefaultConfig implements FabanClientConfig {
     return defaultConfig.getMasterURL();
   }
 
-  public URI getControllerURL() { return defaultConfig.getControllerURL(); }
+  public URI getControllerURL() {
+    return defaultConfig.getControllerURL();
+  }
 
 }

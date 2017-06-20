@@ -3,9 +3,9 @@ package cloud.benchflow.faban.client.commands;
 import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.configurations.SubmitConfig;
-import cloud.benchflow.faban.client.exceptions.BenchmarkNameNotFoundException;
-import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
-import cloud.benchflow.faban.client.exceptions.MalformedURIException;
+import cloud.benchflow.faban.client.exceptions.BenchmarkNameNotFoundRuntimeException;
+import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseRuntimeException;
+import cloud.benchflow.faban.client.exceptions.MalformedURIRuntimeException;
 import cloud.benchflow.faban.client.responses.RunId;
 import com.google.common.io.ByteStreams;
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class SubmitCommand extends Configurable<SubmitConfig> implements Command
   private static String SUBMIT_URL = "/submit";
 
   public RunId exec(FabanClientConfig fabanConfig)
-      throws IOException, BenchmarkNameNotFoundException {
+      throws IOException, BenchmarkNameNotFoundRuntimeException {
     return submit(fabanConfig);
   }
 
@@ -42,10 +42,10 @@ public class SubmitCommand extends Configurable<SubmitConfig> implements Command
    * @param fabanConfig the harness configuration
    * @return a response containing the status of the operation
    * @throws IOException when there are issues in reading the benchmark file
-   * @throws BenchmarkNameNotFoundException when the requested benchmark is not found
+   * @throws BenchmarkNameNotFoundRuntimeException when the requested benchmark is not found
    */
   public RunId submit(FabanClientConfig fabanConfig)
-      throws IOException, BenchmarkNameNotFoundException {
+      throws IOException, BenchmarkNameNotFoundRuntimeException {
 
     String benchmarkName = config.getBenchmarkName();
     String profile = config.getProfile();
@@ -72,9 +72,10 @@ public class SubmitCommand extends Configurable<SubmitConfig> implements Command
       CloseableHttpResponse resp = httpClient.execute(post);
       int statusCode = resp.getStatusLine().getStatusCode();
       if (statusCode == HttpStatus.SC_NOT_FOUND) {
-        throw new BenchmarkNameNotFoundException("Benchmark " + benchmarkName + " not deployed.");
+        throw new BenchmarkNameNotFoundRuntimeException(
+            "Benchmark " + benchmarkName + " not deployed.");
       } else if (statusCode == HttpStatus.SC_NO_CONTENT) {
-        throw new EmptyHarnessResponseException();
+        throw new EmptyHarnessResponseRuntimeException();
       }
 
       //TODO: check that this does indeed work
@@ -83,8 +84,8 @@ public class SubmitCommand extends Configurable<SubmitConfig> implements Command
       return runId;
 
     } catch (URISyntaxException e) {
-      throw new MalformedURIException("Attempted to submit run for benchmark " + benchmarkName
-          + "and profile " + profile + "to malformed URL.");
+      throw new MalformedURIRuntimeException("Attempted to submit run for benchmark "
+          + benchmarkName + "and profile " + profile + "to malformed URL.");
     }
 
   }

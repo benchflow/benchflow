@@ -3,8 +3,8 @@ package cloud.benchflow.faban.client.commands;
 import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.configurations.ShowLogsConfig;
-import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
-import cloud.benchflow.faban.client.exceptions.MalformedURIException;
+import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseRuntimeException;
+import cloud.benchflow.faban.client.exceptions.MalformedURIRuntimeException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunLogStream;
 import java.io.BufferedReader;
@@ -47,7 +47,7 @@ public class ShowLogsCommand extends Configurable<ShowLogsConfig> implements Com
       int status = resp.getStatusLine().getStatusCode();
 
       if (status == HttpStatus.SC_NO_CONTENT) {
-        throw new EmptyHarnessResponseException(
+        throw new EmptyHarnessResponseRuntimeException(
             "Harness returned empty response to pending request");
       } else if (status == HttpStatus.SC_NOT_FOUND) {
         throw new RunIdNotFoundException();
@@ -60,7 +60,7 @@ public class ShowLogsCommand extends Configurable<ShowLogsConfig> implements Com
       return new RunLogStream(reader);
 
     } catch (URISyntaxException e) {
-      throw new MalformedURIException(
+      throw new MalformedURIRuntimeException(
           "Malformed showlogs request to faban harness: " + e.getInput(), e);
     }
 

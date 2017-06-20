@@ -3,9 +3,9 @@ package cloud.benchflow.faban.client.commands;
 import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.configurations.RunConfig;
-import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
-import cloud.benchflow.faban.client.exceptions.FabanClientException;
-import cloud.benchflow.faban.client.exceptions.MalformedURIException;
+import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseRuntimeException;
+import cloud.benchflow.faban.client.exceptions.FabanClientRuntimeException;
+import cloud.benchflow.faban.client.exceptions.MalformedURIRuntimeException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunId;
 import cloud.benchflow.faban.client.responses.RunStatus;
@@ -63,15 +63,16 @@ public class KillCommand extends Configurable<RunConfig> implements Command<RunS
       if (statusCode == HttpStatus.SC_NOT_FOUND) {
         throw new RunIdNotFoundException();
       } else if (statusCode == HttpStatus.SC_BAD_REQUEST) {
-        throw new FabanClientException("Bad kill request to harness");
+        throw new FabanClientRuntimeException("Bad kill request to harness");
       } else if (statusCode == HttpStatus.SC_NO_CONTENT) {
-        throw new EmptyHarnessResponseException();
+        throw new EmptyHarnessResponseRuntimeException();
       }
 
       return rh.handleResponse(resp);
 
     } catch (URISyntaxException e) {
-      throw new MalformedURIException("Attempted to kill to malformed URI " + e.getInput(), e);
+      throw new MalformedURIRuntimeException("Attempted to kill to malformed URI " + e.getInput(),
+          e);
     }
 
   }

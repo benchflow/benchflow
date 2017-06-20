@@ -3,7 +3,7 @@ package cloud.benchflow.faban.client.commands;
 import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.DeployConfig;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
-import cloud.benchflow.faban.client.exceptions.MalformedURIException;
+import cloud.benchflow.faban.client.exceptions.MalformedURIRuntimeException;
 import cloud.benchflow.faban.client.responses.DeployStatus;
 import java.io.File;
 import java.io.IOException;
@@ -75,7 +75,8 @@ public class DeployCommand extends Configurable<DeployConfig> implements Command
       return dresp;
 
     } catch (URISyntaxException e) { //this should never occur
-      throw new MalformedURIException("Attempted to deploy to malformed URI: " + e.getInput(), e);
+      throw new MalformedURIRuntimeException(
+          "Attempted to deploy to malformed URI: " + e.getInput(), e);
     }
 
   }

@@ -3,8 +3,8 @@ package cloud.benchflow.faban.client.commands;
 import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.configurations.RunConfig;
-import cloud.benchflow.faban.client.exceptions.FabanClientException;
-import cloud.benchflow.faban.client.exceptions.MalformedURIException;
+import cloud.benchflow.faban.client.exceptions.FabanClientRuntimeException;
+import cloud.benchflow.faban.client.exceptions.MalformedURIRuntimeException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunId;
 import cloud.benchflow.faban.client.responses.RunStatus;
@@ -52,7 +52,7 @@ public class StatusCommand extends Configurable<RunConfig> implements Command<Ru
       if (status == HttpStatus.SC_NOT_FOUND) {
         throw new RunIdNotFoundException();
       } else if (status == HttpStatus.SC_BAD_REQUEST) {
-        throw new FabanClientException("Illegal status request");
+        throw new FabanClientRuntimeException("Illegal status request");
       }
 
       //TODO: check that the call to .handleEntity(..) actually returns the expected string
@@ -61,7 +61,7 @@ public class StatusCommand extends Configurable<RunConfig> implements Command<Ru
       return runStatus;
 
     } catch (URISyntaxException e) {
-      throw new MalformedURIException(
+      throw new MalformedURIRuntimeException(
           "Attempted to check status from malformed URI: " + e.getInput(), e);
     }
 
