@@ -1,6 +1,6 @@
 package cloud.benchflow.faban.client.responses;
 
-import cloud.benchflow.faban.client.exceptions.IllegalRunStatusException;
+import cloud.benchflow.faban.client.exceptions.IllegalRunInfoException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,7 +30,7 @@ public class RunInfo implements Response {
    * @param runInfo the run info
    * @param runId the run id
    */
-  public RunInfo(Document runInfo, RunId runId) {
+  public RunInfo(Document runInfo, RunId runId) throws IllegalRunInfoException {
 
     Elements description = runInfo.select("td#Description");
     this.description = description.text();
@@ -44,7 +44,7 @@ public class RunInfo implements Response {
     this.metric = metric.text();
 
     Elements status = runInfo.select("td#Status");
-    this.status = new RunStatus(status.text(),runId);
+    this.status = new RunStatus(status.text(), runId);
 
     Elements submitter = runInfo.select("td#Submitter");
     this.submitter = submitter.text();
@@ -59,22 +59,21 @@ public class RunInfo implements Response {
 
   private void handleDateTime(Document runInfo, RunId runId) {
     //TODO - improve when this is supported by jsoup: https://stackoverflow.com/questions/5153986/css-selector-to-select-an-id-with-a-slash-in-the-id-name
-    runInfo.html(runInfo.html().replace("id=\"Date/Time\"","id=\"DateTime\""));
+    runInfo.html(runInfo.html().replace("id=\"Date/Time\"", "id=\"DateTime\""));
     Elements date_time = runInfo.select("td#DateTime");
     //See http://developer.android.com/reference/java/text/SimpleDateFormat.html
     //See https://github.com/akara/faban/blob/master/harness/src/com/sun/faban/harness/webclient/Results.java#L410
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssZ");
 
     //See https://github.com/akara/faban/blob/master/harness/src/com/sun/faban/harness/webclient/Results.java#L412
-    if(!date_time.text().equals("N/A")) {
+    if (!date_time.text().equals("N/A")) {
       try {
         this.dateTime = df.parse(date_time.text());
       } catch (ParseException e) {
 
         //TODO: we need a logger in the faban client as well
-        System.err.println(
-            "Something went wrong while converting the date " + date_time.text() + " for run "
-                + runId);
+        System.err.println("Something went wrong while converting the date " + date_time.text()
+            + " for run " + runId);
         e.printStackTrace();
         //We default to the current date, because it should anyway be very close to the retrieved one
         this.dateTime = new Date();
@@ -85,7 +84,7 @@ public class RunInfo implements Response {
     }
   }
 
-  private void handleResult(Document runInfo, RunId runId) {
+  private void handleResult(Document runInfo, RunId runId) throws IllegalRunInfoException {
     Elements result = runInfo.select("td#Result");
 
     switch (result.text()) {
@@ -105,7 +104,7 @@ public class RunInfo implements Response {
         this.result = Result.UNKNOWN;
         break;
       default:
-        throw new IllegalRunStatusException(
+        throw new IllegalRunInfoException(
             "RunId " + runId + "returned illegal run info result " + result.text());
     }
   }
@@ -123,16 +122,9 @@ public class RunInfo implements Response {
 
   @Override
   public String toString() {
-    return "RunInfo{" +
-        "description='" + description + '\'' +
-        ", result=" + result +
-        ", scale=" + scale +
-        ", metric='" + metric + '\'' +
-        ", status=" + status.getStatus() +
-        ", dateTime=" + dateTime +
-        ", submitter='" + submitter + '\'' +
-        ", tags='" + tags + '\'' +
-        '}';
+    return "RunInfo{" + "description='" + description + '\'' + ", result=" + result + ", scale="
+        + scale + ", metric='" + metric + '\'' + ", status=" + status.getStatus() + ", dateTime="
+        + dateTime + ", submitter='" + submitter + '\'' + ", tags='" + tags + '\'' + '}';
   }
 
   public String getDescription() {
@@ -155,7 +147,9 @@ public class RunInfo implements Response {
     return status;
   }
 
-  public Date getDateTime() { return dateTime; }
+  public Date getDateTime() {
+    return dateTime;
+  }
 
   public String getSubmitter() {
     return submitter;
