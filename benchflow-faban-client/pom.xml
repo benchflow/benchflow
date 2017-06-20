@@ -63,7 +63,24 @@
         <configuration>
           <source>${java.version}</source>
           <target>${java.version}</target>
+          <!--TODO: enable it when we have proper tests-->
+          <excludes>
+            <exclude>**/cloud/benchflow/faban/test/client/*.java</exclude>
+          </excludes>
         </configuration>
+        <!--TODO: enable it when we have proper tests-->
+        <executions>
+          <execution>
+            <id>default-test-compile</id>
+            <phase>test-compile</phase>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -83,7 +100,8 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${maven-surefire-plugin.version}</version>
         <configuration>
-          <skipTests>false</skipTests>
+          <!--TODO: enable it when we have proper tests-->
+          <skipTests>true</skipTests>
         </configuration>
       </plugin>
     </plugins>

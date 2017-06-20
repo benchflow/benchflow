@@ -1,7 +1,7 @@
 package cloud.benchflow.faban.client.exceptions;
 
 /**
- * @author vincenzoferme
+ * @author vincenzoferme.
  */
 public class FabanClientThrowable extends Throwable {
 

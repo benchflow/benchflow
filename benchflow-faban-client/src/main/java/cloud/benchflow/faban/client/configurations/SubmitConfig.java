@@ -3,6 +3,8 @@ package cloud.benchflow.faban.client.configurations;
 import java.io.InputStream;
 
 /**
+ * Configuration class for the submit command.
+ *
  * @author Simone D'Avico (simonedavico@gmail.com) - Created on 28/10/15.
  */
 public class SubmitConfig implements Config {

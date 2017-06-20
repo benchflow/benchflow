@@ -1,14 +1,14 @@
 package cloud.benchflow.faban.client.exceptions;
 
 /**
- * @author vincenzoferme
+ * @author vincenzoferme.
  *
- * Throwable so that the client has to decide how to handle the case, according to its
- * business logic
+ *         Throwable so that the client has to decide how to handle the case, according to its
+ *         business logic
  */
 public class IllegalRunInfoResultException extends FabanClientThrowable {
 
-  String illegalResult;
+  private String illegalResult;
 
   public IllegalRunInfoResultException(String s) {
     super(s);

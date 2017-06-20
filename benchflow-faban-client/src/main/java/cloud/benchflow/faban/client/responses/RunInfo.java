@@ -10,7 +10,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 /**
- * @author vincenzoferme
+ * @author vincenzoferme.
  */
 public class RunInfo implements Response {
 
@@ -26,7 +26,7 @@ public class RunInfo implements Response {
   private String tags;
 
   /**
-   * Construct a Run Info
+   * Construct a Run Info.
    *
    * @param runInfo the run info
    * @param runId the run id
@@ -62,19 +62,19 @@ public class RunInfo implements Response {
   private void handleDateTime(Document runInfo, RunId runId) {
     //TODO - improve when this is supported by jsoup: https://stackoverflow.com/questions/5153986/css-selector-to-select-an-id-with-a-slash-in-the-id-name
     runInfo.html(runInfo.html().replace("id=\"Date/Time\"", "id=\"DateTime\""));
-    Elements date_time = runInfo.select("td#DateTime");
+    Elements dateTime = runInfo.select("td#DateTime");
     //See http://developer.android.com/reference/java/text/SimpleDateFormat.html
     //See https://github.com/akara/faban/blob/master/harness/src/com/sun/faban/harness/webclient/Results.java#L410
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssZ");
 
     //See https://github.com/akara/faban/blob/master/harness/src/com/sun/faban/harness/webclient/Results.java#L412
-    if (!date_time.text().equals("N/A")) {
+    if (!dateTime.text().equals("N/A")) {
       try {
-        this.dateTime = df.parse(date_time.text());
+        this.dateTime = df.parse(dateTime.text());
       } catch (ParseException e) {
 
         //TODO: we need a logger in the faban client as well
-        System.err.println("Something went wrong while converting the date " + date_time.text()
+        System.err.println("Something went wrong while converting the date " + dateTime.text()
             + " for run " + runId);
         e.printStackTrace();
         //We default to the current date, because it should anyway be very close to the retrieved one
@@ -109,17 +109,6 @@ public class RunInfo implements Response {
         throw new IllegalRunInfoResultException(
             "RunId " + runId + "returned illegal run info result " + result.text(), result.text());
     }
-  }
-
-  /**
-   * Possible result codes.
-   *
-   * Sources:
-   *  - All possible values assigned to the result variable in: https://github.com/akara/faban/blob/master/harness/src/com/sun/faban/harness/webclient/RunResult.java
-   *  - All possible values assigned to the runInfo[2] variable in: https://github.com/akara/faban/blob/master/harness/src/com/sun/faban/harness/webclient/Results.java
-   */
-  public enum Result {
-    PASSED, FAILED, NA, NOT_AVAILABLE, UNKNOWN
   }
 
   @Override
@@ -159,6 +148,17 @@ public class RunInfo implements Response {
 
   public String getTags() {
     return tags;
+  }
+
+  /**
+   * Possible result codes.
+   *
+   * <p>Sources: - All possible values assigned to the result variable in:
+   * https://github.com/akara/faban/blob/master/harness/src/com/sun/faban/harness/webclient/RunResult.java
+   * - All possible values assigned to the runInfo[2] variable in: https://github.com/akara/faban/blob/master/harness/src/com/sun/faban/harness/webclient/Results.java
+   */
+  public enum Result {
+    PASSED, FAILED, NA, NOT_AVAILABLE, UNKNOWN
   }
 
 

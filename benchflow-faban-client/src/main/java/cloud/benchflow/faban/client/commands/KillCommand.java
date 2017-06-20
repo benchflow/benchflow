@@ -27,6 +27,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 
 /**
+ * Faban Kill Command.
+ *
  * @author Simone D'Avico (simonedavico@gmail.com) - Created on 29/10/15.
  */
 public class KillCommand extends Configurable<RunConfig> implements Command<RunStatus> {

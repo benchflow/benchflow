@@ -4,9 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
- * Created by simonedavico on 26/10/15.
- * <p>
- * <p>Default configuration for the Faban client.
+ * Default configuration for the Faban client.
  *
  * @author vincenzoferme
  */

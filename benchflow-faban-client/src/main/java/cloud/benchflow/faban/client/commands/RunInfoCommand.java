@@ -23,6 +23,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.jsoup.Jsoup;
 
 /**
+ * Faban RunInfo Command.
+ *
  * @author vincenzoferme
  */
 public class RunInfoCommand extends Configurable<RunConfig> implements Command<RunInfo> {
