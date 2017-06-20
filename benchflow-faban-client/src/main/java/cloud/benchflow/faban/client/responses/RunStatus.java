@@ -16,7 +16,7 @@ public class RunStatus implements Response {
    * @param statusCode the status code
    * @param runId the run id
    */
-  public RunStatus(String statusCode, RunId runId) {
+  public RunStatus(String statusCode, RunId runId) throws IllegalRunStatusException {
     switch (statusCode.replace("\n", "")) {
       case "QUEUED":
         this.status = StatusCode.QUEUED;
@@ -42,6 +42,9 @@ public class RunStatus implements Response {
       case "DENIED":
         this.status = StatusCode.DENIED;
         break;
+      case "UNKNOWN":
+        this.status = StatusCode.UNKNOWN;
+        break;
       default:
         throw new IllegalRunStatusException(
             "RunId " + runId + "returned illegal run status " + statusCode);
@@ -54,9 +57,11 @@ public class RunStatus implements Response {
 
   /**
    * Possible run statuses.
+   *
+   * See the following for UNKNOWN: https://github.com/akara/faban/blob/master/harness/src/com/sun/faban/harness/webclient/Results.java#L403
    */
   public enum StatusCode {
-    QUEUED, RECEIVED, STARTED, COMPLETED, FAILED, KILLED, KILLING, DENIED
+    QUEUED, RECEIVED, STARTED, COMPLETED, FAILED, KILLED, KILLING, DENIED, UNKNOWN
   }
 
 
