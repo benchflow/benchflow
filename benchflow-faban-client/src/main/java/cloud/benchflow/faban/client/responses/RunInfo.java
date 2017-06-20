@@ -15,9 +15,11 @@ import org.jsoup.select.Elements;
  */
 public class RunInfo implements Response {
 
+  //Most of the types could be N/A, that is why most of them are threatened as String
+  //See: https://github.com/akara/faban/blob/master/harness/src/com/sun/faban/harness/webclient/Results.java#L382
   private String description;
   private Result result;
-  private Integer scale;
+  private String scale;
   private String metric;
   private RunStatus status;
   private Date date_time;
@@ -38,7 +40,7 @@ public class RunInfo implements Response {
     handleResult(runInfo, runId);
 
     Elements scale = runInfo.select("td#Scale");
-    this.scale = Integer.getInteger(scale.text());
+    this.scale = scale.text();
 
     Elements metric = runInfo.select("td#Metric");
     this.metric = metric.text();
@@ -52,24 +54,37 @@ public class RunInfo implements Response {
     Elements tags = runInfo.select("td#Tags");
     this.tags = tags.text();
 
+    handleDateTime(runInfo, runId);
+
+
+  }
+
+  private void handleDateTime(Document runInfo, RunId runId) {
     //TODO - improve when this is supported by jsoup: https://stackoverflow.com/questions/5153986/css-selector-to-select-an-id-with-a-slash-in-the-id-name
     runInfo.html(runInfo.html().replace("id=\"Date/Time\"","id=\"DateTime\""));
     Elements date_time = runInfo.select("td#DateTime");
     //See http://developer.android.com/reference/java/text/SimpleDateFormat.html
+    //See https://github.com/akara/faban/blob/master/harness/src/com/sun/faban/harness/webclient/Results.java#L410
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssZ");
 
-    try {
-      this.date_time = df.parse(date_time.text());
-    } catch (ParseException e) {
+    //See https://github.com/akara/faban/blob/master/harness/src/com/sun/faban/harness/webclient/Results.java#L412
+    if(!date_time.text().equals("N/A")) {
+      try {
+        this.date_time = df.parse(date_time.text());
+      } catch (ParseException e) {
 
-      //TODO: we need a logger in the faban client as well
-      System.err.println(
-          "Something went wrong while converting the date " + date_time.text() + " for run " + runId);
-      e.printStackTrace();
+        //TODO: we need a logger in the faban client as well
+        System.err.println(
+            "Something went wrong while converting the date " + date_time.text() + " for run "
+                + runId);
+        e.printStackTrace();
+        //We default to the current date, because it should anyway be very close to the retrieved one
+        this.date_time = new Date();
+      }
+    } else {
       //We default to the current date, because it should anyway be very close to the retrieved one
       this.date_time = new Date();
     }
-
   }
 
   private void handleResult(Document runInfo, RunId runId) {
@@ -130,7 +145,7 @@ public class RunInfo implements Response {
     return result;
   }
 
-  public Integer getScale() {
+  public String getScale() {
     return scale;
   }
 
