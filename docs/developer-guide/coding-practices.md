@@ -77,7 +77,7 @@ Verification of the style guidelines is done using [scalastyle](http://www.scala
   or as part of
 
   ```
-  mvn test`
+  mvn test
   ```
 
 - Intellij:
@@ -153,7 +153,7 @@ To check it we are using [checkstyle](http://checkstyle.sourceforge.net/).
   or as part of
 
   ```
-  mvn test`
+  mvn test
   ```
 
 - Eclipse ...
@@ -168,7 +168,7 @@ To check it we are using [checkstyle](http://checkstyle.sourceforge.net/).
   You can run it manually with
 
   ```
-  mvn java-formatter:format
+  mvn formatter:format
   ```
 
   or it will run automatically before the compiler
