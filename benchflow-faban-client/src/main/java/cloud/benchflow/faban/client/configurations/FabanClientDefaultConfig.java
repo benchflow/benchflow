@@ -5,8 +5,10 @@ import java.net.URISyntaxException;
 
 /**
  * Created by simonedavico on 26/10/15.
- *
+ * <p>
  * <p>Default configuration for the Faban client.
+ *
+ * @author vincenzoferme
  */
 public class FabanClientDefaultConfig implements FabanClientConfig {
 
@@ -20,7 +22,7 @@ public class FabanClientDefaultConfig implements FabanClientConfig {
     FabanClientConfigImpl defConf = null;
     try {
       defConf =
-          new FabanClientConfigImpl("deployer", "adminadmin", new URI("http://localhost:9980/"));
+          new FabanClientConfigImpl("deployer", "adminadmin", new URI("http://localhost:9980"));
     } catch (URISyntaxException e) {
       System.err.println("There was a problem initializing the default "
           + "faban client configuration. See the stack" + "trace for more informations.");
@@ -40,5 +42,7 @@ public class FabanClientDefaultConfig implements FabanClientConfig {
   public URI getMasterURL() {
     return defaultConfig.getMasterURL();
   }
+
+  public URI getControllerURL() { return defaultConfig.getControllerURL(); }
 
 }

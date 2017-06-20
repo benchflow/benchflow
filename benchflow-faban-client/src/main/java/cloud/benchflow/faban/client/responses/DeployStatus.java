@@ -1,24 +1,20 @@
 package cloud.benchflow.faban.client.responses;
 
 import cloud.benchflow.faban.client.exceptions.DeployException;
-
 import org.apache.http.HttpStatus;
 
 
 /**
- *
  * @author Simone D'Avico (simonedavico@gmail.com)
  */
 public class DeployStatus implements Response {
 
-  public enum Code {
-    CONFLICT, NOT_ACCEPTABLE, CREATED
-  }
-
   private Code code;
+
 
   /**
    * Construct a Deploy Status response.
+   *
    * @param statusCode the deploy status code
    */
   public DeployStatus(int statusCode) {
@@ -40,6 +36,10 @@ public class DeployStatus implements Response {
 
   public Code getCode() {
     return this.code;
+  }
+
+  public enum Code {
+    CONFLICT, NOT_ACCEPTABLE, CREATED
   }
 
 }

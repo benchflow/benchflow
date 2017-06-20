@@ -7,7 +7,7 @@ import cloud.benchflow.faban.client.exceptions.FabanClientException;
 import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunId;
-import cloud.benchflow.faban.client.responses.RunStatus;
+import cloud.benchflow.faban.client.responses.RunInfo;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,30 +19,32 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.jsoup.Jsoup;
 
 /**
- * @author Simone D'Avico (simonedavico@gmail.com) - Created on 28/10/15.
+ * @author vincenzoferme
  */
-public class StatusCommand extends Configurable<RunConfig> implements Command<RunStatus> {
+public class RunInfoCommand extends Configurable<RunConfig> implements Command<RunInfo> {
 
-  private static String STATUS_PATH = "/status";
+  private static String RUNINFO_PATH = "/results/get_run_info";
+  private static String RUNINFO_RUNID_PAR = "runId";
 
-  public RunStatus exec(FabanClientConfig fabanConfig) throws IOException, RunIdNotFoundException {
-    return status(fabanConfig);
+  public RunInfo exec(FabanClientConfig fabanConfig) throws IOException, RunIdNotFoundException {
+    return runInfo(fabanConfig);
   }
 
-  private RunStatus status(FabanClientConfig fabanConfig)
+  private RunInfo runInfo(FabanClientConfig fabanConfig)
       throws IOException, RunIdNotFoundException {
 
     RunId runId = config.getRunId();
 
-    ResponseHandler<RunStatus> sh =
-        resp -> new RunStatus(new BasicResponseHandler().handleEntity(resp.getEntity()), runId);
+    ResponseHandler<RunInfo> sh =
+        resp -> new RunInfo(Jsoup.parse(new BasicResponseHandler().handleEntity(resp.getEntity())), runId);
 
     try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
 
       URI statusURL =
-          new URIBuilder(fabanConfig.getMasterURL()).setPath(STATUS_PATH + "/" + runId).build();
+          new URIBuilder(fabanConfig.getControllerURL() + RUNINFO_PATH).addParameter(RUNINFO_RUNID_PAR, runId.toString()).build();
 
       HttpGet get = new HttpGet(statusURL);
 
@@ -52,17 +54,17 @@ public class StatusCommand extends Configurable<RunConfig> implements Command<Ru
       if (status == HttpStatus.SC_NOT_FOUND) {
         throw new RunIdNotFoundException();
       } else if (status == HttpStatus.SC_BAD_REQUEST) {
-        throw new FabanClientException("Illegal status request");
+        throw new FabanClientException("Illegal runInfo request");
       }
 
       //TODO: check that the call to .handleEntity(..) actually returns the expected string
-      RunStatus runStatus = sh.handleResponse(resp);
+      RunInfo runInfo = sh.handleResponse(resp);
 
-      return runStatus;
+      return runInfo;
 
     } catch (URISyntaxException e) {
       throw new MalformedURIException(
-          "Attempted to check status from malformed URI: " + e.getInput(), e);
+          "Attempted to check runInfo from malformed URI: " + e.getInput(), e);
     }
 
   }

@@ -2,7 +2,7 @@ package cloud.benchflow.faban.client.configurations;
 
 /**
  * An abstract class representing a configurable object.
- * 
+ *
  * @author Simone D'Avico (simonedavico@gmail.com) - Created on 26/10/15.
  */
 @SuppressWarnings("unchecked")

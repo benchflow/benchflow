@@ -2,20 +2,18 @@ package cloud.benchflow.faban.client.commands;
 
 import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
-import cloud.benchflow.faban.client.configurations.StatusConfig;
+import cloud.benchflow.faban.client.configurations.RunConfig;
 import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
 import cloud.benchflow.faban.client.exceptions.FabanClientException;
 import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunId;
 import cloud.benchflow.faban.client.responses.RunStatus;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ResponseHandler;
@@ -31,7 +29,7 @@ import org.apache.http.message.BasicNameValuePair;
 /**
  * @author Simone D'Avico (simonedavico@gmail.com) - Created on 29/10/15.
  */
-public class KillCommand extends Configurable<StatusConfig> implements Command<RunStatus> {
+public class KillCommand extends Configurable<RunConfig> implements Command<RunStatus> {
 
   private static String KILL_URL = "/kill";
 

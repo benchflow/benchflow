@@ -4,7 +4,10 @@
     <fh:javaHome>/usr/lib/jvm/java7</fh:javaHome>
     <fh:jvmOptions>-Xmx2048m -Xms124m -XX:+DisableExplicitGC</fh:jvmOptions>
   </jvmConfig>
-  <fa:runConfig definition="cloud.benchflow.experiment.drivers.WfMSStartDriver" xmlns="http://faban.sunsource.net/ns/fabandriver" xmlns:fh="http://faban.sunsource.net/ns/fabanharness" xmlns:fa="http://faban.sunsource.net/ns/faban">
+  <fa:runConfig xmlns:fa="http://faban.sunsource.net/ns/faban"
+    xmlns:fh="http://faban.sunsource.net/ns/fabanharness"
+    definition="cloud.benchflow.experiment.drivers.WfMSStartDriver"
+    xmlns="http://faban.sunsource.net/ns/fabandriver">
     <fh:description>First wfms test</fh:description>
     <fa:scale>2000</fa:scale>
     <fh:timeSync>false</fh:timeSync>
@@ -84,7 +87,9 @@
               <monitor name="cpu">
                 <id>benchflow.monitor.mysql.db.cpu</id>
                 <configuration>
-                  <param name="COMPLETION_QUERY">SELECT+COUNT(*)+FROM+ACT_HI_PROCINST+WHERE+END_TIME_+IS+NULL</param>
+                  <param name="COMPLETION_QUERY">
+                    SELECT+COUNT(*)+FROM+ACT_HI_PROCINST+WHERE+END_TIME_+IS+NULL
+                  </param>
                   <param name="COMPLETION_QUERY_VALUE">0</param>
                   <param name="COMPLETION_QUERY_METHOD">equal</param>
                 </configuration>
@@ -96,7 +101,9 @@
               <monitor name="querymysql">
                 <id>benchflow.monitor.mysql.db.querymysql</id>
                 <configuration>
-                  <param name="COMPLETION_QUERY">SELECT+COUNT(*)+FROM+ACT_HI_PROCINST+WHERE+END_TIME_+IS+NULL</param>
+                  <param name="COMPLETION_QUERY">
+                    SELECT+COUNT(*)+FROM+ACT_HI_PROCINST+WHERE+END_TIME_+IS+NULL
+                  </param>
                   <param name="COMPLETION_QUERY_VALUE">0</param>
                   <param name="COMPLETION_QUERY_METHOD">equal</param>
                 </configuration>

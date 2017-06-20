@@ -5,12 +5,10 @@ import cloud.benchflow.faban.client.configurations.DeployConfig;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.responses.DeployStatus;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
@@ -30,6 +28,7 @@ public class DeployCommand extends Configurable<DeployConfig> implements Command
 
   /**
    * Deploy a Faban benchmark.
+   *
    * @param fabanConfig the harness configuration
    * @return a response containing the status of the operation
    * @throws IOException when there are issues in reading the benchmark file

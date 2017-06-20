@@ -4,7 +4,7 @@ import java.io.File;
 
 /**
  * Created by simonedavico on 26/10/15.
- * 
+ * <p>
  * <p>Configuration class for the deploy command
  */
 public class DeployConfig implements Config {
@@ -16,6 +16,7 @@ public class DeployConfig implements Config {
 
   /**
    * Construct a DeployConfig from the benchmark file and a name for the driver.
+   *
    * @param jarFile the benchmark file
    * @param driverName the driver name
    */
@@ -26,6 +27,7 @@ public class DeployConfig implements Config {
   /**
    * Construct a DeployConfig from the benchmark file and a name for the driver,
    * clearing the previous configuration for the benchmark.
+   *
    * @param jarFile the benchmark file
    * @param driverName the driver name
    * @param clearConfig true for clearing the previous configuration for the benchmark

@@ -7,45 +7,40 @@ import cloud.benchflow.faban.client.exceptions.IllegalRunStatusException;
  */
 public class RunStatus implements Response {
 
-  private Code status;
+  private StatusCode status;
 
-  /**
-   * Possible run statuses.
-   */
-  public enum Code {
-    QUEUED, RECEIVED, STARTED, COMPLETED, FAILED, KILLED, KILLING, DENIED
-  }
 
   /**
    * Construct a run status.
+   *
    * @param statusCode the status code
    * @param runId the run id
    */
   public RunStatus(String statusCode, RunId runId) {
     switch (statusCode.replace("\n", "")) {
       case "QUEUED":
-        this.status = Code.QUEUED;
+        this.status = StatusCode.QUEUED;
         break;
       case "RECEIVED":
-        this.status = Code.RECEIVED;
+        this.status = StatusCode.RECEIVED;
         break;
       case "STARTED":
-        this.status = Code.STARTED;
+        this.status = StatusCode.STARTED;
         break;
       case "COMPLETED":
-        this.status = Code.COMPLETED;
+        this.status = StatusCode.COMPLETED;
         break;
       case "FAILED":
-        this.status = Code.FAILED;
+        this.status = StatusCode.FAILED;
         break;
       case "KILLED":
-        this.status = Code.KILLED;
+        this.status = StatusCode.KILLED;
         break;
       case "KILLING":
-        this.status = Code.KILLING;
+        this.status = StatusCode.KILLING;
         break;
       case "DENIED":
-        this.status = Code.DENIED;
+        this.status = StatusCode.DENIED;
         break;
       default:
         throw new IllegalRunStatusException(
@@ -53,8 +48,15 @@ public class RunStatus implements Response {
     }
   }
 
-  public Code getStatus() {
+  public StatusCode getStatus() {
     return this.status;
+  }
+
+  /**
+   * Possible run statuses.
+   */
+  public enum StatusCode {
+    QUEUED, RECEIVED, STARTED, COMPLETED, FAILED, KILLED, KILLING, DENIED
   }
 
 

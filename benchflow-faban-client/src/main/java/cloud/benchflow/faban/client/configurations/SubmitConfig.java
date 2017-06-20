@@ -13,6 +13,7 @@ public class SubmitConfig implements Config {
 
   /**
    * Construct a SubmitConfig.
+   *
    * @param benchmarkName the benchmark name
    * @param profile the benchmark profile
    * @param configFile the configuration file for this run
