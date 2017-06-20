@@ -21,6 +21,7 @@
     <java.version>1.8</java.version>
     <httpclient.version>4.5.1</httpclient.version>
     <guava.version>18.0</guava.version>
+    <jsoup.version>1.10.3</jsoup.version>
     <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
     <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
     <maven-surefire-plugin.version>2.20</maven-surefire-plugin.version>
@@ -44,6 +45,13 @@
       <artifactId>guava</artifactId>
       <version>${guava.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>${jsoup.version}</version>
+    </dependency>
+
   </dependencies>
 
   <build>
