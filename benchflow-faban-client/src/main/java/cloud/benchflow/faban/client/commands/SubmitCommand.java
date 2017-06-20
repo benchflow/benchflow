@@ -31,8 +31,8 @@ public class SubmitCommand extends Configurable<SubmitConfig> implements Command
 
   private static String SUBMIT_URL = "/submit";
 
-  public RunId exec(FabanClientConfig fabanConfig)
-      throws IOException, BenchmarkNameNotFoundRuntimeException {
+  public RunId exec(FabanClientConfig fabanConfig) throws IOException,
+      BenchmarkNameNotFoundRuntimeException, EmptyHarnessResponseRuntimeException {
     return submit(fabanConfig);
   }
 
@@ -44,8 +44,8 @@ public class SubmitCommand extends Configurable<SubmitConfig> implements Command
    * @throws IOException when there are issues in reading the benchmark file
    * @throws BenchmarkNameNotFoundRuntimeException when the requested benchmark is not found
    */
-  public RunId submit(FabanClientConfig fabanConfig)
-      throws IOException, BenchmarkNameNotFoundRuntimeException {
+  public RunId submit(FabanClientConfig fabanConfig) throws IOException,
+      BenchmarkNameNotFoundRuntimeException, EmptyHarnessResponseRuntimeException {
 
     String benchmarkName = config.getBenchmarkName();
     String profile = config.getProfile();

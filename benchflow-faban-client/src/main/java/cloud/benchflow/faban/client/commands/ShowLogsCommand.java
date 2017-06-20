@@ -30,12 +30,12 @@ public class ShowLogsCommand extends Configurable<ShowLogsConfig> implements Com
 
 
   public RunLogStream exec(FabanClientConfig fabanConfig)
-      throws IOException, RunIdNotFoundException {
+      throws IOException, RunIdNotFoundException, EmptyHarnessResponseRuntimeException {
     return showlogs(fabanConfig);
   }
 
   private RunLogStream showlogs(FabanClientConfig fabanConfig)
-      throws IOException, RunIdNotFoundException {
+      throws IOException, RunIdNotFoundException, EmptyHarnessResponseRuntimeException {
 
     try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 
@@ -50,7 +50,7 @@ public class ShowLogsCommand extends Configurable<ShowLogsConfig> implements Com
         throw new EmptyHarnessResponseRuntimeException(
             "Harness returned empty response to pending request");
       } else if (status == HttpStatus.SC_NOT_FOUND) {
-        throw new RunIdNotFoundException();
+        throw new RunIdNotFoundException("Run id not found");
       }
 
       HttpEntity ent = resp.getEntity();

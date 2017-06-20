@@ -4,6 +4,8 @@ import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.configurations.RunConfig;
 import cloud.benchflow.faban.client.exceptions.FabanClientRuntimeException;
+import cloud.benchflow.faban.client.exceptions.IllegalRunInfoResultException;
+import cloud.benchflow.faban.client.exceptions.IllegalRunStatusException;
 import cloud.benchflow.faban.client.exceptions.MalformedURIRuntimeException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunId;
@@ -12,7 +14,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -29,18 +30,21 @@ public class RunInfoCommand extends Configurable<RunConfig> implements Command<R
   private static String RUNINFO_PATH = "/results/get_run_info";
   private static String RUNINFO_RUNID_PAR = "runId";
 
-  public RunInfo exec(FabanClientConfig fabanConfig) throws IOException, RunIdNotFoundException {
+  public RunInfo exec(FabanClientConfig fabanConfig) throws IOException, RunIdNotFoundException,
+      IllegalRunStatusException, IllegalRunInfoResultException {
     return runInfo(fabanConfig);
   }
 
-  private RunInfo runInfo(FabanClientConfig fabanConfig)
-      throws IOException, RunIdNotFoundException {
+  private RunInfo runInfo(FabanClientConfig fabanConfig) throws IOException, RunIdNotFoundException,
+      IllegalRunStatusException, IllegalRunInfoResultException {
 
     RunId runId = config.getRunId();
 
-    ResponseHandler<RunInfo> sh =
-        resp -> new RunInfo(Jsoup.parse(new BasicResponseHandler().handleEntity(resp.getEntity())),
-            runId);
+    //TODO: evaluate if it possible to convert back to lamba expression handling (line 43)
+    //      when checked exceptions are supported. See: http://www.baeldung.com/java-lambda-exceptions
+    //    ResponseHandler<RunInfo> sh =
+    //        resp -> new RunInfo(Jsoup.parse(new BasicResponseHandler().handleEntity(resp.getEntity())),
+    //            runId);
 
     try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
 
@@ -53,13 +57,14 @@ public class RunInfoCommand extends Configurable<RunConfig> implements Command<R
 
       int status = resp.getStatusLine().getStatusCode();
       if (status == HttpStatus.SC_NOT_FOUND) {
-        throw new RunIdNotFoundException();
+        throw new RunIdNotFoundException("Run id not found");
       } else if (status == HttpStatus.SC_BAD_REQUEST) {
         throw new FabanClientRuntimeException("Illegal runInfo request");
       }
 
       //TODO: check that the call to .handleEntity(..) actually returns the expected string
-      RunInfo runInfo = sh.handleResponse(resp);
+      RunInfo runInfo = new RunInfo(
+          Jsoup.parse(new BasicResponseHandler().handleEntity(resp.getEntity())), runId);
 
       return runInfo;
 

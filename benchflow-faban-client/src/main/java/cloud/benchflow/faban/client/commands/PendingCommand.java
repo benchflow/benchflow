@@ -28,11 +28,13 @@ public class PendingCommand extends Configurable implements Command<RunQueue> {
 
   private static String PENDING_URL = "/pending";
 
-  public RunQueue exec(FabanClientConfig fabanConfig) throws IOException {
+  public RunQueue exec(FabanClientConfig fabanConfig)
+      throws IOException, EmptyHarnessResponseRuntimeException {
     return pending(fabanConfig);
   }
 
-  private RunQueue pending(FabanClientConfig fabanConfig) throws IOException {
+  private RunQueue pending(FabanClientConfig fabanConfig)
+      throws IOException, EmptyHarnessResponseRuntimeException {
 
     try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 
