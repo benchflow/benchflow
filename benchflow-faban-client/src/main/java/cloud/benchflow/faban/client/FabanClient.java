@@ -78,7 +78,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
   }
 
   /**
-   * Deploy a Faban benchmark, handling the result of the deployment with an handler.
+   * Deploy a Faban benchmark, handling the result of the deployment with a handler.
    *
    * @param jarFile the benchmark to be deployed on the faban harness
    * @param driverName the name of the driver
@@ -93,7 +93,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
   }
 
   /**
-   * Deploy a Faban benchmark, handling the result of the deployment with an handler.
+   * Deploy a Faban benchmark, handling the result of the deployment with a handler.
    *
    * @param jarFile the benchmark to be deployed on the faban harness
    * @param driverName the name of the driver
@@ -107,7 +107,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
   }
 
   /**
-   * Deploy a Faban benchmark, handling the result of the deployment with an handler.
+   * Deploy a Faban benchmark, handling the result of the deployment with a handler.
    *
    * @param jarFile the benchmark to be deployed on the faban harness
    * @param handler a function that receives a {@link DeployStatus} and returns a {@code <T>}
@@ -122,7 +122,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
 
 
   /**
-   * Deploy a Faban benchmark, handling the result of the deployment with an handler.
+   * Deploy a Faban benchmark, handling the result of the deployment with a handler.
    *
    * @param jarFile the benchmark to be deployed on the faban harness
    * @param handler a consumer that receives a {@link DeployStatus}
@@ -158,7 +158,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
   }
 
   /**
-   * Get the status of a Faban benchmark, handling the result with an handler.
+   * Get the status of a Faban benchmark, handling the result with a handler.
    *
    * @param runId a run id
    * @param handler a callback function
@@ -174,7 +174,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
   }
 
   /**
-   * Get the status of a Faban benchmark, handling the result with an handler.
+   * Get the status of a Faban benchmark, handling the result with a handler.
    *
    * @param runId a run id
    * @param handler a callback function
@@ -210,7 +210,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
   }
 
   /**
-   * Get the Run Info of a Faban benchmark, handling the result with an handler.
+   * Get the Run Info of a Faban benchmark, handling the result with a handler.
    *
    * @param runId a run id
    * @param handler a callback function
@@ -226,7 +226,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
   }
 
   /**
-   * Get the Run Info of a Faban benchmark, handling the result with an handler.
+   * Get the Run Info of a Faban benchmark, handling the result with a handler.
    *
    * @param runId a run id
    * @param handler a callback function
@@ -293,7 +293,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
   }
 
   /**
-   * Submit a Faban benchmark, handling the result with an handler.
+   * Submit a Faban benchmark, handling the result with a handler.
    *
    * @param benchmarkName benchmark shortname
    * @param profile a profile name
@@ -311,7 +311,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
   }
 
   /**
-   * Submit a Faban benchmark, handling the result with an handler.
+   * Submit a Faban benchmark, handling the result with a handler.
    *
    * @param benchmarkName benchmark shortname
    * @param profile a profile name
@@ -328,7 +328,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
   }
 
   /**
-   * Submit a Faban benchmark, handling the result with an handler.
+   * Submit a Faban benchmark, handling the result with a handler.
    *
    * @param benchmarkName benchmark shortname
    * @param profile a profile name
@@ -347,7 +347,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
   }
 
   /**
-   * Submit a Faban benchmark, handling the result with an handler.
+   * Submit a Faban benchmark, handling the result with a handler.
    *
    * @param benchmarkName benchmark shortname
    * @param profile a profile name
@@ -385,7 +385,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
   }
 
   /**
-   * Kill a running Faban benchmark, handling the result with an handler.
+   * Kill a running Faban benchmark, handling the result with a handler.
    *
    * @param runId a run id
    * @param handler a callback function {@link R} -> {@link T}
@@ -400,7 +400,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
   }
 
   /**
-   * Kill a running Faban benchmark, handling the result with an handler.
+   * Kill a running Faban benchmark, handling the result with a handler.
    *
    * @param runId a run id
    * @param handler a callback consumer {@link R} -> void
@@ -431,7 +431,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
   }
 
   /**
-   * Return the list of pending benchmarks, handling the result with an handler.
+   * Return the list of pending benchmarks, handling the result with a handler.
    *
    * @param handler a callback function {@link R} -> {@link T}
    * @param <R> a subclass of {@link RunStatus}
@@ -443,7 +443,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
   }
 
   /**
-   * Return the list of pending benchmarks, handling the result with an handler.
+   * Return the list of pending benchmarks, handling the result with a handler.
    *
    * @param handler a callback consumer {@link R} -> void
    * @param <R> a subclass of {@link RunQueue}
@@ -476,7 +476,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
   }
 
   /**
-   * Show the logs of a running benchmark, handling the result with an handler.
+   * Show the logs of a running benchmark, handling the result with a handler.
    *
    * @param runId the run id for the run
    * @param handler a callback function
@@ -490,7 +490,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
   }
 
   /**
-   * Show the logs of a running benchmark, handling the result with an handler.
+   * Show the logs of a running benchmark, handling the result with a handler.
    *
    * @param runId the run id for the run
    * @param handler a callback function
