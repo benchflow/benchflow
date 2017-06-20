@@ -9,15 +9,10 @@ public class RunStatus implements Response {
 
   private Code status;
 
-  /**
-   * Possible run statuses.
-   */
-  public enum Code {
-    QUEUED, RECEIVED, STARTED, COMPLETED, FAILED, KILLED, KILLING, DENIED
-  }
 
   /**
    * Construct a run status.
+   *
    * @param statusCode the status code
    * @param runId the run id
    */
@@ -55,6 +50,13 @@ public class RunStatus implements Response {
 
   public Code getStatus() {
     return this.status;
+  }
+
+  /**
+   * Possible run statuses.
+   */
+  public enum Code {
+    QUEUED, RECEIVED, STARTED, COMPLETED, FAILED, KILLED, KILLING, DENIED
   }
 
 

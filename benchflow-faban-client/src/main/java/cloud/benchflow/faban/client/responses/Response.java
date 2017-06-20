@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- *
  * @author Simone D'Avico (simonedavico@gmail.com)
  */
 @SuppressWarnings("unchecked")

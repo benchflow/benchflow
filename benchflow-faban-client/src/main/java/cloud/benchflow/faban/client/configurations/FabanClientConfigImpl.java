@@ -17,6 +17,7 @@ public class FabanClientConfigImpl implements FabanClientConfig {
 
   /**
    * Creates a FabanClientConfigImpl on the default url.
+   *
    * @param user Faban harness username
    * @param password Faban harness password
    */
@@ -26,6 +27,7 @@ public class FabanClientConfigImpl implements FabanClientConfig {
 
   /**
    * Creates a FabanClientConfigImpl on a custom url.
+   *
    * @param user Faban harness username
    * @param password Faban harness password
    * @param masterURL Faban harness url

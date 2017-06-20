@@ -3,7 +3,6 @@ package cloud.benchflow.faban.client.responses;
 import cloud.benchflow.faban.client.exceptions.IllegalRunIdException;
 
 /**
- *
  * @author Simone D'Avico (simonedavico@gmail.com)
  */
 public class RunId implements Response {
@@ -13,6 +12,7 @@ public class RunId implements Response {
 
   /**
    * Contruct a run id response.
+   *
    * @param name the name of the benchmark
    * @param queueId the id of the benchmark in the queue
    */
@@ -23,6 +23,7 @@ public class RunId implements Response {
 
   /**
    * Contruct a run id response.
+   *
    * @param runId the run id of the benchmark
    */
   public RunId(String runId) {

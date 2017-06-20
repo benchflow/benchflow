@@ -7,14 +7,11 @@ import cloud.benchflow.faban.client.exceptions.BenchmarkNameNotFoundException;
 import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
 import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.responses.RunId;
-
 import com.google.common.io.ByteStreams;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ResponseHandler;
@@ -41,6 +38,7 @@ public class SubmitCommand extends Configurable<SubmitConfig> implements Command
 
   /**
    * Run a Faban benchmark.
+   *
    * @param fabanConfig the harness configuration
    * @return a response containing the status of the operation
    * @throws IOException when there are issues in reading the benchmark file
@@ -48,7 +46,6 @@ public class SubmitCommand extends Configurable<SubmitConfig> implements Command
    */
   public RunId submit(FabanClientConfig fabanConfig)
       throws IOException, BenchmarkNameNotFoundException {
-
 
     String benchmarkName = config.getBenchmarkName();
     String profile = config.getProfile();
