@@ -7,9 +7,20 @@ package cloud.benchflow.faban.client.exceptions;
  * Throwable so that the client has to decide how to handle the case, according to its
  * business logic
  */
-public class IllegalRunStatusException extends FabanClientThrowable {
+public class IllegalRunStatusException extends Exception {
+
+  String illegalRunStatus;
 
   public IllegalRunStatusException(String s) {
     super(s);
+  }
+
+  public IllegalRunStatusException(String s, String runStatus) {
+    super(s);
+    this.illegalRunStatus = runStatus;
+  }
+
+  public String getIllegalRunStatus() {
+    return illegalRunStatus;
   }
 }

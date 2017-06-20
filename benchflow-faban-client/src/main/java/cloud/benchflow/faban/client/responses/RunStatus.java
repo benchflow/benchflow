@@ -17,7 +17,10 @@ public class RunStatus implements Response {
    * @param runId the run id
    */
   public RunStatus(String statusCode, RunId runId) throws IllegalRunStatusException {
-    switch (statusCode.replace("\n", "")) {
+
+    statusCode = statusCode.replace("\n", "");
+
+    switch (statusCode) {
       case "QUEUED":
         this.status = StatusCode.QUEUED;
         break;
@@ -47,7 +50,7 @@ public class RunStatus implements Response {
         break;
       default:
         throw new IllegalRunStatusException(
-            "RunId " + runId + "returned illegal run status " + statusCode);
+            "RunId " + runId + "returned illegal run status " + statusCode, statusCode);
     }
   }
 

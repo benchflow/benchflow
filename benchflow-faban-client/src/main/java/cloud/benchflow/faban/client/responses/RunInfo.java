@@ -1,6 +1,7 @@
 package cloud.benchflow.faban.client.responses;
 
-import cloud.benchflow.faban.client.exceptions.IllegalRunInfoException;
+import cloud.benchflow.faban.client.exceptions.IllegalRunInfoResultException;
+import cloud.benchflow.faban.client.exceptions.IllegalRunStatusException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,7 +31,8 @@ public class RunInfo implements Response {
    * @param runInfo the run info
    * @param runId the run id
    */
-  public RunInfo(Document runInfo, RunId runId) throws IllegalRunInfoException {
+  public RunInfo(Document runInfo, RunId runId)
+      throws IllegalRunInfoResultException, IllegalRunStatusException {
 
     Elements description = runInfo.select("td#Description");
     this.description = description.text();
@@ -84,7 +86,7 @@ public class RunInfo implements Response {
     }
   }
 
-  private void handleResult(Document runInfo, RunId runId) throws IllegalRunInfoException {
+  private void handleResult(Document runInfo, RunId runId) throws IllegalRunInfoResultException {
     Elements result = runInfo.select("td#Result");
 
     switch (result.text()) {
@@ -104,8 +106,8 @@ public class RunInfo implements Response {
         this.result = Result.UNKNOWN;
         break;
       default:
-        throw new IllegalRunInfoException(
-            "RunId " + runId + "returned illegal run info result " + result.text());
+        throw new IllegalRunInfoResultException(
+            "RunId " + runId + "returned illegal run info result " + result.text(), result.text());
     }
   }
 
