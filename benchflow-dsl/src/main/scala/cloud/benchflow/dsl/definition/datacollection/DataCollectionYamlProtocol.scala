@@ -31,7 +31,7 @@ object DataCollectionYamlProtocol extends DefaultYamlProtocol {
       for {
 
         clientSide <- deserializationHandler(
-          yamlObject.getFields(ClientSideKey).headOption.map(_.convertTo[Try[ClientSideConfiguration]].get),
+          yamlObject.fields(ClientSideKey).convertTo[Try[ClientSideConfiguration]].get,
           keyString(ClientSideKey))
 
         serverSideConfiguration <- deserializationHandler(
@@ -50,8 +50,8 @@ object DataCollectionYamlProtocol extends DefaultYamlProtocol {
 
     override def write(obj: DataCollection): YamlValue = YamlObject {
 
-      Map[YamlValue, YamlValue]() ++
-        obj.clientSide.map(key => ClientSideKey -> key.toYaml) ++
+      Map[YamlValue, YamlValue](
+        ClientSideKey -> obj.clientSide.toYaml) ++
         obj.serverSide.map(key => ServerSideKey -> key.toYaml)
 
     }

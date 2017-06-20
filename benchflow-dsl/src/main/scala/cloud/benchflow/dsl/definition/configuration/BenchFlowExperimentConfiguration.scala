@@ -8,6 +8,7 @@ import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadEx
  *         created on 11.03.17.
  */
 case class BenchFlowExperimentConfiguration(
-  users: Option[Int],
-  workloadExecution: Option[WorkloadExecution],
-  terminationCriteria: Option[BenchFlowExperimentTerminationCriteria])
+  users: Int,
+  workloadExecution: WorkloadExecution,
+  terminationCriteria: BenchFlowExperimentTerminationCriteria)
+

@@ -16,6 +16,10 @@ import scala.util.Try
  */
 object BenchFlowExperimentConfigurationYamlProtocol extends DefaultYamlProtocol {
 
+  // default value since deserializing from a test definition it might not be defined
+  // before use it will be overridden
+  val defaultUsers = 0
+
   private def keyString(key: YamlString) = s"${BenchFlowTestConfigurationYamlProtocol.Level}.${key.value}"
 
   implicit object ExperimentConfigurationReadFormat extends YamlFormat[Try[BenchFlowExperimentConfiguration]] {
@@ -27,15 +31,18 @@ object BenchFlowExperimentConfigurationYamlProtocol extends DefaultYamlProtocol 
       for {
 
         users <- deserializationHandler(
-          yamlObject.getFields(UsersKey).headOption.map(_.convertTo[Int]),
+          yamlObject.getFields(UsersKey).headOption match {
+            case Some(usersKey) => usersKey.convertTo[Int]
+            case None => defaultUsers
+          },
           keyString(UsersKey))
 
         workloadExecution <- deserializationHandler(
-          yamlObject.getFields(WorkloadExecutionKey).headOption.map(_.convertTo[Try[WorkloadExecution]].get),
+          yamlObject.fields(WorkloadExecutionKey).convertTo[Try[WorkloadExecution]].get,
           keyString(WorkloadExecutionKey))
 
         terminationCriteria <- deserializationHandler(
-          yamlObject.getFields(TerminationCriteriaKey).headOption.map(_.convertTo[Try[BenchFlowExperimentTerminationCriteria]].get),
+          yamlObject.fields(TerminationCriteriaKey).convertTo[Try[BenchFlowExperimentTerminationCriteria]].get,
           keyString(TerminationCriteriaKey))
 
       } yield BenchFlowExperimentConfiguration(
@@ -53,10 +60,10 @@ object BenchFlowExperimentConfigurationYamlProtocol extends DefaultYamlProtocol 
 
     override def write(obj: BenchFlowExperimentConfiguration): YamlValue = YamlObject {
 
-      Map[YamlValue, YamlValue]() ++
-        obj.users.map(key => UsersKey -> key.toYaml) ++
-        obj.workloadExecution.map(key => WorkloadExecutionKey -> key.toYaml) ++
-        obj.terminationCriteria.map(key => TerminationCriteriaKey -> key.toYaml)
+      Map[YamlValue, YamlValue](
+        UsersKey -> obj.users.toYaml,
+        WorkloadExecutionKey -> obj.workloadExecution.toYaml,
+        TerminationCriteriaKey -> obj.terminationCriteria.toYaml)
 
     }
 

@@ -80,6 +80,10 @@ class DemoConverterTest extends JUnitSuite {
       |# Data Collection section
       |###############################################################################
       |data_collection:
+      |    client_side:
+      |        faban:
+      |            max_run_time: 6h
+      |            interval: 1s
       |    server_side:
       |        activti: ['properties', 'stats']
       |        db:
@@ -164,7 +168,7 @@ class DemoConverterTest extends JUnitSuite {
     val convertedYamlObject = convertedExperimentYamlString.parseYaml
     val expectedYamlObject = expectedExperimentYaml.parseYaml
 
-    // TODO - it is difficult to assert that result is as expected since the order is not always the same
+    // TODO - it is difficult to assert that result is as expected since the order is not always the same (issue #438)
     // improve this test so it can be done automatically
 
     print("====== CONVERTED ========= \n")

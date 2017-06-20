@@ -37,33 +37,19 @@ object DemoConverter {
       case None => // don't add the description
     }
 
-    benchFlowExperiment.configuration.terminationCriteria match {
+    // set the number of trials
+    yamlStringBuilder.append("trials" + ": " + benchFlowExperiment.configuration.terminationCriteria.experiment.number)
+    yamlStringBuilder.append(Properties.lineSeparator)
 
-      case Some(terminationCriteria) =>
-        yamlStringBuilder.append("trials" + ": " + terminationCriteria.experiment.number)
-        yamlStringBuilder.append(Properties.lineSeparator)
-
-      case None => // don't add trials
-    }
-
-    benchFlowExperiment.configuration.users match {
-
-      case Some(users) =>
-
-        yamlStringBuilder.append("users" + ": " + users)
-        yamlStringBuilder.append(Properties.lineSeparator)
-
-      case None => // don't add users
-
-    }
+    // set the number of users
+    yamlStringBuilder.append("users" + ": " + benchFlowExperiment.configuration.users)
+    yamlStringBuilder.append(Properties.lineSeparator)
 
     yamlStringBuilder.append(Properties.lineSeparator)
 
     appendExecution(benchFlowExperiment, yamlStringBuilder)
 
     appendSut(benchFlowExperiment, yamlStringBuilder)
-
-    appendProperties(yamlStringBuilder)
 
     appendDrivers(yamlStringBuilder)
 
@@ -78,7 +64,9 @@ object DemoConverter {
 
     appendSutConfiguration(benchFlowExperiment, yamlStringBuilder)
 
-    appendDataCollection(benchFlowExperiment, yamlStringBuilder)
+    appendDataCollectionServerSide(benchFlowExperiment, yamlStringBuilder)
+
+    appendDataCollectionClientSide(benchFlowExperiment, yamlStringBuilder)
 
     yamlStringBuilder.append(Properties.lineSeparator)
 
@@ -86,49 +74,58 @@ object DemoConverter {
 
   }
 
-  def appendDataCollection(benchFlowExperiment: BenchFlowExperiment, yamlStringBuilder: StringBuilder): Unit = {
-    // data collection
+  def appendDataCollectionClientSide(benchFlowExperiment: BenchFlowExperiment, yamlStringBuilder: StringBuilder): Unit = {
+
+    val fabanConfig = benchFlowExperiment.dataCollection.clientSide.faban
+
+    // properties
+    yamlStringBuilder.append("properties" + ": ")
+    yamlStringBuilder.append(Properties.lineSeparator)
+    yamlStringBuilder.append(tab + "stats" + ": ")
+    yamlStringBuilder.append(Properties.lineSeparator)
+    yamlStringBuilder.append((tab * 2) + "maxRunTime" + ": " + fabanConfig.maxRunTime.toHoursPart)
+    yamlStringBuilder.append(Properties.lineSeparator)
+    yamlStringBuilder.append((tab * 2) + "interval" + ": " + fabanConfig.interval.toSecondsPart)
     yamlStringBuilder.append(Properties.lineSeparator)
 
-    benchFlowExperiment.dataCollection match {
+    yamlStringBuilder.append(Properties.lineSeparator)
+  }
 
-      case Some(dataCollection) =>
-        yamlStringBuilder.append(tab + "benchflowConfig" + ": ")
-        yamlStringBuilder.append(Properties.lineSeparator)
+  def appendDataCollectionServerSide(benchFlowExperiment: BenchFlowExperiment, yamlStringBuilder: StringBuilder): Unit = {
+    // server side
+    yamlStringBuilder.append(tab + "benchflowConfig" + ": ")
+    yamlStringBuilder.append(Properties.lineSeparator)
 
-        dataCollection.serverSide match {
+    benchFlowExperiment.dataCollection.serverSide match {
 
-          case Some(serverSideConfiguration) =>
-            serverSideConfiguration.configurationMap.foreach {
+      case Some(serverSideConfiguration) =>
+        serverSideConfiguration.configurationMap.foreach {
 
-              case (key: String, value: CollectorMultiple) =>
+          case (key: String, value: CollectorMultiple) =>
 
-                yamlStringBuilder.append((tab * 2) + key + ": ")
-                yamlStringBuilder.append(Properties.lineSeparator)
+            yamlStringBuilder.append((tab * 2) + key + ": ")
+            yamlStringBuilder.append(Properties.lineSeparator)
 
-                value.collectors.foreach(name => {
-                  yamlStringBuilder.append((tab * 2) + "- " + name)
-                  yamlStringBuilder.append(Properties.lineSeparator)
-                })
+            value.collectors.foreach(name => {
+              yamlStringBuilder.append((tab * 2) + "- " + name)
+              yamlStringBuilder.append(Properties.lineSeparator)
+            })
 
-              case (key: String, value: CollectorMultipleEnvironment) =>
-                yamlStringBuilder.append((tab * 2) + key + ": ")
-                yamlStringBuilder.append(Properties.lineSeparator + (tab * 2))
+          case (key: String, value: CollectorMultipleEnvironment) =>
+            yamlStringBuilder.append((tab * 2) + key + ": ")
+            yamlStringBuilder.append(Properties.lineSeparator + (tab * 2))
 
-                yamlStringBuilder.append(
-                  CollectorMultipleEnvironmentWriteFormat.write(value).prettyPrint
-                    .replace("\n", "\n" + (tab * 3))
-                    .replace("environment:", "config:")
-                    .replace("mysql:", "- mysql:"))
-                yamlStringBuilder.append(Properties.lineSeparator)
+            yamlStringBuilder.append(
+              CollectorMultipleEnvironmentWriteFormat.write(value).prettyPrint
+                .replace("\n", "\n" + (tab * 3))
+                .replace("environment:", "config:")
+                .replace("mysql:", "- mysql:"))
+            yamlStringBuilder.append(Properties.lineSeparator)
 
-              case (_, _) =>
-            }
-
-          case None => // don't add server side config
+          case (_, _) =>
         }
 
-      case None => // don't add data collection
+      case None => // don't add server side config
     }
 
   }
@@ -216,20 +213,6 @@ object DemoConverter {
     yamlStringBuilder.append(Properties.lineSeparator)
   }
 
-  def appendProperties(yamlStringBuilder: StringBuilder): Unit = {
-    // properties
-    yamlStringBuilder.append("properties" + ": ")
-    yamlStringBuilder.append(Properties.lineSeparator)
-    yamlStringBuilder.append(tab + "stats" + ": ")
-    yamlStringBuilder.append(Properties.lineSeparator)
-    yamlStringBuilder.append((tab * 2) + "maxRunTime" + ": " + "6")
-    yamlStringBuilder.append(Properties.lineSeparator)
-    yamlStringBuilder.append((tab * 2) + "interval" + ": " + "1")
-    yamlStringBuilder.append(Properties.lineSeparator)
-
-    yamlStringBuilder.append(Properties.lineSeparator)
-  }
-
   def appendSut(benchFlowExperiment: BenchFlowExperiment, yamlStringBuilder: StringBuilder): Unit = {
     // sut
     yamlStringBuilder.append("sut" + ": ")
@@ -246,25 +229,20 @@ object DemoConverter {
 
   def appendExecution(benchFlowExperiment: BenchFlowExperiment, yamlStringBuilder: StringBuilder): Unit = {
 
-    benchFlowExperiment.configuration.workloadExecution match {
+    val workloadExecution = benchFlowExperiment.configuration.workloadExecution
 
-      case Some(workloadExecution) =>
-        // Execution
-        yamlStringBuilder.append("execution" + ": ")
-        yamlStringBuilder.append(Properties.lineSeparator)
+    // Execution
+    yamlStringBuilder.append("execution" + ": ")
+    yamlStringBuilder.append(Properties.lineSeparator)
 
-        yamlStringBuilder.append(tab + "rampUp" + ": " + workloadExecution.rampUp.toSecondsPart)
-        yamlStringBuilder.append(Properties.lineSeparator)
-        yamlStringBuilder.append(tab + "steadyState" + ": " + workloadExecution.steadyState.toSecondsPart)
-        yamlStringBuilder.append(Properties.lineSeparator)
-        yamlStringBuilder.append(tab + "rampDown" + ": " + workloadExecution.rampDown.toSecondsPart)
-        yamlStringBuilder.append(Properties.lineSeparator)
+    yamlStringBuilder.append(tab + "rampUp" + ": " + workloadExecution.rampUp.toSecondsPart)
+    yamlStringBuilder.append(Properties.lineSeparator)
+    yamlStringBuilder.append(tab + "steadyState" + ": " + workloadExecution.steadyState.toSecondsPart)
+    yamlStringBuilder.append(Properties.lineSeparator)
+    yamlStringBuilder.append(tab + "rampDown" + ": " + workloadExecution.rampDown.toSecondsPart)
+    yamlStringBuilder.append(Properties.lineSeparator)
 
-        yamlStringBuilder.append(Properties.lineSeparator)
-
-      case None => // don't add workload execution
-
-    }
+    yamlStringBuilder.append(Properties.lineSeparator)
 
   }
 }

@@ -12,6 +12,6 @@ import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadEx
 case class BenchFlowTestConfiguration(
   goal: Goal,
   users: Option[Int],
-  workloadExecution: Option[WorkloadExecution],
+  workloadExecution: WorkloadExecution,
   strategy: Option[ExplorationStrategy],
-  terminationCriteria: Option[BenchFlowTestTerminationCriteria])
+  terminationCriteria: BenchFlowTestTerminationCriteria)

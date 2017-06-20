@@ -7,6 +7,6 @@ import cloud.benchflow.dsl.definition.types.time.Time
  *         created on 12.03.17.
  */
 case class FabanConfiguration(
-  maxRunTime: Option[Time],
-  interval: Option[Time],
+  maxRunTime: Time,
+  interval: Time,
   workload: Option[Map[String, Time]])

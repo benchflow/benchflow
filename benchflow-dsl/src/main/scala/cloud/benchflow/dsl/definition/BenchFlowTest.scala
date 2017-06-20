@@ -19,4 +19,4 @@ case class BenchFlowTest(
   configuration: BenchFlowTestConfiguration,
   sut: Sut,
   workload: Map[String, Workload],
-  dataCollection: Option[DataCollection])
+  dataCollection: DataCollection)

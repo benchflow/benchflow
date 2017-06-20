@@ -11,7 +11,7 @@ class BenchFlowExperimentYamlBuilder(experiment: BenchFlowExperiment) {
 
   def numUsers(numUsers: Int): BenchFlowExperimentYamlBuilder = {
 
-    val newConfiguration = experiment.configuration.copy(Some(numUsers))
+    val newConfiguration = experiment.configuration.copy(numUsers)
 
     val newExperiment = experiment.copy(configuration = newConfiguration)
 
