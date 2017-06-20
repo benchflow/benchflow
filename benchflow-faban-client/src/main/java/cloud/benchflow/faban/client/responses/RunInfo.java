@@ -8,8 +8,6 @@ import java.util.Date;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-;
-
 /**
  * @author vincenzoferme
  */
@@ -22,7 +20,7 @@ public class RunInfo implements Response {
   private String scale;
   private String metric;
   private RunStatus status;
-  private Date date_time;
+  private Date dateTime;
   private String submitter;
   private String tags;
 
@@ -70,7 +68,7 @@ public class RunInfo implements Response {
     //See https://github.com/akara/faban/blob/master/harness/src/com/sun/faban/harness/webclient/Results.java#L412
     if(!date_time.text().equals("N/A")) {
       try {
-        this.date_time = df.parse(date_time.text());
+        this.dateTime = df.parse(date_time.text());
       } catch (ParseException e) {
 
         //TODO: we need a logger in the faban client as well
@@ -79,11 +77,11 @@ public class RunInfo implements Response {
                 + runId);
         e.printStackTrace();
         //We default to the current date, because it should anyway be very close to the retrieved one
-        this.date_time = new Date();
+        this.dateTime = new Date();
       }
     } else {
       //We default to the current date, because it should anyway be very close to the retrieved one
-      this.date_time = new Date();
+      this.dateTime = new Date();
     }
   }
 
@@ -131,7 +129,7 @@ public class RunInfo implements Response {
         ", scale=" + scale +
         ", metric='" + metric + '\'' +
         ", status=" + status.getStatus() +
-        ", date_time=" + date_time +
+        ", dateTime=" + dateTime +
         ", submitter='" + submitter + '\'' +
         ", tags='" + tags + '\'' +
         '}';
@@ -157,7 +155,7 @@ public class RunInfo implements Response {
     return status;
   }
 
-  public Date getDate_time() { return date_time; }
+  public Date getDateTime() { return dateTime; }
 
   public String getSubmitter() {
     return submitter;
