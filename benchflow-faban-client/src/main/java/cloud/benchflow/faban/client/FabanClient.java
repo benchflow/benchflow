@@ -3,6 +3,7 @@ package cloud.benchflow.faban.client;
 import cloud.benchflow.faban.client.commands.DeployCommand;
 import cloud.benchflow.faban.client.commands.KillCommand;
 import cloud.benchflow.faban.client.commands.PendingCommand;
+import cloud.benchflow.faban.client.commands.RunInfoCommand;
 import cloud.benchflow.faban.client.commands.ShowLogsCommand;
 import cloud.benchflow.faban.client.commands.StatusCommand;
 import cloud.benchflow.faban.client.commands.SubmitCommand;
@@ -10,8 +11,8 @@ import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.DeployConfig;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.configurations.FabanClientDefaultConfig;
+import cloud.benchflow.faban.client.configurations.RunConfig;
 import cloud.benchflow.faban.client.configurations.ShowLogsConfig;
-import cloud.benchflow.faban.client.configurations.StatusConfig;
 import cloud.benchflow.faban.client.configurations.SubmitConfig;
 import cloud.benchflow.faban.client.exceptions.BenchmarkNameNotFoundException;
 import cloud.benchflow.faban.client.exceptions.ConfigFileNotFoundException;
@@ -20,6 +21,7 @@ import cloud.benchflow.faban.client.exceptions.JarFileNotFoundException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.DeployStatus;
 import cloud.benchflow.faban.client.responses.RunId;
+import cloud.benchflow.faban.client.responses.RunInfo;
 import cloud.benchflow.faban.client.responses.RunLogStream;
 import cloud.benchflow.faban.client.responses.RunQueue;
 import cloud.benchflow.faban.client.responses.RunStatus;
@@ -35,6 +37,7 @@ import java.util.function.Function;
  * The faban client implementation.
  *
  * @author Simone D'Avico (simonedavico@gmail.com)
+ * @author vincenzoferme
  */
 @SuppressWarnings("unused")
 public class FabanClient extends Configurable<FabanClientConfig> {
@@ -141,8 +144,8 @@ public class FabanClient extends Configurable<FabanClientConfig> {
    */
   public RunStatus status(RunId runId) throws FabanClientException, RunIdNotFoundException {
 
-    StatusConfig statusConfig = new StatusConfig(runId);
-    StatusCommand status = new StatusCommand().withConfig(statusConfig);
+    RunConfig runConfig = new RunConfig(runId);
+    StatusCommand status = new StatusCommand().withConfig(runConfig);
     FabanClientConfig fabanConfig = chooseConfig();
 
     try {
@@ -181,6 +184,58 @@ public class FabanClient extends Configurable<FabanClientConfig> {
   public <R extends RunStatus> void status(RunId runId, Consumer<R> handler)
       throws FabanClientException, RunIdNotFoundException {
     this.status(runId).handle(handler);
+  }
+
+  /**
+   * Get the Run Info of a Faban benchmark.
+   *
+   * @param runId a run id
+   * @return a response enclosing the run Info of the operation
+   * @throws FabanClientException when there is an error interacting with faban
+   * @throws RunIdNotFoundException when the run id is not found
+   */
+  public RunInfo runInfo(RunId runId) throws FabanClientException, RunIdNotFoundException {
+
+    RunConfig runConfig = new RunConfig(runId);
+    RunInfoCommand runInfo = new RunInfoCommand().withConfig(runConfig);
+    FabanClientConfig fabanConfig = chooseConfig();
+
+    try {
+      return runInfo.exec(fabanConfig);
+    } catch (IOException e) {
+      throw new FabanClientException(
+          "Something went wrong while requesting run info with runId" + runId, e);
+    }
+
+  }
+
+  /**
+   * Get the Run Info of a Faban benchmark, handling the result with an handler.
+   *
+   * @param runId a run id
+   * @param handler a callback function
+   * @param <R> The input to the {@param handler} function, a run info
+   * @param <T> The return type of the {@param handler} function
+   * @return An instance of {@link T}
+   * @throws FabanClientException when there is an error interacting with faban
+   * @throws RunIdNotFoundException if passed a non existent run id
+   */
+  public <R extends RunInfo, T> T runInfo(RunId runId, Function<R, T> handler)
+      throws FabanClientException, RunIdNotFoundException {
+    return this.runInfo(runId).handle(handler);
+  }
+
+  /**
+   * Get the Run Info of a Faban benchmark, handling the result with an handler.
+   *
+   * @param runId a run id
+   * @param handler a callback function
+   * @param <R> The input to the {@param handler} consumer, a run info
+   * @throws RunIdNotFoundException when the run id is not found
+   */
+  public <R extends RunInfo> void runInfo(RunId runId, Consumer<R> handler)
+      throws FabanClientException, RunIdNotFoundException {
+    this.runInfo(runId).handle(handler);
   }
 
   /**
@@ -317,7 +372,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
    */
   public RunStatus kill(RunId runId) throws FabanClientException, RunIdNotFoundException {
 
-    StatusConfig killConfig = new StatusConfig(runId);
+    RunConfig killConfig = new RunConfig(runId);
     KillCommand kill = new KillCommand().withConfig(killConfig);
     FabanClientConfig fabanConfig = chooseConfig();
 
