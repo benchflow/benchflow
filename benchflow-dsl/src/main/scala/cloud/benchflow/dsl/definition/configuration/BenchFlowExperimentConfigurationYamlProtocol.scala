@@ -16,9 +16,11 @@ import scala.util.Try
  */
 object BenchFlowExperimentConfigurationYamlProtocol extends DefaultYamlProtocol {
 
-  // default value since deserializing from a test definition it might not be defined
-  // before use it will be overridden
-  val defaultUsers = 0
+  // We use a placeholder since we need to have users defined in the experiment but it may not be defined in
+  // the test that is used to generate the template experiment. The template experiment is then changed according
+  // to the configuration of the exploration point.
+  // During the semantic check afterwards we check that the value has been changed.
+  val UsersPlaceholder: Int = -1
 
   private def keyString(key: YamlString) = s"${BenchFlowTestConfigurationYamlProtocol.Level}.${key.value}"
 
@@ -33,7 +35,7 @@ object BenchFlowExperimentConfigurationYamlProtocol extends DefaultYamlProtocol 
         users <- deserializationHandler(
           yamlObject.getFields(UsersKey).headOption match {
             case Some(usersKey) => usersKey.convertTo[Int]
-            case None => defaultUsers
+            case None => UsersPlaceholder
           },
           keyString(UsersKey))
 
