@@ -32,11 +32,11 @@ object FabanConfigurationYamlProtocol extends DefaultYamlProtocol {
       for {
 
         maxRunTime <- deserializationHandler(
-          yamlObject.getFields(MaxRunTimeKey).headOption.map(_.convertTo[Try[Time]].get),
+          yamlObject.fields(MaxRunTimeKey).convertTo[Try[Time]].get,
           keyString(MaxRunTimeKey))
 
         interval <- deserializationHandler(
-          yamlObject.getFields(IntervalKey).headOption.map(_.convertTo[Try[Time]].get),
+          yamlObject.fields(IntervalKey).convertTo[Try[Time]].get,
           keyString(IntervalKey))
         workload <- deserializationHandler(
           yamlObject.getFields(WorkloadKey).headOption.map(_.convertTo[Map[String, Try[Time]]].mapValues(_.get)),
@@ -53,11 +53,10 @@ object FabanConfigurationYamlProtocol extends DefaultYamlProtocol {
 
     override def write(obj: FabanConfiguration): YamlValue = YamlObject {
 
-      Map[YamlValue, YamlValue]() ++
-        obj.maxRunTime.map(key => MaxRunTimeKey -> key.toYaml) ++
-        obj.interval.map(key => IntervalKey -> key.toYaml) ++
+      Map[YamlValue, YamlValue](
+        MaxRunTimeKey -> obj.maxRunTime.toYaml,
+        IntervalKey -> obj.interval.toYaml) ++
         obj.workload.map(key => WorkloadKey -> key.toYaml)
-
     }
 
     override def read(yaml: YamlValue): FabanConfiguration = unsupportedReadOperation

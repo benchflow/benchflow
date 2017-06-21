@@ -16,6 +16,12 @@ import scala.util.Try
  */
 object BenchFlowExperimentConfigurationYamlProtocol extends DefaultYamlProtocol {
 
+  // We use a placeholder since we need to have users defined in the experiment but it may not be defined in
+  // the test that is used to generate the template experiment. The template experiment is then changed according
+  // to the configuration of the exploration point.
+  // During the semantic check afterwards we check that the value has been changed.
+  val UsersPlaceholder: Int = -1
+
   private def keyString(key: YamlString) = s"${BenchFlowTestConfigurationYamlProtocol.Level}.${key.value}"
 
   implicit object ExperimentConfigurationReadFormat extends YamlFormat[Try[BenchFlowExperimentConfiguration]] {
@@ -27,15 +33,18 @@ object BenchFlowExperimentConfigurationYamlProtocol extends DefaultYamlProtocol 
       for {
 
         users <- deserializationHandler(
-          yamlObject.getFields(UsersKey).headOption.map(_.convertTo[Int]),
+          yamlObject.getFields(UsersKey).headOption match {
+            case Some(usersKey) => usersKey.convertTo[Int]
+            case None => UsersPlaceholder
+          },
           keyString(UsersKey))
 
         workloadExecution <- deserializationHandler(
-          yamlObject.getFields(WorkloadExecutionKey).headOption.map(_.convertTo[Try[WorkloadExecution]].get),
+          yamlObject.fields(WorkloadExecutionKey).convertTo[Try[WorkloadExecution]].get,
           keyString(WorkloadExecutionKey))
 
         terminationCriteria <- deserializationHandler(
-          yamlObject.getFields(TerminationCriteriaKey).headOption.map(_.convertTo[Try[BenchFlowExperimentTerminationCriteria]].get),
+          yamlObject.fields(TerminationCriteriaKey).convertTo[Try[BenchFlowExperimentTerminationCriteria]].get,
           keyString(TerminationCriteriaKey))
 
       } yield BenchFlowExperimentConfiguration(
@@ -53,10 +62,10 @@ object BenchFlowExperimentConfigurationYamlProtocol extends DefaultYamlProtocol 
 
     override def write(obj: BenchFlowExperimentConfiguration): YamlValue = YamlObject {
 
-      Map[YamlValue, YamlValue]() ++
-        obj.users.map(key => UsersKey -> key.toYaml) ++
-        obj.workloadExecution.map(key => WorkloadExecutionKey -> key.toYaml) ++
-        obj.terminationCriteria.map(key => TerminationCriteriaKey -> key.toYaml)
+      Map[YamlValue, YamlValue](
+        UsersKey -> obj.users.toYaml,
+        WorkloadExecutionKey -> obj.workloadExecution.toYaml,
+        TerminationCriteriaKey -> obj.terminationCriteria.toYaml)
 
     }
 

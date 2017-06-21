@@ -57,7 +57,7 @@ object BenchFlowExperimentYamlProtocol extends DefaultYamlProtocol {
           keyString(WorkloadKey))
 
         dataCollection <- deserializationHandler(
-          yamlObject.getFields(DataCollectionKey).headOption.map(_.convertTo[Try[DataCollection]].get),
+          yamlObject.fields(DataCollectionKey).convertTo[Try[DataCollection]].get,
           keyString(DataCollectionKey))
 
       } yield BenchFlowExperiment(
@@ -82,8 +82,8 @@ object BenchFlowExperimentYamlProtocol extends DefaultYamlProtocol {
         DescriptionKey -> obj.description.toYaml,
         ConfigurationKey -> obj.configuration.toYaml,
         SutKey -> obj.sut.toYaml,
-        WorkloadKey -> obj.workload.toYaml) ++
-        obj.dataCollection.map(key => DataCollectionKey -> key.toYaml)
+        WorkloadKey -> obj.workload.toYaml,
+        DataCollectionKey -> obj.dataCollection.toYaml)
     }
 
     override def read(yaml: YamlValue): BenchFlowExperiment = unsupportedReadOperation

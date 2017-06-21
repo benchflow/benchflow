@@ -47,7 +47,7 @@ object BenchFlowTestConfigurationYamlProtocol extends DefaultYamlProtocol {
           keyString(UsersKey))
 
         workloadExecution <- deserializationHandler(
-          yamlObject.getFields(WorkloadExecutionKey).headOption.map(_.convertTo[Try[WorkloadExecution]].get),
+          yamlObject.fields(WorkloadExecutionKey).convertTo[Try[WorkloadExecution]].get,
           keyString(WorkloadExecutionKey))
 
         strategy <- deserializationHandler(
@@ -55,7 +55,7 @@ object BenchFlowTestConfigurationYamlProtocol extends DefaultYamlProtocol {
           keyString(StrategyKey))
 
         terminationCriteria <- deserializationHandler(
-          yamlObject.getFields(TerminationCriteriaKey).headOption.map(_.convertTo[Try[BenchFlowTestTerminationCriteria]].get),
+          yamlObject.fields(TerminationCriteriaKey).convertTo[Try[BenchFlowTestTerminationCriteria]].get,
           keyString(TerminationCriteriaKey))
 
       } yield BenchFlowTestConfiguration(
@@ -77,10 +77,10 @@ object BenchFlowTestConfigurationYamlProtocol extends DefaultYamlProtocol {
 
       Map[YamlValue, YamlValue](
         GoalKey -> obj.goal.toYaml) ++
-        obj.users.map(key => UsersKey -> key.toYaml) ++
-        obj.workloadExecution.map(key => WorkloadExecutionKey -> key.toYaml) ++
-        obj.strategy.map(key => StrategyKey -> key.toYaml) ++
-        obj.terminationCriteria.map(key => TerminationCriteriaKey -> key.toYaml)
+        obj.users.map(key => UsersKey -> key.toYaml) +
+        (WorkloadExecutionKey -> obj.workloadExecution.toYaml) ++
+        obj.strategy.map(key => StrategyKey -> key.toYaml) +
+        (TerminationCriteriaKey -> obj.terminationCriteria.toYaml)
     }
 
     override def read(yaml: YamlValue): BenchFlowTestConfiguration = unsupportedReadOperation

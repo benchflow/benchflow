@@ -17,4 +17,4 @@ case class BenchFlowExperiment(
   configuration: BenchFlowExperimentConfiguration,
   sut: Sut,
   workload: Map[String, Workload],
-  dataCollection: Option[DataCollection])
+  dataCollection: DataCollection)

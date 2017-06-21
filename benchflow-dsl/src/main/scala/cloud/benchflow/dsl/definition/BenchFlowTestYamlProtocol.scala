@@ -64,7 +64,7 @@ object BenchFlowTestYamlProtocol extends DefaultYamlProtocol {
           keyString(WorkloadKey))
 
         dataCollection <- deserializationHandler(
-          testObject.getFields(DataCollectionKey).headOption.map(_.convertTo[Try[DataCollection]].get),
+          testObject.fields(DataCollectionKey).convertTo[Try[DataCollection]].get,
           keyString(DataCollectionKey))
 
       } yield BenchFlowTest(
@@ -96,9 +96,10 @@ object BenchFlowTestYamlProtocol extends DefaultYamlProtocol {
         DescriptionKey -> obj.description.toYaml,
         ConfigurationKey -> obj.configuration.toYaml,
         SutKey -> obj.sut.toYaml,
-        WorkloadKey -> obj.workload.toYaml) ++
-        // we map here because value is optional (Option)
-        obj.dataCollection.map(key => DataCollectionKey -> key.toYaml) // +
+        WorkloadKey -> obj.workload.toYaml,
+        DataCollectionKey -> obj.dataCollection.toYaml)
+      // this line is an example of how to add an optional value (incl. '++' on line before) // ++
+      //        obj.dataCollection.map(key => DataCollectionKey -> key.toYaml) // +
       // this line is an example of how to mix optional and non-optional key,value pairs (incl. '+' on previous line)
       //          (VersionKey -> benchFlowTest.version.toYaml)
     }
