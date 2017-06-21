@@ -3,6 +3,8 @@ package cloud.benchflow.dsl.definition.configuration
 import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol.ConfigurationKey
 import cloud.benchflow.dsl.definition.configuration.goal.Goal
 import cloud.benchflow.dsl.definition.configuration.goal.GoalYamlProtocol._
+import cloud.benchflow.dsl.definition.configuration.settings.SettingsObject.Settings
+import cloud.benchflow.dsl.definition.configuration.settings.SettingsYamlProtocol._
 import cloud.benchflow.dsl.definition.configuration.strategy.ExplorationStrategy
 import cloud.benchflow.dsl.definition.configuration.strategy.ExplorationStrategyYamlProtocol._
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowTestTerminationCriteria
@@ -21,6 +23,7 @@ import scala.util.Try
 object BenchFlowTestConfigurationYamlProtocol extends DefaultYamlProtocol {
 
   val GoalKey = YamlString("goal")
+  val SettingsKey = YamlString("settings")
   val UsersKey = YamlString("users")
   val WorkloadExecutionKey = YamlString("workload_execution")
   val StrategyKey = YamlString("strategy")
@@ -42,6 +45,13 @@ object BenchFlowTestConfigurationYamlProtocol extends DefaultYamlProtocol {
           yamlObject.fields(GoalKey).convertTo[Try[Goal]].get,
           keyString(GoalKey))
 
+        settings <- deserializationHandler(
+          yamlObject.getFields(SettingsKey).headOption match {
+            case Some(settings) => settings.convertTo[Try[Settings]].get
+            case None => YamlNull.convertTo[Try[Settings]].get
+          },
+          keyString(SettingsKey))
+
         users <- deserializationHandler(
           yamlObject.getFields(UsersKey).headOption.map(_.convertTo[Int]),
           keyString(UsersKey))
@@ -60,6 +70,7 @@ object BenchFlowTestConfigurationYamlProtocol extends DefaultYamlProtocol {
 
       } yield BenchFlowTestConfiguration(
         goal = goal,
+        settings = settings,
         users = users,
         workloadExecution = workloadExecution,
         strategy = strategy,
@@ -76,7 +87,8 @@ object BenchFlowTestConfigurationYamlProtocol extends DefaultYamlProtocol {
     override def write(obj: BenchFlowTestConfiguration): YamlValue = YamlObject {
 
       Map[YamlValue, YamlValue](
-        GoalKey -> obj.goal.toYaml) ++
+        GoalKey -> obj.goal.toYaml,
+        SettingsKey -> obj.settings.toYaml) ++
         obj.users.map(key => UsersKey -> key.toYaml) +
         (WorkloadExecutionKey -> obj.workloadExecution.toYaml) ++
         obj.strategy.map(key => StrategyKey -> key.toYaml) +
