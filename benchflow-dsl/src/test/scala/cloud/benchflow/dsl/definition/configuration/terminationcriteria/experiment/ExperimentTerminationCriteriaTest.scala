@@ -19,9 +19,25 @@ class ExperimentTerminationCriteriaTest extends JUnitSuite {
 
   @Test def fixedTerminationCriteria(): Unit = {
 
-    val experimentTerminationCriteria: Try[ExperimentTerminationCriteria] = fixedterminationCriteriaYaml.parseYaml.convertTo[Try[ExperimentTerminationCriteria]]
+    val experimentTerminationCriteria = fixedterminationCriteriaYaml.parseYaml.convertTo[Try[ExperimentTerminationCriteria]]
 
     Assert.assertTrue(experimentTerminationCriteria.isSuccess)
+
+    val experimentTerminationCriteriaYaml = experimentTerminationCriteria.get.toYaml
+
+    Assert.assertTrue(experimentTerminationCriteriaYaml.prettyPrint.contains("type: fixed"))
+
+  }
+
+  @Test def invalidTerminationCriteriaType(): Unit = {
+
+    val invalidTerminationCriteriaTypeYaml: String =
+      """type: invalid
+        |number: 5""".stripMargin
+
+    val experimentTerminationCriteria = invalidTerminationCriteriaTypeYaml.parseYaml.convertTo[Try[ExperimentTerminationCriteria]]
+
+    Assert.assertTrue(experimentTerminationCriteria.isFailure)
 
   }
 
