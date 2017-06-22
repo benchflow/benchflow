@@ -1,6 +1,8 @@
 package cloud.benchflow.dsl.demo
 
 import cloud.benchflow.dsl.BenchFlowDSL
+import cloud.benchflow.dsl.definition.BenchFlowTest
+import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol._
 import cloud.benchflow.dsl.definition.workload.Workload
 import cloud.benchflow.dsl.definition.workload.WorkloadYamlProtocol._
 import net.jcazevedo.moultingyaml._
@@ -38,6 +40,8 @@ class DemoConverterTest extends JUnitSuite {
       |        ramp_down: 30s
       |
       |    termination_criteria:
+      |        test:
+      |            max_time: 24h
       |        experiment:
       |            type: 'fixed'
       |            number: 1
@@ -181,6 +185,24 @@ class DemoConverterTest extends JUnitSuite {
 
     // uncomment to check manually that result is as expected
     //    Assert.assertEquals(expectedYamlObject.prettyPrint, convertedYamlObject.prettyPrint)
+
+  }
+
+  @Test def noDescriptionTest(): Unit = {
+
+    val triedTestYaml = testYaml.parseYaml.convertTo[Try[BenchFlowTest]]
+
+    Assert.assertTrue(triedTestYaml.isSuccess)
+
+    val testWithoutDescription = triedTestYaml.get.copy(description = None)
+
+    val testWithoutDescriptionYaml = testWithoutDescription.toYaml
+
+    val experiment = BenchFlowDSL.experimentFromTestYaml(testWithoutDescriptionYaml.prettyPrint)
+
+    val convertedExperimentYamlString: String = DemoConverter.convertExperimentToPreviousYamlString(experiment)
+
+    Assert.assertFalse(convertedExperimentYamlString.contains("description:"))
 
   }
 
