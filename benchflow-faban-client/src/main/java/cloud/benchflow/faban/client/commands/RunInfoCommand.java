@@ -3,10 +3,10 @@ package cloud.benchflow.faban.client.commands;
 import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.configurations.RunConfig;
-import cloud.benchflow.faban.client.exceptions.FabanClientRuntimeException;
+import cloud.benchflow.faban.client.exceptions.FabanClientBadRequestException;
 import cloud.benchflow.faban.client.exceptions.IllegalRunInfoResultException;
 import cloud.benchflow.faban.client.exceptions.IllegalRunStatusException;
-import cloud.benchflow.faban.client.exceptions.MalformedURIRuntimeException;
+import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunId;
 import cloud.benchflow.faban.client.responses.RunInfo;
@@ -32,13 +32,15 @@ public class RunInfoCommand extends Configurable<RunConfig> implements Command<R
   private static String RUNINFO_PATH = "/results/get_run_info";
   private static String RUNINFO_RUNID_PAR = "runId";
 
-  public RunInfo exec(FabanClientConfig fabanConfig) throws IOException, RunIdNotFoundException,
-      IllegalRunStatusException, IllegalRunInfoResultException {
+  public RunInfo exec(FabanClientConfig fabanConfig)
+      throws IOException, RunIdNotFoundException, IllegalRunStatusException,
+      IllegalRunInfoResultException, FabanClientBadRequestException, MalformedURIException {
     return runInfo(fabanConfig);
   }
 
-  private RunInfo runInfo(FabanClientConfig fabanConfig) throws IOException, RunIdNotFoundException,
-      IllegalRunStatusException, IllegalRunInfoResultException {
+  private RunInfo runInfo(FabanClientConfig fabanConfig)
+      throws IOException, RunIdNotFoundException, IllegalRunStatusException,
+      IllegalRunInfoResultException, FabanClientBadRequestException, MalformedURIException {
 
     RunId runId = config.getRunId();
 
@@ -61,7 +63,7 @@ public class RunInfoCommand extends Configurable<RunConfig> implements Command<R
       if (status == HttpStatus.SC_NOT_FOUND) {
         throw new RunIdNotFoundException("Run id not found");
       } else if (status == HttpStatus.SC_BAD_REQUEST) {
-        throw new FabanClientRuntimeException("Illegal runInfo request");
+        throw new FabanClientBadRequestException("Illegal runInfo request");
       }
 
       //TODO: check that the call to .handleEntity(..) actually returns the expected string
@@ -71,7 +73,7 @@ public class RunInfoCommand extends Configurable<RunConfig> implements Command<R
       return runInfo;
 
     } catch (URISyntaxException e) {
-      throw new MalformedURIRuntimeException(
+      throw new MalformedURIException(
           "Attempted to check runInfo from malformed URI: " + e.getInput(), e);
     }
 

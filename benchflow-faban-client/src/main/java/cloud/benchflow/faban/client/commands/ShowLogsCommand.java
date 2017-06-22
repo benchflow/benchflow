@@ -3,8 +3,8 @@ package cloud.benchflow.faban.client.commands;
 import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.configurations.ShowLogsConfig;
-import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseRuntimeException;
-import cloud.benchflow.faban.client.exceptions.MalformedURIRuntimeException;
+import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
+import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunLogStream;
 import java.io.BufferedReader;
@@ -31,13 +31,13 @@ public class ShowLogsCommand extends Configurable<ShowLogsConfig> implements Com
   private static String SHOWLOGS_URL = "/logs";
 
 
-  public RunLogStream exec(FabanClientConfig fabanConfig)
-      throws IOException, RunIdNotFoundException, EmptyHarnessResponseRuntimeException {
+  public RunLogStream exec(FabanClientConfig fabanConfig) throws IOException,
+      RunIdNotFoundException, EmptyHarnessResponseException, MalformedURIException {
     return showlogs(fabanConfig);
   }
 
-  private RunLogStream showlogs(FabanClientConfig fabanConfig)
-      throws IOException, RunIdNotFoundException, EmptyHarnessResponseRuntimeException {
+  private RunLogStream showlogs(FabanClientConfig fabanConfig) throws IOException,
+      RunIdNotFoundException, EmptyHarnessResponseException, MalformedURIException {
 
     try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 
@@ -49,7 +49,7 @@ public class ShowLogsCommand extends Configurable<ShowLogsConfig> implements Com
       int status = resp.getStatusLine().getStatusCode();
 
       if (status == HttpStatus.SC_NO_CONTENT) {
-        throw new EmptyHarnessResponseRuntimeException(
+        throw new EmptyHarnessResponseException(
             "Harness returned empty response to pending request");
       } else if (status == HttpStatus.SC_NOT_FOUND) {
         throw new RunIdNotFoundException("Run id not found");
@@ -62,7 +62,7 @@ public class ShowLogsCommand extends Configurable<ShowLogsConfig> implements Com
       return new RunLogStream(reader);
 
     } catch (URISyntaxException e) {
-      throw new MalformedURIRuntimeException(
+      throw new MalformedURIException(
           "Malformed showlogs request to faban harness: " + e.getInput(), e);
     }
 

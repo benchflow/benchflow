@@ -9,17 +9,17 @@ package cloud.benchflow.faban.client.exceptions;
  *         Throwable so that the client has to decide how to handle the case, according to its
  *         business logic
  */
-public class EmptyHarnessResponseRuntimeException extends FabanClientThrowable {
+public class EmptyHarnessResponseException extends FabanClientThrowable {
 
-  public EmptyHarnessResponseRuntimeException() {
+  public EmptyHarnessResponseException() {
     super();
   }
 
-  public EmptyHarnessResponseRuntimeException(String message) {
+  public EmptyHarnessResponseException(String message) {
     super(message);
   }
 
-  public EmptyHarnessResponseRuntimeException(String message, Throwable cause) {
+  public EmptyHarnessResponseException(String message, Throwable cause) {
     super(message, cause);
   }
 }

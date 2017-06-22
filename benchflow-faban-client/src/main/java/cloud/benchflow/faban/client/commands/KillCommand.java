@@ -3,10 +3,10 @@ package cloud.benchflow.faban.client.commands;
 import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.configurations.RunConfig;
-import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseRuntimeException;
-import cloud.benchflow.faban.client.exceptions.FabanClientRuntimeException;
+import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
+import cloud.benchflow.faban.client.exceptions.FabanClientBadRequestException;
 import cloud.benchflow.faban.client.exceptions.IllegalRunStatusException;
-import cloud.benchflow.faban.client.exceptions.MalformedURIRuntimeException;
+import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunId;
 import cloud.benchflow.faban.client.responses.RunStatus;
@@ -35,13 +35,15 @@ public class KillCommand extends Configurable<RunConfig> implements Command<RunS
 
   private static String KILL_URL = "/kill";
 
-  public RunStatus exec(FabanClientConfig fabanConfig) throws RunIdNotFoundException, IOException,
-      IllegalRunStatusException, EmptyHarnessResponseRuntimeException {
+  public RunStatus exec(FabanClientConfig fabanConfig)
+      throws RunIdNotFoundException, IOException, IllegalRunStatusException,
+      EmptyHarnessResponseException, MalformedURIException, FabanClientBadRequestException {
     return kill(fabanConfig);
   }
 
-  private RunStatus kill(FabanClientConfig fabanConfig) throws RunIdNotFoundException, IOException,
-      EmptyHarnessResponseRuntimeException, IllegalRunStatusException {
+  private RunStatus kill(FabanClientConfig fabanConfig)
+      throws RunIdNotFoundException, IOException, EmptyHarnessResponseException,
+      IllegalRunStatusException, MalformedURIException, FabanClientBadRequestException {
 
     RunId runId = config.getRunId();
 
@@ -69,16 +71,15 @@ public class KillCommand extends Configurable<RunConfig> implements Command<RunS
       if (statusCode == HttpStatus.SC_NOT_FOUND) {
         throw new RunIdNotFoundException("Run id not found");
       } else if (statusCode == HttpStatus.SC_BAD_REQUEST) {
-        throw new FabanClientRuntimeException("Bad kill request to harness");
+        throw new FabanClientBadRequestException("Bad kill request to harness");
       } else if (statusCode == HttpStatus.SC_NO_CONTENT) {
-        throw new EmptyHarnessResponseRuntimeException();
+        throw new EmptyHarnessResponseException();
       }
 
       return new RunStatus(new BasicResponseHandler().handleEntity(resp.getEntity()), runId);
 
     } catch (URISyntaxException e) {
-      throw new MalformedURIRuntimeException("Attempted to kill to malformed URI " + e.getInput(),
-          e);
+      throw new MalformedURIException("Attempted to kill to malformed URI " + e.getInput(), e);
     }
 
   }

@@ -1,6 +1,6 @@
 package cloud.benchflow.faban.client.responses;
 
-import cloud.benchflow.faban.client.exceptions.IllegalRunIdRuntimeException;
+import cloud.benchflow.faban.client.exceptions.IllegalRunIdException;
 
 /**
  * @author Simone D'Avico (simonedavico@gmail.com)
@@ -26,10 +26,10 @@ public class RunId implements Response {
    *
    * @param runId the run id of the benchmark
    */
-  public RunId(String runId) {
+  public RunId(String runId) throws IllegalRunIdException {
     String[] parts = runId.split("\\.");
     if (parts.length != 2) {
-      throw new IllegalRunIdRuntimeException("Received unexpected runId " + runId);
+      throw new IllegalRunIdException("Received unexpected runId " + runId);
     }
     this.name = parts[0];
     this.queueId = parts[1];

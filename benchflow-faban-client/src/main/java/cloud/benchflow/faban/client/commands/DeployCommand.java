@@ -4,7 +4,7 @@ import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.DeployConfig;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.exceptions.DeployException;
-import cloud.benchflow.faban.client.exceptions.MalformedURIRuntimeException;
+import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.responses.DeployStatus;
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +36,8 @@ public class DeployCommand extends Configurable<DeployConfig> implements Command
    * @return a response containing the status of the operation
    * @throws IOException when there are issues in reading the benchmark file
    */
-  public DeployStatus exec(FabanClientConfig fabanConfig) throws IOException, DeployException {
+  public DeployStatus exec(FabanClientConfig fabanConfig)
+      throws IOException, DeployException, MalformedURIException {
     return deploy(fabanConfig);
   }
 
@@ -49,7 +50,8 @@ public class DeployCommand extends Configurable<DeployConfig> implements Command
       the library.
       Nevertheless, this solution is good enough until we figure out how to
       send a stream of data to Faban. */
-  private DeployStatus deploy(FabanClientConfig fabanConfig) throws IOException, DeployException {
+  private DeployStatus deploy(FabanClientConfig fabanConfig)
+      throws IOException, DeployException, MalformedURIException {
 
     //TODO: evaluate if it possible to convert back to lamba expression handling (line 43)
     //      when checked exceptions are supported. See: http://www.baeldung.com/java-lambda-exceptions
@@ -82,8 +84,7 @@ public class DeployCommand extends Configurable<DeployConfig> implements Command
       return dresp;
 
     } catch (URISyntaxException e) { //this should never occur
-      throw new MalformedURIRuntimeException(
-          "Attempted to deploy to malformed URI: " + e.getInput(), e);
+      throw new MalformedURIException("Attempted to deploy to malformed URI: " + e.getInput(), e);
     }
 
   }

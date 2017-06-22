@@ -3,9 +3,9 @@ package cloud.benchflow.faban.client.commands;
 import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.configurations.RunConfig;
-import cloud.benchflow.faban.client.exceptions.FabanClientRuntimeException;
+import cloud.benchflow.faban.client.exceptions.FabanClientBadRequestException;
 import cloud.benchflow.faban.client.exceptions.IllegalRunStatusException;
-import cloud.benchflow.faban.client.exceptions.MalformedURIRuntimeException;
+import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunId;
 import cloud.benchflow.faban.client.responses.RunStatus;
@@ -29,13 +29,14 @@ public class StatusCommand extends Configurable<RunConfig> implements Command<Ru
 
   private static String STATUS_PATH = "/status";
 
-  public RunStatus exec(FabanClientConfig fabanConfig)
-      throws IOException, RunIdNotFoundException, IllegalRunStatusException {
+  public RunStatus exec(FabanClientConfig fabanConfig) throws IOException, RunIdNotFoundException,
+      IllegalRunStatusException, MalformedURIException, FabanClientBadRequestException {
     return status(fabanConfig);
   }
 
   private RunStatus status(FabanClientConfig fabanConfig)
-      throws IOException, RunIdNotFoundException, IllegalRunStatusException {
+      throws IOException, RunIdNotFoundException, IllegalRunStatusException, MalformedURIException,
+      FabanClientBadRequestException {
 
     RunId runId = config.getRunId();
 
@@ -57,7 +58,7 @@ public class StatusCommand extends Configurable<RunConfig> implements Command<Ru
       if (status == HttpStatus.SC_NOT_FOUND) {
         throw new RunIdNotFoundException("Run id not found");
       } else if (status == HttpStatus.SC_BAD_REQUEST) {
-        throw new FabanClientRuntimeException("Illegal status request");
+        throw new FabanClientBadRequestException("Illegal status request");
       }
 
       //TODO: check that the call to .handleEntity(..) actually returns the expected string
@@ -67,7 +68,7 @@ public class StatusCommand extends Configurable<RunConfig> implements Command<Ru
       return runStatus;
 
     } catch (URISyntaxException e) {
-      throw new MalformedURIRuntimeException(
+      throw new MalformedURIException(
           "Attempted to check status from malformed URI: " + e.getInput(), e);
     }
 
