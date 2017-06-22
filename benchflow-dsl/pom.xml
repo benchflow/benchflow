@@ -6,7 +6,6 @@
     <artifactId>benchflow</artifactId>
     <version>0.1.0</version>
   </parent>
-	<groupId>cloud.benchflow</groupId>
 	<artifactId>benchflow-dsl</artifactId>
 	<version>0.1.0</version>
 	<name>benchflow-dsl</name>
@@ -20,7 +19,7 @@
         <scala.xml.version>1.0.6</scala.xml.version>
         <scala.parser.combinators.version>1.0.5</scala.parser.combinators.version>
         <java.semver.version>0.9.0</java.semver.version>
-        <moultingyaml.version>v0.3.1</moultingyaml.version>
+        <moultingyaml.version>0.4.0</moultingyaml.version>
         <scalatest.version>3.0.1</scalatest.version>
         <junit.version>4.12</junit.version>
         <scala-maven-plugin.version>3.2.2</scala-maven-plugin.version>
@@ -33,15 +32,6 @@
         <scalariform-maven-plugin.version>0.1.4</scalariform-maven-plugin.version>
 	</properties>
 
-     
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
-
-	
 	<dependencies>
 	
         <dependency>
@@ -62,9 +52,10 @@
             <version>${scala.parser.combinators.version}</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/net.jcazevedo/moultingyaml_2.11 -->
         <dependency>
-            <groupId>com.github.jcazevedo</groupId>
-            <artifactId>moultingyaml</artifactId>
+            <groupId>net.jcazevedo</groupId>
+            <artifactId>moultingyaml_2.12</artifactId>
             <version>${moultingyaml.version}</version>
         </dependency>
 
