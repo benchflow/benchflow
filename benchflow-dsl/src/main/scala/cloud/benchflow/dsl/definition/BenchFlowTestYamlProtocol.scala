@@ -92,12 +92,13 @@ object BenchFlowTestYamlProtocol extends DefaultYamlProtocol {
     override def write(obj: BenchFlowTest): YamlValue = YamlObject {
       Map[YamlValue, YamlValue](
         VersionKey -> obj.version.toYaml,
-        NameKey -> obj.name.toYaml,
-        DescriptionKey -> obj.description.toYaml,
-        ConfigurationKey -> obj.configuration.toYaml,
-        SutKey -> obj.sut.toYaml,
-        WorkloadKey -> obj.workload.toYaml,
-        DataCollectionKey -> obj.dataCollection.toYaml)
+        NameKey -> obj.name.toYaml) ++
+        obj.description.map(key => DescriptionKey -> key.toYaml) +
+        (
+          ConfigurationKey -> obj.configuration.toYaml,
+          SutKey -> obj.sut.toYaml,
+          WorkloadKey -> obj.workload.toYaml,
+          DataCollectionKey -> obj.dataCollection.toYaml)
       // this line is an example of how to add an optional value (incl. '++' on line before) // ++
       //        obj.dataCollection.map(key => DataCollectionKey -> key.toYaml) // +
       // this line is an example of how to mix optional and non-optional key,value pairs (incl. '+' on previous line)
