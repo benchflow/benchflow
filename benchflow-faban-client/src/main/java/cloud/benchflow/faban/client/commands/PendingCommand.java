@@ -3,6 +3,7 @@ package cloud.benchflow.faban.client.commands;
 import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
+import cloud.benchflow.faban.client.exceptions.IllegalRunIdException;
 import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.responses.RunId;
 import cloud.benchflow.faban.client.responses.RunQueue;
@@ -22,17 +23,21 @@ import org.apache.http.impl.client.HttpClients;
 
 
 /**
+ * Faban Pending Command.
+ *
  * @author Simone D'Avico (simonedavico@gmail.com) - Created on 30/10/15.
  */
 public class PendingCommand extends Configurable implements Command<RunQueue> {
 
   private static String PENDING_URL = "/pending";
 
-  public RunQueue exec(FabanClientConfig fabanConfig) throws IOException {
+  public RunQueue exec(FabanClientConfig fabanConfig) throws IOException,
+      EmptyHarnessResponseException, MalformedURIException, IllegalRunIdException {
     return pending(fabanConfig);
   }
 
-  private RunQueue pending(FabanClientConfig fabanConfig) throws IOException {
+  private RunQueue pending(FabanClientConfig fabanConfig) throws IOException,
+      EmptyHarnessResponseException, MalformedURIException, IllegalRunIdException {
 
     try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 

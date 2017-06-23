@@ -1,6 +1,6 @@
 package cloud.benchflow.dsl
 
-import cloud.benchflow.dsl.BenchFlowDSL.testFromYaml
+import cloud.benchflow.dsl.BenchFlowTestAPI.testFromYaml
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
 import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator
 import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.{ ExplorationSpace, ExplorationSpaceDimensions, ExplorationSpacePoint }
@@ -9,7 +9,7 @@ import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.{ Explorat
  * @author Jesper Findahl (jesper.findahl@gmail.com)
  *         created on 2017-06-01
  */
-object ExplorationSpace {
+object ExplorationSpaceAPI {
 
   type ExperimentDefinitionYamlString = String
   type DockerComposeYamlString = String
@@ -63,7 +63,7 @@ object ExplorationSpace {
     dockerComposeYamlString: String): (ExperimentDefinitionYamlString, DockerComposeYamlString) = {
 
     // build the experiment definition
-    var experimentBuilder = BenchFlowDSL.experimentYamlBuilderFromTestYaml(testDefinitionYamlString)
+    var experimentBuilder = BenchFlowExperimentAPI.experimentYamlBuilderFromTestYaml(testDefinitionYamlString)
 
     experimentBuilder = explorationSpace.usersDimension match {
       case Some(list) => experimentBuilder.numUsers(list(experimentIndex))
@@ -73,7 +73,7 @@ object ExplorationSpace {
     val experimentDefinitionYamlString = experimentBuilder.build()
 
     // build the docker compose YAML
-    var dockerComposeBuilder = BenchFlowDSL.dockerComposeYamlBuilderFromDockerComposeYaml(dockerComposeYamlString)
+    var dockerComposeBuilder = DeploymentDescriptorAPI.dockerComposeYamlBuilderFromDockerComposeYaml(dockerComposeYamlString)
 
     explorationSpace.memoryDimension match {
       case Some(map) => map foreach {

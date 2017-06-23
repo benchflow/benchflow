@@ -17,7 +17,7 @@ class BenchFlowExperimentTerminationCriteriaTest extends JUnitSuite {
     """
       |experiment:
       | type: fixed
-      | number: 5
+      | number_of_trials: 5
     """.stripMargin
 
   @Test def completeTerminationCriteria(): Unit = {

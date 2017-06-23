@@ -38,7 +38,7 @@ object DemoConverter {
     }
 
     // set the number of trials
-    yamlStringBuilder.append("trials" + ": " + benchFlowExperiment.configuration.terminationCriteria.experiment.number)
+    yamlStringBuilder.append("trials" + ": " + benchFlowExperiment.configuration.terminationCriteria.experiment.numberOfTrials)
     yamlStringBuilder.append(Properties.lineSeparator)
 
     // set the number of users

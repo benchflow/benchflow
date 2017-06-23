@@ -16,7 +16,7 @@ import scala.io.Source
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 16.03.17.
  */
-class BenchFlowDSLTest extends JUnitSuite {
+class BenchFlowTestAPITest extends JUnitSuite {
 
   // TODO - add tests that handles exceptions thrown
 
@@ -24,13 +24,13 @@ class BenchFlowDSLTest extends JUnitSuite {
 
     val testYaml = Source.fromFile(Paths.get(BenchFlowLoadTestExample).toFile).mkString
 
-    val benchFlowTest = BenchFlowDSL.testFromYaml(testYaml)
+    val benchFlowTest = BenchFlowTestAPI.testFromYaml(testYaml)
 
-    val benchFlowTestYamlString = BenchFlowDSL.testToYamlString(benchFlowTest)
+    val benchFlowTestYamlString = BenchFlowTestAPI.testToYamlString(benchFlowTest)
 
     Assert.assertNotNull(benchFlowTestYamlString)
 
-    Assert.assertEquals(BenchFlowDSL.testFromYaml(benchFlowTestYamlString), benchFlowTest)
+    Assert.assertEquals(BenchFlowTestAPI.testFromYaml(benchFlowTestYamlString), benchFlowTest)
 
   }
 
@@ -44,7 +44,7 @@ class BenchFlowDSLTest extends JUnitSuite {
         |description: A WfMS test
       """.stripMargin
 
-    val benchFlowTest = BenchFlowDSL.testFromYaml(testYaml)
+    val benchFlowTest = BenchFlowTestAPI.testFromYaml(testYaml)
 
   }
 
@@ -52,13 +52,13 @@ class BenchFlowDSLTest extends JUnitSuite {
 
     val testYaml = Source.fromFile(Paths.get(BenchFlowLoadTestExample).toFile).mkString
 
-    val benchFlowExperiment = BenchFlowDSL.experimentFromTestYaml(testYaml)
+    val benchFlowExperiment = BenchFlowExperimentAPI.experimentFromTestYaml(testYaml)
 
-    val benchFlowExperimentYamlString = BenchFlowDSL.experimentToYamlString(benchFlowExperiment)
+    val benchFlowExperimentYamlString = BenchFlowExperimentAPI.experimentToYamlString(benchFlowExperiment)
 
     Assert.assertNotNull(benchFlowExperimentYamlString)
 
-    Assert.assertEquals(BenchFlowDSL.experimentFromExperimentYaml(benchFlowExperimentYamlString), benchFlowExperiment)
+    Assert.assertEquals(BenchFlowExperimentAPI.experimentFromExperimentYaml(benchFlowExperimentYamlString), benchFlowExperiment)
 
   }
 
@@ -66,15 +66,15 @@ class BenchFlowDSLTest extends JUnitSuite {
 
     val originalTestYaml = Source.fromFile(Paths.get(BenchFlowExhaustiveExplorationUsersExample).toFile).mkString
 
-    val benchFlowTest = BenchFlowDSL.testFromYaml(originalTestYaml)
+    val benchFlowTest = BenchFlowTestAPI.testFromYaml(originalTestYaml)
 
-    val extractedTestYaml = BenchFlowDSL.testToYamlString(benchFlowTest)
+    val extractedTestYaml = BenchFlowTestAPI.testToYamlString(benchFlowTest)
 
     Assert.assertTrue(extractedTestYaml.contains("selection: one-at-a-time"))
 
     benchFlowTest.configuration.goal.explorationSpace.get.workload.get.users.get.values.foreach(numUsers => {
 
-      val builder = BenchFlowDSL.experimentYamlBuilderFromTestYaml(originalTestYaml)
+      val builder = BenchFlowExperimentAPI.experimentYamlBuilderFromTestYaml(originalTestYaml)
       val experimentYaml = builder.numUsers(numUsers).build()
 
       Assert.assertTrue(experimentYaml.contains("users: " + numUsers))
@@ -93,7 +93,7 @@ class BenchFlowDSLTest extends JUnitSuite {
     val environmentKey = "DB_DRIVER"
     val environmentValue = "TEST_ENVIRONMENT_VALUE"
 
-    val generatedComposeString = BenchFlowDSL.dockerComposeYamlBuilderFromDockerComposeYaml(dockerComposeString)
+    val generatedComposeString = DeploymentDescriptorAPI.dockerComposeYamlBuilderFromDockerComposeYaml(dockerComposeString)
       .environmentVariable(serviceName, environmentKey, environmentValue)
       .memLimit(serviceName, memLimit).build()
 

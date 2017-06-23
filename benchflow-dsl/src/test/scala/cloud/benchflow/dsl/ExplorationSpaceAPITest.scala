@@ -14,13 +14,13 @@ import scala.io.Source
  * @author Jesper Findahl (jesper.findahl@gmail.com)
  *         created on 2017-06-01
  */
-class ExplorationSpaceTest extends JUnitSuite {
+class ExplorationSpaceAPITest extends JUnitSuite {
 
   @Test def explorationSpaceDimensionsFromTestYamlTest(): Unit = {
 
     val testYaml = Source.fromFile(Paths.get(BenchFlowExhaustiveExplorationMultipleExample).toFile).mkString
 
-    val explorationSpace = ExplorationSpace.explorationSpaceDimensionsFromTestYaml(testYaml)
+    val explorationSpace = ExplorationSpaceAPI.explorationSpaceDimensionsFromTestYaml(testYaml)
 
     Assert.assertTrue(explorationSpace.users.isDefined)
 
@@ -34,7 +34,7 @@ class ExplorationSpaceTest extends JUnitSuite {
 
     val testYaml = Source.fromFile(Paths.get(BenchFlowExhaustiveExplorationMultipleExample).toFile).mkString
 
-    val explorationSpace = ExplorationSpace.explorationSpaceFromTestYaml(testYaml)
+    val explorationSpace = ExplorationSpaceAPI.explorationSpaceFromTestYaml(testYaml)
 
     val expectedExplorationSpaceSize = 5 * 4 * 3 * 4
 
@@ -50,9 +50,9 @@ class ExplorationSpaceTest extends JUnitSuite {
 
     val dockerComposeYamlString = DockerComposeYamlString
 
-    val explorationSpace = ExplorationSpace.explorationSpaceFromTestYaml(testYaml)
+    val explorationSpace = ExplorationSpaceAPI.explorationSpaceFromTestYaml(testYaml)
 
-    val (experimentDefinition, newDockerCompose) = ExplorationSpace.generateExperimentBundle(
+    val (experimentDefinition, newDockerCompose) = ExplorationSpaceAPI.generateExperimentBundle(
       explorationSpace,
       experimentIndex,
       testYaml,
@@ -79,9 +79,9 @@ class ExplorationSpaceTest extends JUnitSuite {
 
     val dockerComposeYamlString = DockerComposeYamlString
 
-    val explorationSpace = ExplorationSpace.explorationSpaceFromTestYaml(testYaml)
+    val explorationSpace = ExplorationSpaceAPI.explorationSpaceFromTestYaml(testYaml)
 
-    val optionResult = ExplorationSpace.generateExperimentBundle(
+    val optionResult = ExplorationSpaceAPI.generateExperimentBundle(
       explorationSpace,
       explorationSpacePoint,
       testYaml,

@@ -78,12 +78,13 @@ object BenchFlowExperimentYamlProtocol extends DefaultYamlProtocol {
     override def write(obj: BenchFlowExperiment): YamlValue = YamlObject {
       Map[YamlValue, YamlValue](
         VersionKey -> obj.version.toYaml,
-        NameKey -> obj.name.toYaml,
-        DescriptionKey -> obj.description.toYaml,
-        ConfigurationKey -> obj.configuration.toYaml,
-        SutKey -> obj.sut.toYaml,
-        WorkloadKey -> obj.workload.toYaml,
-        DataCollectionKey -> obj.dataCollection.toYaml)
+        NameKey -> obj.name.toYaml) ++
+        obj.description.map(key => DescriptionKey -> key.toYaml) +
+        (
+          ConfigurationKey -> obj.configuration.toYaml,
+          SutKey -> obj.sut.toYaml,
+          WorkloadKey -> obj.workload.toYaml,
+          DataCollectionKey -> obj.dataCollection.toYaml)
     }
 
     override def read(yaml: YamlValue): BenchFlowExperiment = unsupportedReadOperation

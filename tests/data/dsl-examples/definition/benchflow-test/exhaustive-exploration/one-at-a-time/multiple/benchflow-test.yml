@@ -38,7 +38,7 @@ configuration:
 
     experiment:
       type: fixed
-      number: 3
+      number_of_trials: 3
 
 ###############################################################################
 # SUT Info Section
