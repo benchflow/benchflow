@@ -22,6 +22,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
 /**
+ * Faban ShowLogs Command.
+ *
  * @author Simone D'Avico (simonedavico@gmail.com) - Created on 11/11/15.
  */
 public class ShowLogsCommand extends Configurable<ShowLogsConfig> implements Command<RunLogStream> {
@@ -29,13 +31,13 @@ public class ShowLogsCommand extends Configurable<ShowLogsConfig> implements Com
   private static String SHOWLOGS_URL = "/logs";
 
 
-  public RunLogStream exec(FabanClientConfig fabanConfig)
-      throws IOException, RunIdNotFoundException {
+  public RunLogStream exec(FabanClientConfig fabanConfig) throws IOException,
+      RunIdNotFoundException, EmptyHarnessResponseException, MalformedURIException {
     return showlogs(fabanConfig);
   }
 
-  private RunLogStream showlogs(FabanClientConfig fabanConfig)
-      throws IOException, RunIdNotFoundException {
+  private RunLogStream showlogs(FabanClientConfig fabanConfig) throws IOException,
+      RunIdNotFoundException, EmptyHarnessResponseException, MalformedURIException {
 
     try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 
@@ -50,7 +52,7 @@ public class ShowLogsCommand extends Configurable<ShowLogsConfig> implements Com
         throw new EmptyHarnessResponseException(
             "Harness returned empty response to pending request");
       } else if (status == HttpStatus.SC_NOT_FOUND) {
-        throw new RunIdNotFoundException();
+        throw new RunIdNotFoundException("Run id not found");
       }
 
       HttpEntity ent = resp.getEntity();

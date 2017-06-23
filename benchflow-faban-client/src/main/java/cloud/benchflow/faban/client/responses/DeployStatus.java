@@ -17,7 +17,7 @@ public class DeployStatus implements Response {
    *
    * @param statusCode the deploy status code
    */
-  public DeployStatus(int statusCode) {
+  public DeployStatus(int statusCode) throws DeployException {
     switch (statusCode) {
       case HttpStatus.SC_CREATED:
         this.code = Code.CREATED;

@@ -3,6 +3,7 @@ package cloud.benchflow.faban.client.commands;
 import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.DeployConfig;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
+import cloud.benchflow.faban.client.exceptions.DeployException;
 import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.responses.DeployStatus;
 import java.io.File;
@@ -10,7 +11,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.http.HttpEntity;
-import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
@@ -20,6 +21,8 @@ import org.apache.http.impl.client.HttpClients;
 
 
 /**
+ * Faban Deploy Command.
+ *
  * @author Simone D'Avico (simonedavico@gmail.com) - Created on 26/10/15.
  */
 public class DeployCommand extends Configurable<DeployConfig> implements Command<DeployStatus> {
@@ -33,7 +36,8 @@ public class DeployCommand extends Configurable<DeployConfig> implements Command
    * @return a response containing the status of the operation
    * @throws IOException when there are issues in reading the benchmark file
    */
-  public DeployStatus exec(FabanClientConfig fabanConfig) throws IOException {
+  public DeployStatus exec(FabanClientConfig fabanConfig)
+      throws IOException, DeployException, MalformedURIException {
     return deploy(fabanConfig);
   }
 
@@ -46,12 +50,15 @@ public class DeployCommand extends Configurable<DeployConfig> implements Command
       the library.
       Nevertheless, this solution is good enough until we figure out how to
       send a stream of data to Faban. */
-  private DeployStatus deploy(FabanClientConfig fabanConfig) throws IOException {
+  private DeployStatus deploy(FabanClientConfig fabanConfig)
+      throws IOException, DeployException, MalformedURIException {
 
-    ResponseHandler<DeployStatus> dh = resp -> {
-      System.out.println(resp);
-      return new DeployStatus(resp.getStatusLine().getStatusCode());
-    };
+    //TODO: evaluate if it possible to convert back to lamba expression handling (line 43)
+    //      when checked exceptions are supported. See: http://www.baeldung.com/java-lambda-exceptions
+    //    ResponseHandler<DeployStatus> dh = resp -> {
+    //      System.out.println(resp);
+    //      return new DeployStatus(resp.getStatusLine().getStatusCode());
+    //    };
 
     File jarFile = this.config.getJarFile();
     Boolean clearConfig = config.clearConfig();
@@ -70,7 +77,9 @@ public class DeployCommand extends Configurable<DeployConfig> implements Command
       post.setEntity(multipartEntity);
       post.setHeader("Accept", "text/plain");
 
-      DeployStatus dresp = httpclient.execute(post, dh);
+      CloseableHttpResponse resp = httpclient.execute(post);
+
+      DeployStatus dresp = new DeployStatus(resp.getStatusLine().getStatusCode());
 
       return dresp;
 
