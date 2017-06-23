@@ -12,11 +12,11 @@ public enum  RegressionStrategyType {
   GENETIC_PROGRAMMING("genetic-programming")
   ;
 
+  private final String stringValue;
+
   RegressionStrategyType(String stringValue) {
     this.stringValue = stringValue;
   }
-
-  private final String stringValue;
 
   @Override
   public String toString() {
