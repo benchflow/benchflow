@@ -64,7 +64,7 @@ class BenchFlowDSLTest extends JUnitSuite {
 
   @Test def experimentFromTestYamlNumUsers(): Unit = {
 
-    val originalTestYaml = Source.fromFile(Paths.get(BenchFlowExplorationUsersExample).toFile).mkString
+    val originalTestYaml = Source.fromFile(Paths.get(BenchFlowExhaustiveExplorationUsersExample).toFile).mkString
 
     val benchFlowTest = BenchFlowDSL.testFromYaml(originalTestYaml)
 

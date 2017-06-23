@@ -7,6 +7,7 @@ package cloud.benchflow.dsl.definition.configuration.goal.goaltype
 object GoalType extends Enumeration {
   type GoalType = Value
   val Load = Value("load")
-  val Configuration = Value("configuration")
-  val Exploration = Value("exploration")
+  //  val OptimalConfiguration = Value("optimal_configuration")
+  val ExhaustiveExploration = Value("exhaustive_exploration")
+  val PredictiveExploration = Value("predictive_exploration")
 }

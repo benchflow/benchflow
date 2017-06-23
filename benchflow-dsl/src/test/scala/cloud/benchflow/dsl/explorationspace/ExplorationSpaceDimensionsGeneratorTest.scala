@@ -4,7 +4,7 @@ import java.nio.file.Paths
 
 import cloud.benchflow.dsl.definition.types.bytes.Bytes
 import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpacePoint
-import cloud.benchflow.dsl.{ BenchFlowDSL, BenchFlowExplorationMultipleExample }
+import cloud.benchflow.dsl.{ BenchFlowTestAPI, BenchFlowExhaustiveExplorationMultipleExample }
 import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
 
@@ -14,13 +14,13 @@ import scala.io.Source
  * @author Jesper Findahl (jesper.findahl@gmail.com)
  *         created on 2017-05-26
  */
-class ExplorationSpaceDimensionsGeneratorTest extends JUnitSuite {
+class ExplorationSpaceAPIDimensionsGeneratorTest extends JUnitSuite {
 
   @Test def extractExplorationSpaceDimensionsTest(): Unit = {
 
-    val testYamlString = Source.fromFile(Paths.get(BenchFlowExplorationMultipleExample).toFile).mkString
+    val testYamlString = Source.fromFile(Paths.get(BenchFlowExhaustiveExplorationMultipleExample).toFile).mkString
 
-    val benchFlowTest = BenchFlowDSL.testFromYaml(testYamlString)
+    val benchFlowTest = BenchFlowTestAPI.testFromYaml(testYamlString)
 
     val explorationSpace = ExplorationSpaceGenerator.extractExplorationSpaceDimensions(benchFlowTest)
 
@@ -73,9 +73,9 @@ class ExplorationSpaceDimensionsGeneratorTest extends JUnitSuite {
 
   @Test def generateExplorationSpaceTest(): Unit = {
 
-    val testYamlString = Source.fromFile(Paths.get(BenchFlowExplorationMultipleExample).toFile).mkString
+    val testYamlString = Source.fromFile(Paths.get(BenchFlowExhaustiveExplorationMultipleExample).toFile).mkString
 
-    val benchFlowTest = BenchFlowDSL.testFromYaml(testYamlString)
+    val benchFlowTest = BenchFlowTestAPI.testFromYaml(testYamlString)
 
     val explorationSpaceDimensions = ExplorationSpaceGenerator.extractExplorationSpaceDimensions(benchFlowTest)
 
@@ -118,9 +118,9 @@ class ExplorationSpaceDimensionsGeneratorTest extends JUnitSuite {
 
   @Test def experimentIndexTest(): Unit = {
 
-    val testYamlString = Source.fromFile(Paths.get(BenchFlowExplorationMultipleExample).toFile).mkString
+    val testYamlString = Source.fromFile(Paths.get(BenchFlowExhaustiveExplorationMultipleExample).toFile).mkString
 
-    val benchFlowTest = BenchFlowDSL.testFromYaml(testYamlString)
+    val benchFlowTest = BenchFlowTestAPI.testFromYaml(testYamlString)
 
     val explorationSpaceDimensions = ExplorationSpaceGenerator.extractExplorationSpaceDimensions(benchFlowTest)
 

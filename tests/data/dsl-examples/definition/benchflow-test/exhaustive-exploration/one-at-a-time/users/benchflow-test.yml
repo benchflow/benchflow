@@ -10,7 +10,7 @@ description: A WfMS test
 ###############################################################################
 configuration:
   goal:
-    type: exploration
+    type: exhaustive_exploration
 
     exploration_space:
       workload:
