@@ -89,7 +89,7 @@ class DemoConverterTest extends JUnitSuite {
       |            max_run_time: 6h
       |            interval: 1s
       |    server_side:
-      |        activti: ['properties', 'stats']
+      |        activiti: ['properties', 'stats']
       |        db:
       |            mysql:
       |                environment:
