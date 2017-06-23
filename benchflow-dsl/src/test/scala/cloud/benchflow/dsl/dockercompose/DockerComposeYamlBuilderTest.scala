@@ -18,7 +18,7 @@ class DockerComposeYamlBuilderTest extends JUnitSuite {
 
     val serviceName = "camunda"
     val underlying = 500
-    val memLimit: Bytes = new Bytes(underlying = underlying, unit = BytesUnit.MegaBytes)
+    val memLimit: Bytes = new Bytes(underlying = underlying, unit = BytesUnit.MEGA_BYTES)
     val environmentKey = "DB_DRIVER"
     val environmentValue = "TEST_ENVIRONMENT_VALUE"
 

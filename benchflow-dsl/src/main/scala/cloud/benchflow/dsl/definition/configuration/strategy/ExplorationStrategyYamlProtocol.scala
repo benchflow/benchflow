@@ -2,11 +2,11 @@ package cloud.benchflow.dsl.definition.configuration.strategy
 
 import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol
 import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol.StrategyKey
-import cloud.benchflow.dsl.definition.configuration.strategy.regression.RegressionStrategyType.RegressionStrategyType
+import cloud.benchflow.dsl.definition.configuration.strategy.regression.RegressionStrategyType
 import cloud.benchflow.dsl.definition.configuration.strategy.regression.RegressionStrategyTypeYamlProtocol._
-import cloud.benchflow.dsl.definition.configuration.strategy.selection.SelectionStrategyType.SelectionStrategyType
+import cloud.benchflow.dsl.definition.configuration.strategy.selection.SelectionStrategyType
 import cloud.benchflow.dsl.definition.configuration.strategy.selection.SelectionStrategyTypeYamlProtocol._
-import cloud.benchflow.dsl.definition.configuration.strategy.validation.ValidationStrategyType.ValidationStrategyType
+import cloud.benchflow.dsl.definition.configuration.strategy.validation.ValidationStrategyType
 import cloud.benchflow.dsl.definition.configuration.strategy.validation.ValidationStrategyTypeYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
 import net.jcazevedo.moultingyaml.{ YamlFormat, YamlObject, YamlString, YamlValue, _ }

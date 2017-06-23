@@ -1,7 +1,6 @@
 package cloud.benchflow.dsl.definition.version
 
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ unsupportedReadOperation, unsupportedWriteOperation }
-import cloud.benchflow.dsl.definition.version.Version.Version
 import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, DeserializationException, YamlFormat, YamlString, YamlValue, _ }
 
 import scala.util.{ Failure, Success, Try }

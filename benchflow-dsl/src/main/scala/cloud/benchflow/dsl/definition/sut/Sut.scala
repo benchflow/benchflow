@@ -1,7 +1,7 @@
 package cloud.benchflow.dsl.definition.sut
 
 import cloud.benchflow.dsl.definition.sut.configuration.SutConfiguration
-import cloud.benchflow.dsl.definition.sut.suttype.SutType.SutType
+import cloud.benchflow.dsl.definition.sut.suttype.SutType
 import cloud.benchflow.dsl.definition.sut.sutversion.Version
 
 /**

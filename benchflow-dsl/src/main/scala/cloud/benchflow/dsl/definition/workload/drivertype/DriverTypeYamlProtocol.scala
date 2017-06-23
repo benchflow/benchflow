@@ -1,7 +1,6 @@
 package cloud.benchflow.dsl.definition.workload.drivertype
 
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ unsupportedReadOperation, unsupportedWriteOperation }
-import cloud.benchflow.dsl.definition.workload.drivertype.DriverType.DriverType
 import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, DeserializationException, YamlFormat, YamlString, YamlValue, _ }
 
 import scala.util.{ Failure, Success, Try }

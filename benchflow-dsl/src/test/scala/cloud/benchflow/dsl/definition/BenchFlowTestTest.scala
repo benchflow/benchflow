@@ -4,8 +4,8 @@ import java.nio.file.Paths
 
 import cloud.benchflow.dsl.BenchFlowLoadTestExample
 import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol._
-import org.junit.{ Assert, Test }
 import net.jcazevedo.moultingyaml._
+import org.junit.{ Assert, Test }
 
 import scala.io.Source
 import scala.util.Try

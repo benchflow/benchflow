@@ -1,6 +1,5 @@
 package cloud.benchflow.dsl.definition.configuration.terminationcriteria.exploration.explorationtype
 
-import cloud.benchflow.dsl.definition.configuration.terminationcriteria.exploration.explorationtype.ExplorationType.ExplorationType
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ unsupportedReadOperation, unsupportedWriteOperation }
 import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, DeserializationException, YamlFormat, YamlString, YamlValue, _ }
 

@@ -4,7 +4,7 @@ import java.nio.file.Paths
 
 import cloud.benchflow.dsl.definition.types.bytes.Bytes
 import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpacePoint
-import cloud.benchflow.dsl.{ BenchFlowTestAPI, BenchFlowExhaustiveExplorationMultipleExample }
+import cloud.benchflow.dsl.{ BenchFlowExhaustiveExplorationMultipleExample, BenchFlowTestAPI }
 import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
 

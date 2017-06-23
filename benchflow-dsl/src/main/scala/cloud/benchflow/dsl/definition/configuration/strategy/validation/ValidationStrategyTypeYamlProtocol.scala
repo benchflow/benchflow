@@ -1,6 +1,5 @@
 package cloud.benchflow.dsl.definition.configuration.strategy.validation
 
-import cloud.benchflow.dsl.definition.configuration.strategy.validation.ValidationStrategyType.ValidationStrategyType
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ unsupportedReadOperation, unsupportedWriteOperation }
 import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, DeserializationException, YamlFormat, YamlString, YamlValue, _ }
 

@@ -4,9 +4,9 @@ import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
 import cloud.benchflow.dsl.definition.types.percent.Percent
 import cloud.benchflow.dsl.definition.types.percent.PercentYamlProtocol._
-import cloud.benchflow.dsl.definition.workload.drivertype.DriverType.DriverType
+import cloud.benchflow.dsl.definition.workload.drivertype.DriverType
 import cloud.benchflow.dsl.definition.workload.drivertype.DriverTypeYamlProtocol._
-import cloud.benchflow.dsl.definition.workload.interoperationtimingstype.InterOperationsTimingType.InterOperationsTimingType
+import cloud.benchflow.dsl.definition.workload.interoperationtimingstype.InterOperationsTimingType
 import cloud.benchflow.dsl.definition.workload.interoperationtimingstype.InterOperationsTimingTypeYamlProtocol._
 import cloud.benchflow.dsl.definition.workload.mix.Mix
 import cloud.benchflow.dsl.definition.workload.mix.MixYamlProtocol._

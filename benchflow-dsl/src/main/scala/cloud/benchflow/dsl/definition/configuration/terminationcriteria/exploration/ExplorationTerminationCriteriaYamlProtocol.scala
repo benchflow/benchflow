@@ -2,7 +2,7 @@ package cloud.benchflow.dsl.definition.configuration.terminationcriteria.explora
 
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowTestTerminationCriteriaYamlProtocol
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowTestTerminationCriteriaYamlProtocol.ExplorationKey
-import cloud.benchflow.dsl.definition.configuration.terminationcriteria.exploration.explorationtype.ExplorationType.ExplorationType
+import cloud.benchflow.dsl.definition.configuration.terminationcriteria.exploration.explorationtype.ExplorationType
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.exploration.explorationtype.ExplorationTypeYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
 import cloud.benchflow.dsl.definition.types.percent.Percent
