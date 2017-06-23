@@ -1,6 +1,7 @@
 package cloud.benchflow.dsl.definition.configuration
 
 import cloud.benchflow.dsl.definition.configuration.goal.Goal
+import cloud.benchflow.dsl.definition.configuration.settings.SettingsObject.Settings
 import cloud.benchflow.dsl.definition.configuration.strategy.ExplorationStrategy
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowTestTerminationCriteria
 import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadExecution
@@ -11,6 +12,7 @@ import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadEx
  */
 case class BenchFlowTestConfiguration(
   goal: Goal,
+  settings: Settings,
   users: Option[Int],
   workloadExecution: WorkloadExecution,
   strategy: Option[ExplorationStrategy],
