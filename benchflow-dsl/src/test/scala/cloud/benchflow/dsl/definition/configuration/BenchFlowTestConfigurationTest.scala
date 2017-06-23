@@ -42,7 +42,7 @@ class BenchFlowTestConfigurationTest {
       |
       |  experiment:
       |    type: fixed
-      |    number: 3
+      |    number_of_trials: 3
     """.stripMargin
 
   @Test def defaultValuesTest(): Unit = {

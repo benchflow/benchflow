@@ -40,7 +40,7 @@ class DemoConverterTest extends JUnitSuite {
       |    termination_criteria:
       |        experiment:
       |            type: 'fixed'
-      |            number: 1
+      |            number_of_trials: 1
       |
       |###############################################################################
       |# SUT info section
