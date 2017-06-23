@@ -1,6 +1,6 @@
 package cloud.benchflow.dsl.demo
 
-import cloud.benchflow.dsl.BenchFlowDSL
+import cloud.benchflow.dsl.{ BenchFlowExperimentAPI, BenchFlowTestAPI }
 import cloud.benchflow.dsl.definition.BenchFlowTest
 import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol._
 import cloud.benchflow.dsl.definition.workload.Workload
@@ -165,7 +165,7 @@ class DemoConverterTest extends JUnitSuite {
 
   @Test def convertTest(): Unit = {
 
-    val benchFlowExperiment = BenchFlowDSL.experimentFromTestYaml(testYaml)
+    val benchFlowExperiment = BenchFlowExperimentAPI.experimentFromTestYaml(testYaml)
 
     val convertedExperimentYamlString: String = DemoConverter.convertExperimentToPreviousYamlString(benchFlowExperiment)
 
@@ -198,7 +198,7 @@ class DemoConverterTest extends JUnitSuite {
 
     val testWithoutDescriptionYaml = testWithoutDescription.toYaml
 
-    val experiment = BenchFlowDSL.experimentFromTestYaml(testWithoutDescriptionYaml.prettyPrint)
+    val experiment = BenchFlowExperimentAPI.experimentFromTestYaml(testWithoutDescriptionYaml.prettyPrint)
 
     val convertedExperimentYamlString: String = DemoConverter.convertExperimentToPreviousYamlString(experiment)
 
