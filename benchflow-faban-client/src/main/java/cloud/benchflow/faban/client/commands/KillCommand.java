@@ -4,7 +4,8 @@ import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.configurations.RunConfig;
 import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
-import cloud.benchflow.faban.client.exceptions.FabanClientException;
+import cloud.benchflow.faban.client.exceptions.FabanClientBadRequestException;
+import cloud.benchflow.faban.client.exceptions.IllegalRunStatusException;
 import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunId;
@@ -16,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -27,22 +27,30 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 
 /**
+ * Faban Kill Command.
+ *
  * @author Simone D'Avico (simonedavico@gmail.com) - Created on 29/10/15.
  */
 public class KillCommand extends Configurable<RunConfig> implements Command<RunStatus> {
 
   private static String KILL_URL = "/kill";
 
-  public RunStatus exec(FabanClientConfig fabanConfig) throws RunIdNotFoundException, IOException {
+  public RunStatus exec(FabanClientConfig fabanConfig)
+      throws RunIdNotFoundException, IOException, IllegalRunStatusException,
+      EmptyHarnessResponseException, MalformedURIException, FabanClientBadRequestException {
     return kill(fabanConfig);
   }
 
-  private RunStatus kill(FabanClientConfig fabanConfig) throws RunIdNotFoundException, IOException {
+  private RunStatus kill(FabanClientConfig fabanConfig)
+      throws RunIdNotFoundException, IOException, EmptyHarnessResponseException,
+      IllegalRunStatusException, MalformedURIException, FabanClientBadRequestException {
 
     RunId runId = config.getRunId();
 
-    ResponseHandler<RunStatus> rh =
-        resp -> new RunStatus(new BasicResponseHandler().handleEntity(resp.getEntity()), runId);
+    //TODO: evaluate if it possible to convert back to lamba expression handling (line 43)
+    //      when checked exceptions are supported. See: http://www.baeldung.com/java-lambda-exceptions
+    //    ResponseHandler<RunStatus> rh =
+    //        resp -> new RunStatus(new BasicResponseHandler().handleEntity(resp.getEntity()), runId);
 
     try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 
@@ -61,14 +69,14 @@ public class KillCommand extends Configurable<RunConfig> implements Command<RunS
 
       int statusCode = resp.getStatusLine().getStatusCode();
       if (statusCode == HttpStatus.SC_NOT_FOUND) {
-        throw new RunIdNotFoundException();
+        throw new RunIdNotFoundException("Run id not found");
       } else if (statusCode == HttpStatus.SC_BAD_REQUEST) {
-        throw new FabanClientException("Bad kill request to harness");
+        throw new FabanClientBadRequestException("Bad kill request to harness");
       } else if (statusCode == HttpStatus.SC_NO_CONTENT) {
         throw new EmptyHarnessResponseException();
       }
 
-      return rh.handleResponse(resp);
+      return new RunStatus(new BasicResponseHandler().handleEntity(resp.getEntity()), runId);
 
     } catch (URISyntaxException e) {
       throw new MalformedURIException("Attempted to kill to malformed URI " + e.getInput(), e);

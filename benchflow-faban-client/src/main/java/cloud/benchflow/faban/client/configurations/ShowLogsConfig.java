@@ -3,6 +3,8 @@ package cloud.benchflow.faban.client.configurations;
 import cloud.benchflow.faban.client.responses.RunId;
 
 /**
+ * Configuration class for the show logs command.
+ *
  * @author Simone D'Avico (simonedavico@gmail.com) - Created on 11/11/15.
  */
 //TODO: implement this

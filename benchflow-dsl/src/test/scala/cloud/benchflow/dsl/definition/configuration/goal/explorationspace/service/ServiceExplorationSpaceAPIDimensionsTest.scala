@@ -11,7 +11,7 @@ import scala.util.Try
  * @author Jesper Findahl (jesper.findahl@gmail.com)
  *         created on 2017-05-23
  */
-class ServiceExplorationSpaceDimensionsTest extends JUnitSuite {
+class ServiceExplorationSpaceAPIDimensionsTest extends JUnitSuite {
 
   private val serviceExplorationSpace: String =
     """

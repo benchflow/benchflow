@@ -1,9 +1,9 @@
 package cloud.benchflow.faban.client.exceptions;
 
 /**
- * Created by simonedavico on 27/10/15.
+ * @author vincenzoferme.
  */
-public class FabanClientException extends RuntimeException {
+public class FabanClientException extends Exception {
 
   public FabanClientException() {}
 

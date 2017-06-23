@@ -1,6 +1,8 @@
 package cloud.benchflow.dsl.demo
 
-import cloud.benchflow.dsl.BenchFlowDSL
+import cloud.benchflow.dsl.{ BenchFlowExperimentAPI, BenchFlowTestAPI }
+import cloud.benchflow.dsl.definition.BenchFlowTest
+import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol._
 import cloud.benchflow.dsl.definition.workload.Workload
 import cloud.benchflow.dsl.definition.workload.WorkloadYamlProtocol._
 import net.jcazevedo.moultingyaml._
@@ -38,6 +40,8 @@ class DemoConverterTest extends JUnitSuite {
       |        ramp_down: 30s
       |
       |    termination_criteria:
+      |        test:
+      |            max_time: 24h
       |        experiment:
       |            type: 'fixed'
       |            number_of_trials: 1
@@ -85,7 +89,7 @@ class DemoConverterTest extends JUnitSuite {
       |            max_run_time: 6h
       |            interval: 1s
       |    server_side:
-      |        activti: ['properties', 'stats']
+      |        activiti: ['properties', 'stats']
       |        db:
       |            mysql:
       |                environment:
@@ -161,7 +165,7 @@ class DemoConverterTest extends JUnitSuite {
 
   @Test def convertTest(): Unit = {
 
-    val benchFlowExperiment = BenchFlowDSL.experimentFromTestYaml(testYaml)
+    val benchFlowExperiment = BenchFlowExperimentAPI.experimentFromTestYaml(testYaml)
 
     val convertedExperimentYamlString: String = DemoConverter.convertExperimentToPreviousYamlString(benchFlowExperiment)
 
@@ -181,6 +185,24 @@ class DemoConverterTest extends JUnitSuite {
 
     // uncomment to check manually that result is as expected
     //    Assert.assertEquals(expectedYamlObject.prettyPrint, convertedYamlObject.prettyPrint)
+
+  }
+
+  @Test def noDescriptionTest(): Unit = {
+
+    val triedTestYaml = testYaml.parseYaml.convertTo[Try[BenchFlowTest]]
+
+    Assert.assertTrue(triedTestYaml.isSuccess)
+
+    val testWithoutDescription = triedTestYaml.get.copy(description = None)
+
+    val testWithoutDescriptionYaml = testWithoutDescription.toYaml
+
+    val experiment = BenchFlowExperimentAPI.experimentFromTestYaml(testWithoutDescriptionYaml.prettyPrint)
+
+    val convertedExperimentYamlString: String = DemoConverter.convertExperimentToPreviousYamlString(experiment)
+
+    Assert.assertFalse(convertedExperimentYamlString.contains("description:"))
 
   }
 

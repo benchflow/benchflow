@@ -1,6 +1,6 @@
 package cloud.benchflow.dsl.explorationspace
 
-import cloud.benchflow.dsl.ExplorationSpace.ExperimentIndex
+import cloud.benchflow.dsl.ExplorationSpaceAPI.ExperimentIndex
 import cloud.benchflow.dsl.definition.BenchFlowTest
 import cloud.benchflow.dsl.definition.types.bytes.Bytes
 

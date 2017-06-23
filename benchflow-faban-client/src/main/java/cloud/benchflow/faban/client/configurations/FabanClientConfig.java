@@ -3,7 +3,8 @@ package cloud.benchflow.faban.client.configurations;
 import java.net.URI;
 
 /**
- * Created by simonedavico on 26/10/15.
+ * Configuration class for the Faban Client.
+ *
  * @author vincenzoferme
  */
 public interface FabanClientConfig extends Config {
