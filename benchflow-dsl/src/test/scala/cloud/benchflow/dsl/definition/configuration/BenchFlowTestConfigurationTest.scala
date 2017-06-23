@@ -15,7 +15,7 @@ class BenchFlowTestConfigurationTest {
   val configurationYaml: String =
     """
       |goal:
-      |  type: exploration
+      |  type: exhaustive_exploration
       |
       |  exploration_space:
       |    camunda:

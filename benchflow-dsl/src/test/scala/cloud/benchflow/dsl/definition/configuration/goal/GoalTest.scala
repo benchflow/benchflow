@@ -14,7 +14,7 @@ import scala.util.Try
 class GoalTest extends JUnitSuite {
 
   private val completeGoalYaml: String =
-    """type: exploration
+    """type: exhaustive_exploration
       |
       |exploration_space:
       | workload:
@@ -43,7 +43,7 @@ class GoalTest extends JUnitSuite {
 
     Assert.assertTrue(goalYaml.prettyPrint.contains("exploration_space:"))
 
-    Assert.assertTrue(goalYaml.prettyPrint.contains("type: exploration"))
+    Assert.assertTrue(goalYaml.prettyPrint.contains("type: exhaustive_exploration"))
 
   }
 

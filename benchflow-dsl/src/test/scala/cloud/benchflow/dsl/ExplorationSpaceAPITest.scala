@@ -18,7 +18,7 @@ class ExplorationSpaceAPITest extends JUnitSuite {
 
   @Test def explorationSpaceDimensionsFromTestYamlTest(): Unit = {
 
-    val testYaml = Source.fromFile(Paths.get(BenchFlowExplorationMultipleExample).toFile).mkString
+    val testYaml = Source.fromFile(Paths.get(BenchFlowExhaustiveExplorationMultipleExample).toFile).mkString
 
     val explorationSpace = ExplorationSpaceAPI.explorationSpaceDimensionsFromTestYaml(testYaml)
 
@@ -32,7 +32,7 @@ class ExplorationSpaceAPITest extends JUnitSuite {
 
   @Test def explorationSpaceFromTestYamlTest(): Unit = {
 
-    val testYaml = Source.fromFile(Paths.get(BenchFlowExplorationMultipleExample).toFile).mkString
+    val testYaml = Source.fromFile(Paths.get(BenchFlowExhaustiveExplorationMultipleExample).toFile).mkString
 
     val explorationSpace = ExplorationSpaceAPI.explorationSpaceFromTestYaml(testYaml)
 
@@ -46,7 +46,7 @@ class ExplorationSpaceAPITest extends JUnitSuite {
 
     val experimentIndex = 10
 
-    val testYaml = Source.fromFile(Paths.get(BenchFlowExplorationMultipleExample).toFile).mkString
+    val testYaml = Source.fromFile(Paths.get(BenchFlowExhaustiveExplorationMultipleExample).toFile).mkString
 
     val dockerComposeYamlString = DockerComposeYamlString
 
@@ -75,7 +75,7 @@ class ExplorationSpaceAPITest extends JUnitSuite {
       memory = Some(Map("camunda" -> Bytes.fromString("1g").get)),
       environment = Some(Map("camunda" -> Map("AN_ENUM" -> "C", "SIZE_OF_THREADPOOL" -> "3"))))
 
-    val testYaml = Source.fromFile(Paths.get(BenchFlowExplorationMultipleExample).toFile).mkString
+    val testYaml = Source.fromFile(Paths.get(BenchFlowExhaustiveExplorationMultipleExample).toFile).mkString
 
     val dockerComposeYamlString = DockerComposeYamlString
 
