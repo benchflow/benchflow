@@ -19,7 +19,7 @@ class BenchFlowTestTerminationCriteriaTest extends JUnitSuite {
       | max_time: 1h
       |experiment:
       | type: fixed
-      | number: 5
+      | number_of_trials: 5
     """.stripMargin
 
   @Test def completeTerminationCriteria(): Unit = {

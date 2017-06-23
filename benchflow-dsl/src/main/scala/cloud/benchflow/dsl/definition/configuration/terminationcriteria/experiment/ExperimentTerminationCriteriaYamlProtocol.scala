@@ -16,7 +16,7 @@ import scala.util.Try
 object ExperimentTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
   val TypeKey = YamlString("type")
-  val NumberKey = YamlString("number")
+  val NumberOfTrialsKey = YamlString("number_of_trials")
 
   val Level = s"${BenchFlowTestTerminationCriteriaYamlProtocol.Level}.${ExperimentKey.value}"
 
@@ -33,11 +33,13 @@ object ExperimentTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
           yamlObject.fields(TypeKey).convertTo[Try[CriteriaType]].get,
           keyString(TypeKey))
 
-        number <- deserializationHandler(
-          yamlObject.fields(NumberKey).convertTo[Int],
-          keyString(NumberKey))
+        numberOfTrials <- deserializationHandler(
+          yamlObject.fields(NumberOfTrialsKey).convertTo[Int],
+          keyString(NumberOfTrialsKey))
 
-      } yield ExperimentTerminationCriteria(criteriaType = criteriaType, number = number)
+      } yield ExperimentTerminationCriteria(
+        criteriaType = criteriaType,
+        numberOfTrials = numberOfTrials)
 
     }
 
@@ -51,7 +53,7 @@ object ExperimentTerminationCriteriaYamlProtocol extends DefaultYamlProtocol {
 
       Map[YamlValue, YamlValue](
         TypeKey -> obj.criteriaType.toYaml,
-        NumberKey -> obj.number.toYaml)
+        NumberOfTrialsKey -> obj.numberOfTrials.toYaml)
 
     }
 

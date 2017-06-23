@@ -44,7 +44,7 @@ class DemoConverterTest extends JUnitSuite {
       |            max_time: 24h
       |        experiment:
       |            type: 'fixed'
-      |            number: 1
+      |            number_of_trials: 1
       |
       |###############################################################################
       |# SUT info section

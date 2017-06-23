@@ -8,4 +8,4 @@ import cloud.benchflow.dsl.definition.configuration.terminationcriteria.experime
  */
 case class ExperimentTerminationCriteria(
   criteriaType: CriteriaType,
-  number: Int)
+  numberOfTrials: Int)

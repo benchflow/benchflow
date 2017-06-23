@@ -15,7 +15,7 @@ class ExperimentTerminationCriteriaTest extends JUnitSuite {
 
   private val fixedterminationCriteriaYaml: String =
     """type: fixed
-      |number: 5""".stripMargin
+      |number_of_trials: 5""".stripMargin
 
   @Test def fixedTerminationCriteria(): Unit = {
 
@@ -33,7 +33,7 @@ class ExperimentTerminationCriteriaTest extends JUnitSuite {
 
     val invalidTerminationCriteriaTypeYaml: String =
       """type: invalid
-        |number: 5""".stripMargin
+        |number_of_trials: 5""".stripMargin
 
     val experimentTerminationCriteria = invalidTerminationCriteriaTypeYaml.parseYaml.convertTo[Try[ExperimentTerminationCriteria]]
 
