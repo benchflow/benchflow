@@ -1,6 +1,6 @@
 package cloud.benchflow.dsl.demo
 
-import cloud.benchflow.dsl.{ BenchFlowExperimentAPI, BenchFlowTestAPI }
+import cloud.benchflow.dsl.BenchFlowExperimentAPI
 import cloud.benchflow.dsl.definition.BenchFlowTest
 import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol._
 import cloud.benchflow.dsl.definition.workload.Workload

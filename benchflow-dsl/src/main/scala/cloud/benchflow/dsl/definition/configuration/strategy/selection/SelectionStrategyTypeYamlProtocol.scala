@@ -1,6 +1,5 @@
 package cloud.benchflow.dsl.definition.configuration.strategy.selection
 
-import cloud.benchflow.dsl.definition.configuration.strategy.selection.SelectionStrategyType.SelectionStrategyType
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ unsupportedReadOperation, unsupportedWriteOperation }
 import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, DeserializationException, YamlFormat, YamlString, YamlValue, _ }
 

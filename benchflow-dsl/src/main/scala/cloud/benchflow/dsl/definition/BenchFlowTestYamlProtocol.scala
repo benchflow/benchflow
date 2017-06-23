@@ -7,7 +7,7 @@ import cloud.benchflow.dsl.definition.datacollection.DataCollectionYamlProtocol.
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
 import cloud.benchflow.dsl.definition.sut.Sut
 import cloud.benchflow.dsl.definition.sut.SutYamlProtocol._
-import cloud.benchflow.dsl.definition.version.Version.Version
+import cloud.benchflow.dsl.definition.version.Version
 import cloud.benchflow.dsl.definition.version.VersionYamlProtocol._
 import cloud.benchflow.dsl.definition.workload.Workload
 import cloud.benchflow.dsl.definition.workload.WorkloadYamlProtocol._

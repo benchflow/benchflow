@@ -1,8 +1,8 @@
 package cloud.benchflow.dsl.definition.configuration
 
-import org.junit.{ Assert, Test }
-import net.jcazevedo.moultingyaml._
 import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol._
+import net.jcazevedo.moultingyaml._
+import org.junit.{ Assert, Test }
 
 import scala.util.Try
 

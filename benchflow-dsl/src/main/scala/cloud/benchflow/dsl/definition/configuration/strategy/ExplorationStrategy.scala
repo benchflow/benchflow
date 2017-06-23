@@ -1,8 +1,8 @@
 package cloud.benchflow.dsl.definition.configuration.strategy
 
-import cloud.benchflow.dsl.definition.configuration.strategy.regression.RegressionStrategyType.RegressionStrategyType
-import cloud.benchflow.dsl.definition.configuration.strategy.selection.SelectionStrategyType.SelectionStrategyType
-import cloud.benchflow.dsl.definition.configuration.strategy.validation.ValidationStrategyType.ValidationStrategyType
+import cloud.benchflow.dsl.definition.configuration.strategy.regression.RegressionStrategyType
+import cloud.benchflow.dsl.definition.configuration.strategy.selection.SelectionStrategyType
+import cloud.benchflow.dsl.definition.configuration.strategy.validation.ValidationStrategyType
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch)

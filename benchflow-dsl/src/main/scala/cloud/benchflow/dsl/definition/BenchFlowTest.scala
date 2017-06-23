@@ -3,7 +3,7 @@ package cloud.benchflow.dsl.definition
 import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfiguration
 import cloud.benchflow.dsl.definition.datacollection.DataCollection
 import cloud.benchflow.dsl.definition.sut.Sut
-import cloud.benchflow.dsl.definition.version.Version.Version
+import cloud.benchflow.dsl.definition.version.Version
 import cloud.benchflow.dsl.definition.workload.Workload
 
 /**

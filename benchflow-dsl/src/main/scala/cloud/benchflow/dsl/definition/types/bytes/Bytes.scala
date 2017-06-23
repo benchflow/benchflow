@@ -1,7 +1,5 @@
 package cloud.benchflow.dsl.definition.types.bytes
 
-import cloud.benchflow.dsl.definition.types.bytes.BytesUnit.BytesUnit
-
 import scala.util.{ Failure, Success, Try }
 
 /**

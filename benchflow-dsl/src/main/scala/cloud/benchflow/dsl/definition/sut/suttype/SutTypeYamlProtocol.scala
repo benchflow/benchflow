@@ -1,7 +1,6 @@
 package cloud.benchflow.dsl.definition.sut.suttype
 
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ unsupportedReadOperation, unsupportedWriteOperation }
-import cloud.benchflow.dsl.definition.sut.suttype.SutType.SutType
 import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, DeserializationException, YamlFormat, YamlString, YamlValue, _ }
 
 import scala.util.{ Failure, Success, Try }
