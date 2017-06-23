@@ -6,10 +6,10 @@ package cloud.benchflow.faban.client.exceptions;
  *
  * @author vincenzoferme
  *
- *         Throwable so that the client has to decide how to handle the case, according to its
+ *         Exception so that the client has to decide how to handle the case, according to its
  *         business logic
  */
-public class DeployException extends FabanClientThrowable {
+public class DeployException extends FabanClientException {
 
   public DeployException(String message) {
     super(message);

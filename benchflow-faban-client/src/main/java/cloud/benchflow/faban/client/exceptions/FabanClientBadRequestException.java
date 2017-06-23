@@ -3,7 +3,7 @@ package cloud.benchflow.faban.client.exceptions;
 /**
  * @author vincenzoferme.
  */
-public class FabanClientBadRequestException extends FabanClientThrowable {
+public class FabanClientBadRequestException extends FabanClientException {
 
   public FabanClientBadRequestException() {}
 
