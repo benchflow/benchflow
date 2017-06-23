@@ -11,7 +11,7 @@ import scala.util.Try
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 2017-04-18
  */
-class ExplorationSpaceDimensionsTest extends JUnitSuite {
+class ExplorationSpaceAPIDimensionsTest extends JUnitSuite {
 
   private val workloadUsersExplorationSpaceYaml: String =
     """workload:
