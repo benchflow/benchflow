@@ -4,9 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
- * Created by simonedavico on 26/10/15.
- * <p>
- * <p>Default configuration for the Faban client.
+ * Default configuration for the Faban client.
  *
  * @author vincenzoferme
  */
@@ -43,6 +41,8 @@ public class FabanClientDefaultConfig implements FabanClientConfig {
     return defaultConfig.getMasterURL();
   }
 
-  public URI getControllerURL() { return defaultConfig.getControllerURL(); }
+  public URI getControllerURL() {
+    return defaultConfig.getControllerURL();
+  }
 
 }

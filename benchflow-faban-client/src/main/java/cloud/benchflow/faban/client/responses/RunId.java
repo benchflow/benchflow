@@ -26,7 +26,7 @@ public class RunId implements Response {
    *
    * @param runId the run id of the benchmark
    */
-  public RunId(String runId) {
+  public RunId(String runId) throws IllegalRunIdException {
     String[] parts = runId.split("\\.");
     if (parts.length != 2) {
       throw new IllegalRunIdException("Received unexpected runId " + runId);

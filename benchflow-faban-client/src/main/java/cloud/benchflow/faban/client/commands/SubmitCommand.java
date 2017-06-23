@@ -3,8 +3,9 @@ package cloud.benchflow.faban.client.commands;
 import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.configurations.SubmitConfig;
-import cloud.benchflow.faban.client.exceptions.BenchmarkNameNotFoundException;
+import cloud.benchflow.faban.client.exceptions.BenchmarkNameNotFoundRuntimeException;
 import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
+import cloud.benchflow.faban.client.exceptions.IllegalRunIdException;
 import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.responses.RunId;
 import com.google.common.io.ByteStreams;
@@ -14,7 +15,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
@@ -25,6 +25,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
 /**
+ * Faban Submit Command.
+ *
  * @author Simone D'Avico (simonedavico@gmail.com) - Created on 28/10/15.
  */
 public class SubmitCommand extends Configurable<SubmitConfig> implements Command<RunId> {
@@ -32,7 +34,8 @@ public class SubmitCommand extends Configurable<SubmitConfig> implements Command
   private static String SUBMIT_URL = "/submit";
 
   public RunId exec(FabanClientConfig fabanConfig)
-      throws IOException, BenchmarkNameNotFoundException {
+      throws IOException, BenchmarkNameNotFoundRuntimeException, EmptyHarnessResponseException,
+      MalformedURIException, IllegalRunIdException {
     return submit(fabanConfig);
   }
 
@@ -42,17 +45,21 @@ public class SubmitCommand extends Configurable<SubmitConfig> implements Command
    * @param fabanConfig the harness configuration
    * @return a response containing the status of the operation
    * @throws IOException when there are issues in reading the benchmark file
-   * @throws BenchmarkNameNotFoundException when the requested benchmark is not found
+   * @throws BenchmarkNameNotFoundRuntimeException when the requested benchmark is not found
    */
   public RunId submit(FabanClientConfig fabanConfig)
-      throws IOException, BenchmarkNameNotFoundException {
+      throws IOException, BenchmarkNameNotFoundRuntimeException, EmptyHarnessResponseException,
+      MalformedURIException, IllegalRunIdException {
 
     String benchmarkName = config.getBenchmarkName();
     String profile = config.getProfile();
     InputStream configFile = config.getConfigFile();
 
-    ResponseHandler<RunId> sh =
-        resp -> new RunId(new BasicResponseHandler().handleEntity(resp.getEntity()));
+    //TODO: evaluate if it possible to convert back to lamba expression handling (line 43)
+    //      when checked exceptions are supported. See: http://www.baeldung.com/java-lambda-exceptions
+    //    ResponseHandler<RunInfo> sh =
+    //    ResponseHandler<RunId> sh =
+    //        resp -> new RunId(new BasicResponseHandler().handleEntity(resp.getEntity()));
 
     try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 
@@ -72,13 +79,14 @@ public class SubmitCommand extends Configurable<SubmitConfig> implements Command
       CloseableHttpResponse resp = httpClient.execute(post);
       int statusCode = resp.getStatusLine().getStatusCode();
       if (statusCode == HttpStatus.SC_NOT_FOUND) {
-        throw new BenchmarkNameNotFoundException("Benchmark " + benchmarkName + " not deployed.");
+        throw new BenchmarkNameNotFoundRuntimeException(
+            "Benchmark " + benchmarkName + " not deployed.");
       } else if (statusCode == HttpStatus.SC_NO_CONTENT) {
         throw new EmptyHarnessResponseException();
       }
 
       //TODO: check that this does indeed work
-      RunId runId = sh.handleResponse(resp);
+      RunId runId = new RunId(new BasicResponseHandler().handleEntity(resp.getEntity()));
 
       return runId;
 

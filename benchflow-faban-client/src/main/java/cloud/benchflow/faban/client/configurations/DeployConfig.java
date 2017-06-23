@@ -3,9 +3,7 @@ package cloud.benchflow.faban.client.configurations;
 import java.io.File;
 
 /**
- * Created by simonedavico on 26/10/15.
- * <p>
- * <p>Configuration class for the deploy command
+ * Configuration class for the deploy command.
  */
 public class DeployConfig implements Config {
 

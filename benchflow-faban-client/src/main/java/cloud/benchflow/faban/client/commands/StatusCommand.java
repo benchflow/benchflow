@@ -3,7 +3,8 @@ package cloud.benchflow.faban.client.commands;
 import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.configurations.RunConfig;
-import cloud.benchflow.faban.client.exceptions.FabanClientException;
+import cloud.benchflow.faban.client.exceptions.FabanClientBadRequestException;
+import cloud.benchflow.faban.client.exceptions.IllegalRunStatusException;
 import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunId;
@@ -12,7 +13,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -21,23 +21,29 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
 /**
+ * Faban Status Command.
+ *
  * @author Simone D'Avico (simonedavico@gmail.com) - Created on 28/10/15.
  */
 public class StatusCommand extends Configurable<RunConfig> implements Command<RunStatus> {
 
   private static String STATUS_PATH = "/status";
 
-  public RunStatus exec(FabanClientConfig fabanConfig) throws IOException, RunIdNotFoundException {
+  public RunStatus exec(FabanClientConfig fabanConfig) throws IOException, RunIdNotFoundException,
+      IllegalRunStatusException, MalformedURIException, FabanClientBadRequestException {
     return status(fabanConfig);
   }
 
   private RunStatus status(FabanClientConfig fabanConfig)
-      throws IOException, RunIdNotFoundException {
+      throws IOException, RunIdNotFoundException, IllegalRunStatusException, MalformedURIException,
+      FabanClientBadRequestException {
 
     RunId runId = config.getRunId();
 
-    ResponseHandler<RunStatus> sh =
-        resp -> new RunStatus(new BasicResponseHandler().handleEntity(resp.getEntity()), runId);
+    //TODO: evaluate if it possible to convert back to lamba expression handling (line 43)
+    //      when checked exceptions are supported. See: http://www.baeldung.com/java-lambda-exceptions
+    //    ResponseHandler<RunStatus> sh =
+    //        resp -> new RunStatus(new BasicResponseHandler().handleEntity(resp.getEntity()), runId);
 
     try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
 
@@ -50,13 +56,14 @@ public class StatusCommand extends Configurable<RunConfig> implements Command<Ru
 
       int status = resp.getStatusLine().getStatusCode();
       if (status == HttpStatus.SC_NOT_FOUND) {
-        throw new RunIdNotFoundException();
+        throw new RunIdNotFoundException("Run id not found");
       } else if (status == HttpStatus.SC_BAD_REQUEST) {
-        throw new FabanClientException("Illegal status request");
+        throw new FabanClientBadRequestException("Illegal status request");
       }
 
       //TODO: check that the call to .handleEntity(..) actually returns the expected string
-      RunStatus runStatus = sh.handleResponse(resp);
+      RunStatus runStatus =
+          new RunStatus(new BasicResponseHandler().handleEntity(resp.getEntity()), runId);
 
       return runStatus;
 
