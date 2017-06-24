@@ -79,7 +79,7 @@ object ExplorationValuesIntYamlProtocol extends DefaultYamlProtocol {
       Failure(new BenchFlowDeserializationException("range must be specified as a List of 2 elements", new Throwable))
 
     } else {
-
+      // IF only range then the step is 1
       Success((range.head to range(1)).toList)
 
     }
@@ -112,6 +112,7 @@ object ExplorationValuesIntYamlProtocol extends DefaultYamlProtocol {
 
   private def generateStepList(range: List[Int], step: Int, prefix: String): Try[List[Int]] = prefix match {
     case "+" => RangeWithStep.stepList(range, step, (a: Int, b: Int) => a + b)
+    case "-" => RangeWithStep.stepList(range, step, (a: Int, b: Int) => a - b)
     case "*" => RangeWithStep.stepList(range, step, (a: Int, b: Int) => a * b)
     case "^" => RangeWithStep.stepList(range, step, (a: Int, b: Int) => Math.pow(a, b).intValue)
     case _ => Failure(new BenchFlowDeserializationException("step function not supported", new Throwable))

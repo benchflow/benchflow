@@ -70,6 +70,26 @@ class IntValuesTest extends JUnitSuite {
 
   }
 
+  @Test def rangeStepSubtractionUserExplorationSpaceTest(): Unit = {
+
+    val rangeStepYaml: String =
+      """
+        |range: [10,1]
+        |step: "-2"
+      """.stripMargin
+
+    val terminationCriteria = rangeStepYaml.parseYaml.convertTo[Try[IntValues]]
+
+    Assert.assertTrue(terminationCriteria.isSuccess)
+
+    terminationCriteria.get.values should contain allOf (10, 8, 6, 4, 2, 1)
+
+    val terminationCriteriaYaml = terminationCriteria.get.toYaml
+
+    Assert.assertTrue(terminationCriteriaYaml.prettyPrint.contains("values"))
+
+  }
+
   @Test def rangeStepMultiplicationUserExplorationSpaceTest(): Unit = {
 
     val rangeStepYaml: String =
@@ -83,6 +103,26 @@ class IntValuesTest extends JUnitSuite {
     Assert.assertTrue(terminationCriteria.isSuccess)
 
     terminationCriteria.get.values should contain allOf (1, 2, 4, 8, 10)
+
+    val terminationCriteriaYaml = terminationCriteria.get.toYaml
+
+    Assert.assertTrue(terminationCriteriaYaml.prettyPrint.contains("values"))
+
+  }
+
+  @Test def rangeStepMultiplicationNegativeUserExplorationSpaceTest(): Unit = {
+
+    val rangeStepYaml: String =
+      """
+        |range: [1,10]
+        |step: "*-2"
+      """.stripMargin
+
+    val terminationCriteria = rangeStepYaml.parseYaml.convertTo[Try[IntValues]]
+
+    Assert.assertTrue(terminationCriteria.isSuccess)
+
+    terminationCriteria.get.values should contain allOf (1, -2, 4, -8, 10)
 
     val terminationCriteriaYaml = terminationCriteria.get.toYaml
 
@@ -110,12 +150,12 @@ class IntValuesTest extends JUnitSuite {
 
   }
 
-  @Test def rangeStepPowerIdentityElementUserExplorationSpaceTest(): Unit = {
+  @Test def rangeStepPowerNegativeUserExplorationSpaceTest(): Unit = {
 
     val rangeStepYaml: String =
       """
         |range: [2,20]
-        |step: "^1"
+        |step: "^-2"
       """.stripMargin
 
     val terminationCriteria = rangeStepYaml.parseYaml.convertTo[Try[IntValues]]
@@ -124,12 +164,78 @@ class IntValuesTest extends JUnitSuite {
 
   }
 
-  @Test def rangeStepMultiplicationDivergeUserExplorationSpaceTest(): Unit = {
+  @Test def rangeStepAdditionIdentityElementUserExplorationSpaceTest(): Unit = {
 
     val rangeStepYaml: String =
       """
+        |range: [1,10]
+        |step: "+0"
+      """.stripMargin
+
+    val terminationCriteria = rangeStepYaml.parseYaml.convertTo[Try[IntValues]]
+
+    Assert.assertTrue(terminationCriteria.isFailure)
+
+  }
+
+  @Test def rangeStepSubtractionIdentityElementUserExplorationSpaceTest(): Unit = {
+
+    val rangeStepYaml: String =
+      """
+        |range: [1,10]
+        |step: "-0"
+      """.stripMargin
+
+    val terminationCriteria = rangeStepYaml.parseYaml.convertTo[Try[IntValues]]
+
+    Assert.assertTrue(terminationCriteria.isFailure)
+
+  }
+
+  @Test def rangeStepMultiplicationIdentityElementUserExplorationSpaceTest(): Unit = {
+
+    val rangeStepYaml: String =
+      """
+        |range: [1,10]
+        |step: "*1"
+      """.stripMargin
+
+    val terminationCriteria = rangeStepYaml.parseYaml.convertTo[Try[IntValues]]
+
+    Assert.assertTrue(terminationCriteria.isFailure)
+
+  }
+
+  @Test def rangeStepPowerIdentityElementUserExplorationSpaceTest(): Unit = {
+
+    val rangeStepPowerZeroYaml: String =
+      """
         |range: [2,20]
-        |step: "*-2"
+        |step: "^0"
+      """.stripMargin
+
+    val terminationCriteriaZero = rangeStepPowerZeroYaml.parseYaml.convertTo[Try[IntValues]]
+
+    Assert.assertTrue(terminationCriteriaZero.isFailure)
+
+    val rangeStepPowerOneYaml: String =
+      """
+        |range: [2,20]
+        |step: "^1"
+      """.stripMargin
+
+    val terminationCriteria = rangeStepPowerOneYaml.parseYaml.convertTo[Try[IntValues]]
+
+    Assert.assertTrue(terminationCriteria.isFailure)
+
+  }
+
+  @Test def rangeStepDivergeUserExplorationSpaceTest(): Unit = {
+
+    val rangeStepYaml: String =
+      """
+        |range: [10,1]
+        |step: "+2"
       """.stripMargin
 
     val terminationCriteria = rangeStepYaml.parseYaml.convertTo[Try[IntValues]]
