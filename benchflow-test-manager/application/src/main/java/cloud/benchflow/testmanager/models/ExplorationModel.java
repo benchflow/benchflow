@@ -1,5 +1,9 @@
 package cloud.benchflow.testmanager.models;
 
+import cloud.benchflow.dsl.definition.configuration.goal.goaltype.GoalType;
+import cloud.benchflow.dsl.definition.configuration.strategy.regression.RegressionStrategyType;
+import cloud.benchflow.dsl.definition.configuration.strategy.selection.SelectionStrategyType;
+import cloud.benchflow.dsl.definition.configuration.strategy.validation.ValidationStrategyType;
 import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpace;
 import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpaceDimensions;
 import cloud.benchflow.testmanager.strategy.regression.RegressionStrategy;
@@ -23,9 +27,9 @@ public class ExplorationModel {
 
   private List<Integer> executedExplorationPointIndices = new ArrayList<>();
 
-  private SelectionStrategy.Type selectionStrategyType;
-  private ValidationStrategy.Type validationStrategyType;
-  private RegressionStrategy.Type regressionStrategyType;
+  private SelectionStrategyType selectionStrategyType;
+  private ValidationStrategyType validationStrategyType;
+  private RegressionStrategyType regressionStrategyType;
 
   private boolean hasRegressionModel;
 
@@ -61,27 +65,27 @@ public class ExplorationModel {
     this.executedExplorationPointIndices.add(executedExplorationPointIndex);
   }
 
-  public SelectionStrategy.Type getSelectionStrategyType() {
+  public SelectionStrategyType getSelectionStrategyType() {
     return selectionStrategyType;
   }
 
-  public void setSelectionStrategyType(SelectionStrategy.Type selectionStrategyType) {
+  public void setSelectionStrategyType(SelectionStrategyType selectionStrategyType) {
     this.selectionStrategyType = selectionStrategyType;
   }
 
-  public Type getValidationStrategyType() {
+  public ValidationStrategyType getValidationStrategyType() {
     return validationStrategyType;
   }
 
-  public void setValidationStrategyType(Type validationStrategyType) {
+  public void setValidationStrategyType(ValidationStrategyType validationStrategyType) {
     this.validationStrategyType = validationStrategyType;
   }
 
-  public RegressionStrategy.Type getRegressionStrategyType() {
+  public RegressionStrategyType getRegressionStrategyType() {
     return regressionStrategyType;
   }
 
-  public void setRegressionStrategyType(RegressionStrategy.Type regressionStrategyType) {
+  public void setRegressionStrategyType(RegressionStrategyType regressionStrategyType) {
     this.regressionStrategyType = regressionStrategyType;
   }
 
@@ -91,10 +95,6 @@ public class ExplorationModel {
 
   public void setHasRegressionModel(boolean hasRegressionModel) {
     this.hasRegressionModel = hasRegressionModel;
-  }
-
-  public enum GoalType {
-    LOAD, CONFIGURATION, EXPLORATION
   }
 
 }

@@ -36,7 +36,7 @@ public class BenchFlowExperimentEndpointTest {
   @Test
   public void submitExperimentState() throws Exception {
 
-    String experimentID = TestConstants.VALID_EXPERIMENT_ID;
+    String experimentID = TestConstants.LOAD_EXPERIMENT_ID;
 
     Mockito.doReturn(BenchFlowTestModel.BenchFlowTestState.RUNNING).when(testModelDAOMock)
         .getTestState(BenchFlowConstants.getTestIDFromExperimentID(experimentID));

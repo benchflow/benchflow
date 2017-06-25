@@ -4,7 +4,7 @@ import static cloud.benchflow.testmanager.strategy.selection.SelectionStrategy.T
 import static cloud.benchflow.testmanager.strategy.selection.SelectionStrategy.Type.ONE_AT_A_TIME;
 import static cloud.benchflow.testmanager.strategy.selection.SelectionStrategy.Type.RANDOM_BREAKDOWN;
 
-import cloud.benchflow.dsl.BenchFlowDSL;
+import cloud.benchflow.dsl.BenchFlowTestAPI;
 import cloud.benchflow.dsl.definition.BenchFlowTest;
 import cloud.benchflow.dsl.definition.configuration.goal.goaltype.GoalType;
 import cloud.benchflow.dsl.definition.configuration.strategy.regression.RegressionStrategyType;
@@ -62,11 +62,10 @@ public class StartTask implements Runnable {
       String testDefinitionYamlString =
           IOUtils.toString(minioService.getTestDefinition(testID), StandardCharsets.UTF_8);
 
-      BenchFlowTest test = BenchFlowDSL.testFromYaml(testDefinitionYamlString);
+      BenchFlowTest test = BenchFlowTestAPI.testFromYaml(testDefinitionYamlString);
 
       // save goal type
-      Value goalTypeValue = test.configuration().goal().goalType();
-      ExplorationModel.GoalType goalType = convertGoalTypeToJavaType(goalTypeValue);
+      GoalType goalType = test.configuration().goal().goalType();
       explorationModelDAO.setGoalType(testID, goalType);
 
       if (test.configuration().strategy().isDefined()) {
@@ -86,29 +85,27 @@ public class StartTask implements Runnable {
         //        explorationModelDAO.setExplorationSpaceDimensions(testID, explorationSpaceDimensions);
 
         // get and save selection strategy
-        Value selectionStrategyTypeValue = test.configuration().strategy().get().selection();
-        Type selectionStrategyType = convertSelectionStrategyToJavaType(selectionStrategyTypeValue);
+        SelectionStrategyType selectionStrategyType =
+            test.configuration().strategy().get().selection();
 
         explorationModelDAO.setSelectionStrategyType(testID, selectionStrategyType);
 
         // get and save validation strategy
-        Option<Value> validationStrategyOption = test.configuration().strategy().get().validation();
+        Option<ValidationStrategyType> validationStrategyOption =
+            test.configuration().strategy().get().validation();
 
         if (validationStrategyOption.isDefined()) {
-          Value validationStrategyValue = validationStrategyOption.get();
-          ValidationStrategy.Type validationStrategyType =
-              convertValidationStrategyToJavaType(validationStrategyValue);
+          ValidationStrategyType validationStrategyType = validationStrategyOption.get();
           explorationModelDAO.setValidationStrategyType(testID, validationStrategyType);
         }
 
         // get and save regression strategy
-        Option<Value> regressionStrategyOption = test.configuration().strategy().get().regression();
+        Option<RegressionStrategyType> regressionStrategyOption =
+            test.configuration().strategy().get().regression();
         explorationModelDAO.setHasRegressionModel(testID, regressionStrategyOption.isDefined());
 
         if (regressionStrategyOption.isDefined()) {
-          Value regressionStrategyTypeValue = validationStrategyOption.get();
-          RegressionStrategy.Type regressionStrategyType =
-              convertRegressionStrategyToJavaType(regressionStrategyTypeValue);
+          RegressionStrategyType regressionStrategyType = regressionStrategyOption.get();
           explorationModelDAO.setRegressionStrategyType(testID, regressionStrategyType);
         }
 
@@ -125,56 +122,4 @@ public class StartTask implements Runnable {
 
   }
 
-  private SelectionStrategy.Type convertSelectionStrategyToJavaType(
-      Value selectionStrategyTypeValue) {
-
-    if (selectionStrategyTypeValue.equals(SelectionStrategyType.OneAtATime())) {
-      return ONE_AT_A_TIME;
-    }
-
-    if (selectionStrategyTypeValue.equals(SelectionStrategyType.RandomBreakDown())) {
-      return RANDOM_BREAKDOWN;
-    }
-
-    return BOUNDARY_FIRST;
-
-  }
-
-  private ExplorationModel.GoalType convertGoalTypeToJavaType(Value goalTypeValue) {
-
-    if (goalTypeValue.equals(GoalType.Load())) {
-      return ExplorationModel.GoalType.LOAD;
-    }
-
-    if (goalTypeValue.equals(GoalType.Configuration())) {
-      return ExplorationModel.GoalType.CONFIGURATION;
-    }
-
-    return ExplorationModel.GoalType.EXPLORATION;
-
-  }
-
-  private ValidationStrategy.Type convertValidationStrategyToJavaType(
-      Value validationStrategyTypeValue) {
-
-    // to be changed when more strategies are added
-    if (validationStrategyTypeValue.equals(ValidationStrategyType.RandomValidationSet())) {
-      return ValidationStrategy.Type.RANDOM_VALIDATION_SET;
-    }
-
-    return ValidationStrategy.Type.RANDOM_VALIDATION_SET;
-
-  }
-
-  private RegressionStrategy.Type convertRegressionStrategyToJavaType(
-      Value regressionStrategyTypeValue) {
-
-    // to be changed when more strategies are added
-    if (regressionStrategyTypeValue.equals(RegressionStrategyType.Mars())) {
-      return RegressionStrategy.Type.MARS;
-    }
-
-    return RegressionStrategy.Type.MARS;
-
-  }
 }

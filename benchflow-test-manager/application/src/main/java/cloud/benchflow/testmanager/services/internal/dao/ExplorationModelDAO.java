@@ -1,10 +1,13 @@
 package cloud.benchflow.testmanager.services.internal.dao;
 
+import cloud.benchflow.dsl.definition.configuration.goal.goaltype.GoalType;
+import cloud.benchflow.dsl.definition.configuration.strategy.regression.RegressionStrategyType;
+import cloud.benchflow.dsl.definition.configuration.strategy.selection.SelectionStrategyType;
+import cloud.benchflow.dsl.definition.configuration.strategy.validation.ValidationStrategyType;
 import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpace;
 import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpaceDimensions;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
-import cloud.benchflow.testmanager.models.ExplorationModel.GoalType;
 import cloud.benchflow.testmanager.strategy.regression.MarsRegressionStrategy;
 import cloud.benchflow.testmanager.strategy.regression.RegressionStrategy;
 import cloud.benchflow.testmanager.strategy.selection.OneAtATimeSelectionStrategy;
@@ -139,9 +142,10 @@ public class ExplorationModelDAO extends DAO {
       case ONE_AT_A_TIME:
         return new OneAtATimeSelectionStrategy();
 
-      case RANDOM_BREAKDOWN:
+      case RANDOM_BREAK_DOWN:
         return new RandomBreakdownSelectionStrategy();
 
+      case BOUNDARY_FIRST:
       default:
         logger.info("not yet implemented");
         return null;
@@ -149,7 +153,7 @@ public class ExplorationModelDAO extends DAO {
   }
 
   public synchronized void setSelectionStrategyType(String testID,
-      SelectionStrategy.Type strategyType) throws BenchFlowTestIDDoesNotExistException {
+      SelectionStrategyType strategyType) throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("setSelectionStrategyType: " + testID);
 
@@ -177,7 +181,7 @@ public class ExplorationModelDAO extends DAO {
   }
 
   public synchronized void setValidationStrategyType(String testID,
-      ValidationStrategy.Type strategyType) throws BenchFlowTestIDDoesNotExistException {
+      ValidationStrategyType strategyType) throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("setValidationStrategyType: " + testID);
 
@@ -205,7 +209,7 @@ public class ExplorationModelDAO extends DAO {
   }
 
   public synchronized void setRegressionStrategyType(String testID,
-      RegressionStrategy.Type strategyType) throws BenchFlowTestIDDoesNotExistException {
+      RegressionStrategyType strategyType) throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("setRegressionStrategyType: " + testID);
 

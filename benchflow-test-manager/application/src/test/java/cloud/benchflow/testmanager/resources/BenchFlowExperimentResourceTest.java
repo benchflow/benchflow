@@ -45,7 +45,7 @@ public class BenchFlowExperimentResourceTest {
   @Test
   public void submitExperimentStatus() throws Exception {
 
-    String experimentID = TestConstants.BENCHFLOW_EXPERIMENT_ID;
+    String experimentID = TestConstants.VALID_EXPERIMENT_ID;
 
     request.setState(BenchFlowExperimentState.TERMINATED);
     request.setTerminatedState(COMPLETED);

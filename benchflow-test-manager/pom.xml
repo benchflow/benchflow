@@ -35,8 +35,9 @@
         <docker-compose-rule-junit4.version>0.31.1</docker-compose-rule-junit4.version>
         <wiremock.version>2.5.1</wiremock.version>
         <dropwizard-swagger.version>1.0.6-1</dropwizard-swagger.version>
+        <zt-zip.version>1.11</zt-zip.version>
         <benchflow-dsl.project.name>benchflow-dsl</benchflow-dsl.project.name>
-        <benchflow-dsl-jar.version>devel_d71996</benchflow-dsl-jar.version>
+        <benchflow-dsl-jar.version>devel_6c5287</benchflow-dsl-jar.version>
         <benchflow-dsl.version>0.1.0</benchflow-dsl.version>
         <benchflow-faban-client.project.name>benchflow-faban-client</benchflow-faban-client.project.name>
         <benchflow-faban-client-jar.version>devel_ad148a</benchflow-faban-client-jar.version>
@@ -152,6 +153,14 @@
                 <groupId>cloud.benchflow</groupId>
                 <artifactId>faban-client</artifactId>
                 <version>${benchflow-faban-client-jar.version}</version>
+            </dependency>
+
+            <!--used to create test bundles during testing-->
+            <dependency>
+                <groupId>org.zeroturnaround</groupId>
+                <artifactId>zt-zip</artifactId>
+                <version>${zt-zip.version}</version>
+                <scope>test</scope>
             </dependency>
 
         </dependencies>

@@ -1,6 +1,6 @@
 package cloud.benchflow.testmanager.resources;
 
-import cloud.benchflow.dsl.BenchFlowDSL;
+import cloud.benchflow.dsl.BenchFlowTestAPI;
 import cloud.benchflow.dsl.definition.BenchFlowTest;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
@@ -117,7 +117,7 @@ public class BenchFlowTestResource {
         throw new InvalidTestBundleException();
       }
 
-      BenchFlowTest benchFlowTest = BenchFlowDSL.testFromYaml(testDefinitionYamlString);
+      BenchFlowTest benchFlowTest = BenchFlowTestAPI.testFromYaml(testDefinitionYamlString);
 
       InputStream deploymentDescriptorInputStream = BenchFlowTestBundleExtractor
           .extractDeploymentDescriptorInputStream(testBundleZipInputStream);
@@ -153,6 +153,7 @@ public class BenchFlowTestResource {
       return new RunBenchFlowTestResponse(testID);
 
     } catch (IOException | InvalidTestBundleException | BenchFlowDeserializationException e) {
+      // TODO - throw more fine grained errors, e.g., file missing in bundle, deserialization error
       throw new InvalidTestBundleWebException();
     }
   }

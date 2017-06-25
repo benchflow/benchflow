@@ -69,6 +69,12 @@
             <artifactId>faban-client</artifactId>
         </dependency>
 
+        <!--used to create test bundles during testing-->
+        <dependency>
+            <groupId>org.zeroturnaround</groupId>
+            <artifactId>zt-zip</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
