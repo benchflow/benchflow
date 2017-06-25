@@ -5,9 +5,9 @@ import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.Termin
 
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.DockerComposeIT;
-import cloud.benchflow.testmanager.helpers.TestBundle;
 import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfiguration;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
+import cloud.benchflow.testmanager.helpers.TestBundle;
 import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.helpers.TestFiles;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;

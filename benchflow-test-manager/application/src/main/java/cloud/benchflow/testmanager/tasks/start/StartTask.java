@@ -1,9 +1,5 @@
 package cloud.benchflow.testmanager.tasks.start;
 
-import static cloud.benchflow.testmanager.strategy.selection.SelectionStrategy.Type.BOUNDARY_FIRST;
-import static cloud.benchflow.testmanager.strategy.selection.SelectionStrategy.Type.ONE_AT_A_TIME;
-import static cloud.benchflow.testmanager.strategy.selection.SelectionStrategy.Type.RANDOM_BREAKDOWN;
-
 import cloud.benchflow.dsl.BenchFlowTestAPI;
 import cloud.benchflow.dsl.definition.BenchFlowTest;
 import cloud.benchflow.dsl.definition.configuration.goal.goaltype.GoalType;
@@ -13,19 +9,13 @@ import cloud.benchflow.dsl.definition.configuration.strategy.validation.Validati
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
-import cloud.benchflow.testmanager.models.ExplorationModel;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
-import cloud.benchflow.testmanager.strategy.regression.RegressionStrategy;
-import cloud.benchflow.testmanager.strategy.selection.SelectionStrategy;
-import cloud.benchflow.testmanager.strategy.selection.SelectionStrategy.Type;
-import cloud.benchflow.testmanager.strategy.validation.ValidationStrategy;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Enumeration.Value;
 import scala.Option;
 
 /**

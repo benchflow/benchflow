@@ -6,10 +6,6 @@ import cloud.benchflow.dsl.definition.configuration.strategy.selection.Selection
 import cloud.benchflow.dsl.definition.configuration.strategy.validation.ValidationStrategyType;
 import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpace;
 import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpaceDimensions;
-import cloud.benchflow.testmanager.strategy.regression.RegressionStrategy;
-import cloud.benchflow.testmanager.strategy.selection.SelectionStrategy;
-import cloud.benchflow.testmanager.strategy.validation.ValidationStrategy;
-import cloud.benchflow.testmanager.strategy.validation.ValidationStrategy.Type;
 import java.util.ArrayList;
 import java.util.List;
 import org.mongodb.morphia.annotations.Embedded;

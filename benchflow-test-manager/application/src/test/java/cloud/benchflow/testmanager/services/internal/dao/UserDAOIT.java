@@ -1,7 +1,7 @@
 package cloud.benchflow.testmanager.services.internal.dao;
 
-import static cloud.benchflow.testmanager.helpers.TestConstants.TEST_USER_NAME;
 import static cloud.benchflow.testmanager.helpers.TestConstants.LOAD_TEST_NAME;
+import static cloud.benchflow.testmanager.helpers.TestConstants.TEST_USER_NAME;
 import static org.junit.Assert.assertEquals;
 
 import cloud.benchflow.testmanager.DockerComposeIT;

@@ -1,14 +1,10 @@
 package cloud.benchflow.testmanager.helpers;
 
-import cloud.benchflow.testmanager.bundle.BenchFlowTestBundleExtractor;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
@@ -24,9 +20,6 @@ public class TestBundle {
 
   public static final int BPMN_MODELS_COUNT = 2;
   private static final String TEMP_ZIP = "temp.zip";
-
-  private static final String NO_DEFINITION_TEST_BUNDLE_FILENAME =
-      "src/test/resources/data/wfms.camunda.invalid.no.definition.zip";
 
   /**
    * Get a valid test bundle as a File
