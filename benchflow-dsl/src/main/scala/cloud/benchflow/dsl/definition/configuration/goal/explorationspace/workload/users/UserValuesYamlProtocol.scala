@@ -1,4 +1,4 @@
-package cloud.benchflow.dsl.definition.configuration.goal.explorationspace.explorationvalues
+package cloud.benchflow.dsl.definition.configuration.goal.explorationspace.workload.users
 
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.ExplorationSpaceYamlProtocol
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.step.RangeWithStep
@@ -12,7 +12,7 @@ import scala.util.{ Failure, Success, Try }
  * @author Jesper Findahl (jesper.findahl@gmail.com)
  *         created on 2017-05-23
  */
-object ExplorationValuesIntYamlProtocol extends DefaultYamlProtocol {
+object UserValuesYamlProtocol extends DefaultYamlProtocol {
 
   val ValuesKey = YamlString("values")
   val RangeKey = YamlString("range")
@@ -22,9 +22,9 @@ object ExplorationValuesIntYamlProtocol extends DefaultYamlProtocol {
 
   private def keyString(key: YamlString) = s"$Level.${key.value}"
 
-  implicit object ExplorationValuesIntReadFormat extends YamlFormat[Try[IntValues]] {
+  implicit object UserValuesReadFormat extends YamlFormat[Try[UserValues]] {
 
-    override def read(yaml: YamlValue): Try[IntValues] = {
+    override def read(yaml: YamlValue): Try[UserValues] = {
 
       val yamlObject = yaml.asYamlObject
 
@@ -36,7 +36,8 @@ object ExplorationValuesIntYamlProtocol extends DefaultYamlProtocol {
 
             // handle values specification
             case _ if yamlObject.getFields(ValuesKey).nonEmpty =>
-              yamlObject.getFields(ValuesKey).headOption.map(_.convertTo[List[Int]]).get
+              assertValidValues(
+                yamlObject.getFields(ValuesKey).headOption.map(_.convertTo[List[Int]]).get).get
 
             // handle step and range specification
             case _ if yamlObject.getFields(StepKey).nonEmpty && yamlObject.getFields(RangeKey).nonEmpty =>
@@ -52,36 +53,54 @@ object ExplorationValuesIntYamlProtocol extends DefaultYamlProtocol {
           },
           keyString(ValuesKey))
 
-      } yield IntValues(values = values)
+      } yield UserValues(values = values)
 
     }
 
-    override def write(obj: Try[IntValues]): YamlValue = unsupportedWriteOperation
+    override def write(obj: Try[UserValues]): YamlValue = unsupportedWriteOperation
   }
 
-  implicit object ExplorationSpaceUsersWriteFormat extends YamlFormat[IntValues] {
+  implicit object UserValuesWriteFormat extends YamlFormat[UserValues] {
 
-    override def write(obj: IntValues): YamlValue = YamlObject {
+    override def write(obj: UserValues): YamlValue = YamlObject {
 
       Map[YamlValue, YamlValue](
         ValuesKey -> obj.values.toYaml)
 
     }
 
-    override def read(yaml: YamlValue): IntValues = unsupportedReadOperation
+    override def read(yaml: YamlValue): UserValues = unsupportedReadOperation
+
+  }
+
+  private def assertValidValues(values: List[Int]): Try[List[Int]] = {
+
+    // check that all values are in increasing order
+    val increasingOrder = values.sliding(2).forall {
+      case List(x, y) => x < y
+    }
+
+    if (!increasingOrder) {
+      Failure(new BenchFlowDeserializationException("values must be increasing", new Throwable))
+    } else if (values.head <= 0) {
+      Failure(new BenchFlowDeserializationException("values must be > 0", new Throwable))
+    } else {
+      Success(values)
+    }
 
   }
 
   private def getRangeList(range: List[Int]): Try[List[Int]] = {
 
     if (range.size != 2) {
-
       Failure(new BenchFlowDeserializationException("range must be specified as a List of 2 elements", new Throwable))
-
+    } else if (range.head >= range.last) {
+      Failure(new BenchFlowDeserializationException("range must be increasing", new Throwable))
+    } else if (range.head <= 0) {
+      Failure(new BenchFlowDeserializationException("range must be > 0", new Throwable))
     } else {
       // IF only range then the step is 1
       Success((range.head to range(1)).toList)
-
     }
 
   }
@@ -89,9 +108,11 @@ object ExplorationValuesIntYamlProtocol extends DefaultYamlProtocol {
   private def getStepList(range: List[Int], step: String): Try[List[Int]] = {
 
     if (range.size != 2) {
-
       Failure(new BenchFlowDeserializationException("range must be specified as a List of 2 elements", new Throwable))
-
+    } else if (range.head >= range.last) {
+      Failure(new BenchFlowDeserializationException("range must be increasing", new Throwable))
+    } else if (range.head <= 0) {
+      Failure(new BenchFlowDeserializationException("range must be > 0", new Throwable))
     } else {
 
       val prefix = step.substring(0, 1)
@@ -100,7 +121,12 @@ object ExplorationValuesIntYamlProtocol extends DefaultYamlProtocol {
 
       triedValue match {
 
-        case Success(value) => generateStepList(range, value, prefix)
+        case Success(value) =>
+          if (value <= 0) {
+            Failure(new BenchFlowDeserializationException("step must be > 0", new Throwable))
+          } else {
+            generateStepList(range, value, prefix)
+          }
 
         case Failure(ex) => Failure(new BenchFlowDeserializationException("step must contain an integer", ex))
 
@@ -111,10 +137,26 @@ object ExplorationValuesIntYamlProtocol extends DefaultYamlProtocol {
   }
 
   private def generateStepList(range: List[Int], step: Int, prefix: String): Try[List[Int]] = prefix match {
-    case "+" => RangeWithStep.stepList(range, step, (a: Int, b: Int) => a + b)
-    case "-" => RangeWithStep.stepList(range, step, (a: Int, b: Int) => a - b)
-    case "*" => RangeWithStep.stepList(range, step, (a: Int, b: Int) => a * b)
-    case "^" => RangeWithStep.stepList(range, step, (a: Int, b: Int) => Math.pow(a, b).intValue)
-    case _ => Failure(new BenchFlowDeserializationException("step function not supported", new Throwable))
+    case "+" =>
+      if (step == 0) {
+        Failure(new BenchFlowDeserializationException("step function cannot be identity element: +0", new Throwable))
+      } else {
+        RangeWithStep.stepList(range, step, (a: Int, b: Int) => a + b)
+      }
+
+    case "*" =>
+      if (step == 1) {
+        Failure(new BenchFlowDeserializationException("step function cannot be identity element: *1", new Throwable))
+      } else {
+        RangeWithStep.stepList(range, step, (a: Int, b: Int) => a * b)
+      }
+
+    case "^" =>
+      if (step == 1) {
+        Failure(new BenchFlowDeserializationException("step function cannot be ^1", new Throwable))
+      } else {
+        RangeWithStep.stepList(range, step, (a: Int, b: Int) => Math.pow(a, b).intValue)
+      }
+    case _ => Failure(new BenchFlowDeserializationException("step operation not supported", new Throwable))
   }
 }
