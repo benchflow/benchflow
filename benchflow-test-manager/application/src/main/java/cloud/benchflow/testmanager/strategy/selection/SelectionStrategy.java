@@ -89,10 +89,6 @@ public abstract class SelectionStrategy {
   protected abstract int getNextExplorationPoint(List<Integer> executedExplorationPointIndices,
       int explorationSpaceSize);
 
-  public enum Type {
-    ONE_AT_A_TIME, RANDOM_BREAKDOWN, BOUNDARY_FIRST
-  }
-
   public class SelectedExperimentBundle {
 
     private String experimentYamlString;

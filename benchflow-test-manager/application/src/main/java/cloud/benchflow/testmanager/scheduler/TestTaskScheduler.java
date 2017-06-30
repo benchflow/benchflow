@@ -67,7 +67,7 @@ public class TestTaskScheduler {
     this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
     this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
 
-    // start dispatcher in separate thead
+    // start dispatcher in separate thread
     new Thread(new TestDispatcher(readyQueue, runningQueue)).start();
 
   }

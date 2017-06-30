@@ -13,6 +13,7 @@ import cloud.benchflow.testmanager.strategy.regression.RegressionStrategy;
 import cloud.benchflow.testmanager.strategy.selection.OneAtATimeSelectionStrategy;
 import cloud.benchflow.testmanager.strategy.selection.RandomBreakdownSelectionStrategy;
 import cloud.benchflow.testmanager.strategy.selection.SelectionStrategy;
+import cloud.benchflow.testmanager.strategy.selection.SingleExperimentSelectionStrategy;
 import cloud.benchflow.testmanager.strategy.validation.RandomValidationSetValidationStrategy;
 import cloud.benchflow.testmanager.strategy.validation.ValidationStrategy;
 import com.mongodb.MongoClient;
@@ -137,6 +138,10 @@ public class ExplorationModelDAO extends DAO {
 
     final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
 
+    if (benchFlowTestModel.getExplorationModel().isSingleExperiment()) {
+      return new SingleExperimentSelectionStrategy();
+    }
+
     switch (benchFlowTestModel.getExplorationModel().getSelectionStrategyType()) {
 
       case ONE_AT_A_TIME:
@@ -242,5 +247,27 @@ public class ExplorationModelDAO extends DAO {
 
     datastore.save(benchFlowTestModel);
 
+  }
+
+  public synchronized boolean isSingleExperiment(String testID)
+      throws BenchFlowTestIDDoesNotExistException {
+
+    logger.info("isSingleExperiment: " + testID);
+
+    final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
+
+    return benchFlowTestModel.getExplorationModel().isSingleExperiment();
+
+  }
+
+  public synchronized void setSingleExperiment(String testID, boolean singleExperiment)
+      throws BenchFlowTestIDDoesNotExistException {
+    logger.info("setSingleExperiment: " + testID);
+
+    final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
+
+    benchFlowTestModel.getExplorationModel().setSingleExperiment(singleExperiment);
+
+    datastore.save(benchFlowTestModel);
   }
 }

@@ -58,6 +58,10 @@ public class StartTask implements Runnable {
       GoalType goalType = test.configuration().goal().goalType();
       explorationModelDAO.setGoalType(testID, goalType);
 
+      if (goalType == GoalType.LOAD) {
+        explorationModelDAO.setSingleExperiment(testID, true);
+      }
+
       if (test.configuration().strategy().isDefined()) {
 
         // TODO - in future PR
@@ -75,28 +79,35 @@ public class StartTask implements Runnable {
         //        explorationModelDAO.setExplorationSpaceDimensions(testID, explorationSpaceDimensions);
 
         // get and save selection strategy
-        SelectionStrategyType selectionStrategyType =
-            test.configuration().strategy().get().selection();
+        if (test.configuration().strategy().isDefined()) {
 
-        explorationModelDAO.setSelectionStrategyType(testID, selectionStrategyType);
+          SelectionStrategyType selectionStrategyType =
+              test.configuration().strategy().get().selection();
 
-        // get and save validation strategy
-        Option<ValidationStrategyType> validationStrategyOption =
-            test.configuration().strategy().get().validation();
+          explorationModelDAO.setSelectionStrategyType(testID, selectionStrategyType);
 
-        if (validationStrategyOption.isDefined()) {
-          ValidationStrategyType validationStrategyType = validationStrategyOption.get();
-          explorationModelDAO.setValidationStrategyType(testID, validationStrategyType);
-        }
+          // get and save validation strategy
+          Option<ValidationStrategyType> validationStrategyOption =
+              test.configuration().strategy().get().validation();
 
-        // get and save regression strategy
-        Option<RegressionStrategyType> regressionStrategyOption =
-            test.configuration().strategy().get().regression();
-        explorationModelDAO.setHasRegressionModel(testID, regressionStrategyOption.isDefined());
+          if (validationStrategyOption.isDefined()) {
+            ValidationStrategyType validationStrategyType = validationStrategyOption.get();
+            explorationModelDAO.setValidationStrategyType(testID, validationStrategyType);
+          }
 
-        if (regressionStrategyOption.isDefined()) {
-          RegressionStrategyType regressionStrategyType = regressionStrategyOption.get();
-          explorationModelDAO.setRegressionStrategyType(testID, regressionStrategyType);
+          // get and save regression strategy
+          Option<RegressionStrategyType> regressionStrategyOption =
+              test.configuration().strategy().get().regression();
+          // set has regression model
+          explorationModelDAO.setHasRegressionModel(testID, regressionStrategyOption.isDefined());
+
+          if (regressionStrategyOption.isDefined()) {
+            RegressionStrategyType regressionStrategyType = regressionStrategyOption.get();
+            explorationModelDAO.setRegressionStrategyType(testID, regressionStrategyType);
+          }
+        } else {
+          // set has regression model to false since no strategy defined
+          explorationModelDAO.setHasRegressionModel(testID, false);
         }
 
       }

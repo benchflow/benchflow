@@ -28,6 +28,7 @@ public class ExplorationModel {
   private RegressionStrategyType regressionStrategyType;
 
   private boolean hasRegressionModel;
+  private boolean singleExperiment;
 
   public GoalType getGoalType() {
     return goalType;
@@ -93,4 +94,11 @@ public class ExplorationModel {
     this.hasRegressionModel = hasRegressionModel;
   }
 
+  public boolean isSingleExperiment() {
+    return singleExperiment;
+  }
+
+  public void setSingleExperiment(boolean singleExperiment) {
+    this.singleExperiment = singleExperiment;
+  }
 }

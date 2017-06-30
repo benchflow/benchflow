@@ -235,6 +235,38 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
 
   }
 
+  @Test
+  public void runLoadTest() throws Exception {
+
+    String testName = TestConstants.LOAD_TEST_NAME;
+    int expectedNumExperiments = 1;
+
+    String testID = testModelDAO.addTestModel(testName, user);
+
+    String testDefinitionString =
+        IOUtils.toString(TestFiles.getTestLoadInputStream(), StandardCharsets.UTF_8);
+
+    CountDownLatch countDownLatch =
+        setUpExplorationMocks(testID, expectedNumExperiments, testDefinitionString);
+
+    // handle in scheduler
+    testTaskScheduler.handleTestState(testID);
+
+    // wait long enough for all experiments to complete
+    countDownLatch.await(10, TimeUnit.SECONDS);
+
+    // wait for last task to finish
+    executorService.awaitTermination(1, TimeUnit.SECONDS);
+
+    // assert that all experiments have been executed
+    Assert.assertEquals(0, countDownLatch.getCount());
+
+    // assert that test has been set as TERMINATED
+    Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
+        testModelDAO.getTestState(testID));
+
+  }
+
   private CountDownLatch setUpExplorationMocks(String testID, int expectedNumExperiments,
       String testDefinitionString) throws IOException {
 
