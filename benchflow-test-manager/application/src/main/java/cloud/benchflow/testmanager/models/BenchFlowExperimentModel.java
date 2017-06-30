@@ -3,6 +3,10 @@ package cloud.benchflow.testmanager.models;
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 
 import cloud.benchflow.faban.client.responses.RunStatus;
+import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
+import cloud.benchflow.testmanager.constants.BenchFlowConstants;
+import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
+import cloud.benchflow.testmanager.services.external.MinioService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
 import java.util.HashMap;
@@ -43,6 +47,10 @@ public class BenchFlowExperimentModel {
   private TerminatedState terminatedState;
   private Map<Long, RunStatus.Code> trials = new HashMap<>();
 
+  private String experimentBundle;
+  private String collectedData;
+  private String status;
+
   BenchFlowExperimentModel() {
     // Empty constructor for MongoDB + Morphia
   }
@@ -56,6 +64,15 @@ public class BenchFlowExperimentModel {
 
     this.hashedID = this.id;
     this.state = BenchFlowExperimentState.START;
+
+    this.experimentBundle = BenchFlowTestManagerApplication.getMinioServiceAddress() + "/minio/"
+        + BenchFlowConstants.TESTS_BUCKET + "/" + MinioService.minioCompatibleID(id);
+    this.collectedData = BenchFlowTestManagerApplication.getMinioServiceAddress() + "/minio/"
+        + BenchFlowConstants.RUNS_BUCKET;
+    this.status = BenchFlowTestManagerApplication.getExperimentManagerAddress()
+        + BenchFlowConstants.getPathFromExperimentID(id)
+        + BenchFlowExperimentManagerService.STATUS_PATH;
+
   }
 
   @PrePersist
@@ -123,6 +140,18 @@ public class BenchFlowExperimentModel {
   public RunStatus.Code getTrialStatus(long trialNumber) {
 
     return trials.get(trialNumber);
+  }
+
+  public String getExperimentBundle() {
+    return experimentBundle;
+  }
+
+  public String getCollectedData() {
+    return collectedData;
+  }
+
+  public String getStatus() {
+    return status;
   }
 
   public enum BenchFlowExperimentState {

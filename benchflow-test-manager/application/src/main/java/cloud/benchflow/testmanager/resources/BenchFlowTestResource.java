@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -36,6 +37,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
@@ -81,7 +83,8 @@ public class BenchFlowTestResource {
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Produces(MediaType.APPLICATION_JSON)
   public RunBenchFlowTestResponse runBenchFlowTest(@PathParam("username") String username,
-      @FormDataParam("benchFlowTestBundle") final InputStream benchFlowTestBundle) {
+      @FormDataParam("benchFlowTestBundle") final InputStream benchFlowTestBundle,
+      @Context HttpServletRequest request) {
 
     logger.info(
         "request received: POST " + BenchFlowConstants.getPathFromUsername(username) + RUN_PATH);
@@ -155,7 +158,10 @@ public class BenchFlowTestResource {
 
       }).start();
 
-      return new RunBenchFlowTestResponse(testID);
+      String statusURL = "http://" + request.getServerName() + ":" + request.getServerPort()
+          + BenchFlowConstants.getPathFromTestID(testID) + STATUS_PATH;
+
+      return new RunBenchFlowTestResponse(testID, statusURL);
 
     } catch (IOException | InvalidTestBundleException | BenchFlowDeserializationException e) {
       // TODO - throw more fine grained errors, e.g., file missing in bundle, deserialization error

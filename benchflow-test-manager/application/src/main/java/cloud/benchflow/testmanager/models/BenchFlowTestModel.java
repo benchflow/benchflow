@@ -4,7 +4,9 @@ import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.START;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.DETERMINE_EXPLORATION_STRATEGY;
 
+import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
+import cloud.benchflow.testmanager.services.external.MinioService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Collection;
 import java.util.Date;
@@ -63,6 +65,8 @@ public class BenchFlowTestModel {
   @JsonIgnore
   private ExplorationModel explorationModel = new ExplorationModel();
 
+  private String testBundle;
+
   public BenchFlowTestModel() {
     // Empty constructor for MongoDB + Morphia
   }
@@ -79,6 +83,9 @@ public class BenchFlowTestModel {
 
     this.state = START;
     this.runningState = DETERMINE_EXPLORATION_STRATEGY;
+
+    this.testBundle = BenchFlowTestManagerApplication.getMinioServiceAddress() + "/minio/"
+        + BenchFlowConstants.TESTS_BUCKET + "/" + MinioService.minioCompatibleID(id);
   }
 
   @PrePersist
@@ -177,6 +184,10 @@ public class BenchFlowTestModel {
     }
 
     return experiments.lastKey() + 1;
+  }
+
+  public String getTestBundle() {
+    return testBundle;
   }
 
   public enum BenchFlowTestState {

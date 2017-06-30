@@ -26,6 +26,7 @@ import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import java.io.File;
 import java.io.InputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import org.junit.Assert;
@@ -54,12 +55,17 @@ public class BenchFlowTestResourceTest {
   private BenchFlowTestResource resource;
   private ChangeBenchFlowTestStateRequest request;
 
+  private static HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
+
   @Before
   public void setUp() throws Exception {
 
     resource =
         new BenchFlowTestResource(testModelDAOMock, userDAOMock, testTaskScheduler, minioService);
     request = new ChangeBenchFlowTestStateRequest();
+
+    Mockito.doReturn("localhost").when(httpServletRequestMock).getServerName();
+    Mockito.doReturn(1234).when(httpServletRequestMock).getServerPort();
   }
 
   @Test
@@ -68,7 +74,7 @@ public class BenchFlowTestResourceTest {
     exception.expect(WebApplicationException.class);
     exception.expectMessage(String.valueOf(Response.Status.BAD_REQUEST.getStatusCode()));
 
-    resource.runBenchFlowTest(TEST_USER_NAME, null);
+    resource.runBenchFlowTest(TEST_USER_NAME, null, httpServletRequestMock);
   }
 
   @Test
@@ -82,7 +88,8 @@ public class BenchFlowTestResourceTest {
     Mockito.doReturn(expectedTestID).when(testModelDAOMock)
         .addTestModel(Mockito.matches(LOAD_TEST_NAME), Mockito.any(User.class));
 
-    RunBenchFlowTestResponse response = resource.runBenchFlowTest(TEST_USER_NAME, testBundle);
+    RunBenchFlowTestResponse response =
+        resource.runBenchFlowTest(TEST_USER_NAME, testBundle, httpServletRequestMock);
 
     Assert.assertTrue(response.getTestID().contains(LOAD_TEST_NAME));
   }
@@ -94,7 +101,7 @@ public class BenchFlowTestResourceTest {
 
     exception.expect(InvalidTestBundleWebException.class);
 
-    resource.runBenchFlowTest(TEST_USER_NAME, testBundle);
+    resource.runBenchFlowTest(TEST_USER_NAME, testBundle, httpServletRequestMock);
   }
 
   @Test
