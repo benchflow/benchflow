@@ -48,8 +48,8 @@ sut:
       sut_ready_log_check: ready
 
     deployment:
-      camunda: grid
-      db: grid
+      camunda: serverA
+      db: serverB
 
 ###############################################################################
 # Workload Modeling Section
