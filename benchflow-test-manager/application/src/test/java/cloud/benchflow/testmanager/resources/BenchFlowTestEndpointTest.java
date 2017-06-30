@@ -16,6 +16,7 @@ import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import java.io.File;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -40,8 +41,9 @@ public class BenchFlowTestEndpointTest {
   private static TestTaskScheduler testTaskControllerMock = Mockito.mock(TestTaskScheduler.class);
   private static MinioService minioServiceMock = Mockito.mock(MinioService.class);
 
+  // needs to be subfolder of current folder for Wercker
   @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  public TemporaryFolder temporaryFolder = new TemporaryFolder(new File("./"));
 
   @ClassRule
   public static final ResourceTestRule resources = ResourceTestRule.builder()

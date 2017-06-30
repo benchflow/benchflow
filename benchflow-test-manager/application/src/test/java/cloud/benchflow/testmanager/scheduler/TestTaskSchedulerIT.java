@@ -20,6 +20,7 @@ import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -55,8 +56,9 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
           ConfigOverride.config("minio.secretKey", MINIO_SECRET_KEY),
           ConfigOverride.config("benchFlowExperimentManager.address", "localhost"));
 
+  // needs to be subfolder of current folder for Wercker
   @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  public TemporaryFolder temporaryFolder = new TemporaryFolder(new File("./"));
 
   private TestTaskScheduler testTaskScheduler;
   private BenchFlowTestModelDAO testModelDAO;

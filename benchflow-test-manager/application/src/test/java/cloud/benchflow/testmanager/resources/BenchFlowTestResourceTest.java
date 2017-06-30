@@ -24,6 +24,7 @@ import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
+import java.io.File;
 import java.io.InputStream;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -42,8 +43,9 @@ public class BenchFlowTestResourceTest {
 
   @Rule
   public ExpectedException exception = ExpectedException.none();
+  // needs to be subfolder of current folder for Wercker
   @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  public TemporaryFolder temporaryFolder = new TemporaryFolder(new File("./"));
   // mocks
   private BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
   private UserDAO userDAOMock = Mockito.mock(UserDAO.class);

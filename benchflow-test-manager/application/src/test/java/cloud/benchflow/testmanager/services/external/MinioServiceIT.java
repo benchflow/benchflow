@@ -8,6 +8,7 @@ import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.helpers.TestBundle;
 import io.minio.MinioClient;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -23,8 +24,9 @@ import org.junit.rules.TemporaryFolder;
  */
 public class MinioServiceIT extends DockerComposeIT {
 
+  // needs to be subfolder of current folder for Wercker
   @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  public TemporaryFolder temporaryFolder = new TemporaryFolder(new File("./"));
 
   private MinioService minioService;
 

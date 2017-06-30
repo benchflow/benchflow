@@ -87,6 +87,7 @@ public class BenchFlowTestResource {
         "request received: POST " + BenchFlowConstants.getPathFromUsername(username) + RUN_PATH);
 
     if (benchFlowTestBundle == null) {
+      logger.info("runBenchFlowTest: test bundle == null");
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
 
@@ -102,6 +103,7 @@ public class BenchFlowTestResource {
         userDAO.addUser(user.getUsername());
       } catch (UserIDAlreadyExistsException e) {
         // since we already checked that the user doesn't exist it cannot happen
+        logger.info("runBenchFlowTest: user doesn't exist");
         throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
       }
     }
@@ -114,6 +116,7 @@ public class BenchFlowTestResource {
           .extractBenchFlowTestDefinitionString(testBundleZipInputStream);
 
       if (testDefinitionYamlString == null) {
+        logger.info("runBenchFlowTest: testDefinitionYamlString == null");
         throw new InvalidTestBundleException();
       }
 
@@ -125,6 +128,8 @@ public class BenchFlowTestResource {
           BenchFlowTestBundleExtractor.extractBPMNModelInputStreams(testBundleZipInputStream);
 
       if (deploymentDescriptorInputStream == null || bpmnModelInputStreams.size() == 0) {
+        logger.info(
+            "runBenchFlowTest: deploymentDescriptorInputStream == null || bpmnModelInputStreams.size() == 0");
         throw new InvalidTestBundleException();
       }
 

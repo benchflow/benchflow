@@ -2,6 +2,7 @@ package cloud.benchflow.testmanager.bundle;
 
 import cloud.benchflow.testmanager.helpers.TestBundle;
 import cloud.benchflow.testmanager.helpers.TestConstants;
+import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -15,8 +16,9 @@ import org.junit.rules.TemporaryFolder;
  */
 public class BenchFlowTestBundleExtractorTest {
 
+  // needs to be subfolder of current folder for Wercker
   @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  public TemporaryFolder temporaryFolder = new TemporaryFolder(new File("./"));
 
   @Test
   public void extractBenchFlowTestDefinition() throws Exception {
