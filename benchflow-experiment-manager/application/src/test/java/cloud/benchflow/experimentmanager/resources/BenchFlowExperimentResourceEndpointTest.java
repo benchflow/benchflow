@@ -8,7 +8,7 @@ import cloud.benchflow.experimentmanager.models.TrialModel;
 import cloud.benchflow.experimentmanager.scheduler.ExperimentTaskScheduler;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
-import cloud.benchflow.faban.client.responses.RunStatus.Code;
+import cloud.benchflow.faban.client.responses.RunStatus.StatusCode;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -47,14 +47,14 @@ public class BenchFlowExperimentResourceEndpointTest {
     experimentModel.setState(BenchFlowExperimentState.RUNNING);
 
     TrialModel trial1 = new TrialModel(experimentID + BenchFlowConstants.MODEL_ID_DELIMITER + 1);
-    trial1.setStatus(Code.COMPLETED);
+    trial1.setStatus(StatusCode.COMPLETED);
     String fabanRunID1 = "FabanRunID1";
     trial1.setFabanRunID(fabanRunID1);
 
     experimentModel.addTrial(0, trial1);
 
     TrialModel trial2 = new TrialModel(experimentID + BenchFlowConstants.MODEL_ID_DELIMITER + 2);
-    trial2.setStatus(Code.COMPLETED);
+    trial2.setStatus(StatusCode.COMPLETED);
     String fabanRunID2 = "FabanRunID2";
     trial2.setFabanRunID(fabanRunID2);
 

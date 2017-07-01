@@ -22,7 +22,7 @@ import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.Tria
 import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.responses.DeployStatus;
 import cloud.benchflow.faban.client.responses.RunId;
-import cloud.benchflow.faban.client.responses.RunStatus.Code;
+import cloud.benchflow.faban.client.responses.RunStatus.StatusCode;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.testing.ConfigOverride;
@@ -114,7 +114,7 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
         Mockito.anyString(), Mockito.any(File.class));
 
     // we mock this because otherwise waits 60s for first request to Faban
-    Mockito.doReturn(new TrialStatus(trialID, Code.COMPLETED)).when(fabanManagerServiceSpy)
+    Mockito.doReturn(new TrialStatus(trialID, StatusCode.COMPLETED)).when(fabanManagerServiceSpy)
         .pollForTrialStatus(trialID, fabanRunId);
 
     // Drivers Maker Stub

@@ -7,7 +7,7 @@ import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.exceptions.JarFileNotFoundException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunId;
-import cloud.benchflow.faban.client.responses.RunStatus.Code;
+import cloud.benchflow.faban.client.responses.RunStatus.StatusCode;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -84,7 +84,7 @@ public class FabanManagerServiceMock extends FabanManagerService {
 
       case SCENARIO_ALWAYS_FAIL:
 
-        trialStatus = new TrialStatus(trialID, Code.FAILED);
+        trialStatus = new TrialStatus(trialID, StatusCode.FAILED);
 
         break;
 
@@ -101,7 +101,7 @@ public class FabanManagerServiceMock extends FabanManagerService {
       case SCENARIO_ALWAYS_COMPLETED:
       default:
 
-        trialStatus = new TrialStatus(trialID, Code.COMPLETED);
+        trialStatus = new TrialStatus(trialID, StatusCode.COMPLETED);
 
         break;
 
@@ -116,10 +116,10 @@ public class FabanManagerServiceMock extends FabanManagerService {
     int numExecutions = trialRunIdMap.get(trialID);
 
     if (numExecutions < 2) {
-      return new TrialStatus(trialID, Code.FAILED);
+      return new TrialStatus(trialID, StatusCode.FAILED);
     }
 
-    return new TrialStatus(trialID, Code.COMPLETED);
+    return new TrialStatus(trialID, StatusCode.COMPLETED);
 
   }
 
@@ -128,10 +128,10 @@ public class FabanManagerServiceMock extends FabanManagerService {
     int experimentNumber = BenchFlowConstants.getExperimentNumberFromTrialID(trialID);
 
     if (experimentNumber % 2 == 0) {
-      return new TrialStatus(trialID, Code.FAILED);
+      return new TrialStatus(trialID, StatusCode.FAILED);
     }
 
-    return new TrialStatus(trialID, Code.COMPLETED);
+    return new TrialStatus(trialID, StatusCode.COMPLETED);
 
   }
 }

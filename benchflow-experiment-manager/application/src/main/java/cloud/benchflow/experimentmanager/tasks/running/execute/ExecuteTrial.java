@@ -44,7 +44,7 @@ public class ExecuteTrial {
       // TODO - handle me properly
       e.printStackTrace();
 
-      RunStatus status = new RunStatus(RunStatus.Code.FAILED.name(), null);
+      RunStatus status = new RunStatus(RunStatus.StatusCode.FAILED.name(), null);
       return new TrialStatus(trialID, status.getStatus());
     }
 
@@ -53,9 +53,9 @@ public class ExecuteTrial {
   public static class TrialStatus {
 
     private String trialID;
-    private RunStatus.Code statusCode;
+    private RunStatus.StatusCode statusCode;
 
-    public TrialStatus(String trialID, RunStatus.Code statusCode) {
+    public TrialStatus(String trialID, RunStatus.StatusCode statusCode) {
       this.trialID = trialID;
       this.statusCode = statusCode;
     }
@@ -64,7 +64,7 @@ public class ExecuteTrial {
       return trialID;
     }
 
-    public RunStatus.Code getStatusCode() {
+    public RunStatus.StatusCode getStatusCode() {
       return statusCode;
     }
   }

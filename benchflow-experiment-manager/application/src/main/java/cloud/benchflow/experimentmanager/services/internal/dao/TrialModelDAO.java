@@ -24,7 +24,7 @@ public class TrialModelDAO extends AbstractDAO {
 
     logger.info("setTrialModelAsStarted: " + trialID);
 
-    setTrialStatus(trialID, RunStatus.Code.STARTED);
+    setTrialStatus(trialID, RunStatus.StatusCode.STARTED);
   }
 
   public synchronized void setFabanTrialID(String trialID, String fabanRunID) {
@@ -62,7 +62,7 @@ public class TrialModelDAO extends AbstractDAO {
 
   }
 
-  public synchronized void setTrialStatus(String trialID, RunStatus.Code statusCode) {
+  public synchronized void setTrialStatus(String trialID, RunStatus.StatusCode statusCode) {
 
     logger.info("setTrialStatus: " + trialID + " with " + statusCode.name());
 
@@ -74,7 +74,7 @@ public class TrialModelDAO extends AbstractDAO {
     }
   }
 
-  public synchronized RunStatus.Code getTrialStatus(String trialID) {
+  public synchronized RunStatus.StatusCode getTrialStatus(String trialID) {
 
     logger.info("getTrialStatus: " + trialID);
 

@@ -40,7 +40,7 @@ public class TrialModel {
   private Date start = new Date();
   private Date lastModified = new Date();
   private HandleTrialResultState handleTrialResultState;
-  private RunStatus.Code status;
+  private RunStatus.StatusCode status;
   private int numRetries = 0;
   private String fabanRunStatus;
 
@@ -78,11 +78,11 @@ public class TrialModel {
     this.handleTrialResultState = handleTrialResultState;
   }
 
-  public RunStatus.Code getStatus() {
+  public RunStatus.StatusCode getStatus() {
     return status;
   }
 
-  public void setStatus(RunStatus.Code status) {
+  public void setStatus(RunStatus.StatusCode status) {
     this.status = status;
   }
 

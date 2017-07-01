@@ -36,7 +36,7 @@ public class CheckTrialResultTask implements Callable<TrialResult> {
 
     try {
 
-      RunStatus.Code trialStatus = trialModelDAO.getTrialStatus(trialID);
+      RunStatus.StatusCode trialStatus = trialModelDAO.getTrialStatus(trialID);
 
       int retries = trialModelDAO.getNumRetries(trialID);
 

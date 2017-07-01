@@ -1,9 +1,9 @@
 package cloud.benchflow.experimentmanager.services.external;
 
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
-import static cloud.benchflow.faban.client.responses.RunStatus.Code.QUEUED;
-import static cloud.benchflow.faban.client.responses.RunStatus.Code.RECEIVED;
-import static cloud.benchflow.faban.client.responses.RunStatus.Code.STARTED;
+import static cloud.benchflow.faban.client.responses.RunStatus.StatusCode.QUEUED;
+import static cloud.benchflow.faban.client.responses.RunStatus.StatusCode.RECEIVED;
+import static cloud.benchflow.faban.client.responses.RunStatus.StatusCode.STARTED;
 
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
