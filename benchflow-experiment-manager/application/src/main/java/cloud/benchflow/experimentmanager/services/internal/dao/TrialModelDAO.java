@@ -2,7 +2,8 @@ package cloud.benchflow.experimentmanager.services.internal.dao;
 
 import cloud.benchflow.experimentmanager.exceptions.TrialIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.models.TrialModel;
-import cloud.benchflow.experimentmanager.models.TrialModel.HandleTrialResultState;
+import cloud.benchflow.experimentmanager.models.TrialModel.TrialStatus;
+import cloud.benchflow.faban.client.responses.RunInfo;
 import cloud.benchflow.faban.client.responses.RunStatus;
 import com.mongodb.MongoClient;
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ public class TrialModelDAO extends AbstractDAO {
 
     logger.info("setTrialModelAsStarted: " + trialID);
 
-    setTrialStatus(trialID, RunStatus.StatusCode.STARTED);
+    setFabanStatus(trialID, RunStatus.StatusCode.STARTED);
   }
 
   public synchronized void setFabanTrialID(String trialID, String fabanRunID) {
@@ -39,48 +40,67 @@ public class TrialModelDAO extends AbstractDAO {
     }
   }
 
-  public synchronized void setHandleTrialResultState(String trialID, HandleTrialResultState state) {
+  public synchronized void setFabanStatus(String trialID, RunStatus.StatusCode statusCode) {
 
-    logger.info("setHandleTrialResultState: " + trialID + " with " + state.name());
-
-    TrialModel trialModel = getTrialModel(trialID);
-
-    if (trialModel != null) {
-      trialModel.setHandleTrialResultState(state);
-      datastore.save(trialModel);
-    }
-
-  }
-
-  public synchronized HandleTrialResultState getHandleTrialResultState(String trialID) {
-
-    logger.info("getHandleTrialResultState: " + trialID);
-
-    TrialModel trialModel = getTrialModel(trialID);
-
-    return trialModel.getHandleTrialResultState();
-
-  }
-
-  public synchronized void setTrialStatus(String trialID, RunStatus.StatusCode statusCode) {
-
-    logger.info("setTrialStatus: " + trialID + " with " + statusCode.name());
+    logger.info("setFabanStatus: " + trialID + " with " + statusCode.name());
 
     TrialModel trialModel = getTrialModel(trialID);
 
     if (trialModel != null) {
-      trialModel.setStatus(statusCode);
+      trialModel.setFabanStatus(statusCode);
       datastore.save(trialModel);
     }
   }
 
-  public synchronized RunStatus.StatusCode getTrialStatus(String trialID) {
+  public synchronized RunStatus.StatusCode getFabanStatus(String trialID) {
+
+    logger.info("getFabanStatus: " + trialID);
+
+    TrialModel trialModel = getTrialModel(trialID);
+
+    return trialModel.getFabanStatus();
+  }
+
+  public synchronized void setFabanResult(String trialID, RunInfo.Result result) {
+
+    logger.info("setFabanResult: " + trialID + " with " + result.name());
+
+    TrialModel trialModel = getTrialModel(trialID);
+
+    if (trialModel != null) {
+      trialModel.setFabanResult(result);
+      datastore.save(trialModel);
+    }
+  }
+
+  public synchronized RunInfo.Result getFabanResult(String trialID) {
+
+    logger.info("getFabanResult: " + trialID);
+
+    TrialModel trialModel = getTrialModel(trialID);
+
+    return trialModel.getFabanResult();
+  }
+
+  public synchronized void setTrialStatus(String trialID, TrialStatus trialStatus) {
+
+    logger.info("setTrialStatus: " + trialID + " with " + trialStatus.name());
+
+    TrialModel trialModel = getTrialModel(trialID);
+
+    if (trialModel != null) {
+      trialModel.setTrialStatus(trialStatus);
+      datastore.save(trialModel);
+    }
+  }
+
+  public synchronized TrialStatus getTrialStatus(String trialID) {
 
     logger.info("getTrialStatus: " + trialID);
 
     TrialModel trialModel = getTrialModel(trialID);
 
-    return trialModel.getStatus();
+    return trialModel.getTrialStatus();
   }
 
   public synchronized void incrementRetries(String trialID) {

@@ -18,10 +18,11 @@ import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
 import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
-import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.TrialStatus;
+import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.FabanStatus;
 import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.responses.DeployStatus;
 import cloud.benchflow.faban.client.responses.RunId;
+import cloud.benchflow.faban.client.responses.RunInfo.Result;
 import cloud.benchflow.faban.client.responses.RunStatus.StatusCode;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.dropwizard.client.JerseyClientBuilder;
@@ -114,8 +115,8 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
         Mockito.anyString(), Mockito.any(File.class));
 
     // we mock this because otherwise waits 60s for first request to Faban
-    Mockito.doReturn(new TrialStatus(trialID, StatusCode.COMPLETED)).when(fabanManagerServiceSpy)
-        .pollForTrialStatus(trialID, fabanRunId);
+    Mockito.doReturn(new FabanStatus(trialID, StatusCode.COMPLETED, Result.PASSED))
+        .when(fabanManagerServiceSpy).pollForTrialStatus(trialID, fabanRunId);
 
     // Drivers Maker Stub
     stubFor(post(urlEqualTo(DriversMakerService.GENERATE_BENCHMARK_PATH))

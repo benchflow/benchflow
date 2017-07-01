@@ -1,8 +1,8 @@
 package cloud.benchflow.experimentmanager.models;
 
-import static cloud.benchflow.experimentmanager.models.TrialModel.HandleTrialResultState.CHECK_TRIAL_RESULT;
-
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
+import cloud.benchflow.faban.client.responses.RunInfo;
+import cloud.benchflow.faban.client.responses.RunInfo.Result;
 import cloud.benchflow.faban.client.responses.RunStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
@@ -39,8 +39,9 @@ public class TrialModel {
   private String fabanRunID;
   private Date start = new Date();
   private Date lastModified = new Date();
-  private HandleTrialResultState handleTrialResultState;
-  private RunStatus.StatusCode status;
+  private RunStatus.StatusCode fabanStatus;
+  private RunInfo.Result fabanResult;
+  private TrialStatus trialStatus;
   private int numRetries = 0;
   private String fabanRunStatus;
 
@@ -50,7 +51,6 @@ public class TrialModel {
 
   public TrialModel(String trialID) {
     this.id = trialID;
-    this.handleTrialResultState = CHECK_TRIAL_RESULT;
   }
 
   @PrePersist
@@ -70,20 +70,29 @@ public class TrialModel {
     return lastModified;
   }
 
-  public HandleTrialResultState getHandleTrialResultState() {
-    return handleTrialResultState;
+
+  public RunStatus.StatusCode getFabanStatus() {
+    return fabanStatus;
   }
 
-  public void setHandleTrialResultState(HandleTrialResultState handleTrialResultState) {
-    this.handleTrialResultState = handleTrialResultState;
+  public void setFabanStatus(RunStatus.StatusCode fabanStatus) {
+    this.fabanStatus = fabanStatus;
   }
 
-  public RunStatus.StatusCode getStatus() {
-    return status;
+  public Result getFabanResult() {
+    return fabanResult;
   }
 
-  public void setStatus(RunStatus.StatusCode status) {
-    this.status = status;
+  public void setFabanResult(Result fabanResult) {
+    this.fabanResult = fabanResult;
+  }
+
+  public TrialStatus getTrialStatus() {
+    return trialStatus;
+  }
+
+  public void setTrialStatus(TrialStatus trialStatus) {
+    this.trialStatus = trialStatus;
   }
 
   public String getFabanRunID() {
@@ -110,7 +119,7 @@ public class TrialModel {
     numRetries++;
   }
 
-  public enum HandleTrialResultState {
-    CHECK_TRIAL_RESULT, RE_EXECUTE_TRIAL
+  public enum TrialStatus {
+    SUCCESS, FAILED, RANDOM_FAILURE
   }
 }

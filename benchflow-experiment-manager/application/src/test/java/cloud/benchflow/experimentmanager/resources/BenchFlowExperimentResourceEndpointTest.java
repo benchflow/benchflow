@@ -47,14 +47,14 @@ public class BenchFlowExperimentResourceEndpointTest {
     experimentModel.setState(BenchFlowExperimentState.RUNNING);
 
     TrialModel trial1 = new TrialModel(experimentID + BenchFlowConstants.MODEL_ID_DELIMITER + 1);
-    trial1.setStatus(StatusCode.COMPLETED);
+    trial1.setFabanStatus(StatusCode.COMPLETED);
     String fabanRunID1 = "FabanRunID1";
     trial1.setFabanRunID(fabanRunID1);
 
     experimentModel.addTrial(0, trial1);
 
     TrialModel trial2 = new TrialModel(experimentID + BenchFlowConstants.MODEL_ID_DELIMITER + 2);
-    trial2.setStatus(StatusCode.COMPLETED);
+    trial2.setFabanStatus(StatusCode.COMPLETED);
     String fabanRunID2 = "FabanRunID2";
     trial2.setFabanRunID(fabanRunID2);
 

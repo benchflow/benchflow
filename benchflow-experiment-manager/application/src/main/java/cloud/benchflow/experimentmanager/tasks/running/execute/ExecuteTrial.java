@@ -7,6 +7,8 @@ import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunId;
+import cloud.benchflow.faban.client.responses.RunInfo;
+import cloud.benchflow.faban.client.responses.RunInfo.Result;
 import cloud.benchflow.faban.client.responses.RunStatus;
 import java.io.IOException;
 
@@ -15,7 +17,7 @@ import java.io.IOException;
  */
 public class ExecuteTrial {
 
-  public static TrialStatus executeTrial(String trialID, TrialModelDAO trialModelDAO,
+  public static FabanStatus executeTrial(String trialID, TrialModelDAO trialModelDAO,
       FabanManagerService fabanManagerService) {
 
     try {
@@ -44,20 +46,21 @@ public class ExecuteTrial {
       // TODO - handle me properly
       e.printStackTrace();
 
-      RunStatus status = new RunStatus(RunStatus.StatusCode.FAILED.name(), null);
-      return new TrialStatus(trialID, status.getStatus());
+      return new FabanStatus(trialID, RunStatus.StatusCode.FAILED, Result.UNKNOWN);
     }
 
   }
 
-  public static class TrialStatus {
+  public static class FabanStatus {
 
     private String trialID;
     private RunStatus.StatusCode statusCode;
+    private RunInfo.Result result;
 
-    public TrialStatus(String trialID, RunStatus.StatusCode statusCode) {
+    public FabanStatus(String trialID, RunStatus.StatusCode statusCode, RunInfo.Result result) {
       this.trialID = trialID;
       this.statusCode = statusCode;
+      this.result = result;
     }
 
     public String getTrialID() {
@@ -66,6 +69,10 @@ public class ExecuteTrial {
 
     public RunStatus.StatusCode getStatusCode() {
       return statusCode;
+    }
+
+    public Result getResult() {
+      return result;
     }
   }
 }
