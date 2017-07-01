@@ -323,7 +323,7 @@ public class MinioService {
     }
   }
 
-  private String minioCompatibleID(String id) {
+  public static String minioCompatibleID(String id) {
     return id.replace(MODEL_ID_DELIMITER, MINIO_ID_DELIMITER);
   }
 }

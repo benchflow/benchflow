@@ -39,6 +39,8 @@ public class BenchFlowExperimentManagerApplication
   private static BenchFlowTestManagerService testManagerService;
   private static ExperimentTaskScheduler experimentTaskScheduler;
   private static int submitRetries;
+  private static String minioServiceAddress;
+  private static String fabanManagerServiceAddress;
 
   public static void main(String[] args) throws Exception {
     new BenchFlowExperimentManagerApplication().run(args);
@@ -96,6 +98,14 @@ public class BenchFlowExperimentManagerApplication
     return submitRetries;
   }
 
+  public static String getMinioServiceAddress() {
+    return minioServiceAddress;
+  }
+
+  public static String getFabanManagerServiceAddress() {
+    return fabanManagerServiceAddress;
+  }
+
   @Override
   public String getName() {
     return "benchflow-experiment-manager";
@@ -125,6 +135,10 @@ public class BenchFlowExperimentManagerApplication
       throws Exception {
 
     logger.info("run");
+
+    // external services addresses
+    minioServiceAddress = configuration.getMinioServiceFactory().getAddress();
+    fabanManagerServiceAddress = "http://" + configuration.getFabanServiceFactory().getAddress();
 
     final Client client = new JerseyClientBuilder(environment)
         .using(configuration.getJerseyClientConfiguration()).build(environment.getName());

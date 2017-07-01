@@ -48,11 +48,15 @@ public class BenchFlowExperimentResourceEndpointTest {
 
     TrialModel trial1 = new TrialModel(experimentID + BenchFlowConstants.MODEL_ID_DELIMITER + 1);
     trial1.setStatus(Code.COMPLETED);
+    String fabanRunID1 = "FabanRunID1";
+    trial1.setFabanRunID(fabanRunID1);
 
     experimentModel.addTrial(0, trial1);
 
     TrialModel trial2 = new TrialModel(experimentID + BenchFlowConstants.MODEL_ID_DELIMITER + 2);
     trial2.setStatus(Code.COMPLETED);
+    String fabanRunID2 = "FabanRunID2";
+    trial2.setFabanRunID(fabanRunID2);
 
     experimentModel.addTrial(1, trial2);
 
@@ -66,8 +70,13 @@ public class BenchFlowExperimentResourceEndpointTest {
 
     Assert.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
     Assert.assertNotNull(receivedModel);
-    // TODO - adjust when status object is decided
+
     Assert.assertEquals(experimentID, receivedModel.getId());
+    Assert.assertTrue(receivedModel.getDriverMakerExperimentBundle()
+        .contains("/minio/" + BenchFlowConstants.TESTS_BUCKET));
+    Assert.assertTrue(receivedModel.getTrials().get(0L).getFabanRunStatus().contains(fabanRunID1));
+    Assert.assertTrue(receivedModel.getTrials().get(1L).getFabanRunStatus().contains(fabanRunID2));
+
 
   }
 

@@ -1,5 +1,8 @@
 package cloud.benchflow.experimentmanager.models;
 
+import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
+import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
+import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
 import java.util.TreeMap;
@@ -46,6 +49,8 @@ public class BenchFlowExperimentModel {
   @Reference
   private TreeMap<Long, TrialModel> trials = new TreeMap<>();
 
+  private String driverMakerExperimentBundle;
+
   BenchFlowExperimentModel() {
     // Empty constructor for MongoDB + Morphia
   }
@@ -57,6 +62,13 @@ public class BenchFlowExperimentModel {
     this.hashedID = this.id;
     this.state = BenchFlowExperimentState.START;
     this.runningState = RunningState.DETERMINE_EXECUTE_TRIALS;
+
+    DriversMakerCompatibleID compatibleID = new DriversMakerCompatibleID(id);
+
+    this.driverMakerExperimentBundle =
+        BenchFlowExperimentManagerApplication.getMinioServiceAddress() + "/minio/"
+            + BenchFlowConstants.TESTS_BUCKET + "/" + compatibleID.getMinioID();
+
   }
 
   @PrePersist
@@ -127,6 +139,10 @@ public class BenchFlowExperimentModel {
 
   public TreeMap<Long, TrialModel> getTrials() {
     return trials;
+  }
+
+  public String getDriverMakerExperimentBundle() {
+    return driverMakerExperimentBundle;
   }
 
   @JsonIgnore
