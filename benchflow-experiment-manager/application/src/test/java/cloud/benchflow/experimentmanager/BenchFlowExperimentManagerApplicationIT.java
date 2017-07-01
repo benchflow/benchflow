@@ -91,9 +91,9 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
         MinioTestData.getExperiment1TrialDefinition());
     minioServiceSpy.saveExperimentDeploymentDescriptor(experimentID,
         MinioTestData.getDeploymentDescriptor());
-    minioServiceSpy.saveExperimentBPMNModel(experimentID, MinioTestData.BPM_MODEL_11_PARALLEL_NAME,
-        MinioTestData.get11ParallelStructuredModel());
-    minioServiceSpy.saveExperimentBPMNModel(experimentID, MinioTestData.BPM_MODEL_MOCK_NAME,
+    minioServiceSpy.saveExperimentBPMNModel(experimentID, MinioTestData.BPMN_MODEL_TEST_NAME,
+        MinioTestData.getTestModel());
+    minioServiceSpy.saveExperimentBPMNModel(experimentID, MinioTestData.BPMN_MODEL_MOCK_NAME,
         MinioTestData.getMockModel());
 
     // make sure also drivers-maker benchmark is returned

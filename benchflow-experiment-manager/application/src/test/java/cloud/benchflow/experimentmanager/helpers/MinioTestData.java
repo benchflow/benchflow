@@ -9,23 +9,22 @@ import java.io.InputStream;
  */
 public class MinioTestData {
 
-  public static final String BPM_MODEL_11_PARALLEL_NAME = "11ParallelStructured.bpmn";
-  public static final String BPM_MODEL_MOCK_NAME = "mock.bpmn";
+  public static final String BPMN_MODEL_TEST_NAME = "test.bpmn";
+  public static final String BPMN_MODEL_MOCK_NAME = "mock.bpmn";
 
   private static final String EXPERIMENT_1_TRIAL_DEFINITION_FILENAME =
-      "src/test/resources/data/ParallelMultiple11/1-trials/benchflow-test.yml";
+      "src/test/resources/data/experiments/1-trials/benchflow-test.yml";
   private static final String EXPERIMENT_2_TRIALS_DEFINITION_FILENAME =
-      "src/test/resources/data/ParallelMultiple11/2-trials/benchflow-test.yml";
+      "src/test/resources/data/experiments/2-trials/benchflow-test.yml";
   private static final String DEPLOYMENT_DESCRIPTOR_FILENAME =
-      "src/test/resources/data/ParallelMultiple11/docker-compose.yml";
-  private static final String BPM_MODEL_11_PARALLEL_FILENAME =
-      "src/test/resources/data/ParallelMultiple11/models/" + BPM_MODEL_11_PARALLEL_NAME;
+      "src/test/resources/data/docker-compose.yml";
+  private static final String BPM_MODEL_TEST_FILENAME =
+      "src/test/resources/data/models/" + BPMN_MODEL_TEST_NAME;
   private static final String BPM_MODEL_MOCK_FILENAME =
-      "src/test/resources/data/ParallelMultiple11/models/" + BPM_MODEL_MOCK_NAME;
+      "src/test/resources/data/models/" + BPMN_MODEL_MOCK_NAME;
   private static final String GENERATED_BENCHMARK_FILENAME =
-      "src/test/resources/data/ParallelMultiple11/benchflow-benchmark.jar";
-  private static final String FABAN_CONFIGURATION_FILENAME =
-      "src/test/resources/data/ParallelMultiple11/1/run.xml";
+      "src/test/resources/data/benchflow-benchmark.jar";
+  private static final String FABAN_CONFIGURATION_FILENAME = "src/test/resources/data/run.xml";
 
   public static InputStream getExperiment1TrialDefinition() throws FileNotFoundException {
     return new FileInputStream(EXPERIMENT_1_TRIAL_DEFINITION_FILENAME);
@@ -39,8 +38,8 @@ public class MinioTestData {
     return new FileInputStream(DEPLOYMENT_DESCRIPTOR_FILENAME);
   }
 
-  public static InputStream get11ParallelStructuredModel() throws FileNotFoundException {
-    return new FileInputStream(BPM_MODEL_11_PARALLEL_FILENAME);
+  public static InputStream getTestModel() throws FileNotFoundException {
+    return new FileInputStream(BPM_MODEL_TEST_FILENAME);
   }
 
   public static InputStream getMockModel() throws FileNotFoundException {

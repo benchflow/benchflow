@@ -98,9 +98,9 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getDeploymentDescriptor())
         .when(minioServiceSpy).getExperimentDeploymentDescriptor(Mockito.anyString());
 
-    Mockito.doAnswer(invocationOnMock -> MinioTestData.get11ParallelStructuredModel())
-        .when(minioServiceSpy).getExperimentBPMNModel(Mockito.anyString(),
-            Mockito.matches(MinioTestData.BPM_MODEL_11_PARALLEL_NAME));
+    Mockito.doAnswer(invocationOnMock -> MinioTestData.getTestModel()).when(minioServiceSpy)
+        .getExperimentBPMNModel(Mockito.anyString(),
+            Mockito.matches(MinioTestData.BPMN_MODEL_TEST_NAME));
 
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getGeneratedBenchmark())
         .when(minioServiceSpy)
