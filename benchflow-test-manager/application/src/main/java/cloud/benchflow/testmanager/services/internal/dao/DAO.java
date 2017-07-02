@@ -6,6 +6,7 @@ import cloud.benchflow.testmanager.models.BenchFlowTestNumber;
 import cloud.benchflow.testmanager.models.ExplorationModel;
 import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.services.internal.dao.converters.OptionalConverter;
+import cloud.benchflow.testmanager.services.internal.dao.converters.TimeConverter;
 import com.mongodb.MongoClient;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
@@ -31,6 +32,8 @@ public abstract class DAO {
     // add custom mappers
     morphia.getMapper().getConverters()
         .addConverter(new OptionalConverter(morphia.getMapper().getConverters()));
+
+    morphia.getMapper().getConverters().addConverter(new TimeConverter());
 
     // create the Datastore
     // TODO - set-up mongo DB (http://mongodb.github.io/mongo-java-driver/2.13/getting-started/quick-tour/)

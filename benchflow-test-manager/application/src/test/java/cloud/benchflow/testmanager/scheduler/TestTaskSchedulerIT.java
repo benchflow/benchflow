@@ -1,5 +1,6 @@
 package cloud.benchflow.testmanager.scheduler;
 
+import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState.RUNNING;
 import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState.TERMINATED;
 import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.TerminatedState.COMPLETED;
 
@@ -10,7 +11,9 @@ import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.helpers.TestBundle;
 import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.helpers.TestFiles;
+import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.RunningState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
+import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState;
 import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
 import cloud.benchflow.testmanager.services.external.MinioService;
@@ -264,6 +267,60 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     // assert that test has been set as TERMINATED
     Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
         testModelDAO.getTestState(testID));
+
+  }
+
+  @Test
+  public void runBenchFlowTestTimeoutTest() throws Exception {
+
+    String testName = TestConstants.TEST_TERMINATION_CRITERIA_NAME;
+
+    String testID = testModelDAO.addTestModel(testName, user);
+
+    String testDefinitionString =
+        IOUtils.toString(TestFiles.getTestTerminationCriteriaInputStream(), StandardCharsets.UTF_8);
+
+    Mockito.doAnswer(invocationOnMock -> {
+      String experimentID = (String) invocationOnMock.getArguments()[0];
+
+      experimentModelDAO.setExperimentState(experimentID, RUNNING,
+          RunningState.DETERMINE_EXECUTE_TRIALS, null);
+
+      return null;
+    }).when(experimentManagerService).runBenchFlowExperiment(Matchers.anyString());
+
+    InputStream deploymentDescriptorInputStream =
+        TestBundle.getValidDeploymentDescriptorInputStream();
+    Map<String, InputStream> bpmnModelInputStreams = TestBundle.getValidBPMNModels();
+
+    // extract contents
+    InputStream definitionInputStream =
+        IOUtils.toInputStream(testDefinitionString, StandardCharsets.UTF_8);
+
+    // save Test Bundle contents to Minio
+    minioService.saveTestDefinition(testID, definitionInputStream);
+    minioService.saveTestDeploymentDescriptor(testID, deploymentDescriptorInputStream);
+
+    bpmnModelInputStreams.forEach(
+        (fileName, inputStream) -> minioService.saveTestBPMNModel(testID, fileName, inputStream));
+
+    // handle in scheduler
+    testTaskScheduler.handleTestState(testID);
+
+    // wait for last task to finish
+    executorService.awaitTermination(10, TimeUnit.SECONDS);
+
+    // assert that test has been set as TERMINATED
+    Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
+        testModelDAO.getTestState(testID));
+
+    // assert that test has been set as PARTIALLY_COMPLETE
+    Assert.assertEquals(TestTerminatedState.PARTIALLY_COMPLETE,
+        testModelDAO.getTestTerminatedState(testID));
+
+    // assert that test was removed from experiment-manager
+    Mockito.verify(experimentManagerService, Mockito.times(1))
+        .abortBenchFlowExperiment(Mockito.anyString());
 
   }
 
