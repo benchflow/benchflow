@@ -1,6 +1,6 @@
 package cloud.benchflow.dsl.definition.workload.mix
 
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
 import cloud.benchflow.dsl.definition.types.percent.Percent
 import cloud.benchflow.dsl.definition.types.percent.PercentYamlProtocol._
 import cloud.benchflow.dsl.definition.workload.WorkloadYamlProtocol

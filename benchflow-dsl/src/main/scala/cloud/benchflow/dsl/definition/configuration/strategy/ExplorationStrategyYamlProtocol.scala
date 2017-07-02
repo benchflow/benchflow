@@ -9,7 +9,7 @@ import cloud.benchflow.dsl.definition.configuration.strategy.selection.Selection
 import cloud.benchflow.dsl.definition.configuration.strategy.validation.ValidationStrategyType
 import cloud.benchflow.dsl.definition.configuration.strategy.validation.ValidationStrategyTypeYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
-import net.jcazevedo.moultingyaml.{ YamlFormat, YamlObject, YamlString, YamlValue, _ }
+import net.jcazevedo.moultingyaml.{YamlFormat, YamlObject, YamlString, YamlValue, _}
 
 import scala.util.Try
 

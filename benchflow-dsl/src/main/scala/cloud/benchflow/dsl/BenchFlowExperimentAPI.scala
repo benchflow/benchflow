@@ -2,10 +2,10 @@ package cloud.benchflow.dsl
 
 import cloud.benchflow.dsl.definition.BenchFlowExperimentYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
-import cloud.benchflow.dsl.definition.{ BenchFlowExperiment, BenchFlowExperimentYamlBuilder }
-import net.jcazevedo.moultingyaml.{ YamlObject, _ }
+import cloud.benchflow.dsl.definition.{BenchFlowExperiment, BenchFlowExperimentYamlBuilder}
+import net.jcazevedo.moultingyaml.{YamlObject, _}
 
-import scala.util.{ Failure, Success, Try }
+import scala.util.{Failure, Success, Try}
 
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com)

@@ -1,7 +1,7 @@
 package cloud.benchflow.dsl.definition.workload
 
 import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
 import cloud.benchflow.dsl.definition.types.percent.Percent
 import cloud.benchflow.dsl.definition.types.percent.PercentYamlProtocol._
 import cloud.benchflow.dsl.definition.workload.drivertype.DriverType
@@ -10,7 +10,7 @@ import cloud.benchflow.dsl.definition.workload.interoperationtimingstype.InterOp
 import cloud.benchflow.dsl.definition.workload.interoperationtimingstype.InterOperationsTimingTypeYamlProtocol._
 import cloud.benchflow.dsl.definition.workload.mix.Mix
 import cloud.benchflow.dsl.definition.workload.mix.MixYamlProtocol._
-import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
+import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
 
 import scala.util.Try
 

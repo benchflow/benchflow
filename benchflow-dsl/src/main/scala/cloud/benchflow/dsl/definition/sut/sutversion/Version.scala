@@ -1,6 +1,6 @@
 package cloud.benchflow.dsl.definition.sut.sutversion
 
-import scala.util.{ Failure, Success, Try }
+import scala.util.{Failure, Success, Try}
 
 /**
  * @author Simone D'Avico (simonedavico@gmail.com)
@@ -12,7 +12,7 @@ import scala.util.{ Failure, Success, Try }
 trait Version { def isCompatible(other: Version): Boolean }
 object Version {
 
-  import com.github.zafarkhaja.semver.{ Version => LibVersion }
+  import com.github.zafarkhaja.semver.{Version => LibVersion}
 
   case class SemanticVersionRange(low: SemanticVersion, high: SemanticVersion) extends Version { range =>
 

@@ -1,9 +1,9 @@
 package cloud.benchflow.dsl.definition.configuration.goal.explorationspace.step
 
-import cloud.benchflow.dsl.definition.errorhandling.{ BenchFlowDeserializationException, BenchFlowDeserializationExceptionMessage }
+import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationExceptionMessage
 
 import scala.annotation.tailrec
-import scala.util.{ Failure, Success, Try }
+import scala.util.{Failure, Success, Try}
 
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com)

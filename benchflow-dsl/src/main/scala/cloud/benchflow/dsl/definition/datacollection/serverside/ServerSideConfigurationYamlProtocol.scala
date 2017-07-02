@@ -4,8 +4,8 @@ import cloud.benchflow.dsl.definition.datacollection.DataCollectionYamlProtocol
 import cloud.benchflow.dsl.definition.datacollection.DataCollectionYamlProtocol.ServerSideKey
 import cloud.benchflow.dsl.definition.datacollection.serverside.collector.Collector
 import cloud.benchflow.dsl.definition.datacollection.serverside.collector.CollectorYamlProtocol._
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
-import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlValue, _ }
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
+import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlValue, _}
 
 import scala.util.Try
 

@@ -5,8 +5,8 @@ import cloud.benchflow.dsl.definition.datacollection.DataCollectionYamlProtocol.
 import cloud.benchflow.dsl.definition.datacollection.clientside.faban.FabanConfiguration
 import cloud.benchflow.dsl.definition.datacollection.clientside.faban.FabanConfigurationYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ unsupportedReadOperation, unsupportedWriteOperation }
-import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _ }
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{unsupportedReadOperation, unsupportedWriteOperation}
+import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _}
 
 import scala.util.Try
 

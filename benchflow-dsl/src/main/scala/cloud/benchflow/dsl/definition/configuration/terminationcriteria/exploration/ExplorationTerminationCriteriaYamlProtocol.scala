@@ -4,12 +4,12 @@ import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlo
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowTestTerminationCriteriaYamlProtocol.ExplorationKey
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.exploration.explorationtype.ExplorationType
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.exploration.explorationtype.ExplorationTypeYamlProtocol._
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
 import cloud.benchflow.dsl.definition.types.percent.Percent
 import cloud.benchflow.dsl.definition.types.percent.PercentYamlProtocol._
 import cloud.benchflow.dsl.definition.types.time.Time
 import cloud.benchflow.dsl.definition.types.time.TimeYamlProtocol._
-import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlArray, YamlFormat, YamlObject, YamlString, YamlValue, _ }
+import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlArray, YamlFormat, YamlObject, YamlString, YamlValue, _}
 
 import scala.util.Try
 

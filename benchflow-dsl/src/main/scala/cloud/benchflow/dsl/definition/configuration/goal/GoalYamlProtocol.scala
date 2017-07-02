@@ -7,7 +7,7 @@ import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.Explor
 import cloud.benchflow.dsl.definition.configuration.goal.goaltype.GoalType
 import cloud.benchflow.dsl.definition.configuration.goal.goaltype.GoalTypeYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
-import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
+import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
 
 import scala.util.Try
 

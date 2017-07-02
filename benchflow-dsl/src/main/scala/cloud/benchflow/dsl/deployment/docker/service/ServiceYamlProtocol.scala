@@ -2,7 +2,7 @@ package cloud.benchflow.dsl.deployment.docker.service
 
 import net.jcazevedo.moultingyaml._
 
-import scala.collection.mutable.{ Map => MutableMap }
+import scala.collection.mutable.{Map => MutableMap}
 import scala.util.matching.Regex
 
 /**

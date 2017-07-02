@@ -6,7 +6,7 @@ import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol._
 import cloud.benchflow.dsl.definition.workload.Workload
 import cloud.benchflow.dsl.definition.workload.WorkloadYamlProtocol._
 import net.jcazevedo.moultingyaml._
-import org.junit.{ Assert, Test }
+import org.junit.{Assert, Test}
 import org.scalatest.junit.JUnitSuite
 
 import scala.util.Try

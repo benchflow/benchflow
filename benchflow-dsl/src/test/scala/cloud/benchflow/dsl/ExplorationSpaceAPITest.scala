@@ -6,7 +6,7 @@ import java.util.Optional
 import cloud.benchflow.dsl.definition.types.bytes.Bytes
 import cloud.benchflow.dsl.dockercompose.DockerComposeYamlString
 import cloud.benchflow.dsl.explorationspace.javatypes.JavaCompatExplorationSpacePoint
-import org.junit.{ Assert, Test }
+import org.junit.{Assert, Test}
 import org.scalatest.junit.JUnitSuite
 
 import scala.collection.JavaConverters._

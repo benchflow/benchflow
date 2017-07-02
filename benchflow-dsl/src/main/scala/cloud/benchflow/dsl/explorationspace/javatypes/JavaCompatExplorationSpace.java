@@ -1,8 +1,6 @@
 package cloud.benchflow.dsl.explorationspace.javatypes;
 
-import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.explorationvalues.ByteValues;
 import cloud.benchflow.dsl.definition.types.bytes.Bytes;
-import scala.util.control.Exception;
 
 import java.util.List;
 import java.util.Map;

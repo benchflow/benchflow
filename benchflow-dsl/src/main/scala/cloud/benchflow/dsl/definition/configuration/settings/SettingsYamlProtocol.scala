@@ -2,9 +2,9 @@ package cloud.benchflow.dsl.definition.configuration.settings
 
 import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol
 import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol.SettingsKey
-import cloud.benchflow.dsl.definition.configuration.settings.SettingsObject.{ Settings, StoredKnowledgeDefaultValue }
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
-import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
+import cloud.benchflow.dsl.definition.configuration.settings.SettingsObject.{Settings, StoredKnowledgeDefaultValue}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
+import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
 
 import scala.util.Try
 

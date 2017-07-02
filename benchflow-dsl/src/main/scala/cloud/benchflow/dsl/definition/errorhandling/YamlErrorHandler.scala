@@ -2,7 +2,7 @@ package cloud.benchflow.dsl.definition.errorhandling
 
 import net.jcazevedo.moultingyaml.DeserializationException
 
-import scala.util.{ Failure, Try }
+import scala.util.{Failure, Try}
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch)

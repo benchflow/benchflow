@@ -1,13 +1,13 @@
 package cloud.benchflow.dsl.definition.sut
 
 import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
 import cloud.benchflow.dsl.definition.sut.configuration.SutConfiguration
 import cloud.benchflow.dsl.definition.sut.configuration.SutConfigurationYamlProtocol._
 import cloud.benchflow.dsl.definition.sut.suttype.SutType
 import cloud.benchflow.dsl.definition.sut.suttype.SutTypeYamlProtocol._
 import cloud.benchflow.dsl.definition.sut.sutversion.Version
-import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
+import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
 
 import scala.util.Try
 
