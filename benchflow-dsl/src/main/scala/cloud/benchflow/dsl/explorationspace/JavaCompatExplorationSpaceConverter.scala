@@ -84,16 +84,4 @@ object JavaCompatExplorationSpaceConverter {
 
   private def toOption[T](opt: Optional[T]): Option[T] = if (opt.isPresent) Some(opt.get()) else None
 
-  private def mapMemoryListToJavaCompat(memory: Option[Map[ServiceName, List[Bytes]]]) =
-    memory.map(_.mapValues(list => list.map(_.toString)))
-
-  private def mapMemoryListFromJavaCompat(memory: Option[Map[ServiceName, List[ByteValueAsString]]]) =
-    memory.map(
-      _.mapValues(
-        list => list.map(
-          value => Bytes.fromString(value) match {
-            case Success(byte: Bytes) => byte
-            //              case Failure => // TODO - issue #389
-          })))
-
 }

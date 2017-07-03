@@ -2,9 +2,8 @@ package cloud.benchflow.dsl.explorationspace.javatypes;
 
 import cloud.benchflow.dsl.definition.types.bytes.Bytes;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com)
@@ -12,45 +11,56 @@ import java.util.Optional;
  */
 public class JavaCompatExplorationSpaceDimensions {
 
-  private Optional<List<Integer>> users;
-  private Optional<Map<String, List<Bytes>>> memory;
-  private Optional<Map<String, Map<String, List<String>>>> environment;
+  // we use concrete collection classes for MongoDB + Morphia
+
+  private Optional<ArrayList<Integer>> users;
+  private Optional<HashMap<String, ArrayList<Bytes>>> memory;
+  private Optional<HashMap<String, HashMap<String, ArrayList<String>>>> environment;
 
   public JavaCompatExplorationSpaceDimensions() {
     // Empty constructor for MongoDB + Morphia
   }
 
-  public JavaCompatExplorationSpaceDimensions(
-      Optional<List<Integer>> users,
-      Optional<Map<String, List<Bytes>>> memory,
-      Optional<Map<String, Map<String, List<String>>>> environment
-  ) {
-    this.users = users;
-    this.memory = memory;
-    this.environment = environment;
+  public JavaCompatExplorationSpaceDimensions(Optional<List<Integer>> users, Optional<Map<String, List<Bytes>>> memory, Optional<Map<String, Map<String, List<String>>>> environment) {
+    this.users = users.map(ArrayList::new);
+
+    this.memory = memory.map(map -> new HashMap<>(map.entrySet().stream().collect(Collectors.toMap(
+        Map.Entry::getKey,
+        e -> new ArrayList<>(e.getValue())
+    ))));
+
+    this.environment = environment.map(map -> new HashMap<>(map.entrySet().stream().collect(Collectors.toMap(
+        Map.Entry::getKey,
+        e -> new HashMap<>(
+            e.getValue().entrySet().stream().collect(Collectors.toMap(
+                Map.Entry::getKey,
+                e1 -> new ArrayList<>(e1.getValue())
+            ))
+        )
+    ))));
   }
 
-  public Optional<List<Integer>> getUsers() {
+  public Optional<ArrayList<Integer>> getUsers() {
     return users;
   }
 
-  public void setUsers(Optional<List<Integer>> users) {
+  public void setUsers(Optional<ArrayList<Integer>> users) {
     this.users = users;
   }
 
-  public Optional<Map<String, List<Bytes>>> getMemory() {
+  public Optional<HashMap<String, ArrayList<Bytes>>> getMemory() {
     return memory;
   }
 
-  public void setMemory(Optional<Map<String, List<Bytes>>> memory) {
+  public void setMemory(Optional<HashMap<String, ArrayList<Bytes>>> memory) {
     this.memory = memory;
   }
 
-  public Optional<Map<String, Map<String, List<String>>>> getEnvironment() {
+  public Optional<HashMap<String, HashMap<String, ArrayList<String>>>> getEnvironment() {
     return environment;
   }
 
-  public void setEnvironment(Optional<Map<String, Map<String, List<String>>>> environment) {
+  public void setEnvironment(Optional<HashMap<String, HashMap<String, ArrayList<String>>>> environment) {
     this.environment = environment;
   }
 }

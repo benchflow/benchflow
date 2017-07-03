@@ -2,8 +2,10 @@ package cloud.benchflow.dsl.explorationspace.javatypes;
 
 import cloud.benchflow.dsl.definition.types.bytes.Bytes;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com)
@@ -11,9 +13,11 @@ import java.util.Optional;
  */
 public class JavaCompatExplorationSpacePoint {
 
+  // we use concrete collection classes for MongoDB + Morphia
+
   private Optional<Integer> users;
-  private Optional<Map<String, Bytes>> memory;
-  private Optional<Map<String, Map<String, String>>> environment;
+  private Optional<HashMap<String, Bytes>> memory;
+  private Optional<HashMap<String, HashMap<String, String>>> environment;
 
   public JavaCompatExplorationSpacePoint() {
     // Empty constructor for MongoDB + Morphia
@@ -21,8 +25,20 @@ public class JavaCompatExplorationSpacePoint {
 
   public JavaCompatExplorationSpacePoint(Optional<Integer> users, Optional<Map<String, Bytes>> memory, Optional<Map<String, Map<String, String>>> environment) {
     this.users = users;
-    this.memory = memory;
-    this.environment = environment;
+    this.memory = memory.map(map -> new HashMap<>(map.entrySet().stream().collect(Collectors.toMap(
+        Map.Entry::getKey,
+        Map.Entry::getValue
+    ))));
+
+    this.environment = environment.map(map -> new HashMap<>(map.entrySet().stream().collect(Collectors.toMap(
+        Map.Entry::getKey,
+        e -> new HashMap<>(
+            e.getValue().entrySet().stream().collect(Collectors.toMap(
+                Map.Entry::getKey,
+                Map.Entry::getValue
+            ))
+        )
+    ))));
   }
 
   public Optional<Integer> getUsers() {
@@ -33,19 +49,19 @@ public class JavaCompatExplorationSpacePoint {
     this.users = users;
   }
 
-  public Optional<Map<String, Bytes>> getMemory() {
+  public Optional<HashMap<String, Bytes>> getMemory() {
     return memory;
   }
 
-  public void setMemory(Optional<Map<String, Bytes>> memory) {
+  public void setMemory(Optional<HashMap<String, Bytes>> memory) {
     this.memory = memory;
   }
 
-  public Optional<Map<String, Map<String, String>>> getEnvironment() {
+  public Optional<HashMap<String, HashMap<String, String>>> getEnvironment() {
     return environment;
   }
 
-  public void setEnvironment(Optional<Map<String, Map<String, String>>> environment) {
+  public void setEnvironment(Optional<HashMap<String, HashMap<String, String>>> environment) {
     this.environment = environment;
   }
 }
