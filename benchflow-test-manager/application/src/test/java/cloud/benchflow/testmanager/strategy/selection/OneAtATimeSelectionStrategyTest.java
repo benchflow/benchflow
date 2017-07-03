@@ -40,6 +40,12 @@ public class OneAtATimeSelectionStrategyTest {
     Mockito.doReturn(TestFiles.getDeploymentDescriptor()).when(minioMock)
         .getTestDeploymentDescriptor(testID);
 
+    // TODO - change when converting to JavaCompatExplorationSpace works
+    //    JavaCompatExplorationSpace explorationSpace = ExplorationSpaceAPI.explorationSpaceFromTestYaml(
+    //        TestFiles.getTestExplorationOneAtATimeUsersMemoryEnvironmentString());
+    //
+    //    Mockito.doReturn(explorationSpace).when(explorationModelDAOMock).getExplorationSpace(testID);
+
     // return empty exploration point indices list
     Mockito.doReturn(new ArrayList<>()).when(explorationModelDAOMock)
         .getExecutedExplorationPointIndices(testID);

@@ -1,6 +1,7 @@
 package cloud.benchflow.testmanager.tasks.start;
 
 import cloud.benchflow.dsl.BenchFlowTestAPI;
+import cloud.benchflow.dsl.ExplorationSpaceAPI;
 import cloud.benchflow.dsl.definition.BenchFlowTest;
 import cloud.benchflow.dsl.definition.configuration.goal.goaltype.GoalType;
 import cloud.benchflow.dsl.definition.configuration.strategy.regression.RegressionStrategyType;
@@ -8,6 +9,8 @@ import cloud.benchflow.dsl.definition.configuration.strategy.selection.Selection
 import cloud.benchflow.dsl.definition.configuration.strategy.validation.ValidationStrategyType;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.dsl.definition.types.time.Time;
+import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpace;
+import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpaceDimensions;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.services.external.MinioService;
@@ -69,21 +72,22 @@ public class StartTask implements Runnable {
       Time maxRunTimeTime = test.configuration().terminationCriteria().test().maxTime();
       testModelDAO.setMaxRunTime(testID, maxRunTimeTime);
 
-      if (test.configuration().strategy().isDefined()) {
 
-        // TODO - in future PR
-        //        // get and save exploration space
-        //        JavaCompatExplorationSpace explorationSpace =
-        //            ExplorationSpace.explorationSpaceFromTestYaml(testDefinitionYamlString);
-        //
-        //        explorationModelDAO.setExplorationSpace(testID, explorationSpace);
-        //
-        //        // get and save exploration space dimensions
-        //        JavaCompatExplorationSpaceDimensions explorationSpaceDimensions =
-        //            cloud.benchflow.dsl.ExplorationSpace
-        //                .explorationSpaceDimensionsFromTestYaml(testDefinitionYamlString);
-        //
-        //        explorationModelDAO.setExplorationSpaceDimensions(testID, explorationSpaceDimensions);
+      if (test.configuration().goal().explorationSpace().isDefined()) {
+        // get and save exploration space
+        JavaCompatExplorationSpace explorationSpace =
+            ExplorationSpaceAPI.explorationSpaceFromTestYaml(testDefinitionYamlString);
+
+        explorationModelDAO.setExplorationSpace(testID, explorationSpace);
+
+        // get and save exploration space dimensions
+        JavaCompatExplorationSpaceDimensions explorationSpaceDimensions =
+            ExplorationSpaceAPI.explorationSpaceDimensionsFromTestYaml(testDefinitionYamlString);
+
+        explorationModelDAO.setExplorationSpaceDimensions(testID, explorationSpaceDimensions);
+      }
+
+      if (test.configuration().strategy().isDefined()) {
 
         // get and save selection strategy
         if (test.configuration().strategy().isDefined()) {

@@ -289,7 +289,7 @@ public class TestTaskScheduler {
 
         case RUNNING:
 
-          TestRunningState runningState = testModelDAO.getTestRunningState(testID);
+          final TestRunningState runningState = testModelDAO.getTestRunningState(testID);
 
           // set test to terminated
           testModelDAO.setTestState(testID, BenchFlowTestState.TERMINATED);

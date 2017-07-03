@@ -119,12 +119,12 @@ public class BenchFlowTestModel {
     return lastModified;
   }
 
-  public void setMaxRunningTime(Time maxRunningTime) {
-    this.maxRunningTime = maxRunningTime;
-  }
-
   public Time getMaxRunningTime() {
     return maxRunningTime;
+  }
+
+  public void setMaxRunningTime(Time maxRunningTime) {
+    this.maxRunningTime = maxRunningTime;
   }
 
   public BenchFlowTestState getState() {
