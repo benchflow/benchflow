@@ -5,7 +5,7 @@ import java.util.Optional
 
 import cloud.benchflow.dsl.definition.types.bytes.Bytes
 import cloud.benchflow.dsl.dockercompose.DockerComposeYamlString
-import cloud.benchflow.dsl.explorationspace.javatypes.JavaCompatExplorationSpacePoint
+import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpacePoint
 import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
 
@@ -24,11 +24,11 @@ class ExplorationSpaceAPITest extends JUnitSuite {
 
     val explorationSpace = ExplorationSpaceAPI.explorationSpaceDimensionsFromTestYaml(testYaml)
 
-    Assert.assertTrue(explorationSpace.getUsers.isPresent)
+    Assert.assertTrue(explorationSpace.users.isPresent)
 
-    Assert.assertTrue(explorationSpace.getMemory.isPresent)
+    Assert.assertTrue(explorationSpace.memory.isPresent)
 
-    Assert.assertTrue(explorationSpace.getEnvironment.isPresent)
+    Assert.assertTrue(explorationSpace.environment.isPresent)
 
   }
 
@@ -40,7 +40,7 @@ class ExplorationSpaceAPITest extends JUnitSuite {
 
     val expectedExplorationSpaceSize = 5 * 4 * 3 * 4
 
-    Assert.assertEquals(expectedExplorationSpaceSize, explorationSpace.getUsersDimension.get().size())
+    Assert.assertEquals(expectedExplorationSpaceSize, explorationSpace.usersDimension.get().size())
 
   }
 
@@ -72,7 +72,7 @@ class ExplorationSpaceAPITest extends JUnitSuite {
 
     val expectedExperimentIndex = 10
 
-    val javaCompatExplorationSpacePoint = new JavaCompatExplorationSpacePoint(
+    val javaCompatExplorationSpacePoint = JavaCompatExplorationSpacePoint(
       Optional.ofNullable(5),
       Optional.ofNullable(Map("camunda" -> Bytes.fromString("1g").get).asJava),
       Optional.ofNullable(Map("camunda" -> Map("AN_ENUM" -> "C", "SIZE_OF_THREADPOOL" -> "3").asJava).asJava))

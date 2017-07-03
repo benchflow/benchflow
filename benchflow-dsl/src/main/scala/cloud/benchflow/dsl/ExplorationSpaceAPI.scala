@@ -2,7 +2,7 @@ package cloud.benchflow.dsl
 
 import cloud.benchflow.dsl.BenchFlowTestAPI.testFromYaml
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
-import cloud.benchflow.dsl.explorationspace.javatypes.{ JavaCompatExplorationSpace, JavaCompatExplorationSpaceDimensions, JavaCompatExplorationSpacePoint }
+import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.{ JavaCompatExplorationSpace, JavaCompatExplorationSpaceDimensions, JavaCompatExplorationSpacePoint }
 import cloud.benchflow.dsl.explorationspace.{ ExplorationSpaceGenerator, JavaCompatExplorationSpaceConverter }
 
 /**
@@ -18,7 +18,7 @@ object ExplorationSpaceAPI {
   /**
    *
    * @param testDefinitionYaml benchflow-test.yml
-   * @throws cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
+   * @throws BenchFlowDeserializationException
    * @return JavaCompatExplorationSpaceDimensions
    */
   @throws(classOf[BenchFlowDeserializationException])
@@ -36,7 +36,7 @@ object ExplorationSpaceAPI {
    *
    *
    * @param testDefinitionYaml
-   * @throws cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
+   * @throws BenchFlowDeserializationException
    * @return JavaCompatExplorationSpace
    */
   @throws(classOf[BenchFlowDeserializationException])
