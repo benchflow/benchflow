@@ -3,12 +3,12 @@ package cloud.benchflow.dsl.demo
 // need to import writers specifically otherwise can't find right protocol (at least when used in the same method)
 import cloud.benchflow.dsl.definition.BenchFlowExperiment
 import cloud.benchflow.dsl.definition.datacollection.serverside.collector.CollectorMultipleEnvironmentYamlProtocol.CollectorMultipleEnvironmentWriteFormat
-import cloud.benchflow.dsl.definition.datacollection.serverside.collector.{CollectorMultiple, CollectorMultipleEnvironment}
+import cloud.benchflow.dsl.definition.datacollection.serverside.collector.{ CollectorMultiple, CollectorMultipleEnvironment }
 import cloud.benchflow.dsl.definition.sut.configuration.targetservice.TargetServiceYamlProtocol.TargetServiceWriteFormat
 import cloud.benchflow.dsl.definition.types.percent.Percent
 import cloud.benchflow.dsl.definition.types.percent.PercentYamlProtocol._
 import cloud.benchflow.dsl.definition.workload.Workload
-import cloud.benchflow.dsl.definition.workload.mix.{FixedSequenceMix, FlatMix, FlatSequenceMix, MatrixMix}
+import cloud.benchflow.dsl.definition.workload.mix.{ FixedSequenceMix, FlatMix, FlatSequenceMix, MatrixMix }
 import net.jcazevedo.moultingyaml._
 
 import scala.util.Properties

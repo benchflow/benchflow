@@ -1,6 +1,6 @@
 package cloud.benchflow.dsl.definition.types.bytes
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com)

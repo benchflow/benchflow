@@ -5,7 +5,7 @@ import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
 import net.jcazevedo.moultingyaml._
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch)

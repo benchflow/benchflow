@@ -4,7 +4,7 @@ import java.util.Optional
 
 import cloud.benchflow.dsl.definition.types.bytes.Bytes
 import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator._
-import cloud.benchflow.dsl.explorationspace.javatypes.{JavaCompatExplorationSpace, JavaCompatExplorationSpaceDimensions, JavaCompatExplorationSpacePoint}
+import cloud.benchflow.dsl.explorationspace.javatypes.{ JavaCompatExplorationSpace, JavaCompatExplorationSpaceDimensions, JavaCompatExplorationSpacePoint }
 
 import scala.collection.JavaConverters._
 import scala.util.Success

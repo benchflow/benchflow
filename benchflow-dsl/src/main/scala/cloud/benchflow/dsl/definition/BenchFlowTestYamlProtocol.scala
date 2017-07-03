@@ -11,7 +11,7 @@ import cloud.benchflow.dsl.definition.version.Version
 import cloud.benchflow.dsl.definition.version.VersionYamlProtocol._
 import cloud.benchflow.dsl.definition.workload.Workload
 import cloud.benchflow.dsl.definition.workload.WorkloadYamlProtocol._
-import net.jcazevedo.moultingyaml.{YamlString, _}
+import net.jcazevedo.moultingyaml.{ YamlString, _ }
 
 import scala.util.Try
 

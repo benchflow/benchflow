@@ -7,7 +7,7 @@ import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.servic
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.workload.WorkloadExplorationSpace
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.workload.WorkloadExplorationSpaceYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _}
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlString, YamlValue, _ }
 
 import scala.util.Try
 

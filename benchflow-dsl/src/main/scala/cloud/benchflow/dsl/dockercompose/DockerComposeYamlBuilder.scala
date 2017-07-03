@@ -2,7 +2,7 @@ package cloud.benchflow.dsl.dockercompose
 
 import cloud.benchflow.dsl.definition.types.bytes.Bytes
 import cloud.benchflow.dsl.definition.types.bytes.BytesYamlProtocol._
-import net.jcazevedo.moultingyaml.{YamlString, YamlValue, _}
+import net.jcazevedo.moultingyaml.{ YamlString, YamlValue, _ }
 
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com)

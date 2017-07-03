@@ -15,6 +15,10 @@ public class JavaCompatExplorationSpacePoint {
   private Optional<Map<String, Bytes>> memory;
   private Optional<Map<String, Map<String, String>>> environment;
 
+  public JavaCompatExplorationSpacePoint() {
+    // Empty constructor for MongoDB + Morphia
+  }
+
   public JavaCompatExplorationSpacePoint(Optional<Integer> users, Optional<Map<String, Bytes>> memory, Optional<Map<String, Map<String, String>>> environment) {
     this.users = users;
     this.memory = memory;

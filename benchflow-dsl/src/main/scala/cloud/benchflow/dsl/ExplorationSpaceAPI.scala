@@ -2,8 +2,8 @@ package cloud.benchflow.dsl
 
 import cloud.benchflow.dsl.BenchFlowTestAPI.testFromYaml
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
-import cloud.benchflow.dsl.explorationspace.javatypes.{JavaCompatExplorationSpace, JavaCompatExplorationSpaceDimensions, JavaCompatExplorationSpacePoint}
-import cloud.benchflow.dsl.explorationspace.{ExplorationSpaceGenerator, JavaCompatExplorationSpaceConverter}
+import cloud.benchflow.dsl.explorationspace.javatypes.{ JavaCompatExplorationSpace, JavaCompatExplorationSpaceDimensions, JavaCompatExplorationSpacePoint }
+import cloud.benchflow.dsl.explorationspace.{ ExplorationSpaceGenerator, JavaCompatExplorationSpaceConverter }
 
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com)

@@ -16,6 +16,10 @@ public class JavaCompatExplorationSpaceDimensions {
   private Optional<Map<String, List<Bytes>>> memory;
   private Optional<Map<String, Map<String, List<String>>>> environment;
 
+  public JavaCompatExplorationSpaceDimensions() {
+    // Empty constructor for MongoDB + Morphia
+  }
+
   public JavaCompatExplorationSpaceDimensions(
       Optional<List<Integer>> users,
       Optional<Map<String, List<Bytes>>> memory,
@@ -30,11 +34,23 @@ public class JavaCompatExplorationSpaceDimensions {
     return users;
   }
 
+  public void setUsers(Optional<List<Integer>> users) {
+    this.users = users;
+  }
+
   public Optional<Map<String, List<Bytes>>> getMemory() {
     return memory;
   }
 
+  public void setMemory(Optional<Map<String, List<Bytes>>> memory) {
+    this.memory = memory;
+  }
+
   public Optional<Map<String, Map<String, List<String>>>> getEnvironment() {
     return environment;
+  }
+
+  public void setEnvironment(Optional<Map<String, Map<String, List<String>>>> environment) {
+    this.environment = environment;
   }
 }

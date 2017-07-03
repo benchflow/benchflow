@@ -3,8 +3,8 @@ package cloud.benchflow.dsl.definition.configuration.goal.explorationspace.servi
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.ExplorationSpaceYamlProtocol
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.service.resources.Resources
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.service.resources.ResourcesYamlProtocol._
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 import scala.util.Try
 

@@ -1,8 +1,8 @@
 package cloud.benchflow.dsl.dockercompose
 
-import cloud.benchflow.dsl.definition.types.bytes.{Bytes, BytesUnit}
+import cloud.benchflow.dsl.definition.types.bytes.{ Bytes, BytesUnit }
 import net.jcazevedo.moultingyaml._
-import org.junit.{Assert, Test}
+import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
 
 /**

@@ -4,8 +4,8 @@ import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlo
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowTestTerminationCriteriaYamlProtocol.ExperimentKey
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.experiment.criteriatype.CriteriaType
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.experiment.criteriatype.CriteriaTypeYamlProtocol._
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 import scala.util.Try
 

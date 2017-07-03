@@ -1,12 +1,12 @@
 package cloud.benchflow.dsl.definition.configuration
 
-import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol.{TerminationCriteriaKey, UsersKey, WorkloadExecutionKey}
+import cloud.benchflow.dsl.definition.configuration.BenchFlowTestConfigurationYamlProtocol.{ TerminationCriteriaKey, UsersKey, WorkloadExecutionKey }
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowExperimentTerminationCriteria
 import cloud.benchflow.dsl.definition.configuration.terminationcriteria.BenchFlowExperimentTerminationCriteriaYamlProtocol._
 import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadExecution
 import cloud.benchflow.dsl.definition.configuration.workloadexecution.WorkloadExecutionYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler._
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
 import scala.util.Try
 
