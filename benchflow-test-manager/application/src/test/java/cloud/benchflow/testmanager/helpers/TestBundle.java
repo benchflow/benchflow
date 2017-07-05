@@ -4,22 +4,26 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.rules.TemporaryFolder;
+import org.zeroturnaround.zip.FileSource;
+import org.zeroturnaround.zip.ZipEntrySource;
 import org.zeroturnaround.zip.ZipUtil;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 14.02.17.
+ * @author vincenzoferme
  */
 public class TestBundle {
 
   public static final int BPMN_MODELS_COUNT = 2;
-  private static final String TEMP_ZIP = "temp.zip";
 
   /**
    * Get a valid test bundle as a File
@@ -29,30 +33,23 @@ public class TestBundle {
    */
   public static File getValidTestBundleFile(TemporaryFolder temporaryFolder) throws IOException {
 
-    File tempDir = temporaryFolder.newFolder();
+    // setup the bundle contents
+    ZipEntrySource[] addedEntries = new ZipEntrySource[] {
+        new FileSource(TestFiles.getTestLoadFile().getName(), TestFiles.getTestLoadFile()),
+        new FileSource(TestFiles.getTestDeploymentDescriptorFile().getName(),
+            TestFiles.getTestDeploymentDescriptorFile()),
+        new FileSource("models/" + TestFiles.getModelsFolderFile().listFiles()[0].getName(),
+            TestFiles.getModelsFolderFile().listFiles()[0]),
+        new FileSource("models/" + TestFiles.getModelsFolderFile().listFiles()[1].getName(),
+            TestFiles.getModelsFolderFile().listFiles()[1]),};
 
-    // copy the bundle contents
-    FileUtils.copyFile(TestFiles.getTestLoadFile(),
-        newFileInDir(tempDir, TestFiles.getTestLoadFile()));
-    FileUtils.copyFile(TestFiles.getTestDeploymentDescriptorFile(),
-        newFileInDir(tempDir, TestFiles.getTestDeploymentDescriptorFile()));
-    FileUtils.copyDirectory(TestFiles.getModelsFolderFile(),
-        newFileInDir(tempDir, TestFiles.getModelsFolderFile()));
+    File zipFile =
+        temporaryFolder.newFile(new BigInteger(130, new SecureRandom()).toString(32) + ".zip");
 
-    // zip the directory
-    File zipFile = newFileInDir(tempDir, TEMP_ZIP);
-    ZipUtil.pack(tempDir, zipFile);
+    ZipUtil.pack(addedEntries, zipFile);
 
     return zipFile;
 
-  }
-
-  private static File newFileInDir(File tempDir, File file) {
-    return newFileInDir(tempDir, file.getName());
-  }
-
-  private static File newFileInDir(File tempDir, String fileName) {
-    return new File(tempDir.toPath().toString() + "/" + fileName);
   }
 
   /**
@@ -88,17 +85,19 @@ public class TestBundle {
   public static File getMissingTestDefinitionTestBundleFile(TemporaryFolder temporaryFolder)
       throws IOException {
 
-    File tempDir = temporaryFolder.newFolder();
+    // setup the bundle contents without test definition
+    ZipEntrySource[] addedEntries = new ZipEntrySource[] {
+        new FileSource(TestFiles.getTestDeploymentDescriptorFile().getName(),
+            TestFiles.getTestDeploymentDescriptorFile()),
+        new FileSource("models/" + TestFiles.getModelsFolderFile().listFiles()[0].getName(),
+            TestFiles.getModelsFolderFile().listFiles()[0]),
+        new FileSource("models/" + TestFiles.getModelsFolderFile().listFiles()[1].getName(),
+            TestFiles.getModelsFolderFile().listFiles()[1]),};
 
-    // copy the bundle contents without test definition
-    FileUtils.copyFile(TestFiles.getTestDeploymentDescriptorFile(),
-        newFileInDir(tempDir, TestFiles.getTestDeploymentDescriptorFile()));
-    FileUtils.copyDirectory(TestFiles.getModelsFolderFile(),
-        newFileInDir(tempDir, TestFiles.getModelsFolderFile()));
+    File zipFile =
+        temporaryFolder.newFile(new BigInteger(130, new SecureRandom()).toString(32) + ".zip");
 
-    // zip the directory
-    File zipFile = newFileInDir(tempDir, TEMP_ZIP);
-    ZipUtil.pack(tempDir, zipFile);
+    ZipUtil.pack(addedEntries, zipFile);
 
     return zipFile;
 
