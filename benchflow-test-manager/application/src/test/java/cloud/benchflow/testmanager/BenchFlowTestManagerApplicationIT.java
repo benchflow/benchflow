@@ -178,7 +178,7 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
     Assert.assertEquals(InvalidBenchFlowTestIDWebException.message,
         response.readEntity(String.class));
 
-    
+
 
   }
 

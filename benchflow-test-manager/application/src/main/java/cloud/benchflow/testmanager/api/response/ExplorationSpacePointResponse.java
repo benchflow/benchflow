@@ -15,8 +15,6 @@ public class ExplorationSpacePointResponse {
   @JsonProperty
   private Map<String, Map<String, String>> environment;
 
-  public ExplorationSpacePointResponse() {}
-
   public Integer getUsers() {
     return users;
   }
