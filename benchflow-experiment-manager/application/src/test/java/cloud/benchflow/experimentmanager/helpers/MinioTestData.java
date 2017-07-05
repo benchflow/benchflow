@@ -16,6 +16,8 @@ public class MinioTestData {
       "src/test/resources/data/experiments/1-trials/benchflow-test.yml";
   private static final String EXPERIMENT_2_TRIALS_DEFINITION_FILENAME =
       "src/test/resources/data/experiments/2-trials/benchflow-test.yml";
+  private static final String EXPERIMENT_100_TRIALS_DEFINITION_FILENAME =
+      "src/test/resources/data/experiments/100-trials/benchflow-test.yml";
   private static final String DEPLOYMENT_DESCRIPTOR_FILENAME =
       "src/test/resources/data/docker-compose.yml";
   private static final String BPM_MODEL_TEST_FILENAME =
@@ -32,6 +34,10 @@ public class MinioTestData {
 
   public static InputStream getExperiment2TrialsDefinition() throws FileNotFoundException {
     return new FileInputStream(EXPERIMENT_2_TRIALS_DEFINITION_FILENAME);
+  }
+
+  public static InputStream getExperiment100TrialsDefinition() throws FileNotFoundException {
+    return new FileInputStream(EXPERIMENT_100_TRIALS_DEFINITION_FILENAME);
   }
 
   public static InputStream getDeploymentDescriptor() throws FileNotFoundException {
