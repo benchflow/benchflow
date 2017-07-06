@@ -47,7 +47,7 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
 
   // needs to be subfolder of current folder for Wercker
   @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder(new File("target"));
+  public TemporaryFolder temporaryFolder = new TemporaryFolder(new File("./"));
 
   @Test
   public void runBenchFlowTest() throws Exception {

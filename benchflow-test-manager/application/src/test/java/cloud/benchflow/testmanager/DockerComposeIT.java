@@ -41,13 +41,11 @@ public class DockerComposeIT {
       getEnvOrDefault("MONGO_DATA_VOLUME_PATH", LOCAL_MONGO_DATA_VOLUME_PATH);
   private static String LOCAL_DOCKER_COMPOSE_PATH =
       "src/test/resources/docker-compose/docker-compose.yml";
-  // Determine if we are in a CI environment (for now the Wercker Cloud) or not
-  // Although Wercker suggests to use the CI or WERCKER variables (http://devcenter.wercker.com/docs/environment-variables/available-env-vars)
-  //, those are true also locally, somehow. WERCKER_STARTED_BY is only set in the Wercker Cloud
+  // boolean to keep track if we are running in Continuous Integration or not
+  // by relying on the CI env variable
   // IMPORTANT: needs to be executed before setupDockerMachineIfLocal() and setupDockerComposeIfLocal(),
   // otherwise it is always false
-  private static boolean inLocal =
-      (System.getenv("WERCKER_STARTED_BY") == null && System.getenv("CI") == null);
+  private static boolean inLocal = System.getenv("CI") == null;
   // dockerComposeRule and dockerMachine are used only when executing the local workflow
   // IMPORTANT: needs to be executed before setupDockerComposeIfLocal()
   private static final DockerMachine dockerMachine = setupDockerMachineIfLocal();
@@ -134,9 +132,9 @@ public class DockerComposeIT {
   // setup docker machine if we are in the local workflow
   private static DockerMachine setupDockerMachineIfLocal() {
 
-    if (inLocal) {
+    System.out.println("============== setupDockerMachineIfLocal =====================");
 
-      System.out.println("============== setupDockerMachineIfLocal =====================");
+    if (inLocal) {
 
       //We rely on the CI env variable to detect if we are not in CI environment
       return DockerMachine.localMachine().withAdditionalEnvironmentVariable("MONGO_TAG", MONGO_TAG)
@@ -152,9 +150,9 @@ public class DockerComposeIT {
   // setup docker compose if we are in the local workflow
   private static DockerComposeRule setupDockerComposeIfLocal() {
 
-    if (inLocal) {
+    System.out.println("============== setupDockerComposeIfLocal =====================");
 
-      System.out.println("============== setupDockerComposeIfLocal =====================");
+    if (inLocal) {
 
       // to wait for a service to be available see https://github.com/palantir/docker-compose-rule#waiting-for-a-service-to-be-available
       // can also be specified in docker compose as a health check
