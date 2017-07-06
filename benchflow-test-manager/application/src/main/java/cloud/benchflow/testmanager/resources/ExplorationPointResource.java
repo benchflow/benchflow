@@ -40,7 +40,7 @@ public class ExplorationPointResource {
     this.explorationModelDAO = explorationModelDAO;
   }
 
-  @Path("{explorationPointIndex}")
+  @Path("/{explorationPointIndex}")
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public ExplorationSpacePointResponse getBenchFlowTestStatus(
@@ -59,7 +59,7 @@ public class ExplorationPointResource {
           explorationModelDAO.getExplorationSpace(testID);
 
       return mongoCompatibleExplorationSpace
-          .getExplorationSpacePointResponse(explorationPointIndex);
+            .getExplorationSpacePointResponse(explorationPointIndex);
 
     } catch (BenchFlowTestIDDoesNotExistException e) {
       throw new InvalidBenchFlowTestIDWebException();

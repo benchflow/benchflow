@@ -16,11 +16,12 @@ import java.util.stream.Collectors;
 public class MongoCompatibleExplorationSpace {
 
   // we use concrete collection classes for MongoDB + Morphia
+  // need to ensure that Optional are not null when read from DB => initialize to empty
 
   private int size;
-  private Optional<List<Integer>> usersDimension;
-  private Optional<Map<String, List<Bytes>>> memoryDimension;
-  private Optional<Map<String, Map<String, List<String>>>> environmentDimension;
+  private Optional<List<Integer>> usersDimension = Optional.empty();
+  private Optional<Map<String, List<Bytes>>> memoryDimension = Optional.empty();
+  private Optional<Map<String, Map<String, List<String>>>> environmentDimension = Optional.empty();
 
   public MongoCompatibleExplorationSpace() {
     // Empty constructor for MongoDB + Morphia
