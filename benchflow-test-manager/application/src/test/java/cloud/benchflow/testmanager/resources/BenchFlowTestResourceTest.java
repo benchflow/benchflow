@@ -10,6 +10,8 @@ import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_TEST_ID;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.RUNNING;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
 
+import cloud.benchflow.dsl.ExplorationSpaceAPI;
+import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpace;
 import cloud.benchflow.testmanager.api.request.ChangeBenchFlowTestStateRequest;
 import cloud.benchflow.testmanager.api.response.ChangeBenchFlowTestStateResponse;
 import cloud.benchflow.testmanager.api.response.RunBenchFlowTestResponse;
@@ -18,17 +20,24 @@ import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistExcepti
 import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidTestBundleWebException;
 import cloud.benchflow.testmanager.helpers.TestBundle;
+import cloud.benchflow.testmanager.helpers.TestFiles;
+import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
+import cloud.benchflow.testmanager.models.explorationspace.MongoCompatibleExplorationSpace;
 import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
+import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import java.io.File;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,6 +51,7 @@ import org.mockito.Mockito;
  */
 public class BenchFlowTestResourceTest {
 
+  private static HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
   @Rule
   public ExpectedException exception = ExpectedException.none();
   // needs to be subfolder of current folder for Wercker
@@ -50,18 +60,17 @@ public class BenchFlowTestResourceTest {
   // mocks
   private BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
   private UserDAO userDAOMock = Mockito.mock(UserDAO.class);
+  private ExplorationModelDAO explorationModelDAOMock = Mockito.mock(ExplorationModelDAO.class);
   private TestTaskScheduler testTaskScheduler = Mockito.mock(TestTaskScheduler.class);
   private MinioService minioService = Mockito.mock(MinioService.class);
   private BenchFlowTestResource resource;
   private ChangeBenchFlowTestStateRequest request;
 
-  private static HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
-
   @Before
   public void setUp() throws Exception {
 
-    resource =
-        new BenchFlowTestResource(testModelDAOMock, userDAOMock, testTaskScheduler, minioService);
+    resource = new BenchFlowTestResource(testModelDAOMock, userDAOMock, explorationModelDAOMock,
+        testTaskScheduler, minioService);
     request = new ChangeBenchFlowTestStateRequest();
 
     Mockito.doReturn("localhost").when(httpServletRequestMock).getServerName();
@@ -173,15 +182,33 @@ public class BenchFlowTestResourceTest {
   }
 
   @Test
-  public void getBenchFlowTestStatusValid() throws Exception {
+  public void getLoadTestStatusValid() throws Exception {
 
     String benchFlowTestName = LOAD_TEST_NAME;
 
     String expectedTestID = TEST_USER_NAME + BenchFlowConstants.MODEL_ID_DELIMITER
         + benchFlowTestName + BenchFlowConstants.MODEL_ID_DELIMITER + 1;
 
-    Mockito.doReturn(new BenchFlowTestModel(TEST_USER, benchFlowTestName, 1)).when(testModelDAOMock)
-        .getTestModel(expectedTestID);
+    BenchFlowTestModel testModel = new BenchFlowTestModel(TEST_USER, benchFlowTestName, 1);
+
+    BenchFlowExperimentModel experimentModel = new BenchFlowExperimentModel(expectedTestID, 0);
+    experimentModel.setExplorationPointIndex(0);
+
+    testModel.addExperimentModel(experimentModel);
+
+    Mockito.doReturn(testModel).when(testModelDAOMock).getTestModel(expectedTestID);
+
+    String testDefinitionString =
+        IOUtils.toString(TestFiles.getTestLoadInputStream(), StandardCharsets.UTF_8);
+
+    JavaCompatExplorationSpace javaCompatExplorationSpace =
+        ExplorationSpaceAPI.explorationSpaceFromTestYaml(testDefinitionString);
+
+    MongoCompatibleExplorationSpace explorationSpace =
+        new MongoCompatibleExplorationSpace(javaCompatExplorationSpace);
+
+    Mockito.doReturn(explorationSpace).when(explorationModelDAOMock)
+        .getExplorationSpace(expectedTestID);
 
     String[] testIDArray = expectedTestID.split(MODEL_ID_DELIMITER_REGEX);
 
@@ -198,5 +225,15 @@ public class BenchFlowTestResourceTest {
 
     Assert.assertNotNull(response);
     Assert.assertEquals(expectedTestID, response.getId());
+
+    Optional<BenchFlowExperimentModel> modelOptional =
+        response.getExperimentModels().stream().findFirst();
+
+    Assert.assertTrue(modelOptional.isPresent());
+
+    String explorationPointURL = response.getExperimentModels().stream().findFirst().get()
+        .getExplorationPointConfiguration();
+    Assert.assertEquals(BenchFlowTestResource.NO_EXPLORATION_SPACE, explorationPointURL);
+    
   }
 }

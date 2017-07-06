@@ -19,7 +19,6 @@ public class SingleExperimentSelectionStrategy extends SelectionStrategy {
   @Override
   protected int getNextExplorationPoint(List<Integer> executedExplorationPointIndices,
       int explorationSpaceSize) {
-
     return 0;
   }
 }

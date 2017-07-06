@@ -196,6 +196,8 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
 
     String experimentID = experimentModelDAO.addExperiment(testID);
 
+    experimentModelDAO.setExplorationSpaceIndex(experimentID, 0);
+
     Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
 
     String target = "http://localhost:" + RULE.getLocalPort();

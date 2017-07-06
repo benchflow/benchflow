@@ -60,9 +60,10 @@ public class DetermineExecuteExperimentsTask implements Runnable {
       SelectedExperimentBundle selectedExperimentBundle =
           selectionStrategy.selectNextExperiment(testID);
 
+      int explorationPointIndex = selectedExperimentBundle.getExplorationSpaceIndex();
+
       // save exploration point index
-      experimentModelDAO.setExplorationSpaceIndex(experimentID,
-          selectedExperimentBundle.getExplorationSpaceIndex());
+      experimentModelDAO.setExplorationSpaceIndex(experimentID, explorationPointIndex);
 
       // set experiment as selected
       explorationModelDAO.addExecutedExplorationPoint(testID,
