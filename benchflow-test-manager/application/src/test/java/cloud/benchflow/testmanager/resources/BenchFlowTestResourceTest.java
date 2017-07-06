@@ -234,6 +234,6 @@ public class BenchFlowTestResourceTest {
     String explorationPointURL = response.getExperimentModels().stream().findFirst().get()
         .getExplorationPointConfiguration();
     Assert.assertEquals(BenchFlowTestResource.NO_EXPLORATION_SPACE, explorationPointURL);
-    
+
   }
 }

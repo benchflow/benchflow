@@ -15,7 +15,6 @@ import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.helpers.TestFiles;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
-import cloud.benchflow.testmanager.models.explorationspace.MongoCompatibleExplorationSpace;
 import cloud.benchflow.testmanager.resources.BenchFlowTestResource;
 import cloud.benchflow.testmanager.resources.ExplorationPointResource;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
@@ -39,7 +38,6 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Mockito;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.02.17.
@@ -230,9 +228,8 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
     BenchFlowExperimentModelDAO experimentModelDAO = new BenchFlowExperimentModelDAO(
         RULE.getConfiguration().getMongoDBFactory().build(), testModelDAO);
 
-    ExplorationModelDAO explorationModelDAO = new ExplorationModelDAO(
-        RULE.getConfiguration().getMongoDBFactory().build(), testModelDAO
-    );
+    ExplorationModelDAO explorationModelDAO =
+        new ExplorationModelDAO(RULE.getConfiguration().getMongoDBFactory().build(), testModelDAO);
 
     String testID =
         testModelDAO.addTestModel(TestConstants.LOAD_TEST_NAME, TestConstants.TEST_USER);
@@ -246,7 +243,8 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
 
     String testDefinitionString = TestFiles.getTestExplorationOneAtATimeUsersString();
 
-    JavaCompatExplorationSpace javaCompatExplorationSpace = ExplorationSpaceAPI.explorationSpaceFromTestYaml(testDefinitionString);
+    JavaCompatExplorationSpace javaCompatExplorationSpace =
+        ExplorationSpaceAPI.explorationSpaceFromTestYaml(testDefinitionString);
 
     explorationModelDAO.setExplorationSpace(testID, javaCompatExplorationSpace);
 
@@ -256,15 +254,14 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
 
     String target = "http://localhost:" + RULE.getLocalPort();
 
-    Response response = client.target(target)
-        .path(BenchFlowConstants.getPathFromTestID(testID))
+    Response response = client.target(target).path(BenchFlowConstants.getPathFromTestID(testID))
         .path(ExplorationPointResource.EXPLORATION_POINT_PATH)
-        .path(String.valueOf(explorationPointIndex))
-        .request().get();
+        .path(String.valueOf(explorationPointIndex)).request().get();
 
     Assert.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
-    ExplorationSpacePointResponse pointResponse = response.readEntity(ExplorationSpacePointResponse.class);
+    ExplorationSpacePointResponse pointResponse =
+        response.readEntity(ExplorationSpacePointResponse.class);
 
     Assert.assertEquals(5, pointResponse.getUsers().intValue());
 

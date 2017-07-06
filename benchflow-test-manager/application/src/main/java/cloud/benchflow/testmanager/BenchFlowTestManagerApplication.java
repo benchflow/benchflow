@@ -1,6 +1,5 @@
 package cloud.benchflow.testmanager;
 
-import cloud.benchflow.testmanager.api.response.ExplorationSpacePointResponse;
 import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfiguration;
 import cloud.benchflow.testmanager.resources.BenchFlowExperimentResource;
 import cloud.benchflow.testmanager.resources.BenchFlowTestResource;

@@ -59,7 +59,7 @@ public class ExplorationPointResource {
           explorationModelDAO.getExplorationSpace(testID);
 
       return mongoCompatibleExplorationSpace
-            .getExplorationSpacePointResponse(explorationPointIndex);
+          .getExplorationSpacePointResponse(explorationPointIndex);
 
     } catch (BenchFlowTestIDDoesNotExistException e) {
       throw new InvalidBenchFlowTestIDWebException();

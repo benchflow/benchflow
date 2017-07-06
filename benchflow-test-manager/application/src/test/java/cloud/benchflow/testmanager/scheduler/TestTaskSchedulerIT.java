@@ -138,7 +138,8 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
         explorationModelDAO.getExecutedExplorationPointIndices(testID));
 
     // assert that exploration space has been saved in DB
-    MongoCompatibleExplorationSpace explorationSpace  = explorationModelDAO.getExplorationSpace(testID);
+    MongoCompatibleExplorationSpace explorationSpace =
+        explorationModelDAO.getExplorationSpace(testID);
 
     Assert.assertEquals(expectedNumExperiments, explorationSpace.getSize());
 
