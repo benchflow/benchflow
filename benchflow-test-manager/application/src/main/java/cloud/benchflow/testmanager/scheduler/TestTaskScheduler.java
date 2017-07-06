@@ -270,7 +270,7 @@ public class TestTaskScheduler {
           // set to terminated
           testModelDAO.setTestState(testID, BenchFlowTestState.TERMINATED);
           testModelDAO.setTestTerminatedState(testID, TestTerminatedState.PARTIALLY_COMPLETE);
-          handleTestRunningState(testID);
+          handleTestState(testID);
           break;
 
         case WAITING:
@@ -278,7 +278,7 @@ public class TestTaskScheduler {
           // set to terminated
           testModelDAO.setTestState(testID, BenchFlowTestState.TERMINATED);
           testModelDAO.setTestTerminatedState(testID, TestTerminatedState.PARTIALLY_COMPLETE);
-          handleTestRunningState(testID);
+          handleTestState(testID);
           break;
 
         case RUNNING:
