@@ -211,6 +211,7 @@ public class ExperimentTaskScheduler {
           experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED);
           experimentModelDAO.setTerminatedState(experimentID, TerminatedState.ABORTED);
           handleExperimentState(experimentID);
+          break;
 
         case READY:
           // remove from ready queue
