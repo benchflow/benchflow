@@ -29,6 +29,10 @@ public class TestFiles {
 
   private static String TEST_MODELS_FOLDER_FILE = LOCAL_TESTS_FOLDER + "models";
 
+  public static InputStream getTestLoadInputStream() throws FileNotFoundException {
+    return new FileInputStream(TEST_LOAD_FILE);
+  }
+
   public static File getTestLoadFile() {
     return new File(TEST_LOAD_FILE);
   }

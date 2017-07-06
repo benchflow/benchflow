@@ -18,7 +18,7 @@ public class BenchFlowTestBundleExtractorTest {
 
   // needs to be subfolder of current folder for Wercker
   @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder(new File("./"));
+  public TemporaryFolder temporaryFolder = new TemporaryFolder(new File("target"));
 
   @Test
   public void extractBenchFlowTestDefinition() throws Exception {
