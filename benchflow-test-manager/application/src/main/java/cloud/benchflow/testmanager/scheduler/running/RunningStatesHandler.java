@@ -14,7 +14,6 @@ import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminat
 
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
-import cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState;
 import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
@@ -105,7 +104,7 @@ public class RunningStatesHandler {
       // wait for task to complete
       future.get();
 
-      if (isTerminated(testID)) {
+      if (testTaskScheduler.isTerminated(testID)) {
         // if test has been terminated we stop here
         return;
       }
@@ -204,7 +203,7 @@ public class RunningStatesHandler {
 
       boolean acceptablePredictionError = future.get();
 
-      if (isTerminated(testID)) {
+      if (testTaskScheduler.isTerminated(testID)) {
         // if test has been terminated we stop here
         return;
       }
@@ -261,7 +260,7 @@ public class RunningStatesHandler {
 
       TerminationCriteriaResult result = future.get();
 
-      if (isTerminated(testID)) {
+      if (testTaskScheduler.isTerminated(testID)) {
         // if test has been terminated we stop here
         return;
       }
@@ -321,7 +320,7 @@ public class RunningStatesHandler {
       // wait for task to complete
       future.get();
 
-      if (isTerminated(testID)) {
+      if (testTaskScheduler.isTerminated(testID)) {
         // if test has been terminated we stop here
         return;
       }
@@ -351,7 +350,7 @@ public class RunningStatesHandler {
 
       future.get();
 
-      if (isTerminated(testID)) {
+      if (testTaskScheduler.isTerminated(testID)) {
         // if test has been terminated we stop here
         return;
       }
@@ -366,20 +365,6 @@ public class RunningStatesHandler {
       // should not happen since it was added earlier
       logger.error("test ID does not exist - should not happen");
     }
-  }
-
-  private boolean isTerminated(String testID) {
-
-    try {
-      BenchFlowTestState benchFlowTestState = testModelDAO.getTestState(testID);
-
-      return benchFlowTestState == TERMINATED;
-
-    } catch (BenchFlowTestIDDoesNotExistException e) {
-      // if test is not in the DB we consider it as terminated
-      return true;
-    }
-
   }
 
 }

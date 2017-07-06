@@ -1,5 +1,6 @@
 package cloud.benchflow.testmanager.scheduler;
 
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.DETERMINE_EXECUTE_VALIDATION_SET;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.HANDLE_EXPERIMENT_RESULT;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.VALIDATE_PREDICTION_FUNCTION;
@@ -133,6 +134,11 @@ public class TestTaskScheduler {
 
       // wait for task to complete
       future.get();
+
+      if (isTerminated(testID)) {
+        // if test has been terminated we stop here
+        return;
+      }
 
       testModelDAO.setTestState(testID, BenchFlowTestState.READY);
 
@@ -333,6 +339,20 @@ public class TestTaskScheduler {
     } catch (BenchFlowTestIDDoesNotExistException e) {
       // TODO - handle me
       e.printStackTrace();
+    }
+
+  }
+
+  public boolean isTerminated(String testID) {
+
+    try {
+      BenchFlowTestState benchFlowTestState = testModelDAO.getTestState(testID);
+
+      return benchFlowTestState == TERMINATED;
+
+    } catch (BenchFlowTestIDDoesNotExistException e) {
+      // if test is not in the DB we consider it as terminated
+      return true;
     }
 
   }
