@@ -51,6 +51,12 @@
             <artifactId>httpmime</artifactId>
             <version>4.5.1</version>
         </dependency>
+        <!--TODO - remove when faban client changes-->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.10.3</version>
+        </dependency>
 
         <dependency>
             <groupId>cloud.benchflow</groupId>
