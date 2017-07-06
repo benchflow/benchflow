@@ -41,9 +41,9 @@ public class BenchFlowTestEndpointTest {
   private static TestTaskScheduler testTaskControllerMock = Mockito.mock(TestTaskScheduler.class);
   private static MinioService minioServiceMock = Mockito.mock(MinioService.class);
 
-  // needs to be target folder for Wercker
+  // needs to be subfolder of current folder for Wercker
   @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder(new File("target"));
+  public TemporaryFolder temporaryFolder = new TemporaryFolder(new File("./"));
 
   @ClassRule
   public static final ResourceTestRule resources = ResourceTestRule.builder()

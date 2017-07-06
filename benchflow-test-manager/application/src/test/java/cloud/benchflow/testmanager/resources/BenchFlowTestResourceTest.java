@@ -45,7 +45,7 @@ public class BenchFlowTestResourceTest {
   public ExpectedException exception = ExpectedException.none();
   // needs to be subfolder of current folder for Wercker
   @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder(new File("target"));
+  public TemporaryFolder temporaryFolder = new TemporaryFolder(new File("./"));
   // mocks
   private BenchFlowTestModelDAO testModelDAOMock = Mockito.mock(BenchFlowTestModelDAO.class);
   private UserDAO userDAOMock = Mockito.mock(UserDAO.class);

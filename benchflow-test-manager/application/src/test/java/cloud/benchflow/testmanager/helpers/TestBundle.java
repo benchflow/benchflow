@@ -1,61 +1,62 @@
 package cloud.benchflow.testmanager.helpers;
 
-import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.rules.TemporaryFolder;
-import org.zeroturnaround.zip.FileSource;
-import org.zeroturnaround.zip.ZipEntrySource;
 import org.zeroturnaround.zip.ZipUtil;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 14.02.17.
- * @author vincenzoferme
  */
 public class TestBundle {
 
   public static final int BPMN_MODELS_COUNT = 2;
+  private static final String TEMP_ZIP = "temp.zip";
 
   /**
    * Get a valid test bundle as a File
-   *
    * @param temporaryFolder where to create the zip file
    * @return the File with the test bundle
    * @throws IOException if zip file could not be created
    */
   public static File getValidTestBundleFile(TemporaryFolder temporaryFolder) throws IOException {
 
-    // setup the bundle contents
-    ZipEntrySource[] addedEntries = new ZipEntrySource[] {
-        new FileSource(TestFiles.getTestLoadFile().getName(), TestFiles.getTestLoadFile()),
-        new FileSource(TestFiles.getTestDeploymentDescriptorFile().getName(),
-            TestFiles.getTestDeploymentDescriptorFile())};
+    File tempDir = temporaryFolder.newFolder();
 
-    File zipFile =
-        temporaryFolder.newFile(new BigInteger(130, new SecureRandom()).toString(32) + ".zip");
+    // copy the bundle contents
+    FileUtils.copyFile(TestFiles.getTestLoadFile(),
+        newFileInDir(tempDir, TestFiles.getTestLoadFile()));
+    FileUtils.copyFile(TestFiles.getTestDeploymentDescriptorFile(),
+        newFileInDir(tempDir, TestFiles.getTestDeploymentDescriptorFile()));
+    FileUtils.copyDirectory(TestFiles.getModelsFolderFile(),
+        newFileInDir(tempDir, TestFiles.getModelsFolderFile()));
 
-    ZipUtil.pack(addedEntries, zipFile);
-
-    addModelsToZipFile(zipFile);
+    // zip the directory
+    File zipFile = newFileInDir(tempDir, TEMP_ZIP);
+    ZipUtil.pack(tempDir, zipFile);
 
     return zipFile;
 
   }
 
+  private static File newFileInDir(File tempDir, File file) {
+    return newFileInDir(tempDir, file.getName());
+  }
+
+  private static File newFileInDir(File tempDir, String fileName) {
+    return new File(tempDir.toPath().toString() + "/" + fileName);
+  }
+
   /**
    * Get a valid test bundle as an InputStream
-   *
    * @param temporaryFolder where to create the zip file
    * @return the InputStream with the test bundle
    * @throws IOException if zip file could not be created
@@ -68,7 +69,6 @@ public class TestBundle {
 
   /**
    * Get a valid test bundle as a ZipInputStream
-   *
    * @param temporaryFolder where to create the zip file
    * @return the ZipInputStream with the test bundle
    * @throws IOException if zip file could not be created
@@ -81,7 +81,6 @@ public class TestBundle {
 
   /**
    * Get an invalid valid test bundle (missing test definition) as a File
-   *
    * @param temporaryFolder where to create the zip file
    * @return the File with the test bundle
    * @throws IOException if zip file could not be created
@@ -89,17 +88,17 @@ public class TestBundle {
   public static File getMissingTestDefinitionTestBundleFile(TemporaryFolder temporaryFolder)
       throws IOException {
 
-    // setup the bundle contents without test definition
-    ZipEntrySource[] addedEntries =
-        new ZipEntrySource[] {new FileSource(TestFiles.getTestDeploymentDescriptorFile().getName(),
-            TestFiles.getTestDeploymentDescriptorFile())};
+    File tempDir = temporaryFolder.newFolder();
 
-    File zipFile =
-        temporaryFolder.newFile(new BigInteger(130, new SecureRandom()).toString(32) + ".zip");
+    // copy the bundle contents without test definition
+    FileUtils.copyFile(TestFiles.getTestDeploymentDescriptorFile(),
+        newFileInDir(tempDir, TestFiles.getTestDeploymentDescriptorFile()));
+    FileUtils.copyDirectory(TestFiles.getModelsFolderFile(),
+        newFileInDir(tempDir, TestFiles.getModelsFolderFile()));
 
-    ZipUtil.pack(addedEntries, zipFile);
-
-    addModelsToZipFile(zipFile);
+    // zip the directory
+    File zipFile = newFileInDir(tempDir, TEMP_ZIP);
+    ZipUtil.pack(tempDir, zipFile);
 
     return zipFile;
 
@@ -107,7 +106,6 @@ public class TestBundle {
 
   /**
    * Get an invalid valid test bundle (missing test definition) as an InputStream
-   *
    * @param temporaryFolder where to create the zip file
    * @return the InputStream with the invalid test bundle
    * @throws IOException if zip file could not be created
@@ -181,17 +179,5 @@ public class TestBundle {
     }
 
     return models;
-  }
-
-  private static void addModelsToZipFile(File zipFile) {
-
-    // add the models
-    File[] files = TestFiles.getModelsFolderFile().listFiles();
-
-    assert files != null;
-
-    Arrays.stream(files).forEach(modelFile -> ZipUtil.addEntry(zipFile, new FileSource(
-        BenchFlowConstants.BPMN_MODELS_FOLDER_NAME + "/" + modelFile.getName(), modelFile)));
-
   }
 }
