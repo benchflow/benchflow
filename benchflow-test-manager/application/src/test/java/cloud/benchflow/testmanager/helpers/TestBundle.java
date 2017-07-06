@@ -1,5 +1,6 @@
 package cloud.benchflow.testmanager.helpers;
 
+import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -7,6 +8,7 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
@@ -27,6 +29,7 @@ public class TestBundle {
 
   /**
    * Get a valid test bundle as a File
+   *
    * @param temporaryFolder where to create the zip file
    * @return the File with the test bundle
    * @throws IOException if zip file could not be created
@@ -37,16 +40,14 @@ public class TestBundle {
     ZipEntrySource[] addedEntries = new ZipEntrySource[] {
         new FileSource(TestFiles.getTestLoadFile().getName(), TestFiles.getTestLoadFile()),
         new FileSource(TestFiles.getTestDeploymentDescriptorFile().getName(),
-            TestFiles.getTestDeploymentDescriptorFile()),
-        new FileSource("models/" + TestFiles.getModelsFolderFile().listFiles()[0].getName(),
-            TestFiles.getModelsFolderFile().listFiles()[0]),
-        new FileSource("models/" + TestFiles.getModelsFolderFile().listFiles()[1].getName(),
-            TestFiles.getModelsFolderFile().listFiles()[1]),};
+            TestFiles.getTestDeploymentDescriptorFile())};
 
     File zipFile =
         temporaryFolder.newFile(new BigInteger(130, new SecureRandom()).toString(32) + ".zip");
 
     ZipUtil.pack(addedEntries, zipFile);
+
+    addModelsToZipFile(zipFile);
 
     return zipFile;
 
@@ -54,6 +55,7 @@ public class TestBundle {
 
   /**
    * Get a valid test bundle as an InputStream
+   *
    * @param temporaryFolder where to create the zip file
    * @return the InputStream with the test bundle
    * @throws IOException if zip file could not be created
@@ -66,6 +68,7 @@ public class TestBundle {
 
   /**
    * Get a valid test bundle as a ZipInputStream
+   *
    * @param temporaryFolder where to create the zip file
    * @return the ZipInputStream with the test bundle
    * @throws IOException if zip file could not be created
@@ -78,6 +81,7 @@ public class TestBundle {
 
   /**
    * Get an invalid valid test bundle (missing test definition) as a File
+   *
    * @param temporaryFolder where to create the zip file
    * @return the File with the test bundle
    * @throws IOException if zip file could not be created
@@ -86,18 +90,16 @@ public class TestBundle {
       throws IOException {
 
     // setup the bundle contents without test definition
-    ZipEntrySource[] addedEntries = new ZipEntrySource[] {
-        new FileSource(TestFiles.getTestDeploymentDescriptorFile().getName(),
-            TestFiles.getTestDeploymentDescriptorFile()),
-        new FileSource("models/" + TestFiles.getModelsFolderFile().listFiles()[0].getName(),
-            TestFiles.getModelsFolderFile().listFiles()[0]),
-        new FileSource("models/" + TestFiles.getModelsFolderFile().listFiles()[1].getName(),
-            TestFiles.getModelsFolderFile().listFiles()[1]),};
+    ZipEntrySource[] addedEntries =
+        new ZipEntrySource[] {new FileSource(TestFiles.getTestDeploymentDescriptorFile().getName(),
+            TestFiles.getTestDeploymentDescriptorFile())};
 
     File zipFile =
         temporaryFolder.newFile(new BigInteger(130, new SecureRandom()).toString(32) + ".zip");
 
     ZipUtil.pack(addedEntries, zipFile);
+
+    addModelsToZipFile(zipFile);
 
     return zipFile;
 
@@ -105,6 +107,7 @@ public class TestBundle {
 
   /**
    * Get an invalid valid test bundle (missing test definition) as an InputStream
+   *
    * @param temporaryFolder where to create the zip file
    * @return the InputStream with the invalid test bundle
    * @throws IOException if zip file could not be created
@@ -178,5 +181,17 @@ public class TestBundle {
     }
 
     return models;
+  }
+
+  private static void addModelsToZipFile(File zipFile) {
+
+    // add the models
+    File[] files = TestFiles.getModelsFolderFile().listFiles();
+
+    assert files != null;
+
+    Arrays.stream(files).forEach(modelFile -> ZipUtil.addEntry(zipFile, new FileSource(
+        BenchFlowConstants.BPMN_MODELS_FOLDER_NAME + "/" + modelFile.getName(), modelFile)));
+
   }
 }
