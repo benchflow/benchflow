@@ -2,9 +2,9 @@ package cloud.benchflow.testmanager;
 
 import cloud.benchflow.testmanager.api.request.ChangeBenchFlowTestStateRequest;
 import cloud.benchflow.testmanager.api.response.RunBenchFlowTestResponse;
-import cloud.benchflow.testmanager.bundle.TestBundle;
 import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfiguration;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
+import cloud.benchflow.testmanager.helpers.TestBundle;
 import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
@@ -16,6 +16,7 @@ import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import io.dropwizard.util.Duration;
+import java.io.File;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -26,6 +27,7 @@ import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.02.17.
@@ -43,6 +45,10 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
           ConfigOverride.config("minio.secretKey", MINIO_SECRET_KEY),
           ConfigOverride.config("benchFlowExperimentManager.address", "localhost"));
 
+  // needs to be subfolder of current folder for Wercker
+  @Rule
+  public TemporaryFolder temporaryFolder = new TemporaryFolder(new File("target"));
+
   @Test
   public void runBenchFlowTest() throws Exception {
 
@@ -56,11 +62,12 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
     Client client =
         new JerseyClientBuilder(RULE.getEnvironment()).using(configuration).build("test client");
 
-    String testName = "testNameExample";
+    String testName = TestConstants.VALID_TEST_NAME;
     User user = BenchFlowConstants.BENCHFLOW_USER;
 
     FileDataBodyPart fileDataBodyPart = new FileDataBodyPart("benchFlowTestBundle",
-        TestBundle.getValidTestBundleFile(), MediaType.APPLICATION_OCTET_STREAM_TYPE);
+        TestBundle.getValidTestBundleFile(temporaryFolder),
+        MediaType.APPLICATION_OCTET_STREAM_TYPE);
 
     MultiPart multiPart = new MultiPart();
     multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
@@ -86,7 +93,7 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
     Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
 
     BenchFlowTestModel.BenchFlowTestState state = BenchFlowTestModel.BenchFlowTestState.TERMINATED;
-    String testID = TestConstants.VALID_TEST_ID;
+    String testID = TestConstants.LOAD_TEST_ID;
 
     ChangeBenchFlowTestStateRequest stateRequest = new ChangeBenchFlowTestStateRequest(state);
 
@@ -113,7 +120,7 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
         RULE.getConfiguration().getMongoDBFactory().build(), testModelDAO);
 
     String testID =
-        testModelDAO.addTestModel(TestConstants.VALID_BENCHFLOW_TEST_NAME, TestConstants.TEST_USER);
+        testModelDAO.addTestModel(TestConstants.LOAD_TEST_NAME, TestConstants.TEST_USER);
 
     String experimentID = experimentModelDAO.addExperiment(testID);
 

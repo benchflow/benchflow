@@ -37,6 +37,7 @@ logging:
   level: INFO
   loggers:
     io.dropwizard: INFO
+    org.slf4j.simpleLogger.defaultLogLevel: DEBUG
     # TODO - log the right resources
 #    cloud.benchflow.experimentsmanager.resources.lifecycle.RunBenchmarkResource: ALL
 #    cloud.benchflow.experimentsmanager.resources.lifecycle.DeployBenchmarkResource: ALL

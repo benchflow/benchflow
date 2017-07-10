@@ -5,9 +5,9 @@ import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.Termin
 
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.DockerComposeIT;
-import cloud.benchflow.testmanager.bundle.TestBundle;
 import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfiguration;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
+import cloud.benchflow.testmanager.helpers.TestBundle;
 import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.helpers.TestFiles;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
@@ -20,6 +20,7 @@ import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -35,6 +36,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
@@ -53,6 +55,10 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
           ConfigOverride.config("minio.accessKey", MINIO_ACCESS_KEY),
           ConfigOverride.config("minio.secretKey", MINIO_SECRET_KEY),
           ConfigOverride.config("benchFlowExperimentManager.address", "localhost"));
+
+  // needs to be subfolder of current folder for Wercker
+  @Rule
+  public TemporaryFolder temporaryFolder = new TemporaryFolder(new File("target"));
 
   private TestTaskScheduler testTaskScheduler;
   private BenchFlowTestModelDAO testModelDAO;
@@ -226,6 +232,38 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     Assert.assertTrue(deploymentDescriptor1.contains("SIZE_OF_THREADPOOL=1"));
     Assert.assertTrue(deploymentDescriptor1.contains("AN_ENUM=A"));
 
+
+  }
+
+  @Test
+  public void runLoadTest() throws Exception {
+
+    String testName = TestConstants.LOAD_TEST_NAME;
+    int expectedNumExperiments = 1;
+
+    String testID = testModelDAO.addTestModel(testName, user);
+
+    String testDefinitionString =
+        IOUtils.toString(TestFiles.getTestLoadInputStream(), StandardCharsets.UTF_8);
+
+    CountDownLatch countDownLatch =
+        setUpExplorationMocks(testID, expectedNumExperiments, testDefinitionString);
+
+    // handle in scheduler
+    testTaskScheduler.handleTestState(testID);
+
+    // wait long enough for all experiments to complete
+    countDownLatch.await(10, TimeUnit.SECONDS);
+
+    // wait for last task to finish
+    executorService.awaitTermination(1, TimeUnit.SECONDS);
+
+    // assert that all experiments have been executed
+    Assert.assertEquals(0, countDownLatch.getCount());
+
+    // assert that test has been set as TERMINATED
+    Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
+        testModelDAO.getTestState(testID));
 
   }
 

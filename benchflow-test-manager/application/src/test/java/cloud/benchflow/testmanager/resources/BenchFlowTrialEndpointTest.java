@@ -29,7 +29,7 @@ public class BenchFlowTrialEndpointTest {
   @Test
   public void submitTrialStatus() throws Exception {
 
-    String trialID = TestConstants.VALID_TRIAL_ID;
+    String trialID = TestConstants.LOAD_TRIAL_ID;
 
     SubmitTrialStatusRequest statusRequest = new SubmitTrialStatusRequest(RunStatus.Code.COMPLETED);
 

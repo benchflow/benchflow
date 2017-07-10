@@ -1,6 +1,6 @@
 package cloud.benchflow.testmanager.strategy.selection;
 
-import cloud.benchflow.dsl.ExplorationSpace;
+import cloud.benchflow.dsl.ExplorationSpaceAPI;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
@@ -58,7 +58,7 @@ public abstract class SelectionStrategy {
 
       // JavaCompatExplorationSpace explorationSpace = explorationModelDAO.getExplorationSpace(testID);
       ExplorationSpaceGenerator.ExplorationSpace explorationSpace =
-          ExplorationSpace.explorationSpaceFromTestYaml(testDefinitionYamlString);
+          ExplorationSpaceAPI.explorationSpaceFromTestYaml(testDefinitionYamlString);
 
       // next experiment to be executed
       int nextExplorationPoint =
@@ -67,7 +67,7 @@ public abstract class SelectionStrategy {
       // get the experiment bundle for the given point
       // <ExperimentDefinition, DeploymentDescriptor>
       Tuple2<String, String> experimentBundle =
-          ExplorationSpace.generateExperimentBundle(explorationSpace, nextExplorationPoint,
+          ExplorationSpaceAPI.generateExperimentBundle(explorationSpace, nextExplorationPoint,
               testDefinitionYamlString, deploymentDescriptorYamlString);
 
       return new SelectedExperimentBundle(experimentBundle._1(), // experiment definition
@@ -88,10 +88,6 @@ public abstract class SelectionStrategy {
 
   protected abstract int getNextExplorationPoint(List<Integer> executedExplorationPointIndices,
       int explorationSpaceSize);
-
-  public enum Type {
-    ONE_AT_A_TIME, RANDOM_BREAKDOWN, BOUNDARY_FIRST
-  }
 
   public class SelectedExperimentBundle {
 

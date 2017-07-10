@@ -1,7 +1,7 @@
 package cloud.benchflow.testmanager.services.internal.dao;
 
+import static cloud.benchflow.testmanager.helpers.TestConstants.LOAD_TEST_NAME;
 import static cloud.benchflow.testmanager.helpers.TestConstants.TEST_USER_NAME;
-import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_BENCHFLOW_TEST_NAME;
 import static org.junit.Assert.assertEquals;
 
 import cloud.benchflow.testmanager.DockerComposeIT;
@@ -75,7 +75,7 @@ public class UserDAOIT extends DockerComposeIT {
 
     User user = userDAO.addUser(TEST_USER_NAME);
 
-    String testModel1ID = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, user);
+    String testModel1ID = testModelDAO.addTestModel(LOAD_TEST_NAME, user);
 
     user = userDAO.getUser(user.getUsername());
 
@@ -83,7 +83,7 @@ public class UserDAOIT extends DockerComposeIT {
 
     Assert.assertEquals(1, user.getTestModels().size());
 
-    String testModel2ID = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, user);
+    String testModel2ID = testModelDAO.addTestModel(LOAD_TEST_NAME, user);
 
     Assert.assertEquals(2, user.getTestModels().size());
 

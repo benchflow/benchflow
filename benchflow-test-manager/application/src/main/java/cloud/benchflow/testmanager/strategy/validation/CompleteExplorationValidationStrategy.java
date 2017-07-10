@@ -1,6 +1,6 @@
 package cloud.benchflow.testmanager.strategy.validation;
 
-import cloud.benchflow.dsl.ExplorationSpace;
+import cloud.benchflow.dsl.ExplorationSpaceAPI;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
@@ -43,7 +43,7 @@ public class CompleteExplorationValidationStrategy implements ValidationStrategy
       // get exploration space
       // JavaCompatExplorationSpace explorationSpace = explorationModelDAO.getExplorationSpace(testID);
       ExplorationSpaceGenerator.ExplorationSpace explorationSpace =
-          ExplorationSpace.explorationSpaceFromTestYaml(testDefinitionYamlString);
+          ExplorationSpaceAPI.explorationSpaceFromTestYaml(testDefinitionYamlString);
 
       // get the executed exploration points
       List<Integer> explorationPointIndices =

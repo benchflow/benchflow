@@ -1,6 +1,6 @@
 package cloud.benchflow.testmanager.resources;
 
-import cloud.benchflow.dsl.BenchFlowDSL;
+import cloud.benchflow.dsl.BenchFlowTestAPI;
 import cloud.benchflow.dsl.definition.BenchFlowTest;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
@@ -87,6 +87,7 @@ public class BenchFlowTestResource {
         "request received: POST " + BenchFlowConstants.getPathFromUsername(username) + RUN_PATH);
 
     if (benchFlowTestBundle == null) {
+      logger.info("runBenchFlowTest: test bundle == null");
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
 
@@ -102,6 +103,7 @@ public class BenchFlowTestResource {
         userDAO.addUser(user.getUsername());
       } catch (UserIDAlreadyExistsException e) {
         // since we already checked that the user doesn't exist it cannot happen
+        logger.info("runBenchFlowTest: user doesn't exist");
         throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
       }
     }
@@ -114,10 +116,11 @@ public class BenchFlowTestResource {
           .extractBenchFlowTestDefinitionString(testBundleZipInputStream);
 
       if (testDefinitionYamlString == null) {
+        logger.info("runBenchFlowTest: testDefinitionYamlString == null");
         throw new InvalidTestBundleException();
       }
 
-      BenchFlowTest benchFlowTest = BenchFlowDSL.testFromYaml(testDefinitionYamlString);
+      BenchFlowTest benchFlowTest = BenchFlowTestAPI.testFromYaml(testDefinitionYamlString);
 
       InputStream deploymentDescriptorInputStream = BenchFlowTestBundleExtractor
           .extractDeploymentDescriptorInputStream(testBundleZipInputStream);
@@ -125,6 +128,8 @@ public class BenchFlowTestResource {
           BenchFlowTestBundleExtractor.extractBPMNModelInputStreams(testBundleZipInputStream);
 
       if (deploymentDescriptorInputStream == null || bpmnModelInputStreams.size() == 0) {
+        logger.info(
+            "runBenchFlowTest: deploymentDescriptorInputStream == null || bpmnModelInputStreams.size() == 0");
         throw new InvalidTestBundleException();
       }
 
@@ -153,6 +158,7 @@ public class BenchFlowTestResource {
       return new RunBenchFlowTestResponse(testID);
 
     } catch (IOException | InvalidTestBundleException | BenchFlowDeserializationException e) {
+      // TODO - throw more fine grained errors, e.g., file missing in bundle, deserialization error
       throw new InvalidTestBundleWebException();
     }
   }

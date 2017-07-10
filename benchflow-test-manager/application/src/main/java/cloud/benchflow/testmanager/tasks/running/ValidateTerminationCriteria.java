@@ -3,6 +3,7 @@ package cloud.benchflow.testmanager.tasks.running;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.strategy.validation.CompleteExplorationValidationStrategy;
+import cloud.benchflow.testmanager.strategy.validation.SingleExperimentValidationStrategy;
 import cloud.benchflow.testmanager.strategy.validation.ValidationStrategy;
 import cloud.benchflow.testmanager.tasks.running.ValidateTerminationCriteria.TerminationCriteriaResult;
 import java.util.concurrent.Callable;
@@ -39,9 +40,14 @@ public class ValidateTerminationCriteria implements Callable<TerminationCriteria
 
     // TODO - handle cases with regression model
 
-    // cases with no regression model, e.g. complete exploration
-
-    ValidationStrategy validationStrategy = new CompleteExplorationValidationStrategy();
+    // cases with no regression model, e.g. complete exploration or single experiment
+    ValidationStrategy validationStrategy;
+    boolean singleExperiment = explorationModelDAO.isSingleExperiment(testID);
+    if (singleExperiment) {
+      validationStrategy = new SingleExperimentValidationStrategy();
+    } else {
+      validationStrategy = new CompleteExplorationValidationStrategy();
+    }
 
     if (validationStrategy.isTestComplete(testID)) {
       return TerminationCriteriaResult.GOAL_REACHABLE_NO_REGRESSION_EXPERIMENTS_EXECUTED;

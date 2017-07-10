@@ -31,7 +31,7 @@ public class OneAtATimeSelectionStrategyTest {
   @Test
   public void selectNextExperimentFirstIndex() throws Exception {
 
-    String testID = TestConstants.VALID_TEST_ID;
+    String testID = TestConstants.LOAD_TEST_ID;
 
     // return test definition
     Mockito.doReturn(TestFiles.getTestExplorationOneAtATimeUsersMemoryEnvironmentInputStream())
