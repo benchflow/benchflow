@@ -326,6 +326,10 @@
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <skipTests>false</skipTests>
+                    <!-- Needed because the automatic inclusions (see http://maven.apache.org/surefire/maven-surefire-plugin/examples/inclusion-exclusion.html) lead to some IT test to run due to the pattern matching -->
+                    <excludes>    
+                        <exclude>**/*IT.java</exclude> 
+                    </excludes>
                 </configuration>
             </plugin>
             <!--to run integration tests-->
