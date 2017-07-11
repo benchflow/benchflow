@@ -119,13 +119,14 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
-        <version>3.7</version>
+        <version>3.8</version>
         <configuration>
           <sourceEncoding>utf-8</sourceEncoding>
           <minimumTokens>100</minimumTokens>
           <verbose>true</verbose>
-          <failOnViolation>false</failOnViolation>
+          <failOnViolation>true</failOnViolation>
           <linkXRef>false</linkXRef>
+          <targetJdk>1.8</targetJdk>
         </configuration>
         <executions>
           <execution>
