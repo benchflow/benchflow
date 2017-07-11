@@ -44,7 +44,9 @@ build-benchflow-dsl:
   steps:
     # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one.
     - xenoterracide/maven:
-        goals: clean post-clean process-sources test package verify
+        # NOTE: here the clean and post-clean phases are not needed because we do not need to download "external" dependencies
+        # clean post-clean process-sources test integration-test
+        goals: verify
         args: -f $WERCKER_SOURCE_DIR/benchflow-dsl
     - script:
         # NOTE: we also copy devops files, because they are needed in subsequent steps
@@ -62,7 +64,9 @@ build-benchflow-faban-client:
   steps:
     # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one. 
     - xenoterracide/maven:
-        goals: clean post-clean process-sources test package verify
+        # NOTE: here the clean and post-clean phases are not needed because we do not need to download "external" dependencies
+        # clean post-clean process-sources test integration-test
+        goals: verify
         args: -f $WERCKER_SOURCE_DIR/benchflow-faban-client
     - script:
         # NOTE: we also copy devops files, because they are needed in subsequent steps
@@ -90,7 +94,8 @@ build-benchflow-minio-client:
   steps:
     # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one.
     - xenoterracide/maven:
-        goals: clean post-clean process-sources test package verify
+        # test integration-test
+        goals: clean post-clean process-sources verify
         args: -f $WERCKER_SOURCE_DIR/benchflow-minio-client
     - script:
         # NOTE: we also copy devops files, because they are needed in subsequent steps
@@ -132,7 +137,8 @@ build-benchflow-experiment-manager:
   steps:
     # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one.
     - xenoterracide/maven:
-        goals: clean post-clean process-sources test package verify
+        # test integration-test
+        goals: clean post-clean process-sources verify
         args: -f $WERCKER_SOURCE_DIR/benchflow-experiment-manager
     - script:
         # NOTE: we also copy devops files, because they are needed in subsequent steps
@@ -182,7 +188,8 @@ build-benchflow-test-manager:
     # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one.
     - xenoterracide/maven:
         # We explicitly call all the phases in which we hook build activities
-        goals: clean post-clean process-sources test package verify
+        # test integration-test
+        goals: clean post-clean process-sources verify
         # Add -X for debugging
         args: -f $WERCKER_SOURCE_DIR/benchflow-test-manager
     - script:
@@ -208,7 +215,8 @@ build-benchflow-test-manager:
 #   steps:
 #     # Since now we do not have the deploy phase in our project, it would fail to call it, then we stop to the verify phase, that include also the package one.
 #     - xenoterracide/maven:
-#         goals: clean post-clean process-sources test package verify
+#         # test integration-test
+          # goals: clean post-clean process-sources verify
 #         args: -f $WERCKER_SOURCE_DIR/benchflow-driver-maker
 #     - script:
 #         # NOTE: we also copy devops files, because they are needed in subsequent steps
