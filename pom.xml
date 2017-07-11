@@ -40,7 +40,7 @@
             </configuration>
             <executions>
               <execution>
-                <phase>test</phase>
+                <phase>compile</phase>
                 <goals>
                   <goal>check</goal>
                 </goals>
@@ -92,7 +92,7 @@
         <executions>
           <execution>
             <id>validate</id>
-            <phase>test</phase>
+            <phase>compile</phase>
             <goals>
               <goal>check</goal>
             </goals>
@@ -129,7 +129,7 @@
         </configuration>
         <executions>
           <execution>
-            <phase>test</phase>
+            <phase>compile</phase>
             <goals>
               <goal>check</goal>
               <goal>cpd-check</goal>
