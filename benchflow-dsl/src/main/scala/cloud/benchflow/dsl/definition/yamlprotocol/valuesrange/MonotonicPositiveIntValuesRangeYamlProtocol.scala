@@ -2,11 +2,11 @@ package cloud.benchflow.dsl.definition.yamlprotocol.valuesrange
 
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationExceptionMessage
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 /**
-  * @author Vincenzo Ferme <info@vincenzoferme.it>
-  */
+ * @author Vincenzo Ferme <info@vincenzoferme.it>
+ */
 trait MonotonicPositiveIntValuesRangeYamlProtocol extends IntValuesRangeYamlProtocol {
 
   /*
@@ -23,7 +23,7 @@ trait MonotonicPositiveIntValuesRangeYamlProtocol extends IntValuesRangeYamlProt
     //Monotonic
     if (!increasingOrder) {
       Failure(BenchFlowDeserializationExceptionMessage("values must be increasing"))
-    //Positive
+      //Positive
     } else if (values.head <= 0) {
       Failure(BenchFlowDeserializationExceptionMessage("the first value must be > 0"))
     } else {
@@ -40,15 +40,16 @@ trait MonotonicPositiveIntValuesRangeYamlProtocol extends IntValuesRangeYamlProt
     val rangeValid = assertRangeIsValid(range)
 
     if (rangeValid.isFailure) {
-      Failure(rangeValid.failed.get)
+      rangeValid
     } else {
 
       val (prefix: String, stepValue: Int) = getIntStep(step)
 
-      if( stepValue>0 )
+      if (stepValue > 0) {
         generateStepList(range, stepValue, prefix)
-      else
+      } else {
         Failure(BenchFlowDeserializationExceptionMessage("step function value must be >0"))
+      }
 
     }
 
@@ -69,7 +70,7 @@ trait MonotonicPositiveIntValuesRangeYamlProtocol extends IntValuesRangeYamlProt
         Success(range)
       }
     } else {
-      Failure(rangeValid.failed.get)
+      rangeValid
     }
 
   }

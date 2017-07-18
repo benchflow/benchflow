@@ -1,11 +1,11 @@
 package cloud.benchflow.dsl.definition.configuration.goal.explorationspace.workload.users
 
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.workload.WorkloadExplorationSpaceYamlProtocol
-import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation}
+import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
 import cloud.benchflow.dsl.definition.yamlprotocol.valuesrange.MonotonicPositiveIntValuesRangeYamlProtocol
-import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _}
+import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com)
@@ -78,11 +78,12 @@ object UserValuesYamlProtocol extends DefaultYamlProtocol with MonotonicPositive
 
     if (rangeValid.isSuccess) {
       // IF only range then the step is 1
-      if(range.head > range.last)
+      if (range.head > range.last) {
         Success((range.head to range.last by -1).toList)
-      //TODO: check it works when applying https://github.com/benchflow/benchflow/issues/397#issuecomment-314408192
-      else
+        //TODO: check it works when applying https://github.com/benchflow/benchflow/issues/397#issuecomment-314408192
+      } else {
         Success((range.head to range.last by 1).toList)
+      }
     } else {
       Failure(rangeValid.failed.get)
     }

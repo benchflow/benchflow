@@ -3,11 +3,11 @@ package cloud.benchflow.dsl.definition.yamlprotocol.valuesrange
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationExceptionMessage
 import net.jcazevedo.moultingyaml.YamlString
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 /**
-  * @author Vincenzo Ferme <info@vincenzoferme.it>
-  */
+ * @author Vincenzo Ferme <info@vincenzoferme.it>
+ */
 trait ValuesRangeYamlProtocol {
 
   protected val ValuesKey = YamlString("values")
@@ -50,10 +50,10 @@ trait ValuesRangeYamlProtocol {
     }
   }
 
-  protected def getRangeList(range: List[Int]): Try[List[Int]] {}
+  protected def getRangeList(range: List[Int]): Try[List[Int]]
 
-  protected def getStepList(range: List[Int], step: String): Try[List[Int]] {}
+  protected def getStepList(range: List[Int], step: String): Try[List[Int]]
 
-  protected def assertValidValues(values: List[Int]): Try[List[Int]] {}
+  protected def assertValidValues(values: List[Int]): Try[List[Int]]
 
 }

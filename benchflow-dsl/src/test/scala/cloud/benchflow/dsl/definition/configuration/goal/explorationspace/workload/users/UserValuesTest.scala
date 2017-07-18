@@ -14,6 +14,11 @@ import scala.util.Try
  */
 class UserValuesTest extends JUnitSuite {
 
+  //TODO: when applying https://github.com/benchflow/benchflow/issues/397#issuecomment-314408192
+  //evaluate if it is possible to refactor these tests to avoid duplicates with the behaviour added
+  //using the MonotonicPositiveIntValuesRangeYamlProtocol, IntValuesRangeYamlProtocol and
+  //ValuesRangeYamlProtocol traits
+
   @Test def valuesUserExplorationSpaceTest(): Unit = {
 
     val rangeStepYaml: String =
@@ -61,14 +66,14 @@ class UserValuesTest extends JUnitSuite {
 
     val rangeStepYaml: String =
       """
-        |range: [1,10]
+        |range: [2,10]
       """.stripMargin
 
     val terminationCriteria = rangeStepYaml.parseYaml.convertTo[Try[UserValues]]
 
     Assert.assertTrue(terminationCriteria.isSuccess)
 
-    terminationCriteria.get.values should contain allOf (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    terminationCriteria.get.values should contain allOf (2, 3, 4, 5, 6, 7, 8, 9, 10)
 
     val terminationCriteriaYaml = terminationCriteria.get.toYaml
 
@@ -93,12 +98,18 @@ class UserValuesTest extends JUnitSuite {
 
     val rangeStepYaml: String =
       """
-        |range: [10,1]
+        |range: [10,2]
       """.stripMargin
 
     val terminationCriteria = rangeStepYaml.parseYaml.convertTo[Try[UserValues]]
 
-    Assert.assertTrue(terminationCriteria.isFailure)
+    Assert.assertTrue(terminationCriteria.isSuccess)
+
+    terminationCriteria.get.values should contain allOf (10, 9, 8, 7, 6, 5, 4, 3, 2)
+
+    val terminationCriteriaYaml = terminationCriteria.get.toYaml
+
+    Assert.assertTrue(terminationCriteriaYaml.prettyPrint.contains("values"))
 
   }
 
@@ -107,6 +118,46 @@ class UserValuesTest extends JUnitSuite {
     val rangeStepYaml: String =
       """
         |range: [-1,1]
+      """.stripMargin
+
+    val terminationCriteria = rangeStepYaml.parseYaml.convertTo[Try[UserValues]]
+
+    Assert.assertTrue(terminationCriteria.isFailure)
+
+  }
+
+  @Test def rangeHeadZeroUserExplorationSpaceTest(): Unit = {
+
+    val rangeStepYaml: String =
+      """
+        |range: [0,1]
+      """.stripMargin
+
+    val terminationCriteria = rangeStepYaml.parseYaml.convertTo[Try[UserValues]]
+
+    Assert.assertTrue(terminationCriteria.isFailure)
+
+  }
+
+  @Test def rangeHeadEqualRangeLastUserExplorationSpaceTest(): Unit = {
+
+    val rangeStepYaml: String =
+      """
+        |range: [1,1]
+      """.stripMargin
+
+    val terminationCriteria = rangeStepYaml.parseYaml.convertTo[Try[UserValues]]
+
+    Assert.assertTrue(terminationCriteria.isFailure)
+
+  }
+
+  @Test def rangeStepNoIntegerUserExplorationSpaceTest(): Unit = {
+
+    val rangeStepYaml: String =
+      """
+        |range: [1,10]
+        |step: "+2.5"
       """.stripMargin
 
     val terminationCriteria = rangeStepYaml.parseYaml.convertTo[Try[UserValues]]
@@ -211,6 +262,20 @@ class UserValuesTest extends JUnitSuite {
 
   }
 
+  @Test def rangeHeadLowerThanLastMultiplicationUserExplorationSpaceTest(): Unit = {
+
+    val rangeStepYaml: String =
+      """
+        |range: [20,2]
+        |step: "*2"
+      """.stripMargin
+
+    val terminationCriteria = rangeStepYaml.parseYaml.convertTo[Try[UserValues]]
+
+    Assert.assertTrue(terminationCriteria.isFailure)
+
+  }
+
   @Test def rangeStepMultiplicationNegativeUserExplorationSpaceTest(): Unit = {
 
     val rangeStepYaml: String =
@@ -236,6 +301,20 @@ class UserValuesTest extends JUnitSuite {
     val terminationCriteria = rangeStepYaml.parseYaml.convertTo[Try[UserValues]]
 
     Assert.assertTrue(terminationCriteria.isFailure)
+
+  }
+
+  @Test def rangeHeadMultiplicationIdentityElementsUserExplorationSpaceTest(): Unit = {
+
+    val rangeHeadZeroYaml: String =
+      """
+        |range: [0,20]
+        |step: "*2"
+      """.stripMargin
+
+    val terminationCriteriaZero = rangeHeadZeroYaml.parseYaml.convertTo[Try[UserValues]]
+
+    Assert.assertTrue(terminationCriteriaZero.isFailure)
 
   }
 
@@ -273,6 +352,20 @@ class UserValuesTest extends JUnitSuite {
 
   }
 
+  @Test def rangeHeadLowerThanLastPowerUserExplorationSpaceTest(): Unit = {
+
+    val rangeStepYaml: String =
+      """
+        |range: [20,2]
+        |step: "^2"
+      """.stripMargin
+
+    val terminationCriteria = rangeStepYaml.parseYaml.convertTo[Try[UserValues]]
+
+    Assert.assertTrue(terminationCriteria.isFailure)
+
+  }
+
   @Test def rangeStepPowerNegativeUserExplorationSpaceTest(): Unit = {
 
     val rangeStepYaml: String =
@@ -287,7 +380,31 @@ class UserValuesTest extends JUnitSuite {
 
   }
 
-  @Test def rangeStepPowerIdentityElementUserExplorationSpaceTest(): Unit = {
+  @Test def rangeHeadPowerIdentityElementsUserExplorationSpaceTest(): Unit = {
+
+    val rangeHeadZeroYaml: String =
+      """
+        |range: [0,20]
+        |step: "^2"
+      """.stripMargin
+
+    val terminationCriteriaZero = rangeHeadZeroYaml.parseYaml.convertTo[Try[UserValues]]
+
+    Assert.assertTrue(terminationCriteriaZero.isFailure)
+
+    val rangeHeadOneYaml: String =
+      """
+        |range: [1,20]
+        |step: "^2"
+      """.stripMargin
+
+    val terminationCriteriaOne = rangeHeadOneYaml.parseYaml.convertTo[Try[UserValues]]
+
+    Assert.assertTrue(terminationCriteriaOne.isFailure)
+
+  }
+
+  @Test def rangeStepPowerIdentityElementsUserExplorationSpaceTest(): Unit = {
 
     val rangeStepPowerZeroYaml: String =
       """
@@ -308,6 +425,20 @@ class UserValuesTest extends JUnitSuite {
     val terminationCriteria = rangeStepPowerOneYaml.parseYaml.convertTo[Try[UserValues]]
 
     Assert.assertTrue(terminationCriteria.isFailure)
+
+  }
+
+  @Test def rangeStepOperationNotSupportedUserExplorationSpaceTest(): Unit = {
+
+    val rangeStepPowerZeroYaml: String =
+      """
+        |range: [2,20]
+        |step: "&2"
+      """.stripMargin
+
+    val terminationCriteriaZero = rangeStepPowerZeroYaml.parseYaml.convertTo[Try[UserValues]]
+
+    Assert.assertTrue(terminationCriteriaZero.isFailure)
 
   }
 

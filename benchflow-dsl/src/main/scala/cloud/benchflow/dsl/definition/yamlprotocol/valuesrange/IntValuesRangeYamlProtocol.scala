@@ -3,11 +3,11 @@ package cloud.benchflow.dsl.definition.yamlprotocol.valuesrange
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.step.RangeWithStep
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationExceptionMessage
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Try}
 
 /**
-  * @author Vincenzo Ferme <info@vincenzoferme.it>
-  */
+ * @author Vincenzo Ferme <info@vincenzoferme.it>
+ */
 trait IntValuesRangeYamlProtocol extends ValuesRangeYamlProtocol {
 
   protected override def getStepList(range: List[Int], step: String): Try[List[Int]] = {
@@ -20,13 +20,7 @@ trait IntValuesRangeYamlProtocol extends ValuesRangeYamlProtocol {
 
       val (prefix: String, stepValue: Int) = getIntStep(step)
 
-      val tryStepList = generateStepList(range, stepValue, prefix)
-
-      if(tryStepList.isSuccess)
-        Success(tryStepList.get)
-      else
-        Failure(tryStepList.failed.get)
-
+      generateStepList(range, stepValue, prefix)
 
     }
 
@@ -34,21 +28,16 @@ trait IntValuesRangeYamlProtocol extends ValuesRangeYamlProtocol {
 
   protected def getIntStep(step: String) = {
 
-    val (prefix: String, triedStepValue: Try[Int]) = tryGetStep(step)
-
-    if(triedStepValue.isFailure)
-      Failure(BenchFlowDeserializationExceptionMessage("step must contain an integer"))
-    else
-      (prefix, triedStepValue.get)
-
-  }
-
-  private def tryGetStep(step: String) = {
     val prefix = step.substring(0, 1)
 
     val triedStepValue = Try(step.substring(1).toInt)
 
-    (prefix, triedStepValue)
+    if (triedStepValue.isFailure) {
+      Failure(BenchFlowDeserializationExceptionMessage("step must contain an integer"))
+    } else {
+      (prefix, triedStepValue.get)
+    }
+
   }
 
   /*
@@ -64,37 +53,38 @@ trait IntValuesRangeYamlProtocol extends ValuesRangeYamlProtocol {
     case "+" =>
       val increasingRange = assertIncreasingRange(range)
 
-      if(stepValue == 0) {
+      if (stepValue == 0) {
         Failure(BenchFlowDeserializationExceptionMessage("step function cannot be +0"))
       } else if (increasingRange.isFailure) {
-        Failure(increasingRange.failed.get)
-      } else
-        RangeWithStep.stepList(range, stepValue, (a: Int, b: Int) => a + b)
+        increasingRange
+      } else {
+        RangeWithStep.stepList(increasingRange.get, stepValue, (a: Int, b: Int) => a + b)
+      }
 
     case "*" =>
       val increasingRange = assertIncreasingRange(range)
 
-      if(stepValue == 0 || stepValue == 1){
+      if (stepValue == 0 || stepValue == 1) {
         Failure(BenchFlowDeserializationExceptionMessage("step function cannot be *0 or *1"))
       } else if (range.head == 0) {
         Failure(BenchFlowDeserializationExceptionMessage("first element in the list cannot be *0"))
       } else if (increasingRange.isFailure) {
-        Failure(increasingRange.failed.get)
+        increasingRange
       } else {
-        RangeWithStep.stepList(range, stepValue, (a: Int, b: Int) => a * b)
+        RangeWithStep.stepList(increasingRange.get, stepValue, (a: Int, b: Int) => a * b)
       }
 
     case "^" =>
       val increasingRange = assertIncreasingRange(range)
 
-      if(stepValue <= 0 || stepValue == 1){
+      if (stepValue <= 0 || stepValue == 1) {
         Failure(BenchFlowDeserializationExceptionMessage("step function cannot be ^-N, ^0 or ^1"))
       } else if (range.head == 0 || range.head == 1) {
         Failure(BenchFlowDeserializationExceptionMessage("first element in the list cannot be ^0 or ^1"))
       } else if (increasingRange.isFailure) {
-        Failure(increasingRange.failed.get)
+        increasingRange
       } else {
-        RangeWithStep.stepList(range, stepValue, (a: Int, b: Int) => Math.pow(a, b).intValue)
+        RangeWithStep.stepList(increasingRange.get, stepValue, (a: Int, b: Int) => Math.pow(a, b).intValue)
       }
 
     case _ => Failure(BenchFlowDeserializationExceptionMessage("step operation not supported"))
