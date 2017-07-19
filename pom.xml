@@ -83,7 +83,7 @@
           </dependency>
         </dependencies>
         <configuration>
-          <configLocation>benchflow_java_checks.xml</configLocation>
+          <configLocation>checkstyle.xml</configLocation>
           <encoding>UTF-8</encoding>
           <consoleOutput>true</consoleOutput>
           <failsOnError>true</failsOnError>
