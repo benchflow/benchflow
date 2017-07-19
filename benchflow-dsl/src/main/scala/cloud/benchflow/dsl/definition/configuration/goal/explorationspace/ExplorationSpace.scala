@@ -7,4 +7,6 @@ import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.worklo
  * @author Jesper Findahl (jesper.findahl@usi.ch)
  *         created on 2017-04-17
  */
-case class ExplorationSpace(workload: Option[WorkloadExplorationSpace], services: Option[Map[String, ServiceExplorationSpace]])
+case class ExplorationSpace(
+  workload: Option[WorkloadExplorationSpace],
+  services: Option[Map[String, ServiceExplorationSpace]])
