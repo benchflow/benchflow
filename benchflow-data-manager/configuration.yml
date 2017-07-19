@@ -1,0 +1,26 @@
+logging:
+  level: Info
+  loggers:
+    cloud.benchflow.datamanager: DEBUG
+    com.google.api.client.http: Warn
+
+swagger:
+  resourcePackage: cloud.benchflow.datamanager.service.resources
+
+minio:
+  address: ${env.MINIO_ADDRESS!"SET_ME"}
+  accessKey: ${env.MINIO_ACCESS_KEY!"SET_ME"}
+  secretKey: ${env.MINIO_SECRET_KEY!"SET_ME"}
+  defaultBucket: ${env.MINIO_DEFAULT_BUCKET!"test"}
+
+googleDrive:
+  applicationName: ${env.GOOGLE_DRIVE_APPNAME!"benchflow-datamanager"}
+  secret: ${env.GOOGLE_DRIVE_SECRET!"SET_ME"}
+  credentialsDir: ${env.GOOGLE_DRIVE_CREDENTIALS_DIR!"./"}
+  baseFolderName: ${env.GOOGLE_DRIVE_BASEFOLDER!"benchflow"}
+
+cassandra:
+  host: ${env.CASSANDRA_HOST!"localhost"}
+  keyspace: ${env.CASSANDRA_KEYSPACE!"benchflow"}
+  username: ${env.CASSANDRA_USERNAME!""}
+  password: ${env.CASSANDRA_PASSWORD!""}

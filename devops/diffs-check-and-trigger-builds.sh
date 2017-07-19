@@ -250,6 +250,9 @@ do
 	     "benchflow-test-manager")
 	     branch_name_pipeline_id=$WERCKER_BENCHFLOW_TEST_MANAGER_PIPELINE_ID
 	     ;;
+	     "benchflow-data-manager")
+	     branch_name_pipeline_id=$WERCKER_BENCHFLOW_DATA_MANAGER_PIPELINE_ID
+	     ;;
 	     "benchflow-client")
 	     branch_name_pipeline_id=$WERCKER_BENCHFLOW_CLIENT_PIPELINE_ID
 	     ;;

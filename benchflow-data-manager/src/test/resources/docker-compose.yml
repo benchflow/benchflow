@@ -1,0 +1,9 @@
+version: '2'
+services:
+  cassandra:
+    image: bitnami/cassandra:latest
+    ports:
+      - "9042:9042"
+    environment:
+      - CASSANDRA_PASSWORD=cassandra
+      - CASSANDRA_USERNAME=cassandra
