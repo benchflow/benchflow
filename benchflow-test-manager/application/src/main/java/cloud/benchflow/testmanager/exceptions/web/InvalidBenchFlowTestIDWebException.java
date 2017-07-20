@@ -8,12 +8,10 @@ import javax.ws.rs.core.Response;
  */
 public class InvalidBenchFlowTestIDWebException extends WebApplicationException {
 
-  // TODO - check visability
-  // TODO - check how to include message
   public static final String message = "Invalid BenchFlow Test ID";
 
   public InvalidBenchFlowTestIDWebException() {
 
-    super(Response.status(Response.Status.NOT_FOUND).build());
+    super(Response.status(Response.Status.NOT_FOUND).entity(message).type("text/plain").build());
   }
 }

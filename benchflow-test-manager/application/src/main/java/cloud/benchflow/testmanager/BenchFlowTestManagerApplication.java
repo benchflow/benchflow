@@ -34,6 +34,8 @@ public class BenchFlowTestManagerApplication
   private static MinioService minioService;
   private static BenchFlowExperimentManagerService experimentManagerService;
   private static TestTaskScheduler testTaskScheduler;
+  private static String minioServiceAddress;
+  private static String experimentManagerAddress;
   private Logger logger =
       LoggerFactory.getLogger(BenchFlowTestManagerApplication.class.getSimpleName());
 
@@ -75,6 +77,14 @@ public class BenchFlowTestManagerApplication
     return testTaskScheduler;
   }
 
+  public static String getMinioServiceAddress() {
+    return minioServiceAddress;
+  }
+
+  public static String getExperimentManagerAddress() {
+    return experimentManagerAddress;
+  }
+
   @Override
   public String getName() {
     return "benchflow-test-orchestrator";
@@ -104,6 +114,11 @@ public class BenchFlowTestManagerApplication
       throws Exception {
 
     logger.info("run");
+
+    // external services addresses
+    minioServiceAddress = configuration.getMinioServiceFactory().getAddress();
+    experimentManagerAddress =
+        "http://" + configuration.getBenchFlowExperimentManagerServiceFactory().getAddress();
 
     // services
 

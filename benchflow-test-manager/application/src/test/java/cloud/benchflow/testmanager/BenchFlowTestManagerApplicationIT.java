@@ -1,9 +1,12 @@
 package cloud.benchflow.testmanager;
 
 import cloud.benchflow.testmanager.api.request.ChangeBenchFlowTestStateRequest;
+import cloud.benchflow.testmanager.api.response.ChangeBenchFlowTestStateResponse;
 import cloud.benchflow.testmanager.api.response.RunBenchFlowTestResponse;
 import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfiguration;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
+import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebException;
+import cloud.benchflow.testmanager.exceptions.web.InvalidTestBundleWebException;
 import cloud.benchflow.testmanager.helpers.TestBundle;
 import cloud.benchflow.testmanager.helpers.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
@@ -21,6 +24,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
@@ -85,6 +89,72 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
 
     Assert.assertNotNull(testResponse);
     Assert.assertTrue(testResponse.getTestID().contains(testName));
+    Assert.assertTrue(testResponse.getStatus().contains(BenchFlowTestResource.STATUS_PATH));
+  }
+
+  @Test
+  public void runMissingTestDefinitionTest() throws Exception {
+
+    // needed for multipart client
+    // https://github.com/dropwizard/dropwizard/issues/1013
+    JerseyClientConfiguration configuration = new JerseyClientConfiguration();
+    configuration.setChunkedEncodingEnabled(false);
+    // needed because parsing testYaml takes more than default time
+    configuration.setTimeout(Duration.milliseconds(5000));
+
+    Client client =
+        new JerseyClientBuilder(RULE.getEnvironment()).using(configuration).build("test client");
+
+    User user = BenchFlowConstants.BENCHFLOW_USER;
+
+    FileDataBodyPart fileDataBodyPart = new FileDataBodyPart("benchFlowTestBundle",
+        TestBundle.getMissingTestDefinitionTestBundleFile(temporaryFolder),
+        MediaType.APPLICATION_OCTET_STREAM_TYPE);
+
+    MultiPart multiPart = new MultiPart();
+    multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
+    multiPart.bodyPart(fileDataBodyPart);
+
+    Response response = client.target(String.format("http://localhost:%d/", RULE.getLocalPort()))
+        .path(BenchFlowConstants.getPathFromUsername(user.getUsername()))
+        .path(BenchFlowConstants.TESTS_PATH).path(BenchFlowTestResource.RUN_PATH)
+        .register(MultiPartFeature.class).request(MediaType.APPLICATION_JSON)
+        .post(Entity.entity(multiPart, multiPart.getMediaType()));
+
+    Assert.assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
+
+    Assert.assertEquals(InvalidTestBundleWebException.message, response.readEntity(String.class));
+
+  }
+
+  @Test
+  public void changeTestStateValid() throws Exception {
+
+    BenchFlowTestModelDAO testModelDAO =
+        new BenchFlowTestModelDAO(RULE.getConfiguration().getMongoDBFactory().build());
+
+    String testID =
+        testModelDAO.addTestModel(TestConstants.LOAD_TEST_NAME, TestConstants.TEST_USER);
+
+    Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
+
+    BenchFlowTestModel.BenchFlowTestState state = BenchFlowTestModel.BenchFlowTestState.TERMINATED;
+
+    ChangeBenchFlowTestStateRequest stateRequest = new ChangeBenchFlowTestStateRequest(state);
+
+    String target = "http://localhost:" + RULE.getLocalPort();
+
+    Response response = client.target(target).path(BenchFlowConstants.getPathFromTestID(testID))
+        .path(BenchFlowTestResource.STATE_PATH).request(MediaType.APPLICATION_JSON)
+        .put(Entity.entity(stateRequest, MediaType.APPLICATION_JSON));
+
+    Assert.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+    ChangeBenchFlowTestStateResponse benchFlowTestStateResponse =
+        response.readEntity(ChangeBenchFlowTestStateResponse.class);
+
+    Assert.assertEquals(state, benchFlowTestStateResponse.getState());
+
   }
 
   @Test
@@ -105,8 +175,8 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
 
     Assert.assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
 
-    // TODO - check how to include message
-    //        Assert.assertEquals(InvalidBenchFlowTestIDWebException.message, response.getStatusInfo().getReasonPhrase());
+    Assert.assertEquals(InvalidBenchFlowTestIDWebException.message,
+        response.readEntity(String.class));
 
   }
 

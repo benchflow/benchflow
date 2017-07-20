@@ -20,6 +20,7 @@ public class BenchFlowConstants {
   public static final String MINIO_ID_DELIMITER = "/";
   // Minio
   public static final String TESTS_BUCKET = "tests";
+  public static final String RUNS_BUCKET = "runs";
   public static final String GENERATED_BENCHMARK_FILE_NAME = "benchflow-benchmark.jar";
   // MongoDB
   public static final String DB_NAME = "benchflow-test-manager";

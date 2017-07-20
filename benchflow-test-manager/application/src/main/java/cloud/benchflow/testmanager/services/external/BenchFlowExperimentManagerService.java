@@ -18,6 +18,7 @@ public class BenchFlowExperimentManagerService {
   // TODO - move this to common library?
   private static String RUN_PATH = "/run";
   private static String ABORT_PATH = "/abort";
+  public static String STATUS_PATH = "/status";
 
   private Logger logger =
       LoggerFactory.getLogger(BenchFlowExperimentManagerService.class.getSimpleName());
