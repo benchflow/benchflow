@@ -1,13 +1,15 @@
 package cloud.benchflow.dsl
 
 import java.nio.file.Paths
+import java.util.Optional
 
 import cloud.benchflow.dsl.definition.types.bytes.Bytes
 import cloud.benchflow.dsl.dockercompose.DockerComposeYamlString
-import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpacePoint
+import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpacePoint
 import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
 
+import scala.collection.JavaConverters._
 import scala.io.Source
 
 /**
@@ -22,11 +24,11 @@ class ExplorationSpaceAPITest extends JUnitSuite {
 
     val explorationSpace = ExplorationSpaceAPI.explorationSpaceDimensionsFromTestYaml(testYaml)
 
-    Assert.assertTrue(explorationSpace.users.isDefined)
+    Assert.assertTrue(explorationSpace.users.isPresent)
 
-    Assert.assertTrue(explorationSpace.memory.isDefined)
+    Assert.assertTrue(explorationSpace.memory.isPresent)
 
-    Assert.assertTrue(explorationSpace.environment.isDefined)
+    Assert.assertTrue(explorationSpace.environment.isPresent)
 
   }
 
@@ -38,7 +40,7 @@ class ExplorationSpaceAPITest extends JUnitSuite {
 
     val expectedExplorationSpaceSize = 5 * 4 * 3 * 4
 
-    Assert.assertEquals(expectedExplorationSpaceSize, explorationSpace.usersDimension.get.length)
+    Assert.assertEquals(expectedExplorationSpaceSize, explorationSpace.usersDimension.get().size())
 
   }
 
@@ -70,20 +72,20 @@ class ExplorationSpaceAPITest extends JUnitSuite {
 
     val expectedExperimentIndex = 10
 
-    val explorationSpacePoint = ExplorationSpacePoint(
-      users = Some(5),
-      memory = Some(Map("camunda" -> Bytes.fromString("1g").get)),
-      environment = Some(Map("camunda" -> Map("AN_ENUM" -> "C", "SIZE_OF_THREADPOOL" -> "3"))))
+    val javaCompatExplorationSpacePoint = JavaCompatExplorationSpacePoint(
+      Optional.ofNullable(5),
+      Optional.ofNullable(Map("camunda" -> Bytes.fromString("1g").get).asJava),
+      Optional.ofNullable(Map("camunda" -> Map("AN_ENUM" -> "C", "SIZE_OF_THREADPOOL" -> "3").asJava).asJava))
 
     val testYaml = Source.fromFile(Paths.get(BenchFlowExhaustiveExplorationMultipleExample).toFile).mkString
 
     val dockerComposeYamlString = DockerComposeYamlString
 
-    val explorationSpace = ExplorationSpaceAPI.explorationSpaceFromTestYaml(testYaml)
+    val javaCompatExplorationSpace = ExplorationSpaceAPI.explorationSpaceFromTestYaml(testYaml)
 
     val optionResult = ExplorationSpaceAPI.generateExperimentBundle(
-      explorationSpace,
-      explorationSpacePoint,
+      javaCompatExplorationSpace,
+      javaCompatExplorationSpacePoint,
       testYaml,
       dockerComposeYamlString)
 
