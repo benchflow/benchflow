@@ -1,6 +1,9 @@
 package cloud.benchflow.testmanager.services.internal.dao;
 
+import cloud.benchflow.dsl.definition.types.time.Time;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
+import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
+import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestNumber;
 import cloud.benchflow.testmanager.models.User;
@@ -127,6 +130,30 @@ public class BenchFlowTestModelDAO extends DAO {
         .collect(Collectors.toList());
   }
 
+
+  public synchronized void setMaxRunTime(String testID, Time maxRunTime)
+      throws BenchFlowTestIDDoesNotExistException {
+
+    logger.info("setMaxRunTime: " + testID + " : " + maxRunTime);
+
+    final BenchFlowTestModel benchFlowTestModel = getTestModel(testID);
+
+    benchFlowTestModel.setMaxRunningTime(maxRunTime);
+
+    datastore.save(benchFlowTestModel);
+
+  }
+
+  public synchronized Time getMaxRunningTime(String testID)
+      throws BenchFlowTestIDDoesNotExistException {
+
+    logger.info("getMaxRunningTime: " + testID);
+
+    final BenchFlowTestModel benchFlowTestModel = getTestModel(testID);
+
+    return benchFlowTestModel.getMaxRunningTime();
+  }
+
   public synchronized BenchFlowTestModel.BenchFlowTestState setTestState(String testID,
       BenchFlowTestModel.BenchFlowTestState state) throws BenchFlowTestIDDoesNotExistException {
 
@@ -207,5 +234,25 @@ public class BenchFlowTestModelDAO extends DAO {
     BenchFlowTestModel benchFlowTestModel = getTestModel(testID);
 
     return benchFlowTestModel.getExperimentNumbers();
+  }
+
+  public synchronized String getRunningExperiment(String testID)
+      throws BenchFlowTestIDDoesNotExistException {
+
+    logger.info("getRunningExperiment: " + testID);
+
+    BenchFlowTestModel benchFlowTestModel = getTestModel(testID);
+
+    BenchFlowExperimentModel lastExperimentModel =
+        benchFlowTestModel.getExperiments().lastEntry().getValue();
+
+    if (lastExperimentModel.getState() == BenchFlowExperimentState.RUNNING) {
+
+      return lastExperimentModel.getId();
+
+    }
+
+    return null;
+
   }
 }
