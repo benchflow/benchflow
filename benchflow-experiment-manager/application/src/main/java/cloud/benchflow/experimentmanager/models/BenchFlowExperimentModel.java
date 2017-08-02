@@ -68,6 +68,10 @@ public class BenchFlowExperimentModel {
     return id;
   }
 
+  public String getHashedId() {
+    return hashedID;
+  }
+
   public Date getStart() {
     return start;
   }
