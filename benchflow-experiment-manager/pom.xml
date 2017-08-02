@@ -43,6 +43,9 @@
         <wiremock.version>2.5.1</wiremock.version>
         <dropwizard-swagger.version>1.0.6-1</dropwizard-swagger.version>
         <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
+        <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
+        <maven-source-plugin.version>2.4</maven-source-plugin.version>
+        <maven-project-info-reports-plugin.version>2.8.1</maven-project-info-reports-plugin.version>
         <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
         <maven-shade-plugin.verion>2.4.1</maven-shade-plugin.verion>
         <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
@@ -321,11 +324,39 @@
                 </configuration>
             </plugin>
             <plugin>
+                  <artifactId>maven-source-plugin</artifactId>
+                  <version>${maven-source-plugin.version}</version>
+                  <executions>
+                      <execution>
+                          <id>attach-sources</id>
+                          <goals>
+                              <goal>jar</goal>
+                          </goals>
+                      </execution>
+                  </executions>
+              </plugin>
+              <plugin>
+                  <artifactId>maven-javadoc-plugin</artifactId>
+                  <version>${maven-javadoc-plugin.version}</version>
+                  <executions>
+                      <execution>
+                          <id>attach-javadocs</id>
+                          <goals>
+                              <goal>jar</goal>
+                          </goals>
+                      </execution>
+                  </executions>
+              </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <skipTests>false</skipTests>
+                    <!-- Needed because the automatic inclusions (see http://maven.apache.org/surefire/maven-surefire-plugin/examples/inclusion-exclusion.html) lead to some IT test to run due to the pattern matching -->
+                    <excludes>    
+                        <exclude>**/*IT.java</exclude> 
+                    </excludes>
                 </configuration>
             </plugin>
             <!--to run integration tests-->
@@ -345,4 +376,21 @@
             </plugin>
         </plugins>
     </build>
+
+    <reporting>
+          <plugins>
+              <plugin>
+                  <artifactId>maven-project-info-reports-plugin</artifactId>
+                  <version>${maven-project-info-reports-plugin.version}</version>
+                  <configuration>
+                      <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                      <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+                  </configuration>
+              </plugin>
+              <plugin>
+                  <artifactId>maven-javadoc-plugin</artifactId>
+                  <version>${maven-javadoc-plugin.version}</version>
+              </plugin>
+          </plugins>
+      </reporting>
 </project>
