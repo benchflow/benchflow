@@ -84,6 +84,14 @@ public class BenchFlowExperimentModel {
     return id;
   }
 
+  public String getHashedId() {
+    return hashedID;
+  }
+
+  public String getTestId() {
+    return testID;
+  }
+
   public long getNumber() {
     return number;
   }

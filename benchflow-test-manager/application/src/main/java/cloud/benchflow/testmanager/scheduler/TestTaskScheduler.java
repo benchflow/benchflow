@@ -1,16 +1,8 @@
 package cloud.benchflow.testmanager.scheduler;
 
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.ADD_STORED_KNOWLEDGE;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.DERIVE_PREDICTION_FUNCTION;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.DETERMINE_EXECUTE_VALIDATION_SET;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.HANDLE_EXPERIMENT_RESULT;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.REMOVE_NON_REACHABLE_EXPERIMENTS;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.VALIDATE_PREDICTION_FUNCTION;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.VALIDATE_TERMINATION_CRITERIA;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState.COMPLETED_WITH_FAILURE;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState.GOAL_REACHED;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.*;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState.*;
 
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
@@ -45,7 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TestTaskScheduler {
 
-  private static Logger logger = LoggerFactory.getLogger(TestTaskScheduler.class.getSimpleName());
+  private static Logger logger =   LoggerFactory.getLogger(TestTaskScheduler.class.getSimpleName());
 
   private ConcurrentMap<String, Future> testTasks = new ConcurrentHashMap<>();
 

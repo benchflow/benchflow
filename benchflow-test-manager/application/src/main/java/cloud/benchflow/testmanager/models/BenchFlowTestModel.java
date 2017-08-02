@@ -97,6 +97,10 @@ public class BenchFlowTestModel {
     return id;
   }
 
+  public String getHashedId() {
+    return hashedID;
+  }
+
   public User getUser() {
     return user;
   }
