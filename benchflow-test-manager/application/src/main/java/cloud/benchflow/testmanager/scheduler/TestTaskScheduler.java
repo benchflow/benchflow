@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TestTaskScheduler {
 
-  private static Logger logger =   LoggerFactory.getLogger(TestTaskScheduler.class.getSimpleName());
+  private static Logger logger = LoggerFactory.getLogger(TestTaskScheduler.class.getSimpleName());
 
   private ConcurrentMap<String, Future> testTasks = new ConcurrentHashMap<>();
 
