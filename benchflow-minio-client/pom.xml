@@ -24,6 +24,9 @@
         <junit.version>4.12</junit.version>
         <docker-compose-rule-junit4.version>0.31.1</docker-compose-rule-junit4.version>
         <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
+        <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
+        <maven-source-plugin.version>2.4</maven-source-plugin.version>
+        <maven-project-info-reports-plugin.version>2.8.1</maven-project-info-reports-plugin.version>
         <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
         <maven-surefire-plugin.version>2.20</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>2.20</maven-failsafe-plugin.version>
@@ -142,6 +145,30 @@
                 </configuration>
             </plugin>
             <plugin>
+                  <artifactId>maven-source-plugin</artifactId>
+                  <version>${maven-source-plugin.version}</version>
+                  <executions>
+                      <execution>
+                          <id>attach-sources</id>
+                          <goals>
+                              <goal>jar</goal>
+                          </goals>
+                      </execution>
+                  </executions>
+            </plugin>
+            <plugin>
+                  <artifactId>maven-javadoc-plugin</artifactId>
+                  <version>${maven-javadoc-plugin.version}</version>
+                  <executions>
+                      <execution>
+                          <id>attach-javadocs</id>
+                          <goals>
+                              <goal>jar</goal>
+                          </goals>
+                      </execution>
+                  </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
@@ -170,4 +197,21 @@
             </plugin>
         </plugins>
     </build>
+
+    <reporting>
+          <plugins>
+              <plugin>
+                  <artifactId>maven-project-info-reports-plugin</artifactId>
+                  <version>${maven-project-info-reports-plugin.version}</version>
+                  <configuration>
+                      <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                      <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+                  </configuration>
+              </plugin>
+              <plugin>
+                  <artifactId>maven-javadoc-plugin</artifactId>
+                  <version>${maven-javadoc-plugin.version}</version>
+              </plugin>
+          </plugins>
+      </reporting>
 </project>
