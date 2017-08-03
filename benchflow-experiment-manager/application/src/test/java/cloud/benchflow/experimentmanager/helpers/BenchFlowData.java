@@ -9,10 +9,8 @@ public class BenchFlowData {
 
   private static int EXPERIMENT_NUMBER = 1;
 
-  public static String VALID_TEST_ID_1_TRIAL =
-      "benchflow.ParallelMultiple11Activiti5210Test1Trial.1";
-  public static String VALID_TEST_ID_2_TRIAL =
-      "benchflow.ParallelMultiple11Activiti5210Test2Trial.1";
+  public static String VALID_TEST_ID_1_TRIAL = "benchflow.TestExperiment1Trial.1";
+  public static String VALID_TEST_ID_2_TRIAL = "benchflow.TestExperiment2Trials.1";
 
   public static String SCENARIO_ALWAYS_COMPLETED_EXPERIMENT_ID = "benchflow.alwaysCompleted.1.1";
   public static String SCENARIO_FAIL_FIRST_EXEC_EXPERIMENT_ID = "benchflow.failFirstExecution.1.1";
