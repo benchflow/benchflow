@@ -4,17 +4,28 @@ import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MOD
 import static cloud.benchflow.faban.client.responses.RunStatus.StatusCode.QUEUED;
 import static cloud.benchflow.faban.client.responses.RunStatus.StatusCode.RECEIVED;
 import static cloud.benchflow.faban.client.responses.RunStatus.StatusCode.STARTED;
+import static cloud.benchflow.faban.client.responses.RunStatus.StatusCode.UNKNOWN;
 
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.FabanStatus;
 import cloud.benchflow.faban.client.FabanClient;
+import cloud.benchflow.faban.client.exceptions.BenchmarkNameNotFoundRuntimeException;
 import cloud.benchflow.faban.client.exceptions.ConfigFileNotFoundException;
+import cloud.benchflow.faban.client.exceptions.DeployException;
+import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
+import cloud.benchflow.faban.client.exceptions.FabanClientBadRequestException;
 import cloud.benchflow.faban.client.exceptions.FabanClientException;
+import cloud.benchflow.faban.client.exceptions.FabanClientIOException;
+import cloud.benchflow.faban.client.exceptions.IllegalRunIdException;
+import cloud.benchflow.faban.client.exceptions.IllegalRunInfoResultException;
+import cloud.benchflow.faban.client.exceptions.IllegalRunStatusException;
 import cloud.benchflow.faban.client.exceptions.JarFileNotFoundException;
+import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunId;
 import cloud.benchflow.faban.client.responses.RunInfo;
+import cloud.benchflow.faban.client.responses.RunInfo.Result;
 import cloud.benchflow.faban.client.responses.RunStatus;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,14 +53,22 @@ public class FabanManagerService {
     this.fabanClient = fabanClient;
   }
 
-  public void initialize() {
-    this.minioService = BenchFlowExperimentManagerApplication.getMinioService();
-  }
-
   // used for testing
   public FabanManagerService(FabanClient fabanClient, MinioService minioService) {
     this.fabanClient = fabanClient;
     this.minioService = minioService;
+  }
+
+  public static String getFabanExperimentID(String experimentID) {
+    return experimentID.replace(MODEL_ID_DELIMITER, BenchFlowConstants.FABAN_ID_DELIMITER);
+  }
+
+  public static String getFabanTrialID(String trialID) {
+    return trialID.replace(MODEL_ID_DELIMITER, BenchFlowConstants.FABAN_ID_DELIMITER);
+  }
+
+  public void initialize() {
+    this.minioService = BenchFlowExperimentManagerApplication.getMinioService();
   }
 
   // used for testing
@@ -60,14 +79,6 @@ public class FabanManagerService {
   // used for testing
   public void setFabanClient(FabanClient fabanClient) {
     this.fabanClient = fabanClient;
-  }
-
-  public static String getFabanExperimentID(String experimentID) {
-    return experimentID.replace(MODEL_ID_DELIMITER, BenchFlowConstants.FABAN_ID_DELIMITER);
-  }
-
-  public static String getFabanTrialID(String trialID) {
-    return trialID.replace(MODEL_ID_DELIMITER, BenchFlowConstants.FABAN_ID_DELIMITER);
   }
 
   public void deployExperimentToFaban(String experimentID, String driversMakerExperimentID,
@@ -90,7 +101,12 @@ public class FabanManagerService {
     FileUtils.copyInputStreamToFile(fabanBenchmark, benchmarkPath.toFile());
 
     // deploy experiment to Faban
-    fabanClient.deploy(benchmarkPath.toFile());
+    try {
+      fabanClient.deploy(benchmarkPath.toFile());
+    } catch (FabanClientIOException | DeployException | MalformedURIException e) {
+      // TODO - handle properly
+      e.printStackTrace();
+    }
 
     // remove file that was sent to fabanClient
     FileUtils.forceDelete(benchmarkPath.toFile());
@@ -132,12 +148,15 @@ public class FabanManagerService {
           submitRetries--;
 
         } else {
-          // TODO - handle me
-          throw e;
+          try {
+            throw e;
+          } catch (FabanClientIOException | ConfigFileNotFoundException
+              | EmptyHarnessResponseException | IllegalRunIdException
+              | BenchmarkNameNotFoundRuntimeException | MalformedURIException e1) {
+            // TODO - handle me
+            e1.printStackTrace();
+          }
         }
-      } catch (ConfigFileNotFoundException e) {
-        // TODO - handle me
-        e.printStackTrace();
       }
     }
 
@@ -153,32 +172,47 @@ public class FabanManagerService {
     // B) wait/poll for trial to complete and store the trial result in the DB
     // TODO - is this the status we want to use? No it is a subset, should also
     // include metrics computation status
-    RunStatus status = fabanClient.status(runId);
+    RunStatus status;
 
-    // workaround for issue #409 (FabanClient throws an exception when status is UNKNOWN)
-    // wait 60s before polling (Faban needs time to setup)
     try {
-      Thread.sleep(60 * 1000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
 
-    while (status.getStatus().equals(QUEUED) || status.getStatus().equals(RECEIVED)
-        || status.getStatus().equals(STARTED)) {
-
+      // wait 60s before polling (Faban needs time to setup)
       try {
-        Thread.sleep(30 * 1000);
+        Thread.sleep(60 * 1000);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
 
       status = fabanClient.status(runId);
 
+      while (status.getStatus().equals(QUEUED) || status.getStatus().equals(RECEIVED)
+          || status.getStatus().equals(STARTED) || status.getStatus().equals(UNKNOWN)) {
+
+        try {
+          Thread.sleep(30 * 1000);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+
+        status = fabanClient.status(runId);
+
+      }
+
+      RunInfo runInfo = fabanClient.runInfo(runId);
+
+      return new FabanStatus(trialID, status.getStatus(), runInfo.getResult());
+
+    } catch (FabanClientIOException | IllegalRunStatusException | MalformedURIException
+        | FabanClientBadRequestException e) {
+      // TODO - handle me
+      e.printStackTrace();
+    } catch (IllegalRunInfoResultException e) {
+      // TODO - handle me
+      e.printStackTrace();
     }
 
-    RunInfo runInfo = fabanClient.runInfo(runId);
-
-    return new FabanStatus(trialID, status.getStatus(), runInfo.getResult());
+    //See https://github.com/benchflow/benchflow/pull/473/files#r128371872
+    return new FabanStatus(trialID, UNKNOWN, Result.UNKNOWN);
 
   }
 
