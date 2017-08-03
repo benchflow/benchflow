@@ -1,19 +1,20 @@
 package cloud.benchflow.experimentmanager.services.external;
 
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
-import static cloud.benchflow.faban.client.responses.RunStatus.Code.QUEUED;
-import static cloud.benchflow.faban.client.responses.RunStatus.Code.RECEIVED;
-import static cloud.benchflow.faban.client.responses.RunStatus.Code.STARTED;
+import static cloud.benchflow.faban.client.responses.RunStatus.StatusCode.QUEUED;
+import static cloud.benchflow.faban.client.responses.RunStatus.StatusCode.RECEIVED;
+import static cloud.benchflow.faban.client.responses.RunStatus.StatusCode.STARTED;
 
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
-import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.TrialStatus;
+import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.FabanStatus;
 import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.exceptions.ConfigFileNotFoundException;
 import cloud.benchflow.faban.client.exceptions.FabanClientException;
 import cloud.benchflow.faban.client.exceptions.JarFileNotFoundException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunId;
+import cloud.benchflow.faban.client.responses.RunInfo;
 import cloud.benchflow.faban.client.responses.RunStatus;
 import java.io.IOException;
 import java.io.InputStream;
@@ -147,7 +148,7 @@ public class FabanManagerService {
 
   }
 
-  public TrialStatus pollForTrialStatus(String trialID, RunId runId) throws RunIdNotFoundException {
+  public FabanStatus pollForTrialStatus(String trialID, RunId runId) throws RunIdNotFoundException {
 
     // B) wait/poll for trial to complete and store the trial result in the DB
     // TODO - is this the status we want to use? No it is a subset, should also
@@ -175,7 +176,9 @@ public class FabanManagerService {
 
     }
 
-    return new TrialStatus(trialID, status.getStatus());
+    RunInfo runInfo = fabanClient.runInfo(runId);
+
+    return new FabanStatus(trialID, status.getStatus(), runInfo.getResult());
 
   }
 
