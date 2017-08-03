@@ -211,6 +211,7 @@ public class FabanManagerService {
       e.printStackTrace();
     }
 
+    //See https://github.com/benchflow/benchflow/pull/473/files#r128371872
     return new FabanStatus(trialID, UNKNOWN, Result.UNKNOWN);
 
   }
