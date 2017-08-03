@@ -2,6 +2,7 @@ package cloud.benchflow.experimentmanager.models;
 
 import static cloud.benchflow.experimentmanager.models.TrialModel.HandleTrialResultState.CHECK_TRIAL_RESULT;
 
+import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.faban.client.responses.RunStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
@@ -42,6 +43,7 @@ public class TrialModel {
   private HandleTrialResultState handleTrialResultState;
   private RunStatus.Code status;
   private int numRetries = 0;
+  private String fabanRunStatus;
 
   public TrialModel() {
     // Empty constructor for MongoDB + Morphia
@@ -94,7 +96,15 @@ public class TrialModel {
   }
 
   public void setFabanRunID(String fabanRunID) {
+
     this.fabanRunID = fabanRunID;
+    this.fabanRunStatus = BenchFlowExperimentManagerApplication.getFabanManagerServiceAddress()
+        + "/resultframe.jsp?runId=" + fabanRunID + "&result=summary.xml&show=logs";
+
+  }
+
+  public String getFabanRunStatus() {
+    return fabanRunStatus;
   }
 
   public int getNumRetries() {
