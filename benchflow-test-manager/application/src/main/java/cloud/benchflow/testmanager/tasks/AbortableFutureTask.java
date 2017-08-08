@@ -10,7 +10,7 @@ import java.util.concurrent.FutureTask;
  * task, to be marked as aborted, even when its execution completed because we cancel
  * the task using testTask.cancel(false);
  *
- * @author Vincenzo Ferme <info@vincenzoferme.it>
+ * @author Vincenzo Ferme (info@vincenzoferme.it)
  */
 public abstract class AbortableFutureTask<T> extends FutureTask<T> {
 

@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * See https://github.com/umermansoor/custom-future-wrapping-callable/blob/master/src/futuretaskwrapperconcept/FutureTaskWrapperConcept.java.
- * @author Vincenzo Ferme <info@vincenzoferme.it>
+ * @author Vincenzo Ferme (info@vincenzoferme.it)
  */
 public class CustomFutureReturningExecutor extends ThreadPoolExecutor {
 

@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  * Most of the code comes from the referenced ExecutorServiceBuilder. I needed to copy it because
  * the field of ExecutorServiceBuilder are private and there are no setter and getter.
  *
- * @author Vincenzo Ferme <info@vincenzoferme.it>
+ * @author Vincenzo Ferme (info@vincenzoferme.it)
  */
 public class CustomFutureReturningExecutorBuilder {
 
@@ -38,6 +38,9 @@ public class CustomFutureReturningExecutorBuilder {
 
   /**
    * Constructs a CustomFutureReturningExecutorBuilder.
+   * @param environment the lifecycle environment
+   * @param nameFormat the name format
+   * @param factory the thread factory
    */
   public CustomFutureReturningExecutorBuilder(LifecycleEnvironment environment, String nameFormat,
       ThreadFactory factory) {
@@ -54,6 +57,8 @@ public class CustomFutureReturningExecutorBuilder {
 
   /**
    * Constructs a CustomFutureReturningExecutorBuilder.
+   * @param environment the lifecycle environment
+   * @param nameFormat the name format
    */
   public CustomFutureReturningExecutorBuilder(LifecycleEnvironment environment, String nameFormat) {
     this(environment, nameFormat, new ThreadFactoryBuilder().setNameFormat(nameFormat).build());
@@ -97,6 +102,7 @@ public class CustomFutureReturningExecutorBuilder {
 
   /**
    * Builds a CustomFutureReturningExecutorBuilder.
+   * @return a CustomFutureReturningExecutor
    */
   public CustomFutureReturningExecutor build() {
     if (corePoolSize != maximumPoolSize && maximumPoolSize > 1 && !isBoundedQueue()) {

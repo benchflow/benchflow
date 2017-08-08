@@ -7,7 +7,7 @@ import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 /**
  * Waits for test termination while triggering a callback.
  *
- * @author Vincenzo Ferme <info@vincenzoferme.it>
+ * @author Vincenzo Ferme (info@vincenzoferme.it)
  */
 public abstract class WaitTestTermination {
 

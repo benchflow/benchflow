@@ -3,7 +3,7 @@ package cloud.benchflow.testmanager.tasks;
 import java.util.concurrent.Callable;
 
 /**
- * @author Vincenzo Ferme <info@vincenzoferme.it>
+ * @author Vincenzo Ferme (info@vincenzoferme.it)
  */
 public abstract class AbortableCallable<T> implements Callable<T> {
 

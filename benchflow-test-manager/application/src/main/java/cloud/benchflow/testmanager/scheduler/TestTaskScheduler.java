@@ -107,6 +107,7 @@ public class TestTaskScheduler {
 
   /**
    * Handle the Starting States of a Test.
+   * @param testID the test ID
    */
   public synchronized void handleStartingTest(String testID) {
 
@@ -144,6 +145,7 @@ public class TestTaskScheduler {
 
   /**
    * Handle the Running States of a Test.
+   * @param testID the test ID
    */
   public synchronized void handleRunningTest(String testID) {
 
@@ -274,6 +276,8 @@ public class TestTaskScheduler {
 
   /**
    * Handles the Running Test Sub-States.
+   * @param testID the test ID
+   * @throws BenchFlowTestIDDoesNotExistException when the test ID does not exists
    */
   public synchronized void handleRunningTestState(String testID)
       throws BenchFlowTestIDDoesNotExistException {
@@ -390,10 +394,12 @@ public class TestTaskScheduler {
 
   /**
    * Called when user terminates test or max run time has been reached.
-   * <p></p>
+   * <p>
    * Given that the method is not synchronized, it has not to wait that other synchronized
    * of this class complete their execution, before getting access. This because the termination
    * should happen as soon as it is triggered from a Timeout or a User.
+   * </p>
+   * @param testID the test ID
    */
   public void terminateTest(String testID) {
 
@@ -507,6 +513,10 @@ public class TestTaskScheduler {
 
   /**
    * Get the Abortable Future Task from a Future.
+   * @param future the AbortableFutureTask future
+   * @return AbortableFutureTaskResult
+   * @throws InterruptedException exception
+   * @throws ExecutionException exception
    */
   public AbortableFutureTaskResult getAbortableFutureTask(AbortableFutureTask future)
       throws InterruptedException, ExecutionException {
@@ -548,6 +558,7 @@ public class TestTaskScheduler {
 
     /**
      * Set the Result.
+     * @param result the test result
      */
     public void setResult(T result) {
       this.result = result;
@@ -555,7 +566,7 @@ public class TestTaskScheduler {
 
     /**
      * Check if the Test is Aborted.
-     * @return
+     * @return true if the test is aborted
      */
     public boolean isAborted() {
       return aborted;
@@ -563,6 +574,7 @@ public class TestTaskScheduler {
 
     /**
      * Set the Aborted Flab.
+     * @param aborted test
      */
     public void setAborted(boolean aborted) {
       this.aborted = aborted;
@@ -571,7 +583,7 @@ public class TestTaskScheduler {
 
   /**
    * Checks whether or not the Test reached the TERMINATED state.
-   * @param testID
+   * @param testID the test ID
    * @return true if the test state is terminated.
    */
   @Deprecated

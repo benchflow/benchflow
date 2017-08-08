@@ -1,7 +1,7 @@
 package cloud.benchflow.testmanager.tasks;
 
 /**
- * @author Vincenzo Ferme <info@vincenzoferme.it>
+ * @author Vincenzo Ferme (info@vincenzoferme.it)
  */
 public abstract class AbortableRunnable<T> implements Runnable {
 
