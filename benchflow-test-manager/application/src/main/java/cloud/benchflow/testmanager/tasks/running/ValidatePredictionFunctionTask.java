@@ -1,7 +1,6 @@
 package cloud.benchflow.testmanager.tasks.running;
 
 import cloud.benchflow.testmanager.tasks.AbortableCallable;
-import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

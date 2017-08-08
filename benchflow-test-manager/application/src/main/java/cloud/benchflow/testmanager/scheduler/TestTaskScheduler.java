@@ -1,8 +1,6 @@
 package cloud.benchflow.testmanager.scheduler;
 
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.READY;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.WAITING;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.*;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.DETERMINE_EXECUTE_VALIDATION_SET;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.HANDLE_EXPERIMENT_RESULT;
 
@@ -129,7 +127,7 @@ public class TestTaskScheduler {
         }
 
         // Exit as soon as ready is executed
-        if ((prevTestState != null && testState != null)
+        if (prevTestState != null && testState != null
             && prevTestState.name().equals(testState.name()) && testState == READY)
           exit = true;
 
@@ -161,7 +159,7 @@ public class TestTaskScheduler {
         }
 
         // Exit as soon as final state is executed
-        if ((prevTestState != null && testState != null)
+        if (prevTestState != null && testState != null
             && prevTestState.name().equals(testState.name())
             && (testState == WAITING || testState == TERMINATED))
           exit = true;
@@ -432,6 +430,7 @@ public class TestTaskScheduler {
               abortRunningTestTaskFuture.get();
             } catch (InterruptedException | ExecutionException e) {
               // nothing to do
+              e.printStackTrace();
             }
 
           }
@@ -478,7 +477,7 @@ public class TestTaskScheduler {
       //      abortableFutureTask.cancel(false);
 
       // set to terminated
-      testModelDAO.setTestState(testID, BenchFlowTestState.TERMINATED);
+      testModelDAO.setTestState(testID, TERMINATED);
       testModelDAO.setTestTerminatedState(testID, TestTerminatedState.PARTIALLY_COMPLETE);
 
       abortableFutureTask.abortTask();

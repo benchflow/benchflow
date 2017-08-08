@@ -3,7 +3,6 @@ package cloud.benchflow.testmanager.scheduler;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.dropwizard.lifecycle.ExecutorServiceManager;
-import io.dropwizard.lifecycle.setup.ExecutorServiceBuilder;
 import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
 import io.dropwizard.util.Duration;
 import java.util.concurrent.BlockingQueue;

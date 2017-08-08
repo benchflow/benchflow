@@ -7,7 +7,6 @@ import cloud.benchflow.testmanager.strategy.validation.SingleExperimentValidatio
 import cloud.benchflow.testmanager.strategy.validation.ValidationStrategy;
 import cloud.benchflow.testmanager.tasks.AbortableCallable;
 import cloud.benchflow.testmanager.tasks.running.ValidateTerminationCriteria.TerminationCriteriaResult;
-import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
