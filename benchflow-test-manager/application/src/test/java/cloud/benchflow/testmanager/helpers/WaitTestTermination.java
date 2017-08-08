@@ -23,8 +23,6 @@ public abstract class WaitTestTermination {
 
       waitTestCheck.checkTestIsFinished();
 
-      System.out.println(" >> ITERATING");
-
     }
   }
 }
