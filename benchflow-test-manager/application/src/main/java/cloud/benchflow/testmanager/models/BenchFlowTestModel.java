@@ -127,6 +127,8 @@ public class BenchFlowTestModel {
     return maxRunningTime;
   }
 
+  public boolean hasMaxRunningTime() { return maxRunningTime!=null; }
+
   public BenchFlowTestState getState() {
     return state;
   }
