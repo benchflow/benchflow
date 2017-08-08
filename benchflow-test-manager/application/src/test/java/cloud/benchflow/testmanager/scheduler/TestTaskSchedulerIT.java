@@ -85,7 +85,8 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
 
     testTaskScheduler = BenchFlowTestManagerApplication.getTestTaskScheduler();
     notMockedRunningStatesHandler = testTaskScheduler.getRunningStatesHandler();
-    testTaskScheduler.setRunningStatesHandler(Mockito.spy(testTaskScheduler.getRunningStatesHandler()));
+    testTaskScheduler
+        .setRunningStatesHandler(Mockito.spy(testTaskScheduler.getRunningStatesHandler()));
     runningStatesHandler = testTaskScheduler.getRunningStatesHandler();
     executorService = testTaskScheduler.getTaskExecutorService();
 
@@ -94,7 +95,8 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     experimentModelDAO = BenchFlowTestManagerApplication.getExperimentModelDAO();
     explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
     minioService = BenchFlowTestManagerApplication.getMinioService();
-    BenchFlowTestManagerApplication.setExperimentManagerService(Mockito.spy(BenchFlowTestManagerApplication.getExperimentManagerService()));
+    BenchFlowTestManagerApplication.setExperimentManagerService(
+        Mockito.spy(BenchFlowTestManagerApplication.getExperimentManagerService()));
     experimentManagerService = BenchFlowTestManagerApplication.getExperimentManagerService();
 
     user = userDAO.addUser(TestConstants.TEST_USER_NAME);
@@ -134,7 +136,8 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       executorService.awaitTermination(1, TimeUnit.SECONDS);
     };
 
-    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck, timeout);
+    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck,
+        timeout);
 
     // assert that all experiments have been executed
     Assert.assertEquals(0, countDownLatch.getCount());
@@ -179,7 +182,8 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       countDownLatch.await(10, TimeUnit.SECONDS);
     };
 
-    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck, timeout);
+    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck,
+        timeout);
 
     // wait for last task to finish
     executorService.awaitTermination(1, TimeUnit.SECONDS);
@@ -237,7 +241,8 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       executorService.awaitTermination(10, TimeUnit.SECONDS);
     };
 
-    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck, timeout);
+    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck,
+        timeout);
 
     // assert that all experiments have been executed
     Assert.assertEquals(0, countDownLatch.getCount());
@@ -296,7 +301,8 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       executorService.awaitTermination(1, TimeUnit.SECONDS);
     };
 
-    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck, timeout);
+    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck,
+        timeout);
 
     // assert that all experiments have been executed
     Assert.assertEquals(0, countDownLatch.getCount());
@@ -365,7 +371,8 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
 
     };
 
-    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck, timeout);
+    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck,
+        timeout);
 
     // assert that test has been set as TERMINATED
     Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
@@ -437,7 +444,8 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
 
     };
 
-    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck, timeout);
+    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck,
+        timeout);
 
     // assert that test has been set as TERMINATED
     Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
@@ -448,14 +456,17 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
         testModelDAO.getTestTerminatedState(testID));
 
     // assert that the scheduled experiment is TERMINATED
-    Collection<BenchFlowExperimentModel> experiments = testModelDAO.getTestModel(testID).getExperimentModels();
-    BenchFlowExperimentModel[] experimentsArray = experiments.toArray(new BenchFlowExperimentModel[experiments.size()]);
+    Collection<BenchFlowExperimentModel> experiments =
+        testModelDAO.getTestModel(testID).getExperimentModels();
+    BenchFlowExperimentModel[] experimentsArray =
+        experiments.toArray(new BenchFlowExperimentModel[experiments.size()]);
 
     Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
-        experimentsArray[expectedNumExperiments-1].getState());
+        experimentsArray[expectedNumExperiments - 1].getState());
 
     // assert that test was removed from experiment-manager
-    Mockito.verify(experimentManagerService, Mockito.times(1)).abortBenchFlowExperiment(Matchers.anyString());
+    Mockito.verify(experimentManagerService, Mockito.times(1))
+        .abortBenchFlowExperiment(Matchers.anyString());
 
   }
 
@@ -505,52 +516,52 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
 
   // Not possible because the Timeout is set when the state is RUNNING, but
   // here because probably useful when a user can trigger an abort
-//  @Test
-//  public void runBenchFlowTestTimeoutTestWhenTestStart() throws Exception {
-//
-//    String testName = TestConstants.TEST_TERMINATION_CRITERIA_NAME;
-//
-//    String testID = testModelDAO.addTestModel(testName, user);
-//
-//    String testDefinitionString =
-//        IOUtils.toString(TestFiles.getTestTerminationCriteriaInputStream(), StandardCharsets.UTF_8);
-//
-//    // Wait so the Timeout Triggers in the START state
-//    Mockito.doAnswer(invocationOnMock -> {
-//
-//      try {
-//        Thread.sleep(5000);
-//      } catch (InterruptedException e) {
-//        e.printStackTrace();
-//      }
-//
-//      return null;
-//    }).doCallRealMethod().when(testTaskScheduler).handleStartState(Matchers.anyString());
-//
-//    setupTestOnMinio(testID, testDefinitionString);
-//
-//    // handle in scheduler
-//    testTaskScheduler.handleStartingTest(testID);
-//
-//    // check when the test reaches the final state, with a timeout
-//    long timeout = 1 * 60 * 1000; //3 minutes
-//
-//    WaitTestCheck waitTestCheck = () -> {
-//
-//      // wait for last task to finish
-//      executorService.awaitTermination(20, TimeUnit.SECONDS);
-//
-//    };
-//
-//    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck, timeout);
-//
-//    // assert that test has been set as TERMINATED
-//    Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
-//        testModelDAO.getTestState(testID));
-//
-//    // assert that test has been set as PARTIALLY_COMPLETE
-//    Assert.assertEquals(TestTerminatedState.PARTIALLY_COMPLETE,
-//        testModelDAO.getTestTerminatedState(testID));
-//
-//  }
+  //  @Test
+  //  public void runBenchFlowTestTimeoutTestWhenTestStart() throws Exception {
+  //
+  //    String testName = TestConstants.TEST_TERMINATION_CRITERIA_NAME;
+  //
+  //    String testID = testModelDAO.addTestModel(testName, user);
+  //
+  //    String testDefinitionString =
+  //        IOUtils.toString(TestFiles.getTestTerminationCriteriaInputStream(), StandardCharsets.UTF_8);
+  //
+  //    // Wait so the Timeout Triggers in the START state
+  //    Mockito.doAnswer(invocationOnMock -> {
+  //
+  //      try {
+  //        Thread.sleep(5000);
+  //      } catch (InterruptedException e) {
+  //        e.printStackTrace();
+  //      }
+  //
+  //      return null;
+  //    }).doCallRealMethod().when(testTaskScheduler).handleStartState(Matchers.anyString());
+  //
+  //    setupTestOnMinio(testID, testDefinitionString);
+  //
+  //    // handle in scheduler
+  //    testTaskScheduler.handleStartingTest(testID);
+  //
+  //    // check when the test reaches the final state, with a timeout
+  //    long timeout = 1 * 60 * 1000; //3 minutes
+  //
+  //    WaitTestCheck waitTestCheck = () -> {
+  //
+  //      // wait for last task to finish
+  //      executorService.awaitTermination(20, TimeUnit.SECONDS);
+  //
+  //    };
+  //
+  //    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck, timeout);
+  //
+  //    // assert that test has been set as TERMINATED
+  //    Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
+  //        testModelDAO.getTestState(testID));
+  //
+  //    // assert that test has been set as PARTIALLY_COMPLETE
+  //    Assert.assertEquals(TestTerminatedState.PARTIALLY_COMPLETE,
+  //        testModelDAO.getTestTerminatedState(testID));
+  //
+  //  }
 }

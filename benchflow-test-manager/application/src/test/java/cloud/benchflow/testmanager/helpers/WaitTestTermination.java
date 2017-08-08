@@ -11,14 +11,15 @@ import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
  */
 public abstract class WaitTestTermination {
 
-  public static void waitForTestTerminationWithTimeout(String testID, BenchFlowTestModelDAO testModelDAO, WaitTestCheck waitTestCheck,
-      long timeout) throws BenchFlowTestIDDoesNotExistException, InterruptedException {
+  public static void waitForTestTerminationWithTimeout(String testID,
+      BenchFlowTestModelDAO testModelDAO, WaitTestCheck waitTestCheck, long timeout)
+      throws BenchFlowTestIDDoesNotExistException, InterruptedException {
 
     long startTime = System.currentTimeMillis(); //fetch starting time
 
-    while (
-        !testModelDAO.getTestState(testID).equals(BenchFlowTestModel.BenchFlowTestState.TERMINATED)
-            && (System.currentTimeMillis() - startTime) < timeout) {
+    while (!testModelDAO.getTestState(testID)
+        .equals(BenchFlowTestModel.BenchFlowTestState.TERMINATED)
+        && (System.currentTimeMillis() - startTime) < timeout) {
 
       waitTestCheck.checkTestIsFinished();
 
