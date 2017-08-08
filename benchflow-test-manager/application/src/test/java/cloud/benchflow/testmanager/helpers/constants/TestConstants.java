@@ -1,4 +1,4 @@
-package cloud.benchflow.testmanager.helpers;
+package cloud.benchflow.testmanager.helpers.constants;
 
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 

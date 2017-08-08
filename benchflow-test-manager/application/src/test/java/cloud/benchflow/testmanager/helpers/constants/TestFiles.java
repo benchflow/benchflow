@@ -1,4 +1,4 @@
-package cloud.benchflow.testmanager.helpers;
+package cloud.benchflow.testmanager.helpers.constants;
 
 import java.io.File;
 import java.io.FileInputStream;
