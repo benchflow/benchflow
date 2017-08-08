@@ -3,10 +3,11 @@ package cloud.benchflow.experimentmanager.tasks.running;
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.FailureStatus;
+import cloud.benchflow.experimentmanager.models.TrialModel.TrialStatus;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
-import cloud.benchflow.experimentmanager.tasks.running.CheckTrialResultTask.TrialResult;
-import cloud.benchflow.faban.client.responses.RunStatus;
+import cloud.benchflow.experimentmanager.tasks.running.CheckTrialResultTask.TrialExecutionStatus;
 import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19
  */
-public class CheckTrialResultTask implements Callable<TrialResult> {
+public class CheckTrialResultTask implements Callable<TrialExecutionStatus> {
 
   private static Logger logger =
       LoggerFactory.getLogger(CheckTrialResultTask.class.getSimpleName());
@@ -30,13 +31,13 @@ public class CheckTrialResultTask implements Callable<TrialResult> {
   }
 
   @Override
-  public TrialResult call() throws Exception {
+  public TrialExecutionStatus call() throws Exception {
 
     logger.info("running - " + trialID);
 
     try {
 
-      RunStatus.Code trialStatus = trialModelDAO.getTrialStatus(trialID);
+      TrialStatus trialStatus = trialModelDAO.getTrialStatus(trialID);
 
       int retries = trialModelDAO.getNumRetries(trialID);
 
@@ -44,21 +45,24 @@ public class CheckTrialResultTask implements Callable<TrialResult> {
 
       int maxRetries = experimentModelDAO.getNumTrialRetries(experimentID);
 
-      TrialResult trialResult = null;
+      FailureStatus failureStatus = null;
 
       switch (trialStatus) {
-        case COMPLETED:
-          trialResult = TrialResult.SUCCESS;
-          break;
+
+        // TODO - add other experiment failures
+
+        case SUCCESS:
+          // not a failure
+          return TrialExecutionStatus.SUCCESS;
 
         case FAILED:
-          trialResult = TrialResult.FAILURE;
+          failureStatus = FailureStatus.EXECUTION;
           break;
 
-        case KILLED:
-        case KILLING:
-        case DENIED:
-          trialResult = TrialResult.FAILURE;
+        case RANDOM_FAILURE:
+          if (retries >= maxRetries) {
+            failureStatus = FailureStatus.EXECUTION;
+          }
           break;
 
         default:
@@ -67,13 +71,12 @@ public class CheckTrialResultTask implements Callable<TrialResult> {
 
       }
 
-      if (trialResult == TrialResult.FAILURE && retries >= maxRetries) {
-        trialResult = TrialResult.EXECUTION_FAILURE;
+      if (failureStatus == null) {
+        return TrialExecutionStatus.RE_EXECUTE_TRIAL;
+      } else {
+        experimentModelDAO.setFailureStatus(experimentID, failureStatus);
+        return TrialExecutionStatus.SUCCESS;
       }
-
-      // TODO - add other experiment failures
-
-      return trialResult;
 
     } catch (BenchFlowExperimentIDDoesNotExistException e) {
       e.printStackTrace();
@@ -82,7 +85,10 @@ public class CheckTrialResultTask implements Callable<TrialResult> {
     return null;
   }
 
-  public enum TrialResult {
-    SUCCESS, FAILURE, SUT_FAILURE, LOAD_FAILURE, EXECUTION_FAILURE, SEVERE_FAILURE
+  // See for details on TrialExecutionStatus: https://github.com/benchflow/benchflow/pull/472#discussion_r131115857
+  public enum TrialExecutionStatus {
+    SUCCESS, RE_EXECUTE_TRIAL
   }
+
+
 }

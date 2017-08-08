@@ -40,6 +40,10 @@ public class User {
     this.hashUsername = username;
   }
 
+  public String getHashUsername() {
+    return hashUsername;
+  }
+
   public String getUsername() {
     return username;
   }

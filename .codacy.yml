@@ -1,3 +1,38 @@
+# List: https://support.codacy.com/hc/en-us/articles/207994335-Code-Patterns
+# Enabled for: scala (only ScalaStyle), java (Checkstyle and PMD), Python, Docker, JavaScript, CSS
+# Reference: https://support.codacy.com/hc/en-us/articles/115002130625-Codacy-Configuration-File
 engines:
+  Checkstyle:
+    enabled: true
+  PMD:
+    enabled: true
+  ScalaStyle:
+    enabled: true
+  Hadolint:
+    enabled: true
+  ESLint:
+    enabled: true
+  JSHint:
+    enabled: true
+  CSSLint:
+    enabled: true
   scalameta:
+    enabled: false
+  Findbugs:
+    enabled: false
+  PHP CodeSniffer:
+    enabled: false
+  PHPMD:
+    enabled: false
+  Brakeman:
+    enabled: false
+  Rubocop:
+    enabled: false
+  SCSSLint:
+    enabled: false
+  Tailor:
+    enabled: false
+  TSLint:
+    enabled: false
+  Stylelint:
     enabled: false

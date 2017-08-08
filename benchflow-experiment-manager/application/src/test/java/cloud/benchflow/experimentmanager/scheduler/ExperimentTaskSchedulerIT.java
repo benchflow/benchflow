@@ -20,14 +20,20 @@ import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
 import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
-import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.TrialStatus;
+import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.FabanStatus;
 import cloud.benchflow.faban.client.FabanClient;
+import cloud.benchflow.faban.client.exceptions.BenchmarkNameNotFoundRuntimeException;
 import cloud.benchflow.faban.client.exceptions.ConfigFileNotFoundException;
+import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
+import cloud.benchflow.faban.client.exceptions.FabanClientIOException;
+import cloud.benchflow.faban.client.exceptions.IllegalRunIdException;
 import cloud.benchflow.faban.client.exceptions.JarFileNotFoundException;
+import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.DeployStatus;
 import cloud.benchflow.faban.client.responses.RunId;
-import cloud.benchflow.faban.client.responses.RunStatus.Code;
+import cloud.benchflow.faban.client.responses.RunInfo.Result;
+import cloud.benchflow.faban.client.responses.RunStatus.StatusCode;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
@@ -98,9 +104,9 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getDeploymentDescriptor())
         .when(minioServiceSpy).getExperimentDeploymentDescriptor(Mockito.anyString());
 
-    Mockito.doAnswer(invocationOnMock -> MinioTestData.get11ParallelStructuredModel())
-        .when(minioServiceSpy).getExperimentBPMNModel(Mockito.anyString(),
-            Mockito.matches(MinioTestData.BPM_MODEL_11_PARALLEL_NAME));
+    Mockito.doAnswer(invocationOnMock -> MinioTestData.getTestModel()).when(minioServiceSpy)
+        .getExperimentBPMNModel(Mockito.anyString(),
+            Mockito.matches(MinioTestData.BPMN_MODEL_TEST_NAME));
 
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getGeneratedBenchmark())
         .when(minioServiceSpy)
@@ -154,12 +160,12 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   }
 
   @Test
-  public void runSingleExperimentSingleTrialWithFailureAndSuccess() throws Exception {
+  public void runSingleExperimentSingleTrialWithRandomFailureAndSuccess() throws Exception {
 
     String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_1_TRIAL;
 
     setupExperimentMocks(experimentID);
-    setupTrialMocksWithFailureAndSuccess(experimentID, 1);
+    setupTrialMocksWithRandomFailureAndSuccess(experimentID, 1);
 
     experimentModelDAO.addExperiment(experimentID);
 
@@ -253,7 +259,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   }
 
   @Test
-  public void runMultipleExperimentMultipleTrialsWithFailures() throws Exception {
+  public void runMultipleExperimentMultipleTrialsWithRandomFailures() throws Exception {
 
     int[] experimentNumbers = new int[] {1, 2};
     String[] experimentIDs = new String[2];
@@ -268,7 +274,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
       setupExperimentMocks(experimentID);
 
       for (int j = 1; j <= 2; j++) {
-        setupTrialMocksWithFailureAndSuccess(experimentID, j);
+        setupTrialMocksWithRandomFailureAndSuccess(experimentID, j);
       }
 
       experimentModelDAO.addExperiment(experimentID);
@@ -281,7 +287,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     }
 
     // wait for tasks to finish
-    experimentTaskExecutorServer.awaitTermination(1, TimeUnit.SECONDS);
+    experimentTaskExecutorServer.awaitTermination(10, TimeUnit.SECONDS);
 
     for (String experimentID : experimentIDs) {
       Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
@@ -296,7 +302,9 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   }
 
   private void setupTrialMocksSuccessful(String experimentID, long trialNumber)
-      throws JarFileNotFoundException, ConfigFileNotFoundException, RunIdNotFoundException {
+      throws JarFileNotFoundException, ConfigFileNotFoundException, RunIdNotFoundException,
+      IllegalRunIdException, BenchmarkNameNotFoundRuntimeException, FabanClientIOException,
+      MalformedURIException, EmptyHarnessResponseException {
 
     String fabanID = "test_faban_id_" + trialNumber;
     String fabanExperimentId = FabanManagerService.getFabanExperimentID(experimentID);
@@ -315,13 +323,15 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     // TODO - alternative would be to have configuration setting to change first polling to 0s
     // we mock this because otherwise we have to wait for first polling (60s)
-    Mockito.doReturn(new TrialStatus(trialID, Code.COMPLETED)).when(fabanManagerServiceSpy)
-        .pollForTrialStatus(trialID, runId);
+    Mockito.doReturn(new FabanStatus(trialID, StatusCode.COMPLETED, Result.PASSED))
+        .when(fabanManagerServiceSpy).pollForTrialStatus(trialID, runId);
 
   }
 
-  private void setupTrialMocksWithFailureAndSuccess(String experimentID, long trialNumber)
-      throws RunIdNotFoundException, ConfigFileNotFoundException {
+  private void setupTrialMocksWithRandomFailureAndSuccess(String experimentID, long trialNumber)
+      throws RunIdNotFoundException, ConfigFileNotFoundException, IllegalRunIdException,
+      BenchmarkNameNotFoundRuntimeException, FabanClientIOException, MalformedURIException,
+      EmptyHarnessResponseException {
 
     String fabanID = "test_faban_id_" + trialNumber;
     String fabanExperimentId = FabanManagerService.getFabanExperimentID(experimentID);
@@ -340,14 +350,16 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     // TODO - alternative would be to have configuration setting to change first polling to 0s
     // we mock this because otherwise we have to wait for first polling (60s)
-    Mockito.doReturn(new TrialStatus(trialID, Code.FAILED))
-        .doReturn(new TrialStatus(trialID, Code.COMPLETED)).when(fabanManagerServiceSpy)
-        .pollForTrialStatus(trialID, runId);
+    Mockito.doReturn(new FabanStatus(trialID, StatusCode.COMPLETED, Result.UNKNOWN))
+        .doReturn(new FabanStatus(trialID, StatusCode.COMPLETED, Result.PASSED))
+        .when(fabanManagerServiceSpy).pollForTrialStatus(trialID, runId);
 
   }
 
   private void setupTrialMocksWithOnlyFailure(String experimentID, long trialNumber)
-      throws RunIdNotFoundException, ConfigFileNotFoundException {
+      throws RunIdNotFoundException, ConfigFileNotFoundException, IllegalRunIdException,
+      BenchmarkNameNotFoundRuntimeException, FabanClientIOException, MalformedURIException,
+      EmptyHarnessResponseException {
 
     String fabanID = "test_faban_id_" + trialNumber;
     String fabanExperimentId = FabanManagerService.getFabanExperimentID(experimentID);
@@ -366,8 +378,8 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     // TODO - alternative would be to have configuration setting to change first polling to 0s
     // we mock this because otherwise we have to wait for first polling (60s)
-    Mockito.doReturn(new TrialStatus(trialID, Code.FAILED)).when(fabanManagerServiceSpy)
-        .pollForTrialStatus(trialID, runId);
+    Mockito.doReturn(new FabanStatus(trialID, StatusCode.FAILED, Result.FAILED))
+        .when(fabanManagerServiceSpy).pollForTrialStatus(trialID, runId);
 
 
   }
