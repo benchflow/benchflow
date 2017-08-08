@@ -22,8 +22,8 @@ public abstract class AbortableFutureTask<T> extends FutureTask<T> {
     super(runnable, result);
   }
 
-  abstract public boolean isAborted();
+  public abstract boolean isAborted();
 
-  abstract public void abortTask();
+  public abstract void abortTask();
 
 }

@@ -7,7 +7,7 @@ import java.util.concurrent.Callable;
  */
 public abstract class AbortableCallable<T> implements Callable<T> {
 
-  volatile private boolean aborted = false;
+  private volatile boolean aborted = false;
 
   public AbortableFutureTask<T> newTask() {
     return new AbortableFutureTask<T>(this) {

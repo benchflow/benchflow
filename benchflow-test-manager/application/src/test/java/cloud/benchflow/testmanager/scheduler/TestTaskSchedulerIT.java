@@ -461,8 +461,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     BenchFlowExperimentModel[] experimentsArray =
         experiments.toArray(new BenchFlowExperimentModel[experiments.size()]);
 
-    Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
-        experimentsArray[expectedNumExperiments - 1].getState());
+    Assert.assertEquals(TERMINATED, experimentsArray[expectedNumExperiments - 1].getState());
 
     // assert that test was removed from experiment-manager
     Mockito.verify(experimentManagerService, Mockito.times(1))

@@ -142,6 +142,8 @@ public class BenchFlowTestManagerApplication
     ScheduledThreadPoolExecutor timeOutScheduledThreadPoolExecutor =
         new ScheduledThreadPoolExecutor(1);
 
+    testTaskScheduler = new TestTaskScheduler(taskExecutor, timeOutScheduledThreadPoolExecutor);
+
     testModelDAO = new BenchFlowTestModelDAO(mongoClient);
     explorationModelDAO = new ExplorationModelDAO(mongoClient, testModelDAO);
     experimentModelDAO = new BenchFlowExperimentModelDAO(mongoClient, testModelDAO);
@@ -150,8 +152,6 @@ public class BenchFlowTestManagerApplication
     minioService = configuration.getMinioServiceFactory().build();
     experimentManagerService = configuration.getBenchFlowExperimentManagerServiceFactory()
         .build(configuration, environment);
-
-    testTaskScheduler = new TestTaskScheduler(taskExecutor, timeOutScheduledThreadPoolExecutor);
 
     // initialize to fetch dependencies
     testTaskScheduler.initialize();

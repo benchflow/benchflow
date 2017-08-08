@@ -14,8 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Customises io.dropwizard.lifecycle.setup.ExecutorServiceBuilder to handle the CustomFutureReturningExecutor
- * in a managed way by Dropwizard.
+ * Customises io.dropwizard.lifecycle.setup.ExecutorServiceBuilder to handle the
+ * CustomFutureReturningExecutor in a managed way by Dropwizard.
  *
  * Most of the code comes from the referenced ExecutorServiceBuilder. I needed to copy it because
  * the field of ExecutorServiceBuilder are private and there are no setter and getter.
@@ -36,6 +36,9 @@ public class CustomFutureReturningExecutorBuilder {
   private ThreadFactory threadFactory;
   private RejectedExecutionHandler handler;
 
+  /**
+   * Constructs a CustomFutureReturningExecutorBuilder.
+   */
   public CustomFutureReturningExecutorBuilder(LifecycleEnvironment environment, String nameFormat,
       ThreadFactory factory) {
     this.environment = environment;
@@ -49,6 +52,9 @@ public class CustomFutureReturningExecutorBuilder {
     this.handler = new ThreadPoolExecutor.AbortPolicy();
   }
 
+  /**
+   * Constructs a CustomFutureReturningExecutorBuilder.
+   */
   public CustomFutureReturningExecutorBuilder(LifecycleEnvironment environment, String nameFormat) {
     this(environment, nameFormat, new ThreadFactoryBuilder().setNameFormat(nameFormat).build());
   }
@@ -89,6 +95,9 @@ public class CustomFutureReturningExecutorBuilder {
     return this;
   }
 
+  /**
+   * Builds a CustomFutureReturningExecutorBuilder.
+   */
   public CustomFutureReturningExecutor build() {
     if (corePoolSize != maximumPoolSize && maximumPoolSize > 1 && !isBoundedQueue()) {
       log.warn("Parameter 'maximumPoolSize' is conflicting with unbounded work queues");

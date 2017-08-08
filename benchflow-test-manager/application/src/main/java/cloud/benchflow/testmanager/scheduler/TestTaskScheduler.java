@@ -105,6 +105,9 @@ public class TestTaskScheduler {
     this.runningStatesHandler = runningStatesHandler;
   }
 
+  /**
+   * Handle the Starting States of a Test.
+   */
   public synchronized void handleStartingTest(String testID) {
 
     boolean exit = false;
@@ -128,8 +131,9 @@ public class TestTaskScheduler {
 
         // Exit as soon as ready is executed
         if (prevTestState != null && testState != null
-            && prevTestState.name().equals(testState.name()) && testState == READY)
+            && prevTestState.name().equals(testState.name()) && testState == READY) {
           exit = true;
+        }
 
       }
     } catch (BenchFlowTestIDDoesNotExistException e) {
@@ -138,6 +142,9 @@ public class TestTaskScheduler {
 
   }
 
+  /**
+   * Handle the Running States of a Test.
+   */
   public synchronized void handleRunningTest(String testID) {
 
     boolean exit = false;
@@ -161,8 +168,9 @@ public class TestTaskScheduler {
         // Exit as soon as final state is executed
         if (prevTestState != null && testState != null
             && prevTestState.name().equals(testState.name())
-            && (testState == WAITING || testState == TERMINATED))
+            && (testState == WAITING || testState == TERMINATED)) {
           exit = true;
+        }
 
       }
 
@@ -264,6 +272,9 @@ public class TestTaskScheduler {
     }
   }
 
+  /**
+   * Handles the Running Test Sub-States.
+   */
   public synchronized void handleRunningTestState(String testID)
       throws BenchFlowTestIDDoesNotExistException {
 
@@ -284,8 +295,9 @@ public class TestTaskScheduler {
       }
 
       // Exit as soon as final state is executed
-      if (testState != null && (testState == WAITING || testState == TERMINATED))
+      if (testState != null && (testState == WAITING || testState == TERMINATED)) {
         exit = true;
+      }
 
     }
 
@@ -364,8 +376,9 @@ public class TestTaskScheduler {
   void handleTerminatedState(String testID) {
     // remove max running time timeout, if present
     ScheduledFuture timeoutTaskFuture = timeoutTasks.remove(testID);
-    if (timeoutTaskFuture != null)
+    if (timeoutTaskFuture != null) {
       timeoutTaskFuture.cancel(true);
+    }
 
     // remove any tasks left
     testTasks.remove(testID);
@@ -377,7 +390,7 @@ public class TestTaskScheduler {
 
   /**
    * Called when user terminates test or max run time has been reached.
-   *
+   * <p></p>
    * Given that the method is not synchronized, it has not to wait that other synchronized
    * of this class complete their execution, before getting access. This because the termination
    * should happen as soon as it is triggered from a Timeout or a User.
@@ -422,7 +435,8 @@ public class TestTaskScheduler {
             logger.info("Need to execute AbortRunningTask");
 
             // if an experiment is running we cancel it on the experiment-manager
-            // We use a task because we don't want to keep the lock on the TestTaskScheduler longer than necessary
+            // We use a task because we don't want to keep the lock on the TestTaskScheduler
+            // longer than necessary
             AbortRunningTestTask abortRunningTestTask = new AbortRunningTestTask(testID);
             Future abortRunningTestTaskFuture = taskExecutorService.submit(abortRunningTestTask);
 
@@ -485,12 +499,15 @@ public class TestTaskScheduler {
     }
   }
 
-  public boolean isTaskAborted(AbortableFutureTask future) {
+  private boolean isTaskAborted(AbortableFutureTask future) {
 
     return future.isAborted();
 
   }
 
+  /**
+   * Get the Abortable Future Task from a Future.
+   */
   public AbortableFutureTaskResult getAbortableFutureTask(AbortableFutureTask future)
       throws InterruptedException, ExecutionException {
 
@@ -504,8 +521,9 @@ public class TestTaskScheduler {
       result.setAborted(true);
     } finally {
       // if test has been aborted (we cancel the task in terminateTest) we stop here
-      if (isTaskAborted(future))
+      if (isTaskAborted(future)) {
         result.setAborted(true);
+      }
     }
 
     logger.info(result.toString());
@@ -516,8 +534,9 @@ public class TestTaskScheduler {
   // holds the result of an abortable future
   public class AbortableFutureTaskResult<T> {
 
-    T result = null;
-    boolean aborted = false;
+    // NOTE: currenlty the result is not used
+    private T result = null;
+    private boolean aborted = false;
 
     public T getResult() {
       // the result is only valid if the task was not aborted
@@ -527,19 +546,34 @@ public class TestTaskScheduler {
       return null;
     }
 
+    /**
+     * Set the Result.
+     */
     public void setResult(T result) {
       this.result = result;
     }
 
+    /**
+     * Check if the Test is Aborted.
+     * @return
+     */
     public boolean isAborted() {
       return aborted;
     }
 
+    /**
+     * Set the Aborted Flab.
+     */
     public void setAborted(boolean aborted) {
       this.aborted = aborted;
     }
   }
 
+  /**
+   * Checks whether or not the Test reached the TERMINATED state.
+   * @param testID
+   * @return true if the test state is terminated.
+   */
   @Deprecated
   public boolean isTerminated(String testID) {
 

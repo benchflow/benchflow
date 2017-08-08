@@ -5,7 +5,7 @@ package cloud.benchflow.testmanager.tasks;
  */
 public abstract class AbortableRunnable<T> implements Runnable {
 
-  volatile private boolean aborted = false;
+  private volatile boolean aborted = false;
 
   public AbortableFutureTask<T> newTask() {
     return new AbortableFutureTask<T>(this, null) {

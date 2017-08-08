@@ -40,8 +40,9 @@ public class CustomFutureReturningExecutor extends ThreadPoolExecutor {
 
   @Override
   public Future<?> submit(Runnable task) {
-    if (task == null)
-      throw new NullPointerException();
+    if (task == null) {
+      throw new IllegalArgumentException();
+    }
     RunnableFuture<Void> ftask = newTaskFor(task, null);
     execute(ftask);
     return ftask;
@@ -49,8 +50,9 @@ public class CustomFutureReturningExecutor extends ThreadPoolExecutor {
 
   @Override
   public <T> Future<T> submit(Callable<T> task) {
-    if (task == null)
-      throw new NullPointerException();
+    if (task == null) {
+      throw new IllegalArgumentException();
+    }
     RunnableFuture<T> ftask = newTaskFor(task);
     execute(ftask);
     return ftask;
