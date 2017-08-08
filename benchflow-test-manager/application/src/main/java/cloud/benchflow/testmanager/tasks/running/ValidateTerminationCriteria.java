@@ -5,6 +5,7 @@ import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.strategy.validation.CompleteExplorationValidationStrategy;
 import cloud.benchflow.testmanager.strategy.validation.SingleExperimentValidationStrategy;
 import cloud.benchflow.testmanager.strategy.validation.ValidationStrategy;
+import cloud.benchflow.testmanager.tasks.AbortableCallable;
 import cloud.benchflow.testmanager.tasks.running.ValidateTerminationCriteria.TerminationCriteriaResult;
 import java.util.concurrent.Callable;
 import org.slf4j.Logger;
@@ -13,7 +14,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-05-05
  */
-public class ValidateTerminationCriteria implements Callable<TerminationCriteriaResult> {
+public class ValidateTerminationCriteria extends AbortableCallable<TerminationCriteriaResult> {
 
   private static Logger logger =
       LoggerFactory.getLogger(HandleExperimentResultTask.class.getSimpleName());

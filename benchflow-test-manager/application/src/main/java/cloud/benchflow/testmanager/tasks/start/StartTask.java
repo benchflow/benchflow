@@ -13,6 +13,7 @@ import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistExcepti
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
+import cloud.benchflow.testmanager.tasks.AbortableRunnable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
@@ -25,7 +26,7 @@ import scala.Option;
  *
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20
  */
-public class StartTask implements Runnable {
+public class StartTask extends AbortableRunnable {
 
   private static Logger logger = LoggerFactory.getLogger(StartTask.class.getSimpleName());
 
