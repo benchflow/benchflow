@@ -69,8 +69,7 @@ public class BenchFlowTestManagerApplication
   }
 
   // used for testing to insert mock/spy object
-  public static void setTestModelDAO(
-      BenchFlowTestModelDAO testModelDAO) {
+  public static void setTestModelDAO(BenchFlowTestModelDAO testModelDAO) {
     BenchFlowTestManagerApplication.testModelDAO = testModelDAO;
   }
 
@@ -81,8 +80,7 @@ public class BenchFlowTestManagerApplication
   }
 
   // used for testing to insert mock/spy object
-  public static void setTestTaskScheduler(
-      TestTaskScheduler testTaskScheduler) {
+  public static void setTestTaskScheduler(TestTaskScheduler testTaskScheduler) {
     BenchFlowTestManagerApplication.testTaskScheduler = testTaskScheduler;
   }
 
