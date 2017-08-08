@@ -424,6 +424,7 @@ public class TestTaskScheduler {
             logger.info("Need to execute AbortRunningTask");
 
             // if an experiment is running we cancel it on the experiment-manager
+            // We use a task because we don't want to keep the lock on the TestTaskScheduler longer than necessary
             AbortRunningTestTask abortRunningTestTask = new AbortRunningTestTask(testID);
             Future abortRunningTestTaskFuture = taskExecutorService.submit(abortRunningTestTask);
 
