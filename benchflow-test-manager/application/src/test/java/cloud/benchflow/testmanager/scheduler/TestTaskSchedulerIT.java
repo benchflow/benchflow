@@ -112,7 +112,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     testTaskScheduler.handleTestState(testID);
 
     // wait long enough for all experiments to complete
-    countDownLatch.await(10, TimeUnit.SECONDS);
+    countDownLatch.await(20, TimeUnit.SECONDS);
 
     // wait for last task to finish
     executorService.awaitTermination(1, TimeUnit.SECONDS);

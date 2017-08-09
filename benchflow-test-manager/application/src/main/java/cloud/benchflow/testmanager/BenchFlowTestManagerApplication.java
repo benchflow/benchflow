@@ -20,6 +20,7 @@ import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,8 +126,10 @@ public class BenchFlowTestManagerApplication
     // Typically you only create one MongoClient instance for a given MongoDB deployment
     // (e.g. standalone, replica set, or a sharded cluster) and use it across your application.
     // http://mongodb.github.io/mongo-java-driver/3.4/driver/getting-started/quick-start/
-    MongoClient mongoClient = configuration.getMongoDBFactory().build();
-    ExecutorService taskExecutor = configuration.getTaskExecutorFactory().build(environment);
+    final MongoClient mongoClient = configuration.getMongoDBFactory().build();
+    final ExecutorService taskExecutor = configuration.getTaskExecutorFactory().build(environment);
+    final ScheduledThreadPoolExecutor timeOutScheduledThreadPoolExecutor =
+        new ScheduledThreadPoolExecutor(1);
 
     testModelDAO = new BenchFlowTestModelDAO(mongoClient);
     explorationModelDAO = new ExplorationModelDAO(mongoClient, testModelDAO);
@@ -137,7 +140,7 @@ public class BenchFlowTestManagerApplication
     experimentManagerService = configuration.getBenchFlowExperimentManagerServiceFactory()
         .build(configuration, environment);
 
-    testTaskScheduler = new TestTaskScheduler(taskExecutor);
+    testTaskScheduler = new TestTaskScheduler(taskExecutor, timeOutScheduledThreadPoolExecutor);
 
     // initialize to fetch dependencies
     testTaskScheduler.initialize();

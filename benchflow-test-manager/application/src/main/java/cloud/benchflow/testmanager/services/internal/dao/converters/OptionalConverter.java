@@ -4,7 +4,6 @@ import java.util.Optional;
 import org.mongodb.morphia.converters.Converters;
 import org.mongodb.morphia.converters.TypeConverter;
 import org.mongodb.morphia.mapping.MappedField;
-import scala.Option;
 
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-06-04
@@ -17,7 +16,7 @@ public class OptionalConverter extends TypeConverter {
   private Converters converters;
 
   public OptionalConverter(Converters converters) {
-    super(Option.class);
+    super(Optional.class);
     this.converters = converters;
   }
 

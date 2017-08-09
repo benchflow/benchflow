@@ -4,6 +4,7 @@ import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.START;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.DETERMINE_EXPLORATION_STRATEGY;
 
+import cloud.benchflow.dsl.definition.types.time.Time;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.services.external.MinioService;
@@ -56,6 +57,7 @@ public class BenchFlowTestModel {
   private long number;
   private Date start = new Date();
   private Date lastModified = new Date();
+  private Time maxRunningTime;
   private BenchFlowTestState state;
   private TestRunningState runningState;
   private TestTerminatedState terminatedState;
@@ -115,6 +117,14 @@ public class BenchFlowTestModel {
 
   public Date getLastModified() {
     return lastModified;
+  }
+
+  public Time getMaxRunningTime() {
+    return maxRunningTime;
+  }
+
+  public void setMaxRunningTime(Time maxRunningTime) {
+    this.maxRunningTime = maxRunningTime;
   }
 
   public BenchFlowTestState getState() {
