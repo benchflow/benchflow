@@ -3,7 +3,10 @@ package cloud.benchflow.testmanager.helpers.constants;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import org.apache.commons.io.IOUtils;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-27
@@ -44,6 +47,15 @@ public class TestFiles {
       throws FileNotFoundException {
 
     return new FileInputStream(TEST_EXPLORATION_ONE_AT_A_TIME_USERS_MEMORY_ENVIRONMENT_FILE);
+  }
+
+  public static String getTestExplorationOneAtATimeUsersMemoryEnvironmentString()
+      throws IOException {
+
+    InputStream inputStream =
+        new FileInputStream(TEST_EXPLORATION_ONE_AT_A_TIME_USERS_MEMORY_ENVIRONMENT_FILE);
+
+    return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
   }
 
   public static InputStream getTestExplorationOneAtATimeUsersInputStream()

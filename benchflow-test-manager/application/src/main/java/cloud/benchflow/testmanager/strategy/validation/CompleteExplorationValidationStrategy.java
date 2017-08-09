@@ -2,7 +2,7 @@ package cloud.benchflow.testmanager.strategy.validation;
 
 import cloud.benchflow.dsl.ExplorationSpaceAPI;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
-import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator;
+import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpace;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.services.external.MinioService;
@@ -22,12 +22,12 @@ public class CompleteExplorationValidationStrategy implements ValidationStrategy
   private static Logger logger =
       LoggerFactory.getLogger(CompleteExplorationValidationStrategy.class.getSimpleName());
 
-  private final MinioService minioService;
   private final ExplorationModelDAO explorationModelDAO;
+  private final MinioService minioService;
 
   public CompleteExplorationValidationStrategy() {
-    this.minioService = BenchFlowTestManagerApplication.getMinioService();
     this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
+    this.minioService = BenchFlowTestManagerApplication.getMinioService();
   }
 
   @Override
@@ -37,13 +37,17 @@ public class CompleteExplorationValidationStrategy implements ValidationStrategy
 
     try {
 
-      String testDefinitionYamlString =
+      // get exploration space
+      // TODO - investigate why there is an error calling this method
+      // (e.g. instantiating scala case class)
+      // JavaCompatExplorationSpace explorationSpace = explorationModelDAO
+      // .getExplorationSpace(testID).toJavaCompat();
+
+      String testDefinition =
           IOUtils.toString(minioService.getTestDefinition(testID), StandardCharsets.UTF_8);
 
-      // get exploration space
-      // JavaCompatExplorationSpace explorationSpace = explorationModelDAO.getExplorationSpace(testID);
-      ExplorationSpaceGenerator.ExplorationSpace explorationSpace =
-          ExplorationSpaceAPI.explorationSpaceFromTestYaml(testDefinitionYamlString);
+      JavaCompatExplorationSpace explorationSpace =
+          ExplorationSpaceAPI.explorationSpaceFromTestYaml(testDefinition);
 
       // get the executed exploration points
       List<Integer> explorationPointIndices =
@@ -52,8 +56,8 @@ public class CompleteExplorationValidationStrategy implements ValidationStrategy
       // if the exploration size equals the number executed points it is complete
       return explorationSpace.size() == explorationPointIndices.size();
 
-    } catch (IOException | BenchFlowDeserializationException
-        | BenchFlowTestIDDoesNotExistException e) {
+    } catch (BenchFlowTestIDDoesNotExistException | IOException
+        | BenchFlowDeserializationException e) {
       // should not happen
       // TODO - handle me
       e.printStackTrace();

@@ -136,7 +136,7 @@ public class BenchFlowTestManagerApplication
     // Typically you only create one MongoClient instance for a given MongoDB deployment
     // (e.g. standalone, replica set, or a sharded cluster) and use it across your application.
     // http://mongodb.github.io/mongo-java-driver/3.4/driver/getting-started/quick-start/
-    MongoClient mongoClient = configuration.getMongoDBFactory().build();
+    final MongoClient mongoClient = configuration.getMongoDBFactory().build();
     CustomFutureReturningExecutor taskExecutor =
         configuration.getTaskExecutorFactory().build(environment);
     ScheduledThreadPoolExecutor timeOutScheduledThreadPoolExecutor =

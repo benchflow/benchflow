@@ -91,7 +91,8 @@ public class BenchFlowTestModelDAO extends DAO {
   public synchronized BenchFlowTestModel getTestModel(String testID)
       throws BenchFlowTestIDDoesNotExistException {
 
-    // TODO - this should not be a public method - if an operation is needed we should add a method for it
+    // TODO - this should not be a public method - if an operation is needed
+    // we should add a method for it
 
     final Query<BenchFlowTestModel> testModelQuery = datastore.createQuery(BenchFlowTestModel.class)
         .field(BenchFlowTestModel.ID_FIELD_NAME).equal(testID);

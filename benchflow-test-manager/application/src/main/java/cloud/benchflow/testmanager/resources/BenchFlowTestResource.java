@@ -131,8 +131,8 @@ public class BenchFlowTestResource {
           BenchFlowTestBundleExtractor.extractBPMNModelInputStreams(testBundleZipInputStream);
 
       if (deploymentDescriptorInputStream == null || bpmnModelInputStreams.size() == 0) {
-        logger.info(
-            "runBenchFlowTest: deploymentDescriptorInputStream == null || bpmnModelInputStreams.size() == 0");
+        logger.info("runBenchFlowTest: deploymentDescriptorInputStream == null "
+            + "|| bpmnModelInputStreams.size() == 0");
         throw new InvalidTestBundleException();
       }
 
