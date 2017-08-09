@@ -6,7 +6,7 @@ import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
 import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial;
-import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.TrialStatus;
+import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.FabanStatus;
 import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19
  */
-public class DetermineAndExecuteTrialsTask implements Callable<TrialStatus> {
+public class DetermineAndExecuteTrialsTask implements Callable<FabanStatus> {
 
   private static Logger logger =
       LoggerFactory.getLogger(DetermineAndExecuteTrialsTask.class.getSimpleName());
@@ -32,7 +32,7 @@ public class DetermineAndExecuteTrialsTask implements Callable<TrialStatus> {
   }
 
   @Override
-  public TrialStatus call() {
+  public FabanStatus call() {
 
     logger.info("running - " + experimentID);
 

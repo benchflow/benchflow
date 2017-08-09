@@ -139,8 +139,8 @@ public class BenchFlowTestResource {
           BenchFlowTestBundleExtractor.extractBPMNModelInputStreams(testBundleZipInputStream);
 
       if (deploymentDescriptorInputStream == null || bpmnModelInputStreams.size() == 0) {
-        logger.info(
-            "runBenchFlowTest: deploymentDescriptorInputStream == null || bpmnModelInputStreams.size() == 0");
+        logger.info("runBenchFlowTest: deploymentDescriptorInputStream == null "
+            + "|| bpmnModelInputStreams.size() == 0");
         throw new InvalidTestBundleException();
       }
 
@@ -162,7 +162,7 @@ public class BenchFlowTestResource {
             .saveTestBPMNModel(testID, fileName, inputStream));
 
         // delegate to task scheduler
-        testTaskScheduler.handleTestState(testID);
+        testTaskScheduler.handleStartingTest(testID);
 
       }).start();
 

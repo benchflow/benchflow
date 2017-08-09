@@ -2,7 +2,7 @@ package cloud.benchflow.testmanager.strategy.selection;
 
 import cloud.benchflow.dsl.ExplorationSpaceAPI;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
-import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator;
+import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpace;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.services.external.MinioService;
@@ -56,8 +56,12 @@ public abstract class SelectionStrategy {
       String deploymentDescriptorYamlString = IOUtils
           .toString(minioService.getTestDeploymentDescriptor(testID), StandardCharsets.UTF_8);
 
-      // JavaCompatExplorationSpace explorationSpace = explorationModelDAO.getExplorationSpace(testID);
-      ExplorationSpaceGenerator.ExplorationSpace explorationSpace =
+      // get the exploration space
+      // TODO - investigate why there is an error calling this method
+      // (e.g. instantiating scala case class)
+      //  JavaCompatExplorationSpace explorationSpace = explorationModelDAO
+      // .getExplorationSpace(testID).toJavaCompat();
+      JavaCompatExplorationSpace explorationSpace =
           ExplorationSpaceAPI.explorationSpaceFromTestYaml(testDefinitionYamlString);
 
       // next experiment to be executed
@@ -75,8 +79,8 @@ public abstract class SelectionStrategy {
           nextExplorationPoint);
 
 
-    } catch (BenchFlowTestIDDoesNotExistException | BenchFlowDeserializationException
-        | IOException e) {
+    } catch (BenchFlowTestIDDoesNotExistException | IOException
+        | BenchFlowDeserializationException e) {
       // should not happen
       // TODO - handle me
       e.printStackTrace();

@@ -4,10 +4,12 @@ import cloud.benchflow.dsl.definition.configuration.goal.goaltype.GoalType;
 import cloud.benchflow.dsl.definition.configuration.strategy.regression.RegressionStrategyType;
 import cloud.benchflow.dsl.definition.configuration.strategy.selection.SelectionStrategyType;
 import cloud.benchflow.dsl.definition.configuration.strategy.validation.ValidationStrategyType;
-import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpace;
-import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpaceDimensions;
+import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpace;
+import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpaceDimensions;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
+import cloud.benchflow.testmanager.models.explorationspace.MongoCompatibleExplorationSpace;
+import cloud.benchflow.testmanager.models.explorationspace.MongoCompatibleExplorationSpaceDimensions;
 import cloud.benchflow.testmanager.strategy.regression.MarsRegressionStrategy;
 import cloud.benchflow.testmanager.strategy.regression.RegressionStrategy;
 import cloud.benchflow.testmanager.strategy.selection.OneAtATimeSelectionStrategy;
@@ -59,8 +61,8 @@ public class ExplorationModelDAO extends DAO {
 
   }
 
-  public synchronized ExplorationSpaceDimensions getExplorationSpaceDimensions(String testID)
-      throws BenchFlowTestIDDoesNotExistException {
+  public synchronized MongoCompatibleExplorationSpaceDimensions getExplorationSpaceDimensions(
+      String testID) throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("getExplorationSpaceDimensions: " + testID);
 
@@ -71,21 +73,24 @@ public class ExplorationModelDAO extends DAO {
   }
 
   public synchronized void setExplorationSpaceDimensions(String testID,
-      ExplorationSpaceDimensions explorationSpaceDimensions)
+      JavaCompatExplorationSpaceDimensions explorationSpaceDimensions)
       throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("setExplorationSpaceDimensions: " + testID);
 
     final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
 
+    MongoCompatibleExplorationSpaceDimensions mongoCompatibleExplorationSpaceDimensions =
+        new MongoCompatibleExplorationSpaceDimensions(explorationSpaceDimensions);
+
     benchFlowTestModel.getExplorationModel()
-        .setExplorationSpaceDimensions(explorationSpaceDimensions);
+        .setExplorationSpaceDimensions(mongoCompatibleExplorationSpaceDimensions);
 
     datastore.save(benchFlowTestModel);
 
   }
 
-  public synchronized ExplorationSpace getExplorationSpace(String testID)
+  public synchronized MongoCompatibleExplorationSpace getExplorationSpace(String testID)
       throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("getExplorationSpace: " + testID);
@@ -93,17 +98,19 @@ public class ExplorationModelDAO extends DAO {
     final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
 
     return benchFlowTestModel.getExplorationModel().getExplorationSpace();
-
   }
 
-  public synchronized void setExplorationSpace(String testID, ExplorationSpace explorationSpace)
-      throws BenchFlowTestIDDoesNotExistException {
+  public synchronized void setExplorationSpace(String testID,
+      JavaCompatExplorationSpace explorationSpace) throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("setExplorationSpace: " + testID);
 
     final BenchFlowTestModel benchFlowTestModel = testModelDAO.getTestModel(testID);
 
-    benchFlowTestModel.getExplorationModel().setExplorationSpace(explorationSpace);
+    MongoCompatibleExplorationSpace mongoCompatibleExplorationSpace =
+        new MongoCompatibleExplorationSpace(explorationSpace);
+
+    benchFlowTestModel.getExplorationModel().setExplorationSpace(mongoCompatibleExplorationSpace);
 
     datastore.save(benchFlowTestModel);
 

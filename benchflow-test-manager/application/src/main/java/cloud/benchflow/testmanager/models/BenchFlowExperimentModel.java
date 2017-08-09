@@ -8,6 +8,7 @@ import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +28,7 @@ import org.mongodb.morphia.utils.IndexType;
 @Entity
 @Indexes({@Index(options = @IndexOptions(),
     fields = {@Field(value = "hashedID", type = IndexType.HASHED)})})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BenchFlowExperimentModel {
 
   public static final String ID_FIELD_NAME = "id";
@@ -34,7 +36,7 @@ public class BenchFlowExperimentModel {
   @Id
   private String id;
   // used for potential sharding in the future
-  @JsonIgnore
+  @JsonIgnoreProperties(ignoreUnknown = true)
   private String hashedID;
   @JsonIgnore
   private String testID;
@@ -85,6 +87,14 @@ public class BenchFlowExperimentModel {
 
   public String getId() {
     return id;
+  }
+
+  public String getHashedId() {
+    return hashedID;
+  }
+
+  public String getTestId() {
+    return testID;
   }
 
   public long getNumber() {

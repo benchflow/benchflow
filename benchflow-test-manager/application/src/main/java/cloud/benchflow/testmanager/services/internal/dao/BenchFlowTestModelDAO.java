@@ -91,9 +91,8 @@ public class BenchFlowTestModelDAO extends DAO {
   public synchronized BenchFlowTestModel getTestModel(String testID)
       throws BenchFlowTestIDDoesNotExistException {
 
-    // TODO - this should not be a public method - if an operation is needed we should add a method for it
-
-    logger.info("getTestModel: " + testID);
+    // TODO - this should not be a public method - if an operation is needed
+    // we should add a method for it
 
     final Query<BenchFlowTestModel> testModelQuery = datastore.createQuery(BenchFlowTestModel.class)
         .field(BenchFlowTestModel.ID_FIELD_NAME).equal(testID);
@@ -152,6 +151,16 @@ public class BenchFlowTestModelDAO extends DAO {
     final BenchFlowTestModel benchFlowTestModel = getTestModel(testID);
 
     return benchFlowTestModel.getMaxRunningTime();
+  }
+
+  public synchronized boolean hasMaxRunningTime(String testID)
+      throws BenchFlowTestIDDoesNotExistException {
+
+    logger.info("hasMaxRunningTime: " + testID);
+
+    final BenchFlowTestModel benchFlowTestModel = getTestModel(testID);
+
+    return benchFlowTestModel.hasMaxRunningTime();
   }
 
   public synchronized BenchFlowTestModel.BenchFlowTestState setTestState(String testID,
@@ -246,7 +255,7 @@ public class BenchFlowTestModelDAO extends DAO {
     BenchFlowExperimentModel lastExperimentModel =
         benchFlowTestModel.getExperiments().lastEntry().getValue();
 
-    if (lastExperimentModel.getState() == BenchFlowExperimentState.RUNNING) {
+    if (lastExperimentModel.getState().equals(BenchFlowExperimentState.RUNNING)) {
 
       return lastExperimentModel.getId();
 

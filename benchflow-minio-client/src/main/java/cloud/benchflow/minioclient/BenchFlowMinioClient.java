@@ -169,6 +169,7 @@ public abstract class BenchFlowMinioClient {
       logger.error("Exception in removeObject: " + objectName, e);
     } catch (ErrorResponseException e) {
       /* happens if the object to remove doesn't exist, do nothing */
+      logger.error("Exception in removeObject: " + objectName, e);
     }
   }
 

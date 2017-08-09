@@ -74,7 +74,7 @@ public class BenchFlowExperimentResource {
 
       BenchFlowTestModel.BenchFlowTestState testState = testModelDAO.getTestState(testID);
 
-      if (testState != BenchFlowTestModel.BenchFlowTestState.RUNNING) {
+      if (!testState.equals(BenchFlowTestModel.BenchFlowTestState.RUNNING)) {
         throw new WebApplicationException("test not running");
       }
 
@@ -89,9 +89,10 @@ public class BenchFlowExperimentResource {
       throw new InvalidTrialIDWebException();
     }
 
-    if (stateRequest.getState() == BenchFlowExperimentModel.BenchFlowExperimentState.TERMINATED) {
+    if (stateRequest.getState()
+        .equals(BenchFlowExperimentModel.BenchFlowExperimentState.TERMINATED)) {
 
-      testTaskController.handleTestState(testID);
+      testTaskController.handleRunningTest(testID);
     }
 
     // for now we ignore other states since we are only concerned if the experiment has terminated

@@ -10,8 +10,8 @@ import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfigurat
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidTestBundleWebException;
-import cloud.benchflow.testmanager.helpers.TestBundle;
-import cloud.benchflow.testmanager.helpers.TestConstants;
+import cloud.benchflow.testmanager.helpers.constants.TestBundle;
+import cloud.benchflow.testmanager.helpers.constants.TestConstants;
 import cloud.benchflow.testmanager.helpers.TestFiles;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;

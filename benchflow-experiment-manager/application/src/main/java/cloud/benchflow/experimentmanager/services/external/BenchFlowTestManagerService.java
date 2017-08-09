@@ -33,7 +33,7 @@ public class BenchFlowTestManagerService {
     this.testManagerTarget = httpClient.target("http://" + testManagerAddress);
   }
 
-  public void submitTrialStatus(String trialID, RunStatus.Code statusCode) {
+  public void submitTrialStatus(String trialID, RunStatus.StatusCode statusCode) {
 
     logger.info("submitTrialStatus for " + trialID + " with status " + statusCode.name());
 

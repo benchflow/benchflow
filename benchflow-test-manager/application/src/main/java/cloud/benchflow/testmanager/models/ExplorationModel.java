@@ -4,8 +4,8 @@ import cloud.benchflow.dsl.definition.configuration.goal.goaltype.GoalType;
 import cloud.benchflow.dsl.definition.configuration.strategy.regression.RegressionStrategyType;
 import cloud.benchflow.dsl.definition.configuration.strategy.selection.SelectionStrategyType;
 import cloud.benchflow.dsl.definition.configuration.strategy.validation.ValidationStrategyType;
-import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpace;
-import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpaceDimensions;
+import cloud.benchflow.testmanager.models.explorationspace.MongoCompatibleExplorationSpace;
+import cloud.benchflow.testmanager.models.explorationspace.MongoCompatibleExplorationSpaceDimensions;
 import java.util.ArrayList;
 import java.util.List;
 import org.mongodb.morphia.annotations.Embedded;
@@ -18,8 +18,8 @@ public class ExplorationModel {
 
   private GoalType goalType;
 
-  private ExplorationSpaceDimensions explorationSpaceDimensions;
-  private ExplorationSpace explorationSpace;
+  private MongoCompatibleExplorationSpaceDimensions explorationSpaceDimensions;
+  private MongoCompatibleExplorationSpace explorationSpace;
 
   private List<Integer> executedExplorationPointIndices = new ArrayList<>();
 
@@ -38,19 +38,20 @@ public class ExplorationModel {
     this.goalType = goalType;
   }
 
-  public ExplorationSpaceDimensions getExplorationSpaceDimensions() {
+  public MongoCompatibleExplorationSpaceDimensions getExplorationSpaceDimensions() {
     return explorationSpaceDimensions;
   }
 
-  public void setExplorationSpaceDimensions(ExplorationSpaceDimensions explorationSpaceDimensions) {
+  public void setExplorationSpaceDimensions(
+      MongoCompatibleExplorationSpaceDimensions explorationSpaceDimensions) {
     this.explorationSpaceDimensions = explorationSpaceDimensions;
   }
 
-  public ExplorationSpace getExplorationSpace() {
+  public MongoCompatibleExplorationSpace getExplorationSpace() {
     return explorationSpace;
   }
 
-  public void setExplorationSpace(ExplorationSpace explorationSpace) {
+  public void setExplorationSpace(MongoCompatibleExplorationSpace explorationSpace) {
     this.explorationSpace = explorationSpace;
   }
 
@@ -101,4 +102,5 @@ public class ExplorationModel {
   public void setSingleExperiment(boolean singleExperiment) {
     this.singleExperiment = singleExperiment;
   }
+
 }

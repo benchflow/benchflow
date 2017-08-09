@@ -1,6 +1,10 @@
 package cloud.benchflow.experimentmanager.models;
 
+import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
+import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
+import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.TreeMap;
 import org.mongodb.morphia.annotations.Entity;
@@ -19,6 +23,7 @@ import org.mongodb.morphia.utils.IndexType;
 @Entity
 @Indexes({@Index(options = @IndexOptions(),
     fields = {@Field(value = "hashedID", type = IndexType.HASHED)})})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BenchFlowExperimentModel {
 
   /**
@@ -32,7 +37,7 @@ public class BenchFlowExperimentModel {
   @Id
   private String id;
   // used for potential sharding in the future
-  @JsonIgnore
+  @JsonIgnoreProperties(ignoreUnknown = true)
   private String hashedID;
   private Date start = new Date();
   private Date lastModified = new Date();
@@ -46,6 +51,8 @@ public class BenchFlowExperimentModel {
   @Reference
   private TreeMap<Long, TrialModel> trials = new TreeMap<>();
 
+  private String driverMakerExperimentBundle;
+
   BenchFlowExperimentModel() {
     // Empty constructor for MongoDB + Morphia
   }
@@ -57,6 +64,13 @@ public class BenchFlowExperimentModel {
     this.hashedID = this.id;
     this.state = BenchFlowExperimentState.START;
     this.runningState = RunningState.DETERMINE_EXECUTE_TRIALS;
+
+    DriversMakerCompatibleID compatibleID = new DriversMakerCompatibleID(id);
+
+    this.driverMakerExperimentBundle =
+        BenchFlowExperimentManagerApplication.getMinioServiceAddress() + "/minio/"
+            + BenchFlowConstants.TESTS_BUCKET + "/" + compatibleID.getMinioID();
+
   }
 
   @PrePersist
@@ -66,6 +80,10 @@ public class BenchFlowExperimentModel {
 
   public String getId() {
     return id;
+  }
+
+  public String getHashedId() {
+    return hashedID;
   }
 
   public Date getStart() {
@@ -127,6 +145,10 @@ public class BenchFlowExperimentModel {
 
   public TreeMap<Long, TrialModel> getTrials() {
     return trials;
+  }
+
+  public String getDriverMakerExperimentBundle() {
+    return driverMakerExperimentBundle;
   }
 
   @JsonIgnore

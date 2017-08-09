@@ -1,6 +1,6 @@
 package cloud.benchflow.experimentmanager.tasks.start;
 
-import cloud.benchflow.dsl.BenchFlowDSL;
+import cloud.benchflow.dsl.BenchFlowExperimentAPI;
 import cloud.benchflow.dsl.definition.BenchFlowExperiment;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.dsl.definition.workload.Workload;
@@ -60,9 +60,10 @@ public class StartTask implements Callable<Boolean> {
           .toString(minioService.getExperimentDefinition(experimentID), StandardCharsets.UTF_8);
 
       BenchFlowExperiment experiment =
-          BenchFlowDSL.experimentFromExperimentYaml(experimentYamlString);
+          BenchFlowExperimentAPI.experimentFromExperimentYaml(experimentYamlString);
 
-      int numTrials = experiment.configuration().terminationCriteria().get().experiment().number();
+      int numTrials =
+          experiment.configuration().terminationCriteria().experiment().numberOfTrials();
 
       // save number of trials
       experimentModelDAO.setNumTrials(experimentID, numTrials);

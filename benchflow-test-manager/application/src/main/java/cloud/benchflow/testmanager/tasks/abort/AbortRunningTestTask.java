@@ -40,6 +40,7 @@ public class AbortRunningTestTask implements Runnable {
 
     } catch (BenchFlowTestIDDoesNotExistException e) {
       // nothing to do
+      e.printStackTrace();
     }
 
   }

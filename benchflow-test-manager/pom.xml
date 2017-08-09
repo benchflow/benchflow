@@ -27,22 +27,27 @@
         <main.basedir>${project.basedir}</main.basedir>
         <root.project.basedir>${project.basedir}/../</root.project.basedir>
         <java.version>1.8</java.version>
-        <dropwizard.version>1.0.6</dropwizard.version>
+        <dropwizard.version>1.1.3</dropwizard.version>
         <dropwizard.template.config.version>1.4.0</dropwizard.template.config.version>
         <morphia.version>1.3.2</morphia.version>
         <minio.version>3.0.3</minio.version>
         <commons-io.version>2.5</commons-io.version>
         <docker-compose-rule-junit4.version>0.31.1</docker-compose-rule-junit4.version>
         <wiremock.version>2.5.1</wiremock.version>
-        <dropwizard-swagger.version>1.0.6-1</dropwizard-swagger.version>
+        <mockito-core.version>2.8.47</mockito-core.version>
+        <mockito-all.version>1.10.19</mockito-all.version>
+        <dropwizard-swagger.version>1.1.2-1</dropwizard-swagger.version>
         <zt-zip.version>1.11</zt-zip.version>
         <benchflow-dsl.project.name>benchflow-dsl</benchflow-dsl.project.name>
-        <benchflow-dsl-jar.version>devel_6c5287</benchflow-dsl-jar.version>
+        <benchflow-dsl-jar.version>feature-dsl-java-compat-exploration-space_f5f26b</benchflow-dsl-jar.version>
         <benchflow-dsl.version>0.1.0</benchflow-dsl.version>
         <benchflow-faban-client.project.name>benchflow-faban-client</benchflow-faban-client.project.name>
         <benchflow-faban-client-jar.version>devel_ad148a</benchflow-faban-client-jar.version>
         <benchflow-faban-client.version>0.1.0</benchflow-faban-client.version>
         <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
+        <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
+        <maven-source-plugin.version>2.4</maven-source-plugin.version>
+        <maven-project-info-reports-plugin.version>2.8.1</maven-project-info-reports-plugin.version>
         <maven-shade-plugin.verion>2.4.3</maven-shade-plugin.verion>
         <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
         <maven-surefire-plugin.version>2.20</maven-surefire-plugin.version>
@@ -62,6 +67,7 @@
 
     <dependencyManagement>
         <dependencies>
+
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-core</artifactId>
@@ -113,6 +119,12 @@
                 <version>${commons-io.version}</version>
             </dependency>
 
+            <dependency>
+              <groupId>com.google.guava</groupId>
+              <artifactId>guava</artifactId>
+              <version>22.0</version>
+            </dependency>
+
             <!--https://github.com/palantir/docker-compose-rule-->
             <!--This is a library for executing JUnit tests that interact with Docker Compose managed containers-->
             <dependency>
@@ -126,6 +138,20 @@
                 <artifactId>wiremock</artifactId>
                 <version>${wiremock.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito-core.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+          <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${mockito-all.version}</version>
+            <scope>test</scope>
+          </dependency>
 
             <!--https://github.com/smoketurner/dropwizard-swagger-->
             <dependency>
@@ -347,11 +373,39 @@
                 </configuration>
             </plugin>
             <plugin>
+                  <artifactId>maven-source-plugin</artifactId>
+                  <version>${maven-source-plugin.version}</version>
+                  <executions>
+                      <execution>
+                          <id>attach-sources</id>
+                          <goals>
+                              <goal>jar</goal>
+                          </goals>
+                      </execution>
+                  </executions>
+            </plugin>
+            <plugin>
+                  <artifactId>maven-javadoc-plugin</artifactId>
+                  <version>${maven-javadoc-plugin.version}</version>
+                  <executions>
+                      <execution>
+                          <id>attach-javadocs</id>
+                          <goals>
+                              <goal>jar</goal>
+                          </goals>
+                      </execution>
+                  </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <skipTests>false</skipTests>
+                    <!-- Needed because the automatic inclusions (see http://maven.apache.org/surefire/maven-surefire-plugin/examples/inclusion-exclusion.html) lead to some IT test to run due to the pattern matching -->
+                    <excludes>    
+                        <exclude>**/*IT.java</exclude> 
+                    </excludes>
                 </configuration>
             </plugin>
             <!--to run integration tests-->
@@ -371,5 +425,22 @@
             </plugin>
         </plugins>
     </build>
+
+    <reporting>
+          <plugins>
+              <plugin>
+                  <artifactId>maven-project-info-reports-plugin</artifactId>
+                  <version>${maven-project-info-reports-plugin.version}</version>
+                  <configuration>
+                      <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                      <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+                  </configuration>
+              </plugin>
+              <plugin>
+                  <artifactId>maven-javadoc-plugin</artifactId>
+                  <version>${maven-javadoc-plugin.version}</version>
+              </plugin>
+          </plugins>
+      </reporting>
 
 </project>
