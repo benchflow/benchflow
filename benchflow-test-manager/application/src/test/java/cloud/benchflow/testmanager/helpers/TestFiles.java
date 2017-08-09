@@ -52,6 +52,11 @@ public class TestFiles {
     return new FileInputStream(TEST_EXPLORATION_ONE_AT_A_TIME_USERS_FILE);
   }
 
+  public static String getTestExplorationOneAtATimeUsersString() throws IOException {
+
+    return IOUtils.toString(getTestExplorationOneAtATimeUsersInputStream(), StandardCharsets.UTF_8);
+  }
+
   public static InputStream getTestExplorationRandomUsersInputStream()
       throws FileNotFoundException {
 

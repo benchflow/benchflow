@@ -14,6 +14,7 @@ import cloud.benchflow.testmanager.exceptions.InvalidTestBundleException;
 import cloud.benchflow.testmanager.exceptions.UserIDAlreadyExistsException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidTestBundleWebException;
+import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
@@ -201,7 +202,8 @@ public class BenchFlowTestResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public BenchFlowTestModel getBenchFlowTestStatus(@PathParam("username") String username,
-      @PathParam("testName") String testName, @PathParam("testNumber") int testNumber) {
+      @PathParam("testName") String testName, @PathParam("testNumber") int testNumber,
+      @Context HttpServletRequest request) {
 
     String testID = BenchFlowConstants.getTestID(username, testName, testNumber);
 
@@ -212,7 +214,23 @@ public class BenchFlowTestResource {
     BenchFlowTestModel benchFlowTestModel = null;
 
     try {
+
       benchFlowTestModel = testModelDAO.getTestModel(testID);
+
+      // set the URL to the exploration point index
+      // it is done dynamically since we need the server information
+      for (BenchFlowExperimentModel experimentModel : benchFlowTestModel.getExperimentModels()) {
+
+        int pointIndex = experimentModel.getExplorationPointIndex();
+
+        String url = "http://" + request.getServerName() + ":" + request.getServerPort()
+            + BenchFlowConstants.getPathFromTestID(testID)
+            + ExplorationPointResource.EXPLORATION_POINT_PATH + pointIndex;
+
+        experimentModel.setExplorationPointConfiguration(url);
+
+      }
+
     } catch (BenchFlowTestIDDoesNotExistException e) {
       throw new InvalidBenchFlowTestIDWebException();
     }

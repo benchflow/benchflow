@@ -167,7 +167,7 @@ public class BenchFlowTestResourceTest {
     String testName = testIDArray[1];
     int testNumber = Integer.parseInt(testIDArray[2]);
 
-    resource.getBenchFlowTestStatus(username, testName, testNumber);
+    resource.getBenchFlowTestStatus(username, testName, testNumber, httpServletRequestMock);
 
     Mockito.verify(testModelDAOMock, Mockito.times(1)).getTestModel(testID);
   }
@@ -189,7 +189,8 @@ public class BenchFlowTestResourceTest {
     String testName = testIDArray[1];
     int testNumber = Integer.parseInt(testIDArray[2]);
 
-    BenchFlowTestModel response = resource.getBenchFlowTestStatus(username, testName, testNumber);
+    BenchFlowTestModel response =
+        resource.getBenchFlowTestStatus(username, testName, testNumber, httpServletRequestMock);
 
     Mockito.verify(testModelDAOMock, Mockito.times(1)).getTestModel(expectedTestID);
 

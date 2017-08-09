@@ -18,6 +18,7 @@ import org.mongodb.morphia.annotations.Index;
 import org.mongodb.morphia.annotations.IndexOptions;
 import org.mongodb.morphia.annotations.Indexes;
 import org.mongodb.morphia.annotations.PrePersist;
+import org.mongodb.morphia.annotations.Transient;
 import org.mongodb.morphia.utils.IndexType;
 
 /**
@@ -40,6 +41,8 @@ public class BenchFlowExperimentModel {
   @JsonIgnore
   private long number;
   private int explorationPointIndex;
+  @Transient
+  private String explorationPointConfiguration;
   private Date start = new Date();
   private Date lastModified = new Date();
   private BenchFlowExperimentState state;
@@ -93,7 +96,17 @@ public class BenchFlowExperimentModel {
   }
 
   public void setExplorationPointIndex(int explorationPointIndex) {
+
     this.explorationPointIndex = explorationPointIndex;
+
+  }
+
+  public String getExplorationPointConfiguration() {
+    return explorationPointConfiguration;
+  }
+
+  public void setExplorationPointConfiguration(String explorationPointConfiguration) {
+    this.explorationPointConfiguration = explorationPointConfiguration;
   }
 
   public Date getStart() {
