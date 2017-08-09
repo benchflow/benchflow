@@ -1,7 +1,6 @@
 package cloud.benchflow.testmanager.services.internal.dao;
 
-import static cloud.benchflow.testmanager.helpers.TestConstants.LOAD_TEST_NAME;
-import static cloud.benchflow.testmanager.helpers.TestConstants.TEST_USER_NAME;
+import static cloud.benchflow.testmanager.helpers.constants.TestConstants.*;
 
 import cloud.benchflow.testmanager.DockerComposeIT;
 import cloud.benchflow.testmanager.exceptions.UserIDAlreadyExistsException;

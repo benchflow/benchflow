@@ -19,6 +19,7 @@ import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.RunningState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState;
 import cloud.benchflow.testmanager.models.User;
+import cloud.benchflow.testmanager.models.explorationspace.MongoCompatibleExplorationSpace;
 import cloud.benchflow.testmanager.scheduler.running.RunningStatesHandler;
 import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
 import cloud.benchflow.testmanager.services.external.MinioService;
@@ -154,6 +155,12 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
 
     Assert.assertEquals(expectedIndices,
         explorationModelDAO.getExecutedExplorationPointIndices(testID));
+
+    // assert that exploration space has been saved in DB
+    MongoCompatibleExplorationSpace explorationSpace =
+        explorationModelDAO.getExplorationSpace(testID);
+
+    Assert.assertEquals(expectedNumExperiments, explorationSpace.getSize());
 
   }
 

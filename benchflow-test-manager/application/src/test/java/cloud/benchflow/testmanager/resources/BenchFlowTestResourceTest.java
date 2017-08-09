@@ -1,14 +1,8 @@
 package cloud.benchflow.testmanager.resources;
 
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
-import static cloud.benchflow.testmanager.helpers.TestConstants.INVALID_TEST_BENCHFLOW_ID;
-import static cloud.benchflow.testmanager.helpers.TestConstants.LOAD_TEST_NAME;
-import static cloud.benchflow.testmanager.helpers.TestConstants.TEST_USER;
-import static cloud.benchflow.testmanager.helpers.TestConstants.TEST_USER_NAME;
-import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_TEST_ID;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.RUNNING;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.*;
+import static cloud.benchflow.testmanager.helpers.constants.TestConstants.*;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.*;
 
 import cloud.benchflow.dsl.ExplorationSpaceAPI;
 import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpace;
@@ -19,8 +13,8 @@ import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidTestBundleWebException;
-import cloud.benchflow.testmanager.helpers.TestBundle;
-import cloud.benchflow.testmanager.helpers.TestFiles;
+import cloud.benchflow.testmanager.helpers.constants.TestBundle;
+import cloud.benchflow.testmanager.helpers.constants.TestFiles;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
