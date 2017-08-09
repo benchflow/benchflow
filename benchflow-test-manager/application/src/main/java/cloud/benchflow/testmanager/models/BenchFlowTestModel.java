@@ -9,6 +9,7 @@ import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
@@ -29,6 +30,7 @@ import org.mongodb.morphia.utils.IndexType;
 @Entity
 @Indexes({@Index(options = @IndexOptions(),
     fields = {@Field(value = "hashedID", type = IndexType.HASHED)})})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BenchFlowTestModel {
 
   /**
@@ -46,7 +48,7 @@ public class BenchFlowTestModel {
 
   //    userName.testName.testNumber.experimentNumber.trialNumber
   // used for potential sharing in the future
-  @JsonIgnore
+  @JsonIgnoreProperties(ignoreUnknown = true)
   private String hashedID;
   @Reference
   @JsonIgnore
@@ -99,6 +101,10 @@ public class BenchFlowTestModel {
     return id;
   }
 
+  public String getHashedId() {
+    return hashedID;
+  }
+
   public User getUser() {
     return user;
   }
@@ -119,12 +125,16 @@ public class BenchFlowTestModel {
     return lastModified;
   }
 
+  public void setMaxRunningTime(Time maxRunningTime) {
+    this.maxRunningTime = maxRunningTime;
+  }
+
   public Time getMaxRunningTime() {
     return maxRunningTime;
   }
 
-  public void setMaxRunningTime(Time maxRunningTime) {
-    this.maxRunningTime = maxRunningTime;
+  public boolean hasMaxRunningTime() {
+    return maxRunningTime != null;
   }
 
   public BenchFlowTestState getState() {

@@ -7,7 +7,7 @@ import cloud.benchflow.testmanager.api.request.SubmitTrialStatusRequest;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidTrialIDWebException;
-import cloud.benchflow.testmanager.helpers.TestConstants;
+import cloud.benchflow.testmanager.helpers.constants.TestConstants;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import org.junit.Before;
 import org.junit.Rule;

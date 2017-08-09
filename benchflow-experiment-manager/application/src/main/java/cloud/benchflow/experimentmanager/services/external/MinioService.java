@@ -1,13 +1,6 @@
 package cloud.benchflow.experimentmanager.services.external;
 
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.BPMN_MODELS_FOLDER_NAME;
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.DEPLOYMENT_DESCRIPTOR_FILE_NAME;
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.FABAN_CONFIG_FILENAME;
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.GENERATED_BENCHMARK_FILENAME;
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MINIO_ID_DELIMITER;
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.PT_PE_DEFINITION_FILE_NAME;
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.TESTS_BUCKET;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.*;
 import static cloud.benchflow.experimentmanager.demo.Hashing.hashKey;
 
 import io.minio.MinioClient;
@@ -323,7 +316,7 @@ public class MinioService {
     }
   }
 
-  private String minioCompatibleID(String id) {
+  public static String minioCompatibleID(String id) {
     return id.replace(MODEL_ID_DELIMITER, MINIO_ID_DELIMITER);
   }
 }

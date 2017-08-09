@@ -1,7 +1,7 @@
 package cloud.benchflow.testmanager.bundle;
 
-import cloud.benchflow.testmanager.helpers.TestBundle;
-import cloud.benchflow.testmanager.helpers.TestConstants;
+import cloud.benchflow.testmanager.helpers.constants.TestBundle;
+import cloud.benchflow.testmanager.helpers.constants.TestConstants;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;

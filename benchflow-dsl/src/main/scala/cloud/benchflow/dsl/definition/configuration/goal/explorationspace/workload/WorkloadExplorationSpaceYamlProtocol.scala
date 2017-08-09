@@ -2,8 +2,8 @@ package cloud.benchflow.dsl.definition.configuration.goal.explorationspace.workl
 
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.ExplorationSpaceYamlProtocol
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.ExplorationSpaceYamlProtocol.WorkloadKey
-import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.explorationvalues.ExplorationValuesIntYamlProtocol._
-import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.explorationvalues.IntValues
+import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.workload.users.UserValues
+import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.workload.users.UserValuesYamlProtocol._
 import cloud.benchflow.dsl.definition.errorhandling.YamlErrorHandler.{ deserializationHandler, unsupportedReadOperation, unsupportedWriteOperation }
 import net.jcazevedo.moultingyaml.{ DefaultYamlProtocol, YamlFormat, YamlObject, YamlString, YamlValue, _ }
 
@@ -30,7 +30,7 @@ object WorkloadExplorationSpaceYamlProtocol extends DefaultYamlProtocol {
       for {
 
         users <- deserializationHandler(
-          yamlObject.getFields(UsersKey).headOption.map(_.convertTo[Try[IntValues]].get),
+          yamlObject.getFields(UsersKey).headOption.map(_.convertTo[Try[UserValues]].get),
           keyString(UsersKey))
 
       } yield WorkloadExplorationSpace(

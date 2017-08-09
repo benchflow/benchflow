@@ -40,7 +40,7 @@
             </configuration>
             <executions>
               <execution>
-                <phase>test</phase>
+                <phase>compile</phase>
                 <goals>
                   <goal>check</goal>
                 </goals>
@@ -83,7 +83,7 @@
           </dependency>
         </dependencies>
         <configuration>
-          <configLocation>benchflow_java_checks.xml</configLocation>
+          <configLocation>checkstyle.xml</configLocation>
           <encoding>UTF-8</encoding>
           <consoleOutput>true</consoleOutput>
           <failsOnError>true</failsOnError>
@@ -92,7 +92,7 @@
         <executions>
           <execution>
             <id>validate</id>
-            <phase>test</phase>
+            <phase>compile</phase>
             <goals>
               <goal>check</goal>
             </goals>
@@ -119,17 +119,18 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
-        <version>3.7</version>
+        <version>3.8</version>
         <configuration>
           <sourceEncoding>utf-8</sourceEncoding>
           <minimumTokens>100</minimumTokens>
           <verbose>true</verbose>
-          <failOnViolation>false</failOnViolation>
+          <failOnViolation>true</failOnViolation>
           <linkXRef>false</linkXRef>
+          <targetJdk>1.8</targetJdk>
         </configuration>
         <executions>
           <execution>
-            <phase>test</phase>
+            <phase>compile</phase>
             <goals>
               <goal>check</goal>
               <goal>cpd-check</goal>

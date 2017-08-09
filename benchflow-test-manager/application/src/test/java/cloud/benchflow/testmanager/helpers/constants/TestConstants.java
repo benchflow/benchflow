@@ -1,4 +1,4 @@
-package cloud.benchflow.testmanager.helpers;
+package cloud.benchflow.testmanager.helpers.constants;
 
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 
@@ -21,6 +21,7 @@ public class TestConstants {
 
   public static final String INVALID_TEST_NAME = "WfMSLoadTestInvalid";
   public static final String LOAD_TEST_NAME = "WfMSLoadTest";
+  public static final String TEST_TERMINATION_CRITERIA_NAME = "TestTerminationCriteriaTest";
   public static final String VALID_TEST_NAME = LOAD_TEST_NAME;
 
   public static final String INVALID_TEST_BENCHFLOW_ID = BENCHFLOW_USER_NAME + MODEL_ID_DELIMITER

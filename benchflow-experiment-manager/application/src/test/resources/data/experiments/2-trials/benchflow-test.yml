@@ -2,15 +2,13 @@
 # BenchFlow Test Definition
 ###############################################################################
 version: '1'
-name: ParallelMultiple11Activiti5210Test2Trial
-description: ParallelMultiple11Activiti5210Test2Trial
+name: TestExperiment2Trials
+description: TestExperiment2Trials
 
 ###############################################################################
 # Test Configuration
 ###############################################################################
 configuration:
-    goal:
-        type: 'load'
 
     users: 10
 
@@ -20,11 +18,9 @@ configuration:
         ramp_down: 30s
 
     termination_criteria:
-        test:
-            max_time: 1h
         experiment:
             type: 'fixed'
-            number: 2
+            number_of_trials: 2
 
 ###############################################################################
 # SUT info section
@@ -41,8 +37,8 @@ sut:
             endpoint: /activiti-rest
 
         deployment:
-            activiti: grid
-            db: grid
+            activiti: serverA
+            db: serverB
 
 ###############################################################################
 # workload modeling section
@@ -52,20 +48,24 @@ workload:
     my_workload:
         driver_type: 'start'
         operations:
-        - 11ParallelStructured.bpmn
+        - test.bpmn
 
 ###############################################################################
 # Data Collection section
 ###############################################################################
 data_collection:
+    client_side:
+        faban:
+            max_run_time: 1h
+            interval: 1s
     server_side:
-        activti: ['properties', 'stats']
+        activiti: ['properties', 'stats']
         db:
             mysql:
                 environment:
                     MYSQL_DB_NAME: activiti_production
-                    MYSQL_USER: kermit
-                    MYSQL_USER_PASSWORD: kermit
+                    MYSQL_USER: user
+                    MYSQL_USER_PASSWORD: password
                     TABLE_NAMES: ACT_HI_PROCINST,ACT_HI_ACTINST
                     MYSQL_PORT: '3306'
                     COMPLETION_QUERY: SELECT+COUNT(*)+FROM+ACT_HI_PROCINST+WHERE+END_TIME_+IS+NULL
