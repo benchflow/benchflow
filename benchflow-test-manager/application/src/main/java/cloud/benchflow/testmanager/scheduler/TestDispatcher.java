@@ -47,13 +47,15 @@ public class TestDispatcher implements Runnable {
         // TODO - decide on String value that terminates the service
 
         // wait for running test to terminate and then schedule next
+        // the runningQueue accepts only one element and put is blocking
         runningQueue.put(testID);
 
         // change state to running and proceed to next state
         testModelDAO.setTestState(testID, BenchFlowTestState.RUNNING);
 
-        taskScheduler.handleTestState(testID);
-
+        // this is blocking, since we first complete the lifecycle of the test
+        // we place in the runningQueue, then we return from the method
+        taskScheduler.handleRunningTest(testID);
 
       } catch (InterruptedException e) {
         e.printStackTrace();
@@ -61,7 +63,6 @@ public class TestDispatcher implements Runnable {
         // should not happen at this stage
         e.printStackTrace();
       }
-
 
     }
 

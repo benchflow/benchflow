@@ -1,12 +1,12 @@
 package cloud.benchflow.testmanager.services.internal.dao;
 
-import static cloud.benchflow.testmanager.helpers.TestConstants.LOAD_TEST_NAME;
+import static cloud.benchflow.testmanager.helpers.constants.TestConstants.LOAD_TEST_NAME;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
 import static org.junit.Assert.assertEquals;
 
 import cloud.benchflow.testmanager.DockerComposeIT;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
-import cloud.benchflow.testmanager.helpers.TestConstants;
+import cloud.benchflow.testmanager.helpers.constants.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
 import com.mongodb.BasicDBObject;

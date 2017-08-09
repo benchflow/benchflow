@@ -52,15 +52,16 @@ public class BenchFlowExperimentManagerService {
 
     logger.info("abortBenchFlowExperiment: " + experimentID);
 
-    Response abortPEResponse =
+    Response abortExperimentResponse =
         experimentManagerTarget.path(BenchFlowConstants.getPathFromExperimentID(experimentID))
             .path(ABORT_PATH).request().post(null);
 
-    if (abortPEResponse.getStatus() != Response.Status.NO_CONTENT.getStatusCode()) {
+    if (abortExperimentResponse.getStatus() != Response.Status.NO_CONTENT.getStatusCode()) {
 
       // TODO - handle possible errors and throw exceptions accordingly
 
-      logger.error("abortBenchFlowExperiment: error connecting - " + abortPEResponse.getStatus());
+      logger.error(
+          "abortBenchFlowExperiment: error connecting - " + abortExperimentResponse.getStatus());
 
     } else {
       logger.info("abortBenchFlowExperiment: connected successfully");

@@ -154,7 +154,7 @@ public class BenchFlowTestResource {
             .saveTestBPMNModel(testID, fileName, inputStream));
 
         // delegate to task scheduler
-        testTaskScheduler.handleTestState(testID);
+        testTaskScheduler.handleStartingTest(testID);
 
       }).start();
 

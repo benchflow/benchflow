@@ -1,9 +1,10 @@
 package cloud.benchflow.testmanager.configurations.factory;
 
+import cloud.benchflow.testmanager.scheduler.CustomFutureReturningExecutor;
+import cloud.benchflow.testmanager.scheduler.CustomFutureReturningExecutorBuilder;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -49,13 +50,16 @@ public final class TaskExecutorFactory {
    * Build executor service.
    *
    * @param environment application environment
-   * @return ExecutorService
+   * @return CustomFutureReturningExecutor
    */
-  public ExecutorService build(Environment environment) {
+  public CustomFutureReturningExecutor build(Environment environment) {
 
     int processors = Runtime.getRuntime().availableProcessors();
 
-    return environment.lifecycle().executorService("task-%d").minThreads(minThreads * processors)
+    CustomFutureReturningExecutorBuilder customFutureReturningExecutorBuilder =
+        new CustomFutureReturningExecutorBuilder(environment.lifecycle(), "task-%d");
+
+    return customFutureReturningExecutorBuilder.minThreads(minThreads * processors)
         .maxThreads(maxThreads * processors).keepAliveTime(Duration.seconds(60))
         .workQueue(new SynchronousQueue<>()).threadFactory(new DaemonThreadFactory())
         .rejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy()).build();

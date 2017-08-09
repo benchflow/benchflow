@@ -7,10 +7,13 @@ import cloud.benchflow.dsl.definition.configuration.strategy.regression.Regressi
 import cloud.benchflow.dsl.definition.configuration.strategy.selection.SelectionStrategyType;
 import cloud.benchflow.dsl.definition.configuration.strategy.validation.ValidationStrategyType;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
+import cloud.benchflow.dsl.definition.types.time.Time;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.services.external.MinioService;
+import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
+import cloud.benchflow.testmanager.tasks.AbortableRunnable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
@@ -23,7 +26,7 @@ import scala.Option;
  *
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20
  */
-public class StartTask implements Runnable {
+public class StartTask extends AbortableRunnable {
 
   private static Logger logger = LoggerFactory.getLogger(StartTask.class.getSimpleName());
 
@@ -32,6 +35,7 @@ public class StartTask implements Runnable {
   // services
   private final MinioService minioService;
   private final ExplorationModelDAO explorationModelDAO;
+  private final BenchFlowTestModelDAO testModelDAO;
 
   public StartTask(String testID) {
 
@@ -39,7 +43,7 @@ public class StartTask implements Runnable {
 
     this.minioService = BenchFlowTestManagerApplication.getMinioService();
     this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
-
+    this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
   }
 
   @Override
@@ -61,6 +65,10 @@ public class StartTask implements Runnable {
       if (goalType == GoalType.LOAD) {
         explorationModelDAO.setSingleExperiment(testID, true);
       }
+
+      // save max run time
+      Time maxRunTimeTime = test.configuration().terminationCriteria().test().maxTime();
+      testModelDAO.setMaxRunTime(testID, maxRunTimeTime);
 
       if (test.configuration().strategy().isDefined()) {
 

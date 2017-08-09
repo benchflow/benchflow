@@ -1,4 +1,4 @@
-package cloud.benchflow.testmanager.helpers;
+package cloud.benchflow.testmanager.helpers.constants;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,6 +23,9 @@ public class TestFiles {
 
   private static String TEST_EXPLORATION_RANDOM_USERS_FILE = LOCAL_TESTS_FOLDER
       + "definition/exhaustive_exploration/random_breakdown/users/benchflow-test.yml";
+
+  private static String TEST_TERMINATION_CRITERIA_FILE =
+      LOCAL_TESTS_FOLDER + "definition/test_termination/benchflow-test.yml";
 
   private static String TEST_DEPLOYMENT_DESCRIPTOR =
       LOCAL_TESTS_FOLDER + "deployment/docker-compose.yml";
@@ -53,6 +56,11 @@ public class TestFiles {
       throws FileNotFoundException {
 
     return new FileInputStream(TEST_EXPLORATION_RANDOM_USERS_FILE);
+  }
+
+  public static InputStream getTestTerminationCriteriaInputStream() throws FileNotFoundException {
+
+    return new FileInputStream(TEST_TERMINATION_CRITERIA_FILE);
   }
 
   public static InputStream getDeploymentDescriptor() throws FileNotFoundException {
