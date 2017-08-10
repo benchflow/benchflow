@@ -51,7 +51,7 @@ public class TestManagerSmokeTestsIT extends DockerComposeIT {
           ConfigOverride.config("minio.secretKey", MINIO_SECRET_KEY),
           ConfigOverride.config("benchFlowExperimentManager.address", "localhost"));
 
-  // needs to be subfolder of current folder for Wercker
+  // needs to be subfolder of the target folder for Wercker
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder(new File("target"));
 
