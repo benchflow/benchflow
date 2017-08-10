@@ -2,8 +2,8 @@
 # BenchFlow Test Definition
 ###############################################################################
 version: '1'
-name: WfMSExhaustiveExplorationOneAtATimeSelectionUsersMemoryEnvironMentTest
-description: WfMSExhaustiveExplorationOneAtATimeSelectionUsersMemoryEnvironMentTest
+name: WfMSStepUsersExhaustiveExplorationTest
+description: WfMSStepUsersExhaustiveExplorationTest
 
 ###############################################################################
 # Test Configuration
@@ -13,16 +13,10 @@ configuration:
     type: exhaustive_exploration
 
     exploration_space:
-      camunda:
-        resources:
-          memory:
-            values: [500m, 1000m]
-        environment:
-          SIZE_OF_THREADPOOL: ["1","2"]
-          AN_ENUM: [A,B]
       workload:
         users:
-          values: [5, 10]
+          range: [50, 175]
+          step: '+50'
 
   strategy:
     selection: one-at-a-time
@@ -38,7 +32,7 @@ configuration:
 
     experiment:
       type: fixed
-      number_of_trials: 3
+      number_of_trials: 2
 
 ###############################################################################
 # SUT Info Section

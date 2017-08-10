@@ -173,7 +173,14 @@ public class BenchFlowTestResource {
 
     } catch (IOException | InvalidTestBundleException | BenchFlowDeserializationException e) {
       // TODO - throw more fine grained errors, e.g., file missing in bundle, deserialization error
-      throw new InvalidTestBundleWebException();
+      logger.error(e.getClass().getSimpleName());
+      if (e.getMessage() == null) {
+        // if no message we only throw the exception
+        throw new InvalidTestBundleWebException();
+      }
+
+      logger.error(e.getMessage());
+      throw new InvalidTestBundleWebException(e.getMessage());
     }
   }
 

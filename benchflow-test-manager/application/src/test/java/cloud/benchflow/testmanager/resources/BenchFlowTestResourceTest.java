@@ -83,7 +83,7 @@ public class BenchFlowTestResourceTest {
   @Test
   public void runBenchFlowTestValid() throws Exception {
 
-    InputStream testBundle = TestBundle.getValidTestBundle(temporaryFolder);
+    InputStream testBundle = TestBundle.getLoadTestBundleInputStream(temporaryFolder);
 
     String expectedTestID =
         TEST_USER_NAME + MODEL_ID_DELIMITER + LOAD_TEST_NAME + MODEL_ID_DELIMITER + 1;

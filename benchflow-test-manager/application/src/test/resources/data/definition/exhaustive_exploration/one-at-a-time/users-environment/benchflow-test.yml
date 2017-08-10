@@ -2,8 +2,8 @@
 # BenchFlow Test Definition
 ###############################################################################
 version: '1'
-name: WfMSExhaustiveExplorationOneAtATimeSelectionUsersMemoryEnvironMentTest
-description: WfMSExhaustiveExplorationOneAtATimeSelectionUsersMemoryEnvironMentTest
+name: WfMSExhaustiveExplorationOneAtATimeSelectionUsersEnvironmentTest
+description: WfMSExhaustiveExplorationOneAtATimeSelectionUsersEnvironmentTest
 
 ###############################################################################
 # Test Configuration
@@ -14,12 +14,8 @@ configuration:
 
     exploration_space:
       camunda:
-        resources:
-          memory:
-            values: [500m, 1000m]
         environment:
-          SIZE_OF_THREADPOOL: ["1","2"]
-          AN_ENUM: [A,B]
+          JAVA_OPTS: ["-Xms128m", "-Xms512m", "-Xms1024m"]
       workload:
         users:
           values: [5, 10]
@@ -38,7 +34,7 @@ configuration:
 
     experiment:
       type: fixed
-      number_of_trials: 3
+      number_of_trials: 2
 
 ###############################################################################
 # SUT Info Section
