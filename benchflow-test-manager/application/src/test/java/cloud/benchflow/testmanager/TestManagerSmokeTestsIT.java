@@ -6,7 +6,7 @@ import static cloud.benchflow.testmanager.constants.BenchFlowConstants.getPathFr
 
 import cloud.benchflow.testmanager.api.response.RunBenchFlowTestResponse;
 import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfiguration;
-import cloud.benchflow.testmanager.helpers.TestBundle;
+import cloud.benchflow.testmanager.helpers.constants.TestBundle;
 import cloud.benchflow.testmanager.resources.BenchFlowTestResource;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
