@@ -61,9 +61,10 @@ public class DetermineExecuteExperimentsTask extends AbortableRunnable {
       SelectedExperimentBundle selectedExperimentBundle =
           selectionStrategy.selectNextExperiment(testID);
 
+      int explorationPointIndex = selectedExperimentBundle.getExplorationSpaceIndex();
+
       // save exploration point index
-      experimentModelDAO.setExplorationSpaceIndex(experimentID,
-          selectedExperimentBundle.getExplorationSpaceIndex());
+      experimentModelDAO.setExplorationSpaceIndex(experimentID, explorationPointIndex);
 
       // set experiment as selected
       explorationModelDAO.addExecutedExplorationPoint(testID,

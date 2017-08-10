@@ -2,6 +2,7 @@ package cloud.benchflow.testmanager.models.explorationspace;
 
 import cloud.benchflow.dsl.definition.types.bytes.Bytes;
 import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpace;
+import cloud.benchflow.testmanager.api.response.ExplorationSpacePointResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,11 +16,12 @@ import java.util.stream.Collectors;
 public class MongoCompatibleExplorationSpace {
 
   // we use concrete collection classes for MongoDB + Morphia
+  // need to ensure that Optional are not null when read from DB => initialize to empty
 
   private int size;
-  private Optional<List<Integer>> usersDimension;
-  private Optional<Map<String, List<Bytes>>> memoryDimension;
-  private Optional<Map<String, Map<String, List<String>>>> environmentDimension;
+  private Optional<List<Integer>> usersDimension = Optional.empty();
+  private Optional<Map<String, List<Bytes>>> memoryDimension = Optional.empty();
+  private Optional<Map<String, Map<String, List<String>>>> environmentDimension = Optional.empty();
 
   public MongoCompatibleExplorationSpace() {
     // Empty constructor for MongoDB + Morphia
@@ -92,6 +94,31 @@ public class MongoCompatibleExplorationSpace {
         environmentDimension.map(map -> new HashMap<>(map.entrySet().stream().collect(Collectors
             .toMap(Map.Entry::getKey, e -> new HashMap<>(e.getValue().entrySet().stream().collect(
                 Collectors.toMap(Map.Entry::getKey, e1 -> new ArrayList<>(e1.getValue())))))))));
+  }
+
+  public ExplorationSpacePointResponse getExplorationSpacePointResponse(int index) {
+
+    ExplorationSpacePointResponse explorationSpacePointResponse =
+        new ExplorationSpacePointResponse();
+
+    if (index >= size || index < 0) {
+      return explorationSpacePointResponse;
+    }
+
+    usersDimension
+        .ifPresent(integers -> explorationSpacePointResponse.setUsers(integers.get(index)));
+
+    memoryDimension.ifPresent(memoryDimension -> explorationSpacePointResponse
+        .setMemory(memoryDimension.entrySet().stream().collect(
+            Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get(index).toString()))));
+
+    environmentDimension.ifPresent(environmentDimension -> explorationSpacePointResponse
+        .setEnvironment(environmentDimension.entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e1 -> e1.getValue().get(index)))))));
+
+    return explorationSpacePointResponse;
+
   }
 
 }

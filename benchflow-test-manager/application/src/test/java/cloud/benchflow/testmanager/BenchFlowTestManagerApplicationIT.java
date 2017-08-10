@@ -1,7 +1,10 @@
 package cloud.benchflow.testmanager;
 
+import cloud.benchflow.dsl.ExplorationSpaceAPI;
+import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpace;
 import cloud.benchflow.testmanager.api.request.ChangeBenchFlowTestStateRequest;
 import cloud.benchflow.testmanager.api.response.ChangeBenchFlowTestStateResponse;
+import cloud.benchflow.testmanager.api.response.ExplorationSpacePointResponse;
 import cloud.benchflow.testmanager.api.response.RunBenchFlowTestResponse;
 import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfiguration;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
@@ -9,11 +12,14 @@ import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebExcep
 import cloud.benchflow.testmanager.exceptions.web.InvalidTestBundleWebException;
 import cloud.benchflow.testmanager.helpers.constants.TestBundle;
 import cloud.benchflow.testmanager.helpers.constants.TestConstants;
+import cloud.benchflow.testmanager.helpers.constants.TestFiles;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.resources.BenchFlowTestResource;
+import cloud.benchflow.testmanager.resources.ExplorationPointResource;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
+import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.testing.ConfigOverride;
@@ -178,6 +184,8 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
     Assert.assertEquals(InvalidBenchFlowTestIDWebException.message,
         response.readEntity(String.class));
 
+
+
   }
 
   @Test
@@ -194,6 +202,8 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
 
     String experimentID = experimentModelDAO.addExperiment(testID);
 
+    experimentModelDAO.setExplorationSpaceIndex(experimentID, 0);
+
     Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
 
     String target = "http://localhost:" + RULE.getLocalPort();
@@ -208,4 +218,55 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
 
     Assert.assertTrue(testModel.containsExperimentModel(experimentID));
   }
+
+  @Test
+  public void getValidExplorationSpacePointUsers() throws Exception {
+
+    BenchFlowTestModelDAO testModelDAO =
+        new BenchFlowTestModelDAO(RULE.getConfiguration().getMongoDBFactory().build());
+
+    BenchFlowExperimentModelDAO experimentModelDAO = new BenchFlowExperimentModelDAO(
+        RULE.getConfiguration().getMongoDBFactory().build(), testModelDAO);
+
+    ExplorationModelDAO explorationModelDAO =
+        new ExplorationModelDAO(RULE.getConfiguration().getMongoDBFactory().build(), testModelDAO);
+
+    String testID =
+        testModelDAO.addTestModel(TestConstants.LOAD_TEST_NAME, TestConstants.TEST_USER);
+
+    String experimentID = experimentModelDAO.addExperiment(testID);
+    int explorationPointIndex = 0;
+
+    experimentModelDAO.setExplorationSpaceIndex(experimentID, explorationPointIndex);
+
+    // add exploration space
+
+    String testDefinitionString = TestFiles.getTestExplorationOneAtATimeUsersString();
+
+    JavaCompatExplorationSpace javaCompatExplorationSpace =
+        ExplorationSpaceAPI.explorationSpaceFromTestYaml(testDefinitionString);
+
+    explorationModelDAO.setExplorationSpace(testID, javaCompatExplorationSpace);
+
+    // make request
+
+    Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
+
+    String target = "http://localhost:" + RULE.getLocalPort();
+
+    Response response = client.target(target).path(BenchFlowConstants.getPathFromTestID(testID))
+        .path(ExplorationPointResource.EXPLORATION_POINT_PATH)
+        .path(String.valueOf(explorationPointIndex)).request().get();
+
+    Assert.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+    ExplorationSpacePointResponse pointResponse =
+        response.readEntity(ExplorationSpacePointResponse.class);
+
+    Assert.assertEquals(5, pointResponse.getUsers().intValue());
+
+
+  }
+
+
 }

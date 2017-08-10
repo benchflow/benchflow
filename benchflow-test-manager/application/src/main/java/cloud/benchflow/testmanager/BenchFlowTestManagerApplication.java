@@ -4,6 +4,7 @@ import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfigurat
 import cloud.benchflow.testmanager.resources.BenchFlowExperimentResource;
 import cloud.benchflow.testmanager.resources.BenchFlowTestResource;
 import cloud.benchflow.testmanager.resources.BenchFlowTrialResource;
+import cloud.benchflow.testmanager.resources.ExplorationPointResource;
 import cloud.benchflow.testmanager.scheduler.CustomFutureReturningExecutor;
 import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
@@ -165,6 +166,7 @@ public class BenchFlowTestManagerApplication
     final BenchFlowTestResource testResource = new BenchFlowTestResource();
     final BenchFlowExperimentResource experimentResource = new BenchFlowExperimentResource();
     final BenchFlowTrialResource trialResource = new BenchFlowTrialResource();
+    final ExplorationPointResource explorationPointResource = new ExplorationPointResource();
 
     // TODO - health checks for all services
     //        final TemplateHealthCheck healthCheck =
@@ -175,6 +177,7 @@ public class BenchFlowTestManagerApplication
     environment.jersey().register(testResource);
     environment.jersey().register(experimentResource);
     environment.jersey().register(trialResource);
+    environment.jersey().register(explorationPointResource);
 
     // add support for submitting files
     environment.jersey().register(MultiPartFeature.class);
