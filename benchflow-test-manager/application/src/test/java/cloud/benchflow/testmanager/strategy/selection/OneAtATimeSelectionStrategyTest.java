@@ -1,7 +1,7 @@
 package cloud.benchflow.testmanager.strategy.selection;
 
-import cloud.benchflow.testmanager.helpers.TestConstants;
-import cloud.benchflow.testmanager.helpers.TestFiles;
+import cloud.benchflow.testmanager.helpers.constants.TestConstants;
+import cloud.benchflow.testmanager.helpers.constants.TestFiles;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.strategy.selection.SelectionStrategy.SelectedExperimentBundle;
@@ -39,6 +39,12 @@ public class OneAtATimeSelectionStrategyTest {
     // return deployment descriptor
     Mockito.doReturn(TestFiles.getDeploymentDescriptor()).when(minioMock)
         .getTestDeploymentDescriptor(testID);
+
+    // TODO - change when converting to JavaCompatExplorationSpace works
+    //    JavaCompatExplorationSpace explorationSpace = ExplorationSpaceAPI.explorationSpaceFromTestYaml(
+    //        TestFiles.getTestExplorationOneAtATimeUsersMemoryEnvironmentString());
+    //
+    //    Mockito.doReturn(explorationSpace).when(explorationModelDAOMock).getExplorationSpace(testID);
 
     // return empty exploration point indices list
     Mockito.doReturn(new ArrayList<>()).when(explorationModelDAOMock)

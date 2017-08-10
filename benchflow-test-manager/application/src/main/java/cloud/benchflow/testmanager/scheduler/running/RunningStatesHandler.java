@@ -1,23 +1,19 @@
 package cloud.benchflow.testmanager.scheduler.running;
 
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.ADD_STORED_KNOWLEDGE;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.DERIVE_PREDICTION_FUNCTION;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.DETERMINE_EXECUTE_VALIDATION_SET;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.HANDLE_EXPERIMENT_RESULT;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.REMOVE_NON_REACHABLE_EXPERIMENTS;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.VALIDATE_PREDICTION_FUNCTION;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.VALIDATE_TERMINATION_CRITERIA;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.*;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState.COMPLETED_WITH_FAILURE;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState.GOAL_REACHED;
 
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState;
+import cloud.benchflow.testmanager.scheduler.CustomFutureReturningExecutor;
 import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
+import cloud.benchflow.testmanager.scheduler.TestTaskScheduler.AbortableFutureTaskResult;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
+import cloud.benchflow.testmanager.tasks.AbortableFutureTask;
 import cloud.benchflow.testmanager.tasks.running.AddStoredKnowledgeTask;
 import cloud.benchflow.testmanager.tasks.running.DerivePredictionFunctionTask;
 import cloud.benchflow.testmanager.tasks.running.DetermineExecuteExperimentsTask;
@@ -30,13 +26,12 @@ import cloud.benchflow.testmanager.tasks.running.ValidateTerminationCriteria;
 import cloud.benchflow.testmanager.tasks.running.ValidateTerminationCriteria.TerminationCriteriaResult;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-07-02
+ * @author vincenzoferme
  */
 public class RunningStatesHandler {
 
@@ -48,17 +43,17 @@ public class RunningStatesHandler {
   private static Logger logger =
       LoggerFactory.getLogger(RunningStatesHandler.class.getSimpleName());
 
-  private ConcurrentMap<String, Future> testTasks;
+  private ConcurrentMap<String, AbortableFutureTask> testTasks;
 
-  private ExecutorService taskExecutorService;
+  private CustomFutureReturningExecutor taskExecutorService;
 
   private ExplorationModelDAO explorationModelDAO;
   private BenchFlowTestModelDAO testModelDAO;
 
   private TestTaskScheduler testTaskScheduler;
 
-  public RunningStatesHandler(ConcurrentMap<String, Future> testTasks,
-      ExecutorService taskExecutorService, TestTaskScheduler testTaskScheduler) {
+  public RunningStatesHandler(ConcurrentMap<String, AbortableFutureTask> testTasks,
+      CustomFutureReturningExecutor taskExecutorService, TestTaskScheduler testTaskScheduler) {
 
     this.testTasks = testTasks;
     this.taskExecutorService = taskExecutorService;
@@ -79,7 +74,7 @@ public class RunningStatesHandler {
     DetermineExplorationStrategyTask task = new DetermineExplorationStrategyTask(testID);
 
     // TODO - should go into a stateless queue (so that we can recover)
-    Future<?> future = taskExecutorService.submit(task);
+    AbortableFutureTask<?> future = (AbortableFutureTask) taskExecutorService.submit(task);
 
     // replace with new task
     testTasks.put(testID, future);
@@ -94,7 +89,7 @@ public class RunningStatesHandler {
     AddStoredKnowledgeTask task = new AddStoredKnowledgeTask(testID);
 
     // TODO - should go into a stateless queue (so that we can recover)
-    Future<?> future = taskExecutorService.submit(task);
+    AbortableFutureTask<?> future = (AbortableFutureTask) taskExecutorService.submit(task);
 
     // replace with new task
     testTasks.put(testID, future);
@@ -102,10 +97,8 @@ public class RunningStatesHandler {
     try {
 
       // wait for task to complete
-      future.get();
-
-      if (testTaskScheduler.isTerminated(testID)) {
-        // if test has been terminated we stop here
+      if (testTaskScheduler.getAbortableFutureTask(future).isAborted()) {
+        logger.info("Task has been aborted for test: " + testID);
         return;
       }
 
@@ -115,8 +108,6 @@ public class RunningStatesHandler {
           hasRegressionModel ? DETERMINE_EXECUTE_VALIDATION_SET : DETERMINE_EXECUTE_EXPERIMENTS;
 
       testModelDAO.setTestRunningState(testID, nextState);
-
-      testTaskScheduler.handleTestState(testID);
 
     } catch (InterruptedException | ExecutionException e) {
       // TODO - handle properly
@@ -137,7 +128,8 @@ public class RunningStatesHandler {
         new DetermineExecuteInitialValidationSetTask(testID);
 
     // TODO - should go into a stateless queue (so that we can recover)
-    Future future = taskExecutorService.submit(initialValidationSetTask);
+    AbortableFutureTask future =
+        (AbortableFutureTask) taskExecutorService.submit(initialValidationSetTask);
 
     // replace with new task
     testTasks.put(testID, future);
@@ -153,21 +145,24 @@ public class RunningStatesHandler {
     DetermineExecuteExperimentsTask task = new DetermineExecuteExperimentsTask(testID);
 
     // TODO - should go into a stateless queue (so that we can recover)
-    Future<?> future = taskExecutorService.submit(task);
+    AbortableFutureTask<?> future = (AbortableFutureTask) taskExecutorService.submit(task);
 
     // replace with new task
     testTasks.put(testID, future);
 
-    // we don't wait for the task to complete since the experiment-manager
-    // will send the result
-    try {
+    waitForRunningTaskToComplete(testID, future, HANDLE_EXPERIMENT_RESULT);
 
-      testModelDAO.setTestRunningState(testID, HANDLE_EXPERIMENT_RESULT);
-
-    } catch (BenchFlowTestIDDoesNotExistException e) {
-      // should not happen since it was added earlier
-      logger.error("test ID does not exist - should not happen");
-    }
+    // TODO: decide if it is actually needed
+    //    // we don't wait for the task to complete since the experiment-manager
+    //    // will send the result
+    //    try {
+    //
+    //      testModelDAO.setTestRunningState(testID, HANDLE_EXPERIMENT_RESULT);
+    //
+    //    } catch (BenchFlowTestIDDoesNotExistException e) {
+    //      // should not happen since it was added earlier
+    //      logger.error("test ID does not exist - should not happen");
+    //    }
   }
 
   public void derivePredictionFunction(String testID) {
@@ -177,7 +172,7 @@ public class RunningStatesHandler {
     DerivePredictionFunctionTask task = new DerivePredictionFunctionTask(testID);
 
     // TODO - should go into a stateless queue (so that we can recover)
-    Future<?> future = taskExecutorService.submit(task);
+    AbortableFutureTask<?> future = (AbortableFutureTask) taskExecutorService.submit(task);
 
     // replace with new task
     testTasks.put(testID, future);
@@ -192,7 +187,7 @@ public class RunningStatesHandler {
     ValidatePredictionFunctionTask task = new ValidatePredictionFunctionTask(testID);
 
     // TODO - should go into a stateless queue (so that we can recover)
-    Future<Boolean> future = taskExecutorService.submit(task);
+    AbortableFutureTask<Boolean> future = (AbortableFutureTask) taskExecutorService.submit(task);
 
     // replace with new task
     testTasks.put(testID, future);
@@ -201,11 +196,17 @@ public class RunningStatesHandler {
 
       // TODO - update: set next state as validate termination criteria
 
-      boolean acceptablePredictionError = future.get();
+      boolean acceptablePredictionError = false;
 
-      if (testTaskScheduler.isTerminated(testID)) {
-        // if test has been terminated we stop here
+      // wait for task to complete
+      AbortableFutureTaskResult<Boolean> futureResult =
+          testTaskScheduler.getAbortableFutureTask(future);
+
+      if (futureResult.isAborted()) {
+        logger.info("Task has been aborted for test: " + testID);
         return;
+      } else {
+        acceptablePredictionError = futureResult.getResult();
       }
 
       if (acceptablePredictionError) {
@@ -217,7 +218,6 @@ public class RunningStatesHandler {
 
         testModelDAO.setTestRunningState(testID, REMOVE_NON_REACHABLE_EXPERIMENTS);
 
-        testTaskScheduler.handleTestState(testID);
       }
 
     } catch (InterruptedException | ExecutionException e) {
@@ -236,7 +236,7 @@ public class RunningStatesHandler {
     RemoveNonReachableExperimentsTask task = new RemoveNonReachableExperimentsTask(testID);
 
     // TODO - should go into a stateless queue (so that we can recover)
-    Future<?> future = taskExecutorService.submit(task);
+    AbortableFutureTask<?> future = (AbortableFutureTask) taskExecutorService.submit(task);
 
     // replace with new task
     testTasks.put(testID, future);
@@ -251,18 +251,24 @@ public class RunningStatesHandler {
     ValidateTerminationCriteria task = new ValidateTerminationCriteria(testID);
 
     // TODO - should go into a stateless queue (so that we can recover)
-    Future<TerminationCriteriaResult> future = taskExecutorService.submit(task);
+    AbortableFutureTask<TerminationCriteriaResult> future =
+        (AbortableFutureTask) taskExecutorService.submit(task);
 
     // replace with new task
     testTasks.put(testID, future);
 
     try {
 
-      TerminationCriteriaResult result = future.get();
+      TerminationCriteriaResult result;
 
-      if (testTaskScheduler.isTerminated(testID)) {
-        // if test has been terminated we stop here
+      AbortableFutureTaskResult<TerminationCriteriaResult> futureResult =
+          testTaskScheduler.getAbortableFutureTask(future);
+
+      if (futureResult.isAborted()) {
+        logger.info("Task has been aborted for test: " + testID);
         return;
+      } else {
+        result = futureResult.getResult();
       }
 
       switch (result) {
@@ -291,9 +297,6 @@ public class RunningStatesHandler {
           break;
       }
 
-      // run the next state
-      testTaskScheduler.handleTestState(testID);
-
     } catch (InterruptedException | ExecutionException e) {
       // TODO - handle  properly
       e.printStackTrace();
@@ -310,7 +313,7 @@ public class RunningStatesHandler {
     HandleExperimentResultTask task = new HandleExperimentResultTask(testID);
 
     // TODO - should go into a stateless queue (so that we can recover)
-    Future<?> future = taskExecutorService.submit(task);
+    AbortableFutureTask<?> future = (AbortableFutureTask) taskExecutorService.submit(task);
 
     // replace with new task
     testTasks.put(testID, future);
@@ -318,10 +321,8 @@ public class RunningStatesHandler {
     try {
 
       // wait for task to complete
-      future.get();
-
-      if (testTaskScheduler.isTerminated(testID)) {
-        // if test has been terminated we stop here
+      if (testTaskScheduler.getAbortableFutureTask(future).isAborted()) {
+        logger.info("Task has been aborted for test: " + testID);
         return;
       }
 
@@ -332,8 +333,6 @@ public class RunningStatesHandler {
 
       testModelDAO.setTestRunningState(testID, nextState);
 
-      testTaskScheduler.handleTestState(testID);
-
     } catch (InterruptedException | ExecutionException e) {
       // TODO - handle  properly
       e.printStackTrace();
@@ -343,20 +342,18 @@ public class RunningStatesHandler {
     }
   }
 
-  private void waitForRunningTaskToComplete(String testID, Future future,
+  private void waitForRunningTaskToComplete(String testID, AbortableFutureTask future,
       TestRunningState nextState) {
 
     try {
 
-      future.get();
-
-      if (testTaskScheduler.isTerminated(testID)) {
-        // if test has been terminated we stop here
+      // wait for task to complete
+      if (testTaskScheduler.getAbortableFutureTask(future).isAborted()) {
+        logger.info("Task has been aborted for test: " + testID);
         return;
       }
 
       testModelDAO.setTestRunningState(testID, nextState);
-      testTaskScheduler.handleTestState(testID);
 
     } catch (InterruptedException | ExecutionException e) {
       // TODO - handle  properly

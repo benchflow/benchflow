@@ -9,6 +9,7 @@ import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentMode
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.strategy.selection.SelectionStrategy;
 import cloud.benchflow.testmanager.strategy.selection.SelectionStrategy.SelectedExperimentBundle;
+import cloud.benchflow.testmanager.tasks.AbortableRunnable;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
@@ -20,7 +21,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20
  */
-public class DetermineExecuteExperimentsTask implements Runnable {
+public class DetermineExecuteExperimentsTask extends AbortableRunnable {
 
   private static Logger logger =
       LoggerFactory.getLogger(DetermineExecuteExperimentsTask.class.getSimpleName());
@@ -60,9 +61,10 @@ public class DetermineExecuteExperimentsTask implements Runnable {
       SelectedExperimentBundle selectedExperimentBundle =
           selectionStrategy.selectNextExperiment(testID);
 
+      int explorationPointIndex = selectedExperimentBundle.getExplorationSpaceIndex();
+
       // save exploration point index
-      experimentModelDAO.setExplorationSpaceIndex(experimentID,
-          selectedExperimentBundle.getExplorationSpaceIndex());
+      experimentModelDAO.setExplorationSpaceIndex(experimentID, explorationPointIndex);
 
       // set experiment as selected
       explorationModelDAO.addExecutedExplorationPoint(testID,

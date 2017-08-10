@@ -3,7 +3,7 @@ package cloud.benchflow.testmanager.resources;
 import cloud.benchflow.faban.client.responses.RunStatus;
 import cloud.benchflow.testmanager.api.request.SubmitTrialStatusRequest;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
-import cloud.benchflow.testmanager.helpers.TestConstants;
+import cloud.benchflow.testmanager.helpers.constants.TestConstants;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import javax.ws.rs.client.Entity;

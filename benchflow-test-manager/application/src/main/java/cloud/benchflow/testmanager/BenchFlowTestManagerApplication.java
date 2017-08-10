@@ -4,6 +4,8 @@ import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfigurat
 import cloud.benchflow.testmanager.resources.BenchFlowExperimentResource;
 import cloud.benchflow.testmanager.resources.BenchFlowTestResource;
 import cloud.benchflow.testmanager.resources.BenchFlowTrialResource;
+import cloud.benchflow.testmanager.resources.ExplorationPointResource;
+import cloud.benchflow.testmanager.scheduler.CustomFutureReturningExecutor;
 import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
 import cloud.benchflow.testmanager.services.external.MinioService;
@@ -19,7 +21,6 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.Logger;
@@ -69,9 +70,19 @@ public class BenchFlowTestManagerApplication
   }
 
   // used for testing to insert mock/spy object
+  public static void setTestModelDAO(BenchFlowTestModelDAO testModelDAO) {
+    BenchFlowTestManagerApplication.testModelDAO = testModelDAO;
+  }
+
+  // used for testing to insert mock/spy object
   public static void setExperimentManagerService(
       BenchFlowExperimentManagerService experimentManagerService) {
     BenchFlowTestManagerApplication.experimentManagerService = experimentManagerService;
+  }
+
+  // used for testing to insert mock/spy object
+  public static void setTestTaskScheduler(TestTaskScheduler testTaskScheduler) {
+    BenchFlowTestManagerApplication.testTaskScheduler = testTaskScheduler;
   }
 
   public static TestTaskScheduler getTestTaskScheduler() {
@@ -126,10 +137,13 @@ public class BenchFlowTestManagerApplication
     // Typically you only create one MongoClient instance for a given MongoDB deployment
     // (e.g. standalone, replica set, or a sharded cluster) and use it across your application.
     // http://mongodb.github.io/mongo-java-driver/3.4/driver/getting-started/quick-start/
-    MongoClient mongoClient = configuration.getMongoDBFactory().build();
-    ExecutorService taskExecutor = configuration.getTaskExecutorFactory().build(environment);
+    final MongoClient mongoClient = configuration.getMongoDBFactory().build();
+    CustomFutureReturningExecutor taskExecutor =
+        configuration.getTaskExecutorFactory().build(environment);
     ScheduledThreadPoolExecutor timeOutScheduledThreadPoolExecutor =
         new ScheduledThreadPoolExecutor(1);
+
+    testTaskScheduler = new TestTaskScheduler(taskExecutor, timeOutScheduledThreadPoolExecutor);
 
     testModelDAO = new BenchFlowTestModelDAO(mongoClient);
     explorationModelDAO = new ExplorationModelDAO(mongoClient, testModelDAO);
@@ -139,8 +153,6 @@ public class BenchFlowTestManagerApplication
     minioService = configuration.getMinioServiceFactory().build();
     experimentManagerService = configuration.getBenchFlowExperimentManagerServiceFactory()
         .build(configuration, environment);
-
-    testTaskScheduler = new TestTaskScheduler(taskExecutor, timeOutScheduledThreadPoolExecutor);
 
     // initialize to fetch dependencies
     testTaskScheduler.initialize();
@@ -154,6 +166,7 @@ public class BenchFlowTestManagerApplication
     final BenchFlowTestResource testResource = new BenchFlowTestResource();
     final BenchFlowExperimentResource experimentResource = new BenchFlowExperimentResource();
     final BenchFlowTrialResource trialResource = new BenchFlowTrialResource();
+    final ExplorationPointResource explorationPointResource = new ExplorationPointResource();
 
     // TODO - health checks for all services
     //        final TemplateHealthCheck healthCheck =
@@ -164,6 +177,7 @@ public class BenchFlowTestManagerApplication
     environment.jersey().register(testResource);
     environment.jersey().register(experimentResource);
     environment.jersey().register(trialResource);
+    environment.jersey().register(explorationPointResource);
 
     // add support for submitting files
     environment.jersey().register(MultiPartFeature.class);

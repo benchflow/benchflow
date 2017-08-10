@@ -24,6 +24,7 @@
     <jsoup.version>1.10.3</jsoup.version>
     <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
     <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
+    <maven-shade-plugin.verion>2.4.3</maven-shade-plugin.verion>
     <maven-surefire-plugin.version>2.20</maven-surefire-plugin.version>
   </properties>
 
@@ -80,6 +81,32 @@
             <configuration>
               <skip>true</skip>
             </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>${maven-shade-plugin.verion}</version>
+        <configuration>
+          <!--<createDependencyReducedPom>true</createDependencyReducedPom>-->
+          <shadedArtifactAttached>false</shadedArtifactAttached>
+          <createDependencyReducedPom>true</createDependencyReducedPom>
+          <createSourcesJar>true</createSourcesJar>
+          <filters>
+            <filter>
+              <artifact>*:*</artifact>
+            </filter>
+          </filters>
+          <outputDirectory>${session.executionRootDirectory}/target</outputDirectory>
+          <finalName>${project.name}</finalName>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>

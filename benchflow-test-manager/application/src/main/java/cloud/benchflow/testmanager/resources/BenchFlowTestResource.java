@@ -14,11 +14,14 @@ import cloud.benchflow.testmanager.exceptions.InvalidTestBundleException;
 import cloud.benchflow.testmanager.exceptions.UserIDAlreadyExistsException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidTestBundleWebException;
+import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
+import cloud.benchflow.testmanager.models.explorationspace.MongoCompatibleExplorationSpace;
 import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
+import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
 import io.swagger.annotations.Api;
 import java.io.IOException;
@@ -55,8 +58,10 @@ public class BenchFlowTestResource {
   public static String RUN_PATH = "/run";
   public static String STATE_PATH = "/state";
   public static String STATUS_PATH = "/status";
+  public static String NO_EXPLORATION_SPACE = "no exploration space";
   private final BenchFlowTestModelDAO testModelDAO;
   private final UserDAO userDAO;
+  private final ExplorationModelDAO explorationModelDAO;
   private final TestTaskScheduler testTaskScheduler;
   private final MinioService minioService;
   private Logger logger = LoggerFactory.getLogger(BenchFlowTestResource.class.getSimpleName());
@@ -65,15 +70,18 @@ public class BenchFlowTestResource {
   public BenchFlowTestResource() {
     this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
     this.userDAO = BenchFlowTestManagerApplication.getUserDAO();
+    this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
     this.testTaskScheduler = BenchFlowTestManagerApplication.getTestTaskScheduler();
     this.minioService = BenchFlowTestManagerApplication.getMinioService();
   }
 
   /* used for tests */
   public BenchFlowTestResource(BenchFlowTestModelDAO testModelDAO, UserDAO userDAO,
-      TestTaskScheduler testTaskScheduler, MinioService minioService) {
+      ExplorationModelDAO explorationModelDAO, TestTaskScheduler testTaskScheduler,
+      MinioService minioService) {
     this.testModelDAO = testModelDAO;
     this.userDAO = userDAO;
+    this.explorationModelDAO = explorationModelDAO;
     this.testTaskScheduler = testTaskScheduler;
     this.minioService = minioService;
   }
@@ -131,8 +139,8 @@ public class BenchFlowTestResource {
           BenchFlowTestBundleExtractor.extractBPMNModelInputStreams(testBundleZipInputStream);
 
       if (deploymentDescriptorInputStream == null || bpmnModelInputStreams.size() == 0) {
-        logger.info(
-            "runBenchFlowTest: deploymentDescriptorInputStream == null || bpmnModelInputStreams.size() == 0");
+        logger.info("runBenchFlowTest: deploymentDescriptorInputStream == null "
+            + "|| bpmnModelInputStreams.size() == 0");
         throw new InvalidTestBundleException();
       }
 
@@ -154,7 +162,7 @@ public class BenchFlowTestResource {
             .saveTestBPMNModel(testID, fileName, inputStream));
 
         // delegate to task scheduler
-        testTaskScheduler.handleTestState(testID);
+        testTaskScheduler.handleStartingTest(testID);
 
       }).start();
 
@@ -208,7 +216,8 @@ public class BenchFlowTestResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public BenchFlowTestModel getBenchFlowTestStatus(@PathParam("username") String username,
-      @PathParam("testName") String testName, @PathParam("testNumber") int testNumber) {
+      @PathParam("testName") String testName, @PathParam("testNumber") int testNumber,
+      @Context HttpServletRequest request) {
 
     String testID = BenchFlowConstants.getTestID(username, testName, testNumber);
 
@@ -219,7 +228,39 @@ public class BenchFlowTestResource {
     BenchFlowTestModel benchFlowTestModel = null;
 
     try {
+
       benchFlowTestModel = testModelDAO.getTestModel(testID);
+
+      // set the URL to the exploration point index
+      // it is done dynamically since we need the server information
+      for (BenchFlowExperimentModel experimentModel : benchFlowTestModel.getExperimentModels()) {
+
+        int pointIndex = experimentModel.getExplorationPointIndex();
+
+        // add url only if exploration space is not empty or null
+
+        MongoCompatibleExplorationSpace explorationSpace =
+            explorationModelDAO.getExplorationSpace(testID);
+
+        String url;
+
+        if (explorationSpace == null || explorationSpace.getSize() == 0) {
+
+          url = NO_EXPLORATION_SPACE;
+
+
+        } else {
+
+          url = "http://" + request.getServerName() + ":" + request.getServerPort()
+              + BenchFlowConstants.getPathFromTestID(testID)
+              + ExplorationPointResource.EXPLORATION_POINT_PATH + pointIndex;
+
+        }
+
+        experimentModel.setExplorationPointConfiguration(url);
+
+      }
+
     } catch (BenchFlowTestIDDoesNotExistException e) {
       throw new InvalidBenchFlowTestIDWebException();
     }

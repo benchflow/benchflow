@@ -51,8 +51,8 @@ public class BenchFlowExperimentResourceTest {
 
     experimentResource.runBenchFlowExperiment(username, testName, testNumber, experimentNumber);
 
-    Mockito.verify(experimentTaskSchedulerMock, Mockito.times(1))
-        .handleExperimentState(experimentID);
+    Mockito.verify(experimentModelDAOMock, Mockito.times(1)).addExperiment(experimentID);
+
     Mockito.verify(minioMock, Mockito.times(1)).isValidExperimentID(experimentID);
   }
 

@@ -1,4 +1,4 @@
-package cloud.benchflow.testmanager.helpers;
+package cloud.benchflow.testmanager.helpers.constants;
 
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import java.io.File;

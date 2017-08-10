@@ -1,11 +1,11 @@
 package cloud.benchflow.testmanager.services.external;
 
-import static cloud.benchflow.testmanager.helpers.TestConstants.LOAD_EXPERIMENT_ID;
-import static cloud.benchflow.testmanager.helpers.TestConstants.LOAD_TEST_ID;
+import static cloud.benchflow.testmanager.helpers.constants.TestConstants.LOAD_EXPERIMENT_ID;
+import static cloud.benchflow.testmanager.helpers.constants.TestConstants.LOAD_TEST_ID;
 
 import cloud.benchflow.testmanager.DockerComposeIT;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
-import cloud.benchflow.testmanager.helpers.TestBundle;
+import cloud.benchflow.testmanager.helpers.constants.TestBundle;
 import io.minio.MinioClient;
 import java.io.ByteArrayInputStream;
 import java.io.File;
