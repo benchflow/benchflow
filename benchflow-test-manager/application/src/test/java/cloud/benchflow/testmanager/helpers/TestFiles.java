@@ -20,9 +20,6 @@ public class TestFiles {
   private static String TEST_EXPLORATION_ONE_AT_A_TIME_MEMORY_FILE = LOCAL_TESTS_FOLDER
       + "definition/exhaustive_exploration/one-at-a-time/memory/benchflow-test.yml";
 
-  private static String TEST_EXPLORATION_ONE_AT_A_TIME_USERS_FILE = LOCAL_TESTS_FOLDER
-      + "definition/exhaustive_exploration/one-at-a-time/users/benchflow-test.yml";
-
   private static String TEST_EXPLORATION_ONE_AT_A_TIME_USERS_ENVIRONMENT_FILE = LOCAL_TESTS_FOLDER
       + "definition/exhaustive_exploration/one-at-a-time/users-environment/benchflow-test.yml";
 
