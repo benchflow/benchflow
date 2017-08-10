@@ -46,6 +46,7 @@ sut:
     target_service:
       name: camunda
       endpoint: /engine-rest
+      sut_ready_log_check: ready
 
     deployment:
       camunda: serverA
