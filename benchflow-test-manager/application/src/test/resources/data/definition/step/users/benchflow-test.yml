@@ -2,8 +2,8 @@
 # BenchFlow Test Definition
 ###############################################################################
 version: '1'
-name: WfMSExhaustiveExplorationOneAtATimeSelectionUsersTest
-description: WfMSExhaustiveExplorationOneAtATimeSelectionUsersTest
+name: WfMSStepUsersExhaustiveExplorationTest
+description: WfMSStepUsersExhaustiveExplorationTest
 
 ###############################################################################
 # Test Configuration
@@ -15,7 +15,8 @@ configuration:
     exploration_space:
       workload:
         users:
-          values: [5, 10, 15, 20]
+          range: [50, 175]
+          step: '+50'
 
   strategy:
     selection: one-at-a-time
@@ -31,7 +32,7 @@ configuration:
 
     experiment:
       type: fixed
-      number_of_trials: 3
+      number_of_trials: 2
 
 ###############################################################################
 # SUT Info Section

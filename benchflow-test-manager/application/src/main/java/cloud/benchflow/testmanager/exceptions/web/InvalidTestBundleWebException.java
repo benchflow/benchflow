@@ -14,4 +14,9 @@ public class InvalidTestBundleWebException extends WebApplicationException {
   public InvalidTestBundleWebException() {
     super(Response.status(Status.INTERNAL_SERVER_ERROR).entity(message).type("text/plain").build());
   }
+
+  public InvalidTestBundleWebException(String info) {
+    super(Response.status(Status.INTERNAL_SERVER_ERROR).entity(message + ": " + info)
+        .type("text/plain").build());
+  }
 }

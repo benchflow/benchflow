@@ -70,8 +70,7 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
     User user = BenchFlowConstants.BENCHFLOW_USER;
 
     FileDataBodyPart fileDataBodyPart = new FileDataBodyPart("benchFlowTestBundle",
-        TestBundle.getValidTestBundleFile(temporaryFolder),
-        MediaType.APPLICATION_OCTET_STREAM_TYPE);
+        TestBundle.getLoadTestBundleFile(temporaryFolder), MediaType.APPLICATION_OCTET_STREAM_TYPE);
 
     MultiPart multiPart = new MultiPart();
     multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);

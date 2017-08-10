@@ -34,24 +34,86 @@ public class TestBundle {
    * @return the File with the test bundle
    * @throws IOException if zip file could not be created
    */
-  public static File getValidTestBundleFile(TemporaryFolder temporaryFolder) throws IOException {
+  public static File getLoadTestBundleFile(TemporaryFolder temporaryFolder) throws IOException {
 
-    // setup the bundle contents
-    ZipEntrySource[] addedEntries = new ZipEntrySource[] {
-        new FileSource(TestFiles.getTestLoadFile().getName(), TestFiles.getTestLoadFile()),
-        new FileSource(TestFiles.getTestDeploymentDescriptorFile().getName(),
-            TestFiles.getTestDeploymentDescriptorFile())};
+    FileSource testDefinitionFileSource =
+        new FileSource(TestFiles.getTestLoadFile().getName(), TestFiles.getTestLoadFile());
 
-    File zipFile =
-        temporaryFolder.newFile(new BigInteger(130, new SecureRandom()).toString(32) + ".zip");
+    return createBundleFile(testDefinitionFileSource, temporaryFolder);
+  }
 
-    ZipUtil.pack(addedEntries, zipFile);
+  /**
+   *
+   * @param temporaryFolder
+   * @return
+   * @throws IOException
+   */
+  public static File getTestExplorationOneAtATimeUsersBundleFile(TemporaryFolder temporaryFolder)
+      throws IOException {
 
-    addModelsToZipFile(zipFile);
+    FileSource testDefinitionFileSource =
+        new FileSource(TestFiles.getTestExplorationOneAtATimeUsersFile().getName(),
+            TestFiles.getTestExplorationOneAtATimeUsersFile());
 
-    return zipFile;
+    return createBundleFile(testDefinitionFileSource, temporaryFolder);
 
   }
+
+  public static File getTestExplorationRandomUsersBundleFile(TemporaryFolder temporaryFolder)
+      throws IOException {
+
+    FileSource testDefinitionFileSource =
+        new FileSource(TestFiles.getTestExplorationRandomUsersFile().getName(),
+            TestFiles.getTestExplorationRandomUsersFile());
+
+    return createBundleFile(testDefinitionFileSource, temporaryFolder);
+
+  }
+
+  public static File getTestExplorationOneAtATimeMemoryBundleFile(TemporaryFolder temporaryFolder)
+      throws IOException {
+
+    FileSource testDefinitionFileSource =
+        new FileSource(TestFiles.getTestExplorationOneAtATimeMemoryFile().getName(),
+            TestFiles.getTestExplorationOneAtATimeMemoryFile());
+
+    return createBundleFile(testDefinitionFileSource, temporaryFolder);
+
+  }
+
+  public static File getTestExplorationOneAtATimeUsersEnvironmentBundleFile(
+      TemporaryFolder temporaryFolder) throws IOException {
+
+    FileSource testDefinitionFileSource =
+        new FileSource(TestFiles.getTestExplorationOneAtATimeUsersEnvironmentFile().getName(),
+            TestFiles.getTestExplorationOneAtATimeUsersEnvironmentFile());
+
+    return createBundleFile(testDefinitionFileSource, temporaryFolder);
+
+  }
+
+  public static File getTestTerminationCriteriaBundleFile(TemporaryFolder temporaryFolder)
+      throws IOException {
+
+    FileSource testDefinitionFileSource =
+        new FileSource(TestFiles.getTestTerminationCriteriaFile().getName(),
+            TestFiles.getTestTerminationCriteriaFile());
+
+    return createBundleFile(testDefinitionFileSource, temporaryFolder);
+
+  }
+
+  public static File getTestStepUsersBundleFile(TemporaryFolder temporaryFolder)
+      throws IOException {
+
+    FileSource testDefinitionFileSource = new FileSource(TestFiles.getTestStepUsersFile().getName(),
+        TestFiles.getTestStepUsersFile());
+
+    return createBundleFile(testDefinitionFileSource, temporaryFolder);
+
+  }
+
+
 
   /**
    * Get a valid test bundle as an InputStream
@@ -60,9 +122,10 @@ public class TestBundle {
    * @return the InputStream with the test bundle
    * @throws IOException if zip file could not be created
    */
-  public static InputStream getValidTestBundle(TemporaryFolder temporaryFolder) throws IOException {
+  public static InputStream getLoadTestBundleInputStream(TemporaryFolder temporaryFolder)
+      throws IOException {
 
-    return new FileInputStream(getValidTestBundleFile(temporaryFolder));
+    return new FileInputStream(getLoadTestBundleFile(temporaryFolder));
 
   }
 
@@ -73,10 +136,10 @@ public class TestBundle {
    * @return the ZipInputStream with the test bundle
    * @throws IOException if zip file could not be created
    */
-  public static ZipInputStream getValidTestBundleZip(TemporaryFolder temporaryFolder)
+  public static ZipInputStream getLoadTestBundleZipInputStream(TemporaryFolder temporaryFolder)
       throws IOException {
 
-    return new ZipInputStream(getValidTestBundle(temporaryFolder));
+    return new ZipInputStream(getLoadTestBundleInputStream(temporaryFolder));
   }
 
   /**
@@ -94,14 +157,7 @@ public class TestBundle {
         new ZipEntrySource[] {new FileSource(TestFiles.getTestDeploymentDescriptorFile().getName(),
             TestFiles.getTestDeploymentDescriptorFile())};
 
-    File zipFile =
-        temporaryFolder.newFile(new BigInteger(130, new SecureRandom()).toString(32) + ".zip");
-
-    ZipUtil.pack(addedEntries, zipFile);
-
-    addModelsToZipFile(zipFile);
-
-    return zipFile;
+    return createBundleFromZipEntrySource(addedEntries, temporaryFolder);
 
   }
 
@@ -181,6 +237,32 @@ public class TestBundle {
     }
 
     return models;
+  }
+
+  private static File createBundleFile(FileSource testDefinitionFileSource,
+      TemporaryFolder temporaryFolder) throws IOException {
+
+    // setup the bundle contents
+    ZipEntrySource[] addedEntries = new ZipEntrySource[] {testDefinitionFileSource,
+        new FileSource(TestFiles.getTestDeploymentDescriptorFile().getName(),
+            TestFiles.getTestDeploymentDescriptorFile())};
+
+    return createBundleFromZipEntrySource(addedEntries, temporaryFolder);
+
+  }
+
+  private static File createBundleFromZipEntrySource(ZipEntrySource[] zipEntrySources,
+      TemporaryFolder temporaryFolder) throws IOException {
+
+    File zipFile =
+        temporaryFolder.newFile(new BigInteger(130, new SecureRandom()).toString(32) + ".zip");
+
+    ZipUtil.pack(zipEntrySources, zipFile);
+
+    addModelsToZipFile(zipFile);
+
+    return zipFile;
+
   }
 
   private static void addModelsToZipFile(File zipFile) {

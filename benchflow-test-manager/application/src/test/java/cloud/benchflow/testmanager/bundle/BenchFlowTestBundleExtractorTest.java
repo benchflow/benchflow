@@ -23,8 +23,8 @@ public class BenchFlowTestBundleExtractorTest {
   @Test
   public void extractBenchFlowTestDefinition() throws Exception {
 
-    String testDefinitionString = BenchFlowTestBundleExtractor
-        .extractBenchFlowTestDefinitionString(TestBundle.getValidTestBundleZip(temporaryFolder));
+    String testDefinitionString = BenchFlowTestBundleExtractor.extractBenchFlowTestDefinitionString(
+        TestBundle.getLoadTestBundleZipInputStream(temporaryFolder));
 
     Assert.assertNotNull(testDefinitionString);
 
@@ -35,8 +35,9 @@ public class BenchFlowTestBundleExtractorTest {
   @Test
   public void extractDeploymentDescriptor() throws Exception {
 
-    InputStream deploymentDescriptorInputStream = BenchFlowTestBundleExtractor
-        .extractDeploymentDescriptorInputStream(TestBundle.getValidTestBundleZip(temporaryFolder));
+    InputStream deploymentDescriptorInputStream =
+        BenchFlowTestBundleExtractor.extractDeploymentDescriptorInputStream(
+            TestBundle.getLoadTestBundleZipInputStream(temporaryFolder));
 
     Assert.assertNotNull(deploymentDescriptorInputStream);
 
@@ -52,7 +53,7 @@ public class BenchFlowTestBundleExtractorTest {
     int numberOfModels = TestBundle.BPMN_MODELS_COUNT;
 
     Map<String, InputStream> bpmnModels = BenchFlowTestBundleExtractor
-        .extractBPMNModelInputStreams(TestBundle.getValidTestBundleZip(temporaryFolder));
+        .extractBPMNModelInputStreams(TestBundle.getLoadTestBundleZipInputStream(temporaryFolder));
 
     Assert.assertEquals(numberOfModels, bpmnModels.size());
   }

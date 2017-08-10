@@ -2,8 +2,8 @@
 # BenchFlow Test Definition
 ###############################################################################
 version: '1'
-name: WfMSExhaustiveExplorationOneAtATimeSelectionUsersTest
-description: WfMSExhaustiveExplorationOneAtATimeSelectionUsersTest
+name: WfMSExhaustiveExplorationOneAtATimeSelectionMemoryTest
+description: WfMSExhaustiveExplorationOneAtATimeSelectionMemoryTest
 
 ###############################################################################
 # Test Configuration
@@ -13,9 +13,10 @@ configuration:
     type: exhaustive_exploration
 
     exploration_space:
-      workload:
-        users:
-          values: [5, 10, 15, 20]
+      camunda:
+        resources:
+          memory:
+            range: [500m, 1000m]
 
   strategy:
     selection: one-at-a-time
