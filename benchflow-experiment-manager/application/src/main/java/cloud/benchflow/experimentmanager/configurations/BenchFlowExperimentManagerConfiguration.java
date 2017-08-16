@@ -17,15 +17,13 @@ import javax.validation.constraints.NotNull;
 
 public class BenchFlowExperimentManagerConfiguration extends Configuration {
 
+  @Valid
+  @NotNull
+  private final SwaggerBundleConfiguration swagger = new SwaggerBundleConfiguration();
   // see http://www.dropwizard.io/1.0.6/docs/manual/core.html#configuration
   @Valid
   @NotNull
   private JerseyClientConfiguration jerseyClient = new JerseyClientConfiguration();
-
-  @Valid
-  @NotNull
-  private final SwaggerBundleConfiguration swagger = new SwaggerBundleConfiguration();
-
   @Valid
   @NotNull
   @JsonProperty

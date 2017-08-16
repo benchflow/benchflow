@@ -3,7 +3,7 @@ package cloud.benchflow.experimentmanager.resources;
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
 
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
-import cloud.benchflow.experimentmanager.helpers.BenchFlowData;
+import cloud.benchflow.experimentmanager.helpers.data.BenchFlowData;
 import cloud.benchflow.experimentmanager.scheduler.ExperimentTaskScheduler;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
@@ -75,7 +75,7 @@ public class BenchFlowExperimentResourceTest {
     experimentResource.runBenchFlowExperiment(username, testName, testNumber, experimentNumber);
 
     Mockito.verify(experimentTaskSchedulerMock, Mockito.times(0))
-        .handleExperimentState(experimentID);
+        .handleStartingExperiment(experimentID);
     Mockito.verify(minioMock, Mockito.times(1)).isValidExperimentID(experimentID);
   }
 

@@ -4,6 +4,7 @@ import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.TreeMap;
 import org.mongodb.morphia.annotations.Entity;
@@ -22,6 +23,7 @@ import org.mongodb.morphia.utils.IndexType;
 @Entity
 @Indexes({@Index(options = @IndexOptions(),
     fields = {@Field(value = "hashedID", type = IndexType.HASHED)})})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BenchFlowExperimentModel {
 
   /**
@@ -35,7 +37,7 @@ public class BenchFlowExperimentModel {
   @Id
   private String id;
   // used for potential sharding in the future
-  @JsonIgnore
+  @JsonIgnoreProperties(ignoreUnknown = true)
   private String hashedID;
   private Date start = new Date();
   private Date lastModified = new Date();
@@ -162,6 +164,14 @@ public class BenchFlowExperimentModel {
     // assumes that trials have been inserted in order (highest key is last)
 
     return trials.lastEntry().getValue().getId();
+  }
+
+  public String getHashedID() {
+    return hashedID;
+  }
+
+  public void setHashedID(String hashedID) {
+    this.hashedID = hashedID;
   }
 
   public enum BenchFlowExperimentState {

@@ -4,7 +4,7 @@ import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.faban.client.responses.RunInfo;
 import cloud.benchflow.faban.client.responses.RunInfo.Result;
 import cloud.benchflow.faban.client.responses.RunStatus;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Field;
@@ -21,6 +21,7 @@ import org.mongodb.morphia.utils.IndexType;
 @Entity
 @Indexes({@Index(options = @IndexOptions(),
     fields = {@Field(value = "hashedID", type = IndexType.HASHED)})})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TrialModel {
 
   /**
@@ -34,7 +35,7 @@ public class TrialModel {
   @Id
   private String id;
   // used for potential sharding in the future
-  @JsonIgnore
+  @JsonIgnoreProperties(ignoreUnknown = true)
   private String hashedID;
   private String fabanRunID;
   private Date start = new Date();
@@ -117,6 +118,14 @@ public class TrialModel {
 
   public void incrementRetries() {
     numRetries++;
+  }
+
+  public String getHashedID() {
+    return hashedID;
+  }
+
+  public void setHashedID(String hashedID) {
+    this.hashedID = hashedID;
   }
 
   public enum TrialStatus {

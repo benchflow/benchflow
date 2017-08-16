@@ -9,8 +9,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import cloud.benchflow.experimentmanager.configurations.BenchFlowExperimentManagerConfiguration;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
-import cloud.benchflow.experimentmanager.helpers.BenchFlowData;
-import cloud.benchflow.experimentmanager.helpers.MinioTestData;
+import cloud.benchflow.experimentmanager.helpers.data.BenchFlowData;
+import cloud.benchflow.experimentmanager.helpers.data.MinioTestData;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.TerminatedState;
 import cloud.benchflow.experimentmanager.resources.BenchFlowExperimentResource;
@@ -214,7 +214,6 @@ public class BenchFlowExperimentManagerApplicationTestModeIT extends DockerCompo
             experimentModelDAO.getTerminatedState(experimentID));
         expectedExecutedTrials = 2;
       }
-
 
       long executedTrials = BenchFlowExperimentManagerApplication.getExperimentModelDAO()
           .getNumExecutedTrials(experimentID);
