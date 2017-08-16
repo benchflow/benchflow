@@ -6,7 +6,7 @@ import java.util.concurrent.Callable;
  * @author Vincenzo Ferme (info@vincenzoferme.it)
  */
 /*
- * TODO - this and other Concurrency related classes should be moved in s shared library, since they
+ * TODO - this and other Concurrency related classes should be moved in a shared library, since they
  * are used also in the test-manager
  */
 public abstract class AbortableCallable<T> implements Callable<T> {
