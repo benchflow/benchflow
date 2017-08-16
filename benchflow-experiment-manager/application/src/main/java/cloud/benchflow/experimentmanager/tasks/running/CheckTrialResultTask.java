@@ -85,6 +85,7 @@ public class CheckTrialResultTask extends AbortableCallable<TrialExecutionStatus
     return null;
   }
 
+  // See for details on TrialExecutionStatus: https://github.com/benchflow/benchflow/pull/472#discussion_r131115857
   public enum TrialExecutionStatus {
     SUCCESS, RE_EXECUTE_TRIAL
   }

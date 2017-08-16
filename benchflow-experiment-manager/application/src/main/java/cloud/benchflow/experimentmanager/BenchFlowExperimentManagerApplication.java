@@ -137,7 +137,7 @@ public class BenchFlowExperimentManagerApplication
 
     // external services addresses
     minioServiceAddress = configuration.getMinioServiceFactory().getAddress();
-    fabanManagerServiceAddress = "http://" + configuration.getFabanServiceFactory().getAddress();
+    fabanManagerServiceAddress = configuration.getFabanServiceFactory().getAddress();
 
     final Client client = new JerseyClientBuilder(environment)
         .using(configuration.getJerseyClientConfiguration()).build(environment.getName());

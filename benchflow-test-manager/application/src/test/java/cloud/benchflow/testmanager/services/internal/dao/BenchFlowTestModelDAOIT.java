@@ -1,12 +1,12 @@
 package cloud.benchflow.testmanager.services.internal.dao;
 
-import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_BENCHFLOW_TEST_NAME;
+import static cloud.benchflow.testmanager.helpers.constants.TestConstants.LOAD_TEST_NAME;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
 import static org.junit.Assert.assertEquals;
 
 import cloud.benchflow.testmanager.DockerComposeIT;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
-import cloud.benchflow.testmanager.helpers.TestConstants;
+import cloud.benchflow.testmanager.helpers.constants.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
 import com.mongodb.BasicDBObject;
@@ -50,7 +50,7 @@ public class BenchFlowTestModelDAOIT extends DockerComposeIT {
   @Test
   public void addGetRemoveBenchFlowTestModel() throws Exception {
 
-    String testID = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, testUser);
+    String testID = testModelDAO.addTestModel(LOAD_TEST_NAME, testUser);
 
     BenchFlowTestModel savedModel = testModelDAO.getTestModel(testID);
 
@@ -101,13 +101,13 @@ public class BenchFlowTestModelDAOIT extends DockerComposeIT {
   @Test
   public void conflictingTestModelNames() throws Exception {
 
-    String testIDFirst = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, testUser);
+    String testIDFirst = testModelDAO.addTestModel(LOAD_TEST_NAME, testUser);
 
     BenchFlowTestModel model = testModelDAO.getTestModel(testIDFirst);
 
     Assert.assertNotNull(model);
 
-    String testIDSecond = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, testUser);
+    String testIDSecond = testModelDAO.addTestModel(LOAD_TEST_NAME, testUser);
 
     Assert.assertNotEquals(testIDFirst, testIDSecond);
 
@@ -122,7 +122,7 @@ public class BenchFlowTestModelDAOIT extends DockerComposeIT {
   @Test
   public void changeBenchFlowTestState() throws Exception {
 
-    String testID = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, testUser);
+    String testID = testModelDAO.addTestModel(LOAD_TEST_NAME, testUser);
 
     BenchFlowTestModel.BenchFlowTestState state = testModelDAO.getTestState(testID);
 
@@ -148,7 +148,7 @@ public class BenchFlowTestModelDAOIT extends DockerComposeIT {
   @Test
   public void testHashedID() throws Exception {
 
-    testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, testUser);
+    testModelDAO.addTestModel(LOAD_TEST_NAME, testUser);
 
     DBCollection collection = testModelDAO.getDatastore().getCollection(BenchFlowTestModel.class);
 

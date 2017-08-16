@@ -7,7 +7,7 @@ import cloud.benchflow.testmanager.api.request.SubmitTrialStatusRequest;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidTrialIDWebException;
-import cloud.benchflow.testmanager.helpers.TestConstants;
+import cloud.benchflow.testmanager.helpers.constants.TestConstants;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import org.junit.Before;
 import org.junit.Rule;
@@ -40,7 +40,7 @@ public class BenchFlowTrialResourceTest {
   @Test
   public void submitTrialStatus() throws Exception {
 
-    String experimentID = TestConstants.BENCHFLOW_EXPERIMENT_ID;
+    String experimentID = TestConstants.VALID_EXPERIMENT_ID;
     int trialNumber = 1;
     String trialID = experimentID + BenchFlowConstants.MODEL_ID_DELIMITER + trialNumber;
     request.setStatus(RunStatus.Code.COMPLETED);
@@ -62,7 +62,7 @@ public class BenchFlowTrialResourceTest {
   @Test
   public void submitInvalidTrialStatus() throws Exception {
 
-    String experimentID = TestConstants.BENCHFLOW_EXPERIMENT_ID;
+    String experimentID = TestConstants.VALID_EXPERIMENT_ID;
     int trialNumber = 1;
 
     String trialID = experimentID + BenchFlowConstants.MODEL_ID_DELIMITER + trialNumber;

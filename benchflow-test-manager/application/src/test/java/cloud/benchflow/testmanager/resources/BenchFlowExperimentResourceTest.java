@@ -5,7 +5,7 @@ import static cloud.benchflow.testmanager.models.BenchFlowExperimentModel.Termin
 
 import cloud.benchflow.testmanager.api.request.BenchFlowExperimentStateRequest;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
-import cloud.benchflow.testmanager.helpers.TestConstants;
+import cloud.benchflow.testmanager.helpers.constants.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
@@ -45,7 +45,7 @@ public class BenchFlowExperimentResourceTest {
   @Test
   public void submitExperimentStatus() throws Exception {
 
-    String experimentID = TestConstants.BENCHFLOW_EXPERIMENT_ID;
+    String experimentID = TestConstants.VALID_EXPERIMENT_ID;
 
     request.setState(BenchFlowExperimentState.TERMINATED);
     request.setTerminatedState(COMPLETED);

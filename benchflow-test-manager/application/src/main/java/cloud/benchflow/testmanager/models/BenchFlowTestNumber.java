@@ -35,4 +35,8 @@ public class BenchFlowTestNumber {
 
     return userName + MODEL_ID_DELIMITER + benchFlowTestName;
   }
+
+  public String getTestIdentifier() {
+    return testIdentifier;
+  }
 }

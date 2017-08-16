@@ -3,7 +3,12 @@ package cloud.benchflow.testmanager.models;
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 
 import cloud.benchflow.faban.client.responses.RunStatus;
+import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
+import cloud.benchflow.testmanager.constants.BenchFlowConstants;
+import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
+import cloud.benchflow.testmanager.services.external.MinioService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +19,7 @@ import org.mongodb.morphia.annotations.Index;
 import org.mongodb.morphia.annotations.IndexOptions;
 import org.mongodb.morphia.annotations.Indexes;
 import org.mongodb.morphia.annotations.PrePersist;
+import org.mongodb.morphia.annotations.Transient;
 import org.mongodb.morphia.utils.IndexType;
 
 /**
@@ -22,6 +28,7 @@ import org.mongodb.morphia.utils.IndexType;
 @Entity
 @Indexes({@Index(options = @IndexOptions(),
     fields = {@Field(value = "hashedID", type = IndexType.HASHED)})})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BenchFlowExperimentModel {
 
   public static final String ID_FIELD_NAME = "id";
@@ -29,19 +36,25 @@ public class BenchFlowExperimentModel {
   @Id
   private String id;
   // used for potential sharding in the future
-  @JsonIgnore
+  @JsonIgnoreProperties(ignoreUnknown = true)
   private String hashedID;
   @JsonIgnore
   private String testID;
   @JsonIgnore
   private long number;
   private int explorationPointIndex;
+  @Transient
+  private String explorationPointConfiguration;
   private Date start = new Date();
   private Date lastModified = new Date();
   private BenchFlowExperimentState state;
   private RunningState runningState;
   private TerminatedState terminatedState;
   private Map<Long, RunStatus.Code> trials = new HashMap<>();
+
+  private String experimentBundle;
+  private String collectedData;
+  private String status;
 
   BenchFlowExperimentModel() {
     // Empty constructor for MongoDB + Morphia
@@ -56,6 +69,15 @@ public class BenchFlowExperimentModel {
 
     this.hashedID = this.id;
     this.state = BenchFlowExperimentState.START;
+
+    this.experimentBundle = BenchFlowTestManagerApplication.getMinioServiceAddress() + "/minio/"
+        + BenchFlowConstants.TESTS_BUCKET + "/" + MinioService.minioCompatibleID(id);
+    this.collectedData = BenchFlowTestManagerApplication.getMinioServiceAddress() + "/minio/"
+        + BenchFlowConstants.RUNS_BUCKET;
+    this.status = BenchFlowTestManagerApplication.getExperimentManagerAddress()
+        + BenchFlowConstants.getPathFromExperimentID(id)
+        + BenchFlowExperimentManagerService.STATUS_PATH;
+
   }
 
   @PrePersist
@@ -67,6 +89,14 @@ public class BenchFlowExperimentModel {
     return id;
   }
 
+  public String getHashedId() {
+    return hashedID;
+  }
+
+  public String getTestId() {
+    return testID;
+  }
+
   public long getNumber() {
     return number;
   }
@@ -76,7 +106,17 @@ public class BenchFlowExperimentModel {
   }
 
   public void setExplorationPointIndex(int explorationPointIndex) {
+
     this.explorationPointIndex = explorationPointIndex;
+
+  }
+
+  public String getExplorationPointConfiguration() {
+    return explorationPointConfiguration;
+  }
+
+  public void setExplorationPointConfiguration(String explorationPointConfiguration) {
+    this.explorationPointConfiguration = explorationPointConfiguration;
   }
 
   public Date getStart() {
@@ -123,6 +163,18 @@ public class BenchFlowExperimentModel {
   public RunStatus.Code getTrialStatus(long trialNumber) {
 
     return trials.get(trialNumber);
+  }
+
+  public String getExperimentBundle() {
+    return experimentBundle;
+  }
+
+  public String getCollectedData() {
+    return collectedData;
+  }
+
+  public String getStatus() {
+    return status;
   }
 
   public enum BenchFlowExperimentState {

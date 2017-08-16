@@ -3,7 +3,7 @@ package cloud.benchflow.testmanager.resources;
 import cloud.benchflow.faban.client.responses.RunStatus;
 import cloud.benchflow.testmanager.api.request.SubmitTrialStatusRequest;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
-import cloud.benchflow.testmanager.helpers.TestConstants;
+import cloud.benchflow.testmanager.helpers.constants.TestConstants;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import javax.ws.rs.client.Entity;
@@ -29,7 +29,7 @@ public class BenchFlowTrialEndpointTest {
   @Test
   public void submitTrialStatus() throws Exception {
 
-    String trialID = TestConstants.VALID_TRIAL_ID;
+    String trialID = TestConstants.LOAD_TRIAL_ID;
 
     SubmitTrialStatusRequest statusRequest = new SubmitTrialStatusRequest(RunStatus.Code.COMPLETED);
 

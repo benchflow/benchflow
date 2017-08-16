@@ -63,6 +63,10 @@ public class TrialModel {
     return id;
   }
 
+  public String getHashedId() {
+    return hashedID;
+  }
+
   public Date getStart() {
     return start;
   }

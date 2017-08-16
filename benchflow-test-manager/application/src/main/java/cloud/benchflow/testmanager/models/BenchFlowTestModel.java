@@ -4,8 +4,12 @@ import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.START;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.DETERMINE_EXPLORATION_STRATEGY;
 
+import cloud.benchflow.dsl.definition.types.time.Time;
+import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
+import cloud.benchflow.testmanager.services.external.MinioService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
@@ -26,6 +30,7 @@ import org.mongodb.morphia.utils.IndexType;
 @Entity
 @Indexes({@Index(options = @IndexOptions(),
     fields = {@Field(value = "hashedID", type = IndexType.HASHED)})})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BenchFlowTestModel {
 
   /**
@@ -43,7 +48,7 @@ public class BenchFlowTestModel {
 
   //    userName.testName.testNumber.experimentNumber.trialNumber
   // used for potential sharing in the future
-  @JsonIgnore
+  @JsonIgnoreProperties(ignoreUnknown = true)
   private String hashedID;
   @Reference
   @JsonIgnore
@@ -54,6 +59,7 @@ public class BenchFlowTestModel {
   private long number;
   private Date start = new Date();
   private Date lastModified = new Date();
+  private Time maxRunningTime;
   private BenchFlowTestState state;
   private TestRunningState runningState;
   private TestTerminatedState terminatedState;
@@ -62,6 +68,8 @@ public class BenchFlowTestModel {
 
   @JsonIgnore
   private ExplorationModel explorationModel = new ExplorationModel();
+
+  private String testBundle;
 
   public BenchFlowTestModel() {
     // Empty constructor for MongoDB + Morphia
@@ -79,6 +87,9 @@ public class BenchFlowTestModel {
 
     this.state = START;
     this.runningState = DETERMINE_EXPLORATION_STRATEGY;
+
+    this.testBundle = BenchFlowTestManagerApplication.getMinioServiceAddress() + "/minio/"
+        + BenchFlowConstants.TESTS_BUCKET + "/" + MinioService.minioCompatibleID(id);
   }
 
   @PrePersist
@@ -88,6 +99,10 @@ public class BenchFlowTestModel {
 
   public String getId() {
     return id;
+  }
+
+  public String getHashedId() {
+    return hashedID;
   }
 
   public User getUser() {
@@ -108,6 +123,18 @@ public class BenchFlowTestModel {
 
   public Date getLastModified() {
     return lastModified;
+  }
+
+  public void setMaxRunningTime(Time maxRunningTime) {
+    this.maxRunningTime = maxRunningTime;
+  }
+
+  public Time getMaxRunningTime() {
+    return maxRunningTime;
+  }
+
+  public boolean hasMaxRunningTime() {
+    return maxRunningTime != null;
   }
 
   public BenchFlowTestState getState() {
@@ -177,6 +204,10 @@ public class BenchFlowTestModel {
     }
 
     return experiments.lastKey() + 1;
+  }
+
+  public String getTestBundle() {
+    return testBundle;
   }
 
   public enum BenchFlowTestState {

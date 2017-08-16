@@ -1,13 +1,13 @@
 package cloud.benchflow.testmanager.services.internal.dao;
 
 import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
-import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_BENCHFLOW_TEST_NAME;
+import static cloud.benchflow.testmanager.helpers.constants.TestConstants.LOAD_TEST_NAME;
 import static org.junit.Assert.assertEquals;
 
 import cloud.benchflow.faban.client.responses.RunStatus;
 import cloud.benchflow.testmanager.DockerComposeIT;
 import cloud.benchflow.testmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
-import cloud.benchflow.testmanager.helpers.TestConstants;
+import cloud.benchflow.testmanager.helpers.constants.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
@@ -45,7 +45,7 @@ public class BenchFlowExperimentModelDAOIT extends DockerComposeIT {
 
     testUser = userDAO.addUser(TestConstants.TEST_USER_NAME);
 
-    testID = testModelDAO.addTestModel(VALID_BENCHFLOW_TEST_NAME, testUser);
+    testID = testModelDAO.addTestModel(LOAD_TEST_NAME, testUser);
 
     BenchFlowTestModel model = testModelDAO.getTestModel(testID);
 

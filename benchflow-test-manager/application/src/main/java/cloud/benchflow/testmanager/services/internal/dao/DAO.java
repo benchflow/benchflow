@@ -3,9 +3,10 @@ package cloud.benchflow.testmanager.services.internal.dao;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestNumber;
-import cloud.benchflow.testmanager.models.ExplorationModel;
 import cloud.benchflow.testmanager.models.User;
+import cloud.benchflow.testmanager.services.internal.dao.converters.BytesConverter;
 import cloud.benchflow.testmanager.services.internal.dao.converters.OptionalConverter;
+import cloud.benchflow.testmanager.services.internal.dao.converters.TimeConverter;
 import com.mongodb.MongoClient;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
@@ -26,17 +27,21 @@ public abstract class DAO {
     morphia.map(BenchFlowTestModel.class);
     morphia.map(BenchFlowTestNumber.class);
     morphia.map(User.class);
-    morphia.map(ExplorationModel.class);
+    // morphia.map(ExplorationModel.class);
 
     // add custom mappers
     morphia.getMapper().getConverters()
         .addConverter(new OptionalConverter(morphia.getMapper().getConverters()));
 
+    morphia.getMapper().getConverters().addConverter(new TimeConverter());
+    morphia.getMapper().getConverters().addConverter(new BytesConverter());
+
     // create the Datastore
     // TODO - set-up mongo DB (http://mongodb.github.io/mongo-java-driver/2.13/getting-started/quick-tour/)
     // TODO - check about resilience and cache
     datastore = morphia.createDatastore(mongoClient, BenchFlowConstants.DB_NAME);
-    datastore.ensureIndexes();
+    // TODO - to enable see issue https://github.com/benchflow/benchflow/issues/475
+    // datastore.ensureIndexes();
   }
 
   // used for testing

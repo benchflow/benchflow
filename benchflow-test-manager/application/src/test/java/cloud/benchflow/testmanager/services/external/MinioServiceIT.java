@@ -1,25 +1,32 @@
 package cloud.benchflow.testmanager.services.external;
 
-import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_EXPERIMENT_ID;
-import static cloud.benchflow.testmanager.helpers.TestConstants.VALID_TEST_ID;
+import static cloud.benchflow.testmanager.helpers.constants.TestConstants.LOAD_EXPERIMENT_ID;
+import static cloud.benchflow.testmanager.helpers.constants.TestConstants.LOAD_TEST_ID;
 
 import cloud.benchflow.testmanager.DockerComposeIT;
-import cloud.benchflow.testmanager.bundle.TestBundle;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
+import cloud.benchflow.testmanager.helpers.constants.TestBundle;
 import io.minio.MinioClient;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 16.02.17.
  */
 public class MinioServiceIT extends DockerComposeIT {
+
+  // needs to be subfolder of current folder for Wercker
+  @Rule
+  public TemporaryFolder temporaryFolder = new TemporaryFolder(new File("target"));
 
   private MinioService minioService;
 
@@ -56,9 +63,9 @@ public class MinioServiceIT extends DockerComposeIT {
   @Test
   public void saveGetRemoveBenchFlowTestDefinition() throws Exception {
 
-    minioService.saveTestDefinition(VALID_TEST_ID, ptDefinitionInputStream);
+    minioService.saveTestDefinition(LOAD_TEST_ID, ptDefinitionInputStream);
 
-    InputStream receivedInputStream = minioService.getTestDefinition(VALID_TEST_ID);
+    InputStream receivedInputStream = minioService.getTestDefinition(LOAD_TEST_ID);
 
     Assert.assertNotNull(receivedInputStream);
 
@@ -67,9 +74,9 @@ public class MinioServiceIT extends DockerComposeIT {
 
     Assert.assertEquals(TestBundle.getValidTestDefinitionString(), receivedString);
 
-    minioService.removeTestDefinition(VALID_TEST_ID);
+    minioService.removeTestDefinition(LOAD_TEST_ID);
 
-    receivedInputStream = minioService.getTestDefinition(VALID_TEST_ID);
+    receivedInputStream = minioService.getTestDefinition(LOAD_TEST_ID);
 
     Assert.assertNull(receivedInputStream);
   }
@@ -77,9 +84,9 @@ public class MinioServiceIT extends DockerComposeIT {
   @Test
   public void saveGetRemoveDeploymentDescriptor() throws Exception {
 
-    minioService.saveTestDeploymentDescriptor(VALID_TEST_ID, deploymentDescriptorInputStream);
+    minioService.saveTestDeploymentDescriptor(LOAD_TEST_ID, deploymentDescriptorInputStream);
 
-    InputStream receivedInputStream = minioService.getTestDeploymentDescriptor(VALID_TEST_ID);
+    InputStream receivedInputStream = minioService.getTestDeploymentDescriptor(LOAD_TEST_ID);
 
     Assert.assertNotNull(receivedInputStream);
 
@@ -88,9 +95,9 @@ public class MinioServiceIT extends DockerComposeIT {
 
     Assert.assertEquals(TestBundle.getValidDeploymentDescriptorString(), receivedString);
 
-    minioService.removeTestDeploymentDescriptor(VALID_TEST_ID);
+    minioService.removeTestDeploymentDescriptor(LOAD_TEST_ID);
 
-    receivedInputStream = minioService.getTestDeploymentDescriptor(VALID_TEST_ID);
+    receivedInputStream = minioService.getTestDeploymentDescriptor(LOAD_TEST_ID);
 
     Assert.assertNull(receivedInputStream);
   }
@@ -101,9 +108,9 @@ public class MinioServiceIT extends DockerComposeIT {
     // TODO
 
     bpmnModelsMap.forEach((name, model) -> {
-      minioService.saveTestBPMNModel(VALID_TEST_ID, name, model);
+      minioService.saveTestBPMNModel(LOAD_TEST_ID, name, model);
 
-      InputStream receivedInputStream = minioService.getTestBPMNModel(VALID_TEST_ID, name);
+      InputStream receivedInputStream = minioService.getTestBPMNModel(LOAD_TEST_ID, name);
 
       Assert.assertNotNull(receivedInputStream);
 
@@ -113,9 +120,9 @@ public class MinioServiceIT extends DockerComposeIT {
       //
       //            Assert.assertEquals(TestBundle.getValidDeploymentDescriptorString(), receivedString);
 
-      minioService.removeTestBPMNModel(VALID_TEST_ID, name);
+      minioService.removeTestBPMNModel(LOAD_TEST_ID, name);
 
-      receivedInputStream = minioService.getTestBPMNModel(VALID_TEST_ID, name);
+      receivedInputStream = minioService.getTestBPMNModel(LOAD_TEST_ID, name);
 
       Assert.assertNull(receivedInputStream);
     });
@@ -124,9 +131,9 @@ public class MinioServiceIT extends DockerComposeIT {
   @Test
   public void saveGetRemoveBenchFlowExperimentDefinition() throws Exception {
 
-    minioService.saveExperimentDefinition(VALID_EXPERIMENT_ID, ptDefinitionInputStream);
+    minioService.saveExperimentDefinition(LOAD_EXPERIMENT_ID, ptDefinitionInputStream);
 
-    InputStream receivedInputStream = minioService.getExperimentDefinition(VALID_EXPERIMENT_ID);
+    InputStream receivedInputStream = minioService.getExperimentDefinition(LOAD_EXPERIMENT_ID);
 
     Assert.assertNotNull(receivedInputStream);
 
@@ -135,9 +142,9 @@ public class MinioServiceIT extends DockerComposeIT {
 
     Assert.assertEquals(TestBundle.getValidTestDefinitionString(), receivedString);
 
-    minioService.removeExperimentDefinition(VALID_EXPERIMENT_ID);
+    minioService.removeExperimentDefinition(LOAD_EXPERIMENT_ID);
 
-    receivedInputStream = minioService.getExperimentDefinition(VALID_EXPERIMENT_ID);
+    receivedInputStream = minioService.getExperimentDefinition(LOAD_EXPERIMENT_ID);
 
     Assert.assertNull(receivedInputStream);
   }

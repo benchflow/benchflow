@@ -2,7 +2,7 @@ package cloud.benchflow.testmanager.resources;
 
 import cloud.benchflow.testmanager.api.request.BenchFlowExperimentStateRequest;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
-import cloud.benchflow.testmanager.helpers.TestConstants;
+import cloud.benchflow.testmanager.helpers.constants.TestConstants;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.TerminatedState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
@@ -36,7 +36,7 @@ public class BenchFlowExperimentEndpointTest {
   @Test
   public void submitExperimentState() throws Exception {
 
-    String experimentID = TestConstants.VALID_EXPERIMENT_ID;
+    String experimentID = TestConstants.LOAD_EXPERIMENT_ID;
 
     Mockito.doReturn(BenchFlowTestModel.BenchFlowTestState.RUNNING).when(testModelDAOMock)
         .getTestState(BenchFlowConstants.getTestIDFromExperimentID(experimentID));

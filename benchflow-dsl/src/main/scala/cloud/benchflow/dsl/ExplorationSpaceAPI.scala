@@ -2,8 +2,8 @@ package cloud.benchflow.dsl
 
 import cloud.benchflow.dsl.BenchFlowTestAPI.testFromYaml
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
-import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator
-import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.{ ExplorationSpace, ExplorationSpaceDimensions, ExplorationSpacePoint }
+import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.{ JavaCompatExplorationSpace, JavaCompatExplorationSpaceDimensions, JavaCompatExplorationSpacePoint }
+import cloud.benchflow.dsl.explorationspace.{ ExplorationSpaceGenerator, JavaCompatExplorationSpaceConverter }
 
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com)
@@ -18,15 +18,17 @@ object ExplorationSpaceAPI {
   /**
    *
    * @param testDefinitionYaml benchflow-test.yml
-   * @throws cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
-   * @return ExplorationSpace
+   * @throws BenchFlowDeserializationException
+   * @return JavaCompatExplorationSpaceDimensions
    */
   @throws(classOf[BenchFlowDeserializationException])
-  def explorationSpaceDimensionsFromTestYaml(testDefinitionYaml: String): ExplorationSpaceDimensions = {
+  def explorationSpaceDimensionsFromTestYaml(testDefinitionYaml: String): JavaCompatExplorationSpaceDimensions = {
 
     val test = testFromYaml(testDefinitionYaml)
 
-    ExplorationSpaceGenerator.extractExplorationSpaceDimensions(test)
+    val explorationSpaceDimensions = ExplorationSpaceGenerator.extractExplorationSpaceDimensions(test)
+
+    JavaCompatExplorationSpaceConverter.convertToJavaCompatExplorationSpaceDimensions(explorationSpaceDimensions)
 
   }
 
@@ -34,33 +36,38 @@ object ExplorationSpaceAPI {
    *
    *
    * @param testDefinitionYaml
-   * @throws cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
-   * @return
+   * @throws BenchFlowDeserializationException
+   * @return JavaCompatExplorationSpace
    */
   @throws(classOf[BenchFlowDeserializationException])
-  def explorationSpaceFromTestYaml(testDefinitionYaml: String): ExplorationSpaceGenerator.ExplorationSpace = {
+  def explorationSpaceFromTestYaml(testDefinitionYaml: String): JavaCompatExplorationSpace = {
 
     val test = testFromYaml(testDefinitionYaml)
 
     val explorationSpaceDimensions = ExplorationSpaceGenerator.extractExplorationSpaceDimensions(test)
 
-    ExplorationSpaceGenerator.generateExplorationSpace(explorationSpaceDimensions)
+    val explorationSpace = ExplorationSpaceGenerator.generateExplorationSpace(explorationSpaceDimensions)
+
+    JavaCompatExplorationSpaceConverter.convertToJavaCompatExplorationSpace(explorationSpace)
 
   }
 
   /**
    *
-   * @param explorationSpace         the exploration space where the experiment is
-   * @param experimentIndex          the index of the experiment
-   * @param testDefinitionYamlString the test definition to build the experiment definition from as a YAML string
-   * @param dockerComposeYamlString  the docker compose to build the experiment docker-compose from as a YAML string
+   * @param javaCompatExplorationSpace the exploration space where the experiment is
+   * @param experimentIndex            the index of the experiment
+   * @param testDefinitionYamlString   the test definition to build the experiment definition from as a YAML string
+   * @param dockerComposeYamlString    the docker compose to build the experiment docker-compose from as a YAML string
    * @return a tuple of experiment definition YAML string and docker compose YAML string
    */
   def generateExperimentBundle(
-    explorationSpace: ExplorationSpace,
+    javaCompatExplorationSpace: JavaCompatExplorationSpace,
     experimentIndex: ExperimentIndex,
     testDefinitionYamlString: String,
     dockerComposeYamlString: String): (ExperimentDefinitionYamlString, DockerComposeYamlString) = {
+
+    // convert from java compat type
+    val explorationSpace = JavaCompatExplorationSpaceConverter.convertFromJavaCompatExplorationSpace(javaCompatExplorationSpace)
 
     // build the experiment definition
     var experimentBuilder = BenchFlowExperimentAPI.experimentYamlBuilderFromTestYaml(testDefinitionYamlString)
@@ -102,25 +109,30 @@ object ExplorationSpaceAPI {
   /**
    * Generates and experiment bundle from the given exploration space point.
    *
-   * @param explorationSpace         the exploration space where the experiment is
-   * @param explorationSpacePoint    the point in the exploration space from which to generate the experiment
-   * @param testDefinitionYamlString the test definition to build the experiment definition from as a YAML string
-   * @param dockerComposeYamlString  the docker compose to build the experiment docker-compose from as a YAML string
+   * @param javaCompatExplorationSpace      the exploration space where the experiment is
+   * @param javaCompatexplorationSpacePoint the point in the exploration space from which to generate the experiment
+   * @param testDefinitionYamlString        the test definition to build the experiment definition from as a YAML string
+   * @param dockerComposeYamlString         the docker compose to build the experiment docker-compose from as a YAML string
    * @return a tuple of experiment definition YAML string, docker compose YAML string and the experiment index as an Option.
    *         It returns Some if a point was found, or None if a point could not be found or if multiple points were found.
    */
   def generateExperimentBundle(
-    explorationSpace: ExplorationSpace,
-    explorationSpacePoint: ExplorationSpacePoint,
+    javaCompatExplorationSpace: JavaCompatExplorationSpace,
+    javaCompatexplorationSpacePoint: JavaCompatExplorationSpacePoint,
     testDefinitionYamlString: String,
     dockerComposeYamlString: String): Option[(ExperimentDefinitionYamlString, DockerComposeYamlString, ExperimentIndex)] = {
 
+    // convert from java compat types
+    val explorationSpace = JavaCompatExplorationSpaceConverter.convertFromJavaCompatExplorationSpace(javaCompatExplorationSpace)
+    val explorationSpacePoint = JavaCompatExplorationSpaceConverter.convertFromJavaCompatExplorationSpacePoint(javaCompatexplorationSpacePoint)
+
+    // generate experiment bundle
     ExplorationSpaceGenerator.getExperimentIndex(explorationSpace, explorationSpacePoint) match {
       case None => None
       case Some(experimentIndex) =>
 
         val (experimentDefinitionYamlString, newDockerComposeYamlString) = generateExperimentBundle(
-          explorationSpace,
+          javaCompatExplorationSpace,
           experimentIndex,
           testDefinitionYamlString,
           dockerComposeYamlString)
