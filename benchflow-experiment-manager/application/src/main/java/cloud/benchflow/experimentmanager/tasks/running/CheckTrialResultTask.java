@@ -7,15 +7,15 @@ import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.Failure
 import cloud.benchflow.experimentmanager.models.TrialModel.TrialStatus;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
+import cloud.benchflow.experimentmanager.tasks.AbortableCallable;
 import cloud.benchflow.experimentmanager.tasks.running.CheckTrialResultTask.TrialExecutionStatus;
-import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19
  */
-public class CheckTrialResultTask implements Callable<TrialExecutionStatus> {
+public class CheckTrialResultTask extends AbortableCallable<TrialExecutionStatus> {
 
   private static Logger logger =
       LoggerFactory.getLogger(CheckTrialResultTask.class.getSimpleName());
