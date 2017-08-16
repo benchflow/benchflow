@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -20,7 +21,7 @@ public class MongoCompatibleExplorationSpace {
 
   private int size;
   private Optional<List<Integer>> usersDimension = Optional.empty();
-  private Optional<Map<String, List<Bytes>>> memoryDimension = Optional.empty();
+  private Optional<Map<String, List<String>>> memoryDimension = Optional.empty();
   private Optional<Map<String, Map<String, List<String>>>> environmentDimension = Optional.empty();
 
   public MongoCompatibleExplorationSpace() {
@@ -39,8 +40,9 @@ public class MongoCompatibleExplorationSpace {
 
     this.usersDimension = usersDimension.map(ArrayList::new);
 
-    this.memoryDimension = memoryDimension.map(map -> new HashMap<>(map.entrySet().stream()
-        .collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(e.getValue())))));
+    this.memoryDimension = memoryDimension
+        .map(map -> new HashMap<>(map.entrySet().stream().collect(Collectors.toMap(Entry::getKey,
+            e -> e.getValue().stream().map(Bytes::toString).collect(Collectors.toList())))));
 
     this.environmentDimension =
         environmentDimension.map(map -> new HashMap<>(map.entrySet().stream()
@@ -65,11 +67,11 @@ public class MongoCompatibleExplorationSpace {
     this.usersDimension = usersDimension;
   }
 
-  public Optional<Map<String, List<Bytes>>> getMemoryDimension() {
+  public Optional<Map<String, List<String>>> getMemoryDimension() {
     return memoryDimension;
   }
 
-  public void setMemoryDimension(Optional<Map<String, List<Bytes>>> memoryDimension) {
+  public void setMemoryDimension(Optional<Map<String, List<String>>> memoryDimension) {
     this.memoryDimension = memoryDimension;
   }
 
@@ -86,10 +88,11 @@ public class MongoCompatibleExplorationSpace {
 
     return new JavaCompatExplorationSpace(size,
 
-        usersDimension.map(ArrayList::new),
+        usersDimension,
 
-        memoryDimension.map(map -> new HashMap<>(map.entrySet().stream()
-            .collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(e.getValue()))))),
+        memoryDimension.map(map -> new HashMap<>(
+            map.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue()
+                .stream().map(s -> Bytes.fromString(s).get()).collect(Collectors.toList()))))),
 
         environmentDimension.map(map -> new HashMap<>(map.entrySet().stream().collect(Collectors
             .toMap(Map.Entry::getKey, e -> new HashMap<>(e.getValue().entrySet().stream().collect(
@@ -108,9 +111,9 @@ public class MongoCompatibleExplorationSpace {
     usersDimension
         .ifPresent(integers -> explorationSpacePointResponse.setUsers(integers.get(index)));
 
-    memoryDimension.ifPresent(memoryDimension -> explorationSpacePointResponse
-        .setMemory(memoryDimension.entrySet().stream().collect(
-            Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get(index).toString()))));
+    memoryDimension.ifPresent(
+        memoryDimension -> explorationSpacePointResponse.setMemory(memoryDimension.entrySet()
+            .stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get(index)))));
 
     environmentDimension.ifPresent(environmentDimension -> explorationSpacePointResponse
         .setEnvironment(environmentDimension.entrySet().stream()
