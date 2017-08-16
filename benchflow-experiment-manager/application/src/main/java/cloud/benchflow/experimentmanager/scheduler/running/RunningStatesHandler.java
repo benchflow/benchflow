@@ -7,54 +7,60 @@ import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.RunningState;
 import cloud.benchflow.experimentmanager.models.TrialModel.TrialStatus;
+import cloud.benchflow.experimentmanager.scheduler.CustomFutureReturningExecutor;
 import cloud.benchflow.experimentmanager.scheduler.ExperimentTaskScheduler;
+import cloud.benchflow.experimentmanager.scheduler.ExperimentTaskScheduler.AbortableFutureTaskResult;
+import cloud.benchflow.experimentmanager.services.external.faban.FabanStatus;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
+import cloud.benchflow.experimentmanager.tasks.AbortableFutureTask;
 import cloud.benchflow.experimentmanager.tasks.running.CheckTerminationCriteriaTask;
 import cloud.benchflow.experimentmanager.tasks.running.CheckTerminationCriteriaTask.TerminationCriteriaResult;
 import cloud.benchflow.experimentmanager.tasks.running.CheckTrialResultTask;
 import cloud.benchflow.experimentmanager.tasks.running.CheckTrialResultTask.TrialExecutionStatus;
 import cloud.benchflow.experimentmanager.tasks.running.DetermineAndExecuteTrialsTask;
 import cloud.benchflow.experimentmanager.tasks.running.ReExecuteTrialTask;
-import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.FabanStatus;
 import cloud.benchflow.faban.client.responses.RunStatus.StatusCode;
-import java.util.concurrent.ConcurrentHashMap;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-07-05
+ * @author Vincenzo Ferme (info@vincenzoferme.it)
  */
 public class RunningStatesHandler {
 
   /**
-   * Every running state checks if the experiments has been terminated after each task
-   * to avoid that the test state is overwritten.
+   * Every running state checks if the experiments has been terminated after each task to avoid that
+   * the test state is overwritten.
    */
 
   private static Logger logger =
       LoggerFactory.getLogger(RunningStatesHandler.class.getSimpleName());
 
-  private ConcurrentMap<String, Future> experimentTasks = new ConcurrentHashMap<>();
+  private ConcurrentMap<String, AbortableFutureTask> experimentTasks;
 
   private BenchFlowExperimentModelDAO experimentModelDAO;
   private TrialModelDAO trialModelDAO;
 
   // TODO - should go into a stateless queue (so that we can recover)
-  private ExecutorService experimentTaskExecutorService;
+  private CustomFutureReturningExecutor experimentTaskExecutorService;
   private ExperimentTaskScheduler experimentTaskScheduler;
 
-  public RunningStatesHandler(ConcurrentMap<String, Future> experimentTasks,
+  public RunningStatesHandler(ConcurrentMap<String, AbortableFutureTask> experimentTasks,
       ExperimentTaskScheduler experimentTaskScheduler,
-      ExecutorService experimentTaskExecutorService) {
+      CustomFutureReturningExecutor experimentTaskExecutorService) {
 
     this.experimentTasks = experimentTasks;
     this.experimentTaskScheduler = experimentTaskScheduler;
     this.experimentTaskExecutorService = experimentTaskExecutorService;
+
+  }
+
+  public void initialize() {
 
     this.experimentModelDAO = BenchFlowExperimentManagerApplication.getExperimentModelDAO();
     this.trialModelDAO = BenchFlowExperimentManagerApplication.getTrialModelDAO();
@@ -67,31 +73,33 @@ public class RunningStatesHandler {
 
     DetermineAndExecuteTrialsTask newTrialTask = new DetermineAndExecuteTrialsTask(experimentID);
 
-    Future<FabanStatus> future = experimentTaskExecutorService.submit(newTrialTask);
+    AbortableFutureTask<FabanStatus> future =
+        (AbortableFutureTask) experimentTaskExecutorService.submit(newTrialTask);
 
+    // replace with new task
     experimentTasks.put(experimentID, future);
 
     // TODO - change this when faban interaction changes to non-polling
 
     try {
 
-      FabanStatus fabanStatus = future.get();
+      // wait for task to complete
+      AbortableFutureTaskResult<FabanStatus> futureResult =
+          experimentTaskScheduler.getAbortableFutureTask(future);
 
-      if (experimentTaskScheduler.isTerminated(experimentID)) {
-        // if test has been terminated we stop here
+      if (futureResult.isAborted()) {
+        logger.info("Task has been aborted for experiment: " + experimentID);
         return;
       }
 
-      String trialID = fabanStatus.getTrialID();
+      String trialID = futureResult.getResult().getTrialID();
 
-      trialModelDAO.setFabanStatus(trialID, fabanStatus.getStatusCode());
-      trialModelDAO.setFabanResult(trialID, fabanStatus.getResult());
+      trialModelDAO.setFabanStatus(trialID, futureResult.getResult().getStatusCode());
+      trialModelDAO.setFabanResult(trialID, futureResult.getResult().getResult());
 
-      determineAndSetTrialStatus(trialID, fabanStatus);
+      determineAndSetTrialStatus(trialID, futureResult.getResult());
 
       experimentModelDAO.setRunningState(experimentID, RunningState.HANDLE_TRIAL_RESULT);
-
-      experimentTaskScheduler.handleExperimentState(experimentID);
 
     } catch (InterruptedException | ExecutionException e) {
       e.printStackTrace();
@@ -120,27 +128,31 @@ public class RunningStatesHandler {
 
     CheckTrialResultTask trialResultTask = new CheckTrialResultTask(trialID);
 
-    Future<TrialExecutionStatus> future = experimentTaskExecutorService.submit(trialResultTask);
+    AbortableFutureTask<TrialExecutionStatus> future =
+        (AbortableFutureTask) experimentTaskExecutorService.submit(trialResultTask);
 
     String experimentID = BenchFlowConstants.getExperimentIDFromTrialID(trialID);
+
+    // replace with new task
     experimentTasks.put(experimentID, future);
 
     try {
 
-      TrialExecutionStatus experimentResult = future.get();
+      // wait for task to complete
+      AbortableFutureTaskResult<TrialExecutionStatus> futureResult =
+          experimentTaskScheduler.getAbortableFutureTask(future);
 
-      if (experimentTaskScheduler.isTerminated(experimentID)) {
-        // if test has been terminated we stop here
+      if (futureResult.isAborted()) {
+        logger.info("Task has been aborted for experiment: " + experimentID);
         return;
       }
 
-      switch (experimentResult) {
+      switch (futureResult.getResult()) {
 
         case SUCCESS:
           experimentModelDAO.setRunningState(experimentID,
               BenchFlowExperimentModel.RunningState.CHECK_TERMINATION_CRITERIA);
 
-          experimentTaskScheduler.handleExperimentState(experimentID);
           break;
 
         case RE_EXECUTE_TRIAL:
@@ -159,7 +171,8 @@ public class RunningStatesHandler {
 
   }
 
-  private void handleReExecuteTrial(String trialID) {
+  @VisibleForTesting
+  public void handleReExecuteTrial(String trialID) {
 
     logger.info("handleReExecuteTrial: " + trialID);
 
@@ -167,23 +180,28 @@ public class RunningStatesHandler {
 
       ReExecuteTrialTask reExecuteTrialTask = new ReExecuteTrialTask(trialID);
 
-      Future<FabanStatus> future = experimentTaskExecutorService.submit(reExecuteTrialTask);
+      AbortableFutureTask<FabanStatus> future =
+          (AbortableFutureTask) experimentTaskExecutorService.submit(reExecuteTrialTask);
 
       String experimentID = BenchFlowConstants.getExperimentIDFromTrialID(trialID);
+
+      // replace with new task
       experimentTasks.put(experimentID, future);
 
       // TODO - change this when faban interaction changes to non-polling
-      FabanStatus fabanStatus = future.get();
+      // wait for task to complete
+      AbortableFutureTaskResult<FabanStatus> futureResult =
+          experimentTaskScheduler.getAbortableFutureTask(future);
 
-      if (experimentTaskScheduler.isTerminated(experimentID)) {
-        // if test has been terminated we stop here
+      if (futureResult.isAborted()) {
+        logger.info("Task has been aborted for experiment: " + experimentID);
         return;
       }
 
-      trialModelDAO.setFabanStatus(trialID, fabanStatus.getStatusCode());
-      trialModelDAO.setFabanResult(trialID, fabanStatus.getResult());
+      trialModelDAO.setFabanStatus(trialID, futureResult.getResult().getStatusCode());
+      trialModelDAO.setFabanResult(trialID, futureResult.getResult().getResult());
 
-      determineAndSetTrialStatus(trialID, fabanStatus);
+      determineAndSetTrialStatus(trialID, futureResult.getResult());
 
       handleCheckTrialResultTask(trialID);
 
@@ -227,42 +245,38 @@ public class RunningStatesHandler {
     CheckTerminationCriteriaTask terminationCriteriaTask =
         new CheckTerminationCriteriaTask(experimentID);
 
-    Future<TerminationCriteriaResult> future =
-        experimentTaskExecutorService.submit(terminationCriteriaTask);
+    AbortableFutureTask<TerminationCriteriaResult> future =
+        (AbortableFutureTask) experimentTaskExecutorService.submit(terminationCriteriaTask);
 
+    // replace with new task
     experimentTasks.put(experimentID, future);
 
     try {
 
-      TerminationCriteriaResult terminationCriteriaResult = future.get();
+      // wait for task to complete
+      AbortableFutureTaskResult<TerminationCriteriaResult> futureResult =
+          experimentTaskScheduler.getAbortableFutureTask(future);
 
-      if (experimentTaskScheduler.isTerminated(experimentID)) {
-        // if test has been terminated we stop here
+      if (futureResult.isAborted()) {
+        logger.info("Task has been aborted for experiment: " + experimentID);
         return;
       }
 
-      switch (terminationCriteriaResult) {
+      switch (futureResult.getResult()) {
         case FULFILLED:
           experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED);
           experimentModelDAO.setTerminatedState(experimentID,
               BenchFlowExperimentModel.TerminatedState.COMPLETED);
-
-          experimentTaskScheduler.handleExperimentState(experimentID);
-
           break;
 
         case NOT_FULFILLED:
           experimentModelDAO.setRunningState(experimentID, RunningState.DETERMINE_EXECUTE_TRIALS);
-          experimentTaskScheduler.handleExperimentState(experimentID);
-
           break;
 
         case CANNOT_BE_FULFILLED:
           experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED);
           experimentModelDAO.setTerminatedState(experimentID,
               BenchFlowExperimentModel.TerminatedState.FAILURE);
-
-          experimentTaskScheduler.handleExperimentState(experimentID);
 
           break;
 

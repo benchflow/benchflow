@@ -28,6 +28,7 @@ public class ExperimentDispatcher implements Runnable {
     this.readyQueue = readyQueue;
     this.runningQueue = runningQueue;
 
+    this.taskScheduler = BenchFlowExperimentManagerApplication.getExperimentTaskScheduler();
     this.experimentModelDAO = BenchFlowExperimentManagerApplication.getExperimentModelDAO();
     this.testManagerService = BenchFlowExperimentManagerApplication.getTestManagerService();
   }
@@ -49,7 +50,10 @@ public class ExperimentDispatcher implements Runnable {
         // TODO - decide on String value that terminates the service
 
         // wait for running experiment to terminate and then schedule next
+        // the runningQueue accepts only one element and put is blocking
         runningQueue.put(experimentID);
+
+        // TODO - evaluate if this can be delegated as it is for the test manager
 
         // change state to running and execute new trial
         experimentModelDAO.setExperimentState(experimentID,
@@ -60,13 +64,10 @@ public class ExperimentDispatcher implements Runnable {
         testManagerService.setExperimentRunningState(experimentID,
             BenchFlowExperimentModel.RunningState.DETERMINE_EXECUTE_TRIALS);
 
-        if (taskScheduler == null) {
-          // can only be called once taskScheduler has been instantiated.
-          this.taskScheduler = BenchFlowExperimentManagerApplication.getExperimentTaskScheduler();
-        }
-
-        // run next experiment
-        taskScheduler.handleExperimentState(experimentID);
+        // this is blocking, since we first complete the lifecycle of the experiment
+        // we place in the runningQueue, then we return from the method
+        //        taskScheduler.handleExperimentState(experimentID);
+        taskScheduler.handleRunningExperiment(experimentID);
 
       } catch (InterruptedException e) {
         e.printStackTrace();

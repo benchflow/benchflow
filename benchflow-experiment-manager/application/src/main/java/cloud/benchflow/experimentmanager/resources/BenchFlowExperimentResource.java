@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Simone D'Avico (simonedavico@gmail.com) - Created on 05/03/16.
+ * @author Vincenzo Ferme (info@vincenzoferme.it)
  */
 @Path("/v1/users/{username}/tests/{testName}/{testNumber}/experiments/{experimentNumber}")
 @Api(value = "benchflow-experiment")
@@ -82,7 +83,7 @@ public class BenchFlowExperimentResource {
     experimentModelDAO.addExperiment(experimentID);
 
     // execute in separate thread so we can return
-    new Thread(() -> experimentTaskScheduler.handleExperimentState(experimentID)).start();
+    new Thread(() -> experimentTaskScheduler.handleStartingExperiment(experimentID)).start();
   }
 
   @GET
