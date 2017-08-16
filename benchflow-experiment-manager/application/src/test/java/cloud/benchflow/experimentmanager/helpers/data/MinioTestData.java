@@ -1,4 +1,4 @@
-package cloud.benchflow.experimentmanager.helpers;
+package cloud.benchflow.experimentmanager.helpers.data;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
