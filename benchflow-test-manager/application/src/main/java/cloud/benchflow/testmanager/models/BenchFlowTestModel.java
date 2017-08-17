@@ -66,7 +66,6 @@ public class BenchFlowTestModel {
   @Reference
   private TreeMap<Long, BenchFlowExperimentModel> experiments = new TreeMap<>();
 
-  @JsonIgnore
   private ExplorationModel explorationModel = new ExplorationModel();
 
   private String testBundle;

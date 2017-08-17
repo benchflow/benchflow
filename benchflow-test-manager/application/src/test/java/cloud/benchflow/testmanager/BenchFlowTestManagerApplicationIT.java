@@ -2,6 +2,7 @@ package cloud.benchflow.testmanager;
 
 import cloud.benchflow.dsl.ExplorationSpaceAPI;
 import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpace;
+import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpaceDimensions;
 import cloud.benchflow.testmanager.api.request.ChangeBenchFlowTestStateRequest;
 import cloud.benchflow.testmanager.api.response.ChangeBenchFlowTestStateResponse;
 import cloud.benchflow.testmanager.api.response.ExplorationSpacePointResponse;
@@ -14,12 +15,14 @@ import cloud.benchflow.testmanager.helpers.constants.TestBundle;
 import cloud.benchflow.testmanager.helpers.constants.TestConstants;
 import cloud.benchflow.testmanager.helpers.constants.TestFiles;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
+import cloud.benchflow.testmanager.models.ExplorationModel;
 import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.resources.BenchFlowTestResource;
 import cloud.benchflow.testmanager.resources.ExplorationPointResource;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
+import com.mongodb.MongoClient;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.testing.ConfigOverride;
@@ -183,25 +186,45 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
     Assert.assertEquals(InvalidBenchFlowTestIDWebException.message,
         response.readEntity(String.class));
 
-
-
   }
 
   @Test
   public void getTestStatus() throws Exception {
 
-    BenchFlowTestModelDAO testModelDAO =
-        new BenchFlowTestModelDAO(RULE.getConfiguration().getMongoDBFactory().build());
+    // setup the data in the DB
 
-    BenchFlowExperimentModelDAO experimentModelDAO = new BenchFlowExperimentModelDAO(
-        RULE.getConfiguration().getMongoDBFactory().build(), testModelDAO);
+    MongoClient mongoClient = RULE.getConfiguration().getMongoDBFactory().build();
 
-    String testID =
-        testModelDAO.addTestModel(TestConstants.LOAD_TEST_NAME, TestConstants.TEST_USER);
+    BenchFlowTestModelDAO testModelDAO = new BenchFlowTestModelDAO(mongoClient);
+
+    BenchFlowExperimentModelDAO experimentModelDAO =
+        new BenchFlowExperimentModelDAO(mongoClient, testModelDAO);
+
+    ExplorationModelDAO explorationModelDAO = new ExplorationModelDAO(mongoClient, testModelDAO);
+
+    // get the exploration space and save it in the database
+
+    String testID = testModelDAO.addTestModel(
+        TestConstants.TEST_EXPLORATION_ONE_AT_A_TIME_USERS__MEMORY_ENVIRONMENT_NAME,
+        TestConstants.TEST_USER);
+
+    String testDefinitionString =
+        TestFiles.getTestExplorationOneAtATimeUsersMemoryEnvironmentString();
+
+    JavaCompatExplorationSpace javaCompatExplorationSpace =
+        ExplorationSpaceAPI.explorationSpaceFromTestYaml(testDefinitionString);
+
+    JavaCompatExplorationSpaceDimensions javaCompatExplorationSpaceDimensions =
+        ExplorationSpaceAPI.explorationSpaceDimensionsFromTestYaml(testDefinitionString);
+
+    explorationModelDAO.setExplorationSpace(testID, javaCompatExplorationSpace);
+    explorationModelDAO.setExplorationSpaceDimensions(testID, javaCompatExplorationSpaceDimensions);
 
     String experimentID = experimentModelDAO.addExperiment(testID);
 
     experimentModelDAO.setExplorationSpaceIndex(experimentID, 0);
+
+    // make the request to the API
 
     Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
 
@@ -210,12 +233,18 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
     Response response = client.target(target).path(BenchFlowConstants.getPathFromTestID(testID))
         .path(BenchFlowTestResource.STATUS_PATH).request().get();
 
+    // assert the response
     Assert.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
     BenchFlowTestModel testModel = response.readEntity(BenchFlowTestModel.class);
     Assert.assertEquals(testID, testModel.getId());
 
     Assert.assertTrue(testModel.containsExperimentModel(experimentID));
+
+    Assert.assertEquals(16, testModel.getExplorationModel().getExplorationSpace().getSize());
+    Assert.assertTrue(testModel.getExplorationModel().getExplorationSpaceDimensions().getMemory()
+        .get().get("camunda").contains("500m"));
+
   }
 
   @Test
@@ -261,6 +290,8 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
 
     ExplorationSpacePointResponse pointResponse =
         response.readEntity(ExplorationSpacePointResponse.class);
+
+    // assert values
 
     Assert.assertEquals(5, pointResponse.getUsers().intValue());
 
