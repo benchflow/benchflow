@@ -69,6 +69,8 @@ public class BenchFlowExperimentManagerApplicationTestModeIT extends DockerCompo
     minioServiceSpy = Mockito.spy(BenchFlowExperimentManagerApplication.getMinioService());
     BenchFlowExperimentManagerApplication.setMinioService(minioServiceSpy);
 
+
+
     executorService = BenchFlowExperimentManagerApplication.getExperimentTaskScheduler()
         .getExperimentTaskExecutorService();
 
@@ -130,7 +132,7 @@ public class BenchFlowExperimentManagerApplicationTestModeIT extends DockerCompo
     Assert.assertNotNull(experimentModelDAO.getExperimentModel(experimentID));
 
     // wait long enough for tasks to start to be executed
-    executorService.awaitTermination(2, TimeUnit.SECONDS);
+    executorService.awaitTermination(5, TimeUnit.SECONDS);
 
     Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
         experimentModelDAO.getExperimentState(experimentID));
@@ -287,6 +289,9 @@ public class BenchFlowExperimentManagerApplicationTestModeIT extends DockerCompo
         MinioTestData.getTestModel());
     minioServiceSpy.saveExperimentBPMNModel(experimentID, MinioTestData.BPMN_MODEL_MOCK_NAME,
         MinioTestData.getMockModel());
+
+    minioServiceSpy.saveExperimentDeploymentDescriptor(experimentID,
+        MinioTestData.getDeploymentDescriptor());
 
     // make sure also drivers-maker benchmark is returned
     Mockito.doReturn(MinioTestData.getGeneratedBenchmark()).when(minioServiceSpy)
