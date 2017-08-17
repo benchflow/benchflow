@@ -23,6 +23,7 @@ import cloud.benchflow.testmanager.tasks.running.RemoveNonReachableExperimentsTa
 import cloud.benchflow.testmanager.tasks.running.ValidatePredictionFunctionTask;
 import cloud.benchflow.testmanager.tasks.running.ValidateTerminationCriteria;
 import cloud.benchflow.testmanager.tasks.running.ValidateTerminationCriteria.TerminationCriteriaResult;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
@@ -307,7 +308,8 @@ public class RunningStatesHandler {
     }
   }
 
-  public synchronized void handleExperimentResult(String testID) {
+  @VisibleForTesting
+  public void handleExperimentResult(String testID) {
 
     logger.info("handleExperimentResult with testID: " + testID);
 
