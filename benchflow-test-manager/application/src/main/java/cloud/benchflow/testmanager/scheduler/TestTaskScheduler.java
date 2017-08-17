@@ -1,7 +1,6 @@
 package cloud.benchflow.testmanager.scheduler;
 
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.READY;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.*;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.*;
 
 import cloud.benchflow.dsl.definition.types.time.Time;
@@ -299,8 +298,7 @@ public class TestTaskScheduler {
    * @param testID the test ID
    * @throws BenchFlowTestIDDoesNotExistException when the test ID does not exists
    */
-  private synchronized void handleRunningTestState(String testID)
-      throws BenchFlowTestIDDoesNotExistException {
+  private void handleRunningTestState(String testID) throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("handleRunningTestState for " + testID);
 
@@ -470,8 +468,8 @@ public class TestTaskScheduler {
           // cancel the current running task, but let it complete before
           cancelTask(testID);
 
-          if (runningState == TestRunningState.HANDLE_EXPERIMENT_RESULT
-              || runningState == TestRunningState.DETERMINE_EXECUTE_VALIDATION_SET) {
+          if (runningState == HANDLE_EXPERIMENT_RESULT
+              || runningState == DETERMINE_EXECUTE_VALIDATION_SET) {
 
             logger.info("Need to execute AbortRunningTask");
 
