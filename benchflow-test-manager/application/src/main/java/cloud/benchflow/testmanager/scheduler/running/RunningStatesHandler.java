@@ -104,7 +104,8 @@ public class RunningStatesHandler {
       boolean hasRegressionModel = explorationModelDAO.hasRegressionModel(testID);
 
       TestRunningState nextState =
-          hasRegressionModel ? TestRunningState.DETERMINE_EXECUTE_VALIDATION_SET : TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS;
+          hasRegressionModel ? TestRunningState.DETERMINE_EXECUTE_VALIDATION_SET
+              : TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS;
 
       testModelDAO.setTestRunningState(testID, nextState);
 
@@ -284,7 +285,8 @@ public class RunningStatesHandler {
           break;
 
         case GOAL_REACHABLE_REGRESSION_PREDICTION_NOT_ACCEPTABLE:
-          testModelDAO.setTestRunningState(testID, TestRunningState.REMOVE_NON_REACHABLE_EXPERIMENTS);
+          testModelDAO.setTestRunningState(testID,
+              TestRunningState.REMOVE_NON_REACHABLE_EXPERIMENTS);
           break;
 
         case GOAL_REACHABLE_NO_REGRESSION_EXPERIMENTS_REMAINING:
@@ -327,8 +329,8 @@ public class RunningStatesHandler {
 
       Boolean hasRegressionModel = explorationModelDAO.hasRegressionModel(testID);
 
-      TestRunningState nextState =
-          hasRegressionModel ? TestRunningState.DERIVE_PREDICTION_FUNCTION : TestRunningState.VALIDATE_TERMINATION_CRITERIA;
+      TestRunningState nextState = hasRegressionModel ? TestRunningState.DERIVE_PREDICTION_FUNCTION
+          : TestRunningState.VALIDATE_TERMINATION_CRITERIA;
 
       testModelDAO.setTestRunningState(testID, nextState);
 

@@ -87,8 +87,8 @@ public class BenchFlowTestResourceTest {
 
     InputStream testBundle = TestBundle.getLoadTestBundleInputStream(temporaryFolder);
 
-    String expectedTestID =
-        TestConstants.TEST_USER_NAME + MODEL_ID_DELIMITER + TestConstants.LOAD_TEST_NAME + MODEL_ID_DELIMITER + 1;
+    String expectedTestID = TestConstants.TEST_USER_NAME + MODEL_ID_DELIMITER
+        + TestConstants.LOAD_TEST_NAME + MODEL_ID_DELIMITER + 1;
 
     Mockito.doReturn(expectedTestID).when(testModelDAOMock)
         .addTestModel(Mockito.matches(TestConstants.LOAD_TEST_NAME), Mockito.any(User.class));
@@ -112,8 +112,10 @@ public class BenchFlowTestResourceTest {
   @Test
   public void changeBenchFlowTestState() throws Exception {
 
-    Mockito.doReturn(RUNNING).when(testModelDAOMock).setTestState(TestConstants.VALID_TEST_ID, RUNNING);
-    Mockito.doReturn(TERMINATED).when(testModelDAOMock).setTestState(TestConstants.VALID_TEST_ID, TERMINATED);
+    Mockito.doReturn(RUNNING).when(testModelDAOMock).setTestState(TestConstants.VALID_TEST_ID,
+        RUNNING);
+    Mockito.doReturn(TERMINATED).when(testModelDAOMock).setTestState(TestConstants.VALID_TEST_ID,
+        TERMINATED);
 
     request.setState(RUNNING);
 
@@ -187,7 +189,8 @@ public class BenchFlowTestResourceTest {
     String expectedTestID = TestConstants.TEST_USER_NAME + BenchFlowConstants.MODEL_ID_DELIMITER
         + benchFlowTestName + BenchFlowConstants.MODEL_ID_DELIMITER + 1;
 
-    BenchFlowTestModel testModel = new BenchFlowTestModel(TestConstants.TEST_USER, benchFlowTestName, 1);
+    BenchFlowTestModel testModel =
+        new BenchFlowTestModel(TestConstants.TEST_USER, benchFlowTestName, 1);
 
     // add an experiment
     BenchFlowExperimentModel experimentModel = new BenchFlowExperimentModel(expectedTestID, 0);
