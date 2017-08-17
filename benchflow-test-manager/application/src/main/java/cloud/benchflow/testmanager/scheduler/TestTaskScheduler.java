@@ -1,8 +1,7 @@
 package cloud.benchflow.testmanager.scheduler;
 
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.*;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.DETERMINE_EXECUTE_VALIDATION_SET;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.HANDLE_EXPERIMENT_RESULT;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.*;
 
 import cloud.benchflow.dsl.definition.types.time.Time;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
@@ -151,6 +150,7 @@ public class TestTaskScheduler {
 
     boolean exit = false;
     BenchFlowTestState testState;
+    TestRunningState testRunningState;
 
     try {
       testState = testModelDAO.getTestState(testID);
@@ -167,10 +167,17 @@ public class TestTaskScheduler {
           break;
         }
 
+        testRunningState = testModelDAO.getTestRunningState(testID);
+
         // Exit as soon as final state is executed
         if (prevTestState != null && testState != null
             && prevTestState.name().equals(testState.name())
             && (testState == WAITING || testState == TERMINATED)) {
+          exit = true;
+        }
+        // Exit while waiting for the Experiment Manager to notify about the scheduled
+        // experiment to be executed. This exits before the execution of HANDLE_EXPERIMENT_RESULT
+        else if (testRunningState != null && testRunningState.equals(HANDLE_EXPERIMENT_RESULT)) {
           exit = true;
         }
 
@@ -220,8 +227,7 @@ public class TestTaskScheduler {
     return testModelDAO.getTestState(testID);
   }
 
-  @VisibleForTesting
-  synchronized void handleStartState(String testID) {
+  private void handleStartState(String testID) {
 
     logger.info("handle start state: " + testID);
 
@@ -246,7 +252,7 @@ public class TestTaskScheduler {
 
   }
 
-  private synchronized void handleWaitingState(String testID) {
+  private void handleWaitingState(String testID) {
 
     logger.info("handle waiting state: " + testID);
 
@@ -284,12 +290,16 @@ public class TestTaskScheduler {
 
     boolean exit = false;
     BenchFlowTestState testState;
+    TestRunningState testRunningState = testModelDAO.getTestRunningState(testID);
+    TestRunningState prevTestRunningState;
 
     // set timeout if not already set, and a timeout is declared in the model
     setTimeoutIfNeeded(testID);
 
     // Stop when we reach a final state
     while (!exit) {
+
+      prevTestRunningState = testRunningState;
 
       try {
         testState = handleTestRunningState(testID);
@@ -298,8 +308,17 @@ public class TestTaskScheduler {
         break;
       }
 
+      testRunningState = testModelDAO.getTestRunningState(testID);
+
       // Exit as soon as final state is executed
       if (testState != null && (testState == WAITING || testState == TERMINATED)) {
+        exit = true;
+      }
+      // Exit while waiting for the Experiment Manager to notify about the scheduled
+      // experiment to be executed.
+      else if (prevTestRunningState != null && testRunningState != null
+          && prevTestRunningState == DETERMINE_EXECUTE_EXPERIMENTS
+          && testRunningState == HANDLE_EXPERIMENT_RESULT) {
         exit = true;
       }
 
@@ -318,7 +337,7 @@ public class TestTaskScheduler {
     }
   }
 
-  protected synchronized BenchFlowTestState handleTestRunningState(String testID)
+  private BenchFlowTestState handleTestRunningState(String testID)
       throws BenchFlowTestIDDoesNotExistException {
 
     try {
