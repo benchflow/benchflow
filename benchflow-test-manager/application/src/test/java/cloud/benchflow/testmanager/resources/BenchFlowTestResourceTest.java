@@ -1,8 +1,9 @@
 package cloud.benchflow.testmanager.resources;
 
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.*;
-import static cloud.benchflow.testmanager.helpers.constants.TestConstants.*;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.*;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER_REGEX;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.RUNNING;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
 
 import cloud.benchflow.dsl.ExplorationSpaceAPI;
 import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpace;
@@ -14,6 +15,7 @@ import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistExcepti
 import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidTestBundleWebException;
 import cloud.benchflow.testmanager.helpers.constants.TestBundle;
+import cloud.benchflow.testmanager.helpers.constants.TestConstants;
 import cloud.benchflow.testmanager.helpers.constants.TestFiles;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
@@ -77,7 +79,7 @@ public class BenchFlowTestResourceTest {
     exception.expect(WebApplicationException.class);
     exception.expectMessage(String.valueOf(Response.Status.BAD_REQUEST.getStatusCode()));
 
-    resource.runBenchFlowTest(TEST_USER_NAME, null, httpServletRequestMock);
+    resource.runBenchFlowTest(TestConstants.TEST_USER_NAME, null, httpServletRequestMock);
   }
 
   @Test
@@ -86,15 +88,15 @@ public class BenchFlowTestResourceTest {
     InputStream testBundle = TestBundle.getLoadTestBundleInputStream(temporaryFolder);
 
     String expectedTestID =
-        TEST_USER_NAME + MODEL_ID_DELIMITER + LOAD_TEST_NAME + MODEL_ID_DELIMITER + 1;
+        TestConstants.TEST_USER_NAME + MODEL_ID_DELIMITER + TestConstants.LOAD_TEST_NAME + MODEL_ID_DELIMITER + 1;
 
     Mockito.doReturn(expectedTestID).when(testModelDAOMock)
-        .addTestModel(Mockito.matches(LOAD_TEST_NAME), Mockito.any(User.class));
+        .addTestModel(Mockito.matches(TestConstants.LOAD_TEST_NAME), Mockito.any(User.class));
 
     RunBenchFlowTestResponse response =
-        resource.runBenchFlowTest(TEST_USER_NAME, testBundle, httpServletRequestMock);
+        resource.runBenchFlowTest(TestConstants.TEST_USER_NAME, testBundle, httpServletRequestMock);
 
-    Assert.assertTrue(response.getTestID().contains(LOAD_TEST_NAME));
+    Assert.assertTrue(response.getTestID().contains(TestConstants.LOAD_TEST_NAME));
   }
 
   @Test
@@ -104,18 +106,18 @@ public class BenchFlowTestResourceTest {
 
     exception.expect(InvalidTestBundleWebException.class);
 
-    resource.runBenchFlowTest(TEST_USER_NAME, testBundle, httpServletRequestMock);
+    resource.runBenchFlowTest(TestConstants.TEST_USER_NAME, testBundle, httpServletRequestMock);
   }
 
   @Test
   public void changeBenchFlowTestState() throws Exception {
 
-    Mockito.doReturn(RUNNING).when(testModelDAOMock).setTestState(VALID_TEST_ID, RUNNING);
-    Mockito.doReturn(TERMINATED).when(testModelDAOMock).setTestState(VALID_TEST_ID, TERMINATED);
+    Mockito.doReturn(RUNNING).when(testModelDAOMock).setTestState(TestConstants.VALID_TEST_ID, RUNNING);
+    Mockito.doReturn(TERMINATED).when(testModelDAOMock).setTestState(TestConstants.VALID_TEST_ID, TERMINATED);
 
     request.setState(RUNNING);
 
-    String[] testIDArray = VALID_TEST_ID.split(MODEL_ID_DELIMITER_REGEX);
+    String[] testIDArray = TestConstants.VALID_TEST_ID.split(MODEL_ID_DELIMITER_REGEX);
 
     String username = testIDArray[0];
     String testName = testIDArray[1];
@@ -141,11 +143,11 @@ public class BenchFlowTestResourceTest {
     request.setState(RUNNING);
 
     Mockito.doThrow(BenchFlowTestIDDoesNotExistException.class).when(testModelDAOMock)
-        .setTestState(VALID_TEST_ID, RUNNING);
+        .setTestState(TestConstants.VALID_TEST_ID, RUNNING);
 
     exception.expect(InvalidBenchFlowTestIDWebException.class);
 
-    String[] testIDArray = VALID_TEST_ID.split(MODEL_ID_DELIMITER_REGEX);
+    String[] testIDArray = TestConstants.VALID_TEST_ID.split(MODEL_ID_DELIMITER_REGEX);
 
     String username = testIDArray[0];
     String testName = testIDArray[1];
@@ -157,14 +159,14 @@ public class BenchFlowTestResourceTest {
   @Test
   public void getBenchFlowTestStatusInValid() throws Exception {
 
-    String testID = INVALID_TEST_BENCHFLOW_ID;
+    String testID = TestConstants.INVALID_TEST_BENCHFLOW_ID;
 
     Mockito.doThrow(BenchFlowTestIDDoesNotExistException.class).when(testModelDAOMock)
         .getTestModel(testID);
 
     exception.expect(InvalidBenchFlowTestIDWebException.class);
 
-    String[] testIDArray = INVALID_TEST_BENCHFLOW_ID.split(MODEL_ID_DELIMITER_REGEX);
+    String[] testIDArray = TestConstants.INVALID_TEST_BENCHFLOW_ID.split(MODEL_ID_DELIMITER_REGEX);
 
     String username = testIDArray[0];
     String testName = testIDArray[1];
@@ -178,13 +180,16 @@ public class BenchFlowTestResourceTest {
   @Test
   public void getLoadTestStatusValid() throws Exception {
 
-    String benchFlowTestName = LOAD_TEST_NAME;
+    // prepare the data
 
-    String expectedTestID = TEST_USER_NAME + BenchFlowConstants.MODEL_ID_DELIMITER
+    String benchFlowTestName = TestConstants.LOAD_TEST_NAME;
+
+    String expectedTestID = TestConstants.TEST_USER_NAME + BenchFlowConstants.MODEL_ID_DELIMITER
         + benchFlowTestName + BenchFlowConstants.MODEL_ID_DELIMITER + 1;
 
-    BenchFlowTestModel testModel = new BenchFlowTestModel(TEST_USER, benchFlowTestName, 1);
+    BenchFlowTestModel testModel = new BenchFlowTestModel(TestConstants.TEST_USER, benchFlowTestName, 1);
 
+    // add an experiment
     BenchFlowExperimentModel experimentModel = new BenchFlowExperimentModel(expectedTestID, 0);
     experimentModel.setExplorationPointIndex(0);
 
@@ -210,8 +215,12 @@ public class BenchFlowTestResourceTest {
     String testName = testIDArray[1];
     int testNumber = Integer.parseInt(testIDArray[2]);
 
+    // get the response
+
     BenchFlowTestModel response =
         resource.getBenchFlowTestStatus(username, testName, testNumber, httpServletRequestMock);
+
+    // verify result is as expected
 
     Mockito.verify(testModelDAOMock, Mockito.times(1)).getTestModel(expectedTestID);
 

@@ -1,6 +1,9 @@
 package cloud.benchflow.testmanager;
 
+import cloud.benchflow.dsl.BenchFlowTestAPI;
 import cloud.benchflow.dsl.ExplorationSpaceAPI;
+import cloud.benchflow.dsl.definition.BenchFlowTest;
+import cloud.benchflow.dsl.definition.types.time.Time;
 import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpace;
 import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpaceDimensions;
 import cloud.benchflow.testmanager.api.request.ChangeBenchFlowTestStateRequest;
@@ -15,7 +18,6 @@ import cloud.benchflow.testmanager.helpers.constants.TestBundle;
 import cloud.benchflow.testmanager.helpers.constants.TestConstants;
 import cloud.benchflow.testmanager.helpers.constants.TestFiles;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
-import cloud.benchflow.testmanager.models.ExplorationModel;
 import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.resources.BenchFlowTestResource;
 import cloud.benchflow.testmanager.resources.ExplorationPointResource;
@@ -224,6 +226,12 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
 
     experimentModelDAO.setExplorationSpaceIndex(experimentID, 0);
 
+    BenchFlowTest test = BenchFlowTestAPI.testFromYaml(testDefinitionString);
+
+    // add max running time to model
+    Time maxTime = test.configuration().terminationCriteria().test().maxTime();
+    testModelDAO.setMaxRunTime(testID, maxTime);
+
     // make the request to the API
 
     Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
@@ -244,6 +252,10 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
     Assert.assertEquals(16, testModel.getExplorationModel().getExplorationSpace().getSize());
     Assert.assertTrue(testModel.getExplorationModel().getExplorationSpaceDimensions().getMemory()
         .get().get("camunda").contains("500m"));
+
+    // assert max time
+
+    Assert.assertEquals(maxTime, testModel.getMaxRunningTime());
 
   }
 

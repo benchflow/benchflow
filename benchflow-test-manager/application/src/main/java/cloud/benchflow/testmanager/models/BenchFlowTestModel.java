@@ -6,10 +6,14 @@ import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningS
 
 import cloud.benchflow.dsl.definition.types.time.Time;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
+import cloud.benchflow.testmanager.api.deserialization.StringToTimeDeserialization;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
@@ -59,7 +63,11 @@ public class BenchFlowTestModel {
   private long number;
   private Date start = new Date();
   private Date lastModified = new Date();
+
+  @JsonSerialize(using = ToStringSerializer.class)
+  @JsonDeserialize(using = StringToTimeDeserialization.class)
   private Time maxRunningTime;
+
   private BenchFlowTestState state;
   private TestRunningState runningState;
   private TestTerminatedState terminatedState;
@@ -124,12 +132,12 @@ public class BenchFlowTestModel {
     return lastModified;
   }
 
-  public void setMaxRunningTime(Time maxRunningTime) {
-    this.maxRunningTime = maxRunningTime;
-  }
-
   public Time getMaxRunningTime() {
     return maxRunningTime;
+  }
+
+  public void setMaxRunningTime(Time maxRunningTime) {
+    this.maxRunningTime = maxRunningTime;
   }
 
   public boolean hasMaxRunningTime() {

@@ -14,7 +14,6 @@ import cloud.benchflow.testmanager.helpers.constants.TestBundle;
 import cloud.benchflow.testmanager.helpers.constants.TestConstants;
 import cloud.benchflow.testmanager.helpers.constants.TestFiles;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
-import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.RunningState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState;
