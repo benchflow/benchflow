@@ -1,7 +1,6 @@
 package cloud.benchflow.testmanager.api.deserialization;
 
 import cloud.benchflow.dsl.definition.types.time.Time;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.dropwizard.jackson.Jackson;

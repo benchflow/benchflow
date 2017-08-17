@@ -18,7 +18,6 @@ import cloud.benchflow.testmanager.helpers.constants.TestBundle;
 import cloud.benchflow.testmanager.helpers.constants.TestConstants;
 import cloud.benchflow.testmanager.helpers.constants.TestFiles;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
-import cloud.benchflow.testmanager.models.ExplorationModel;
 import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.resources.BenchFlowTestResource;
 import cloud.benchflow.testmanager.resources.ExplorationPointResource;
@@ -214,8 +213,6 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
     String testDefinitionString =
         TestFiles.getTestExplorationOneAtATimeUsersMemoryEnvironmentString();
 
-    BenchFlowTest test = BenchFlowTestAPI.testFromYaml(testDefinitionString);
-
     JavaCompatExplorationSpace javaCompatExplorationSpace =
         ExplorationSpaceAPI.explorationSpaceFromTestYaml(testDefinitionString);
 
@@ -228,6 +225,8 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
     String experimentID = experimentModelDAO.addExperiment(testID);
 
     experimentModelDAO.setExplorationSpaceIndex(experimentID, 0);
+
+    BenchFlowTest test = BenchFlowTestAPI.testFromYaml(testDefinitionString);
 
     // add max running time to model
     Time maxTime = test.configuration().terminationCriteria().test().maxTime();

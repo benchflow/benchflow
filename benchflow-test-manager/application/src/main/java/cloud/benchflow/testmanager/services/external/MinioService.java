@@ -1,6 +1,11 @@
 package cloud.benchflow.testmanager.services.external;
 
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.*;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.BPMN_MODELS_FOLDER_NAME;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MINIO_ID_DELIMITER;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.TESTS_BUCKET;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.TEST_EXPERIMENT_DEFINITION_FILE_NAME;
 
 import io.minio.MinioClient;
 import io.minio.Result;
