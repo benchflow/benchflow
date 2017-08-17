@@ -5,6 +5,7 @@ import static cloud.benchflow.testmanager.helpers.constants.TestConstants.*;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.*;
 
 import cloud.benchflow.dsl.ExplorationSpaceAPI;
+import cloud.benchflow.dsl.definition.types.time.Time;
 import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpace;
 import cloud.benchflow.testmanager.api.request.ChangeBenchFlowTestStateRequest;
 import cloud.benchflow.testmanager.api.response.ChangeBenchFlowTestStateResponse;
@@ -178,6 +179,8 @@ public class BenchFlowTestResourceTest {
   @Test
   public void getLoadTestStatusValid() throws Exception {
 
+    // prepare the data
+
     String benchFlowTestName = LOAD_TEST_NAME;
 
     String expectedTestID = TEST_USER_NAME + BenchFlowConstants.MODEL_ID_DELIMITER
@@ -185,6 +188,7 @@ public class BenchFlowTestResourceTest {
 
     BenchFlowTestModel testModel = new BenchFlowTestModel(TEST_USER, benchFlowTestName, 1);
 
+    // add an experiment
     BenchFlowExperimentModel experimentModel = new BenchFlowExperimentModel(expectedTestID, 0);
     experimentModel.setExplorationPointIndex(0);
 
@@ -210,8 +214,12 @@ public class BenchFlowTestResourceTest {
     String testName = testIDArray[1];
     int testNumber = Integer.parseInt(testIDArray[2]);
 
+    // get the response
+
     BenchFlowTestModel response =
         resource.getBenchFlowTestStatus(username, testName, testNumber, httpServletRequestMock);
+
+    // verify result is as expected
 
     Mockito.verify(testModelDAOMock, Mockito.times(1)).getTestModel(expectedTestID);
 

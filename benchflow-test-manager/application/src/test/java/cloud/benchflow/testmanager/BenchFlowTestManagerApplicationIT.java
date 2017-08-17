@@ -1,6 +1,9 @@
 package cloud.benchflow.testmanager;
 
+import cloud.benchflow.dsl.BenchFlowTestAPI;
 import cloud.benchflow.dsl.ExplorationSpaceAPI;
+import cloud.benchflow.dsl.definition.BenchFlowTest;
+import cloud.benchflow.dsl.definition.types.time.Time;
 import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpace;
 import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpaceDimensions;
 import cloud.benchflow.testmanager.api.request.ChangeBenchFlowTestStateRequest;
@@ -211,6 +214,8 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
     String testDefinitionString =
         TestFiles.getTestExplorationOneAtATimeUsersMemoryEnvironmentString();
 
+    BenchFlowTest test = BenchFlowTestAPI.testFromYaml(testDefinitionString);
+
     JavaCompatExplorationSpace javaCompatExplorationSpace =
         ExplorationSpaceAPI.explorationSpaceFromTestYaml(testDefinitionString);
 
@@ -223,6 +228,10 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
     String experimentID = experimentModelDAO.addExperiment(testID);
 
     experimentModelDAO.setExplorationSpaceIndex(experimentID, 0);
+
+    // add max running time to model
+    Time maxTime = test.configuration().terminationCriteria().test().maxTime();
+    testModelDAO.setMaxRunTime(testID, maxTime);
 
     // make the request to the API
 
@@ -244,6 +253,10 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
     Assert.assertEquals(16, testModel.getExplorationModel().getExplorationSpace().getSize());
     Assert.assertTrue(testModel.getExplorationModel().getExplorationSpaceDimensions().getMemory()
         .get().get("camunda").contains("500m"));
+
+    // assert max time
+
+    Assert.assertEquals(maxTime, testModel.getMaxRunningTime());
 
   }
 
