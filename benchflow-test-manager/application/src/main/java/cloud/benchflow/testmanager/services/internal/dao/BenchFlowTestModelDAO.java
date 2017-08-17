@@ -9,6 +9,8 @@ import cloud.benchflow.testmanager.models.BenchFlowTestNumber;
 import cloud.benchflow.testmanager.models.User;
 import com.mongodb.MongoClient;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.mongodb.morphia.query.Query;
@@ -245,23 +247,20 @@ public class BenchFlowTestModelDAO extends DAO {
     return benchFlowTestModel.getExperimentNumbers();
   }
 
-  public synchronized String getRunningExperiment(String testID)
+  public synchronized Optional<String> getRunningExperiment(String testID)
       throws BenchFlowTestIDDoesNotExistException {
 
     logger.info("getRunningExperiment: " + testID);
 
     BenchFlowTestModel benchFlowTestModel = getTestModel(testID);
 
-    BenchFlowExperimentModel lastExperimentModel =
-        benchFlowTestModel.getExperiments().lastEntry().getValue();
+    // we assume that only one experiment is running at-a-time
+    // which is the same as the current life cycle supports
 
-    if (lastExperimentModel.getState().equals(BenchFlowExperimentState.RUNNING)) {
+    return benchFlowTestModel.getExperiments().entrySet().stream()
+        .filter(entry -> entry.getValue().getState() == BenchFlowExperimentState.RUNNING)
+        .map(Entry::getValue).map(BenchFlowExperimentModel::getId).findFirst();
 
-      return lastExperimentModel.getId();
-
-    }
-
-    return null;
 
   }
 }

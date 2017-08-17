@@ -16,7 +16,7 @@ configuration:
       camunda:
         resources:
           memory:
-            range: [500m, 1000m]
+            values: [500m, 1000m]
 
   strategy:
     selection: one-at-a-time

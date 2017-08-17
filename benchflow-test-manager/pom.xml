@@ -39,7 +39,7 @@
         <dropwizard-swagger.version>1.1.2-1</dropwizard-swagger.version>
         <zt-zip.version>1.11</zt-zip.version>
         <benchflow-dsl.project.name>benchflow-dsl</benchflow-dsl.project.name>
-        <benchflow-dsl-jar.version>feature-dsl-java-compat-exploration-space_f5f26b</benchflow-dsl-jar.version>
+        <benchflow-dsl-jar.version>fix-dm-demo-mix-specification_07c627</benchflow-dsl-jar.version>
         <benchflow-dsl.version>0.1.0</benchflow-dsl.version>
         <benchflow-faban-client.project.name>benchflow-faban-client</benchflow-faban-client.project.name>
         <benchflow-faban-client-jar.version>devel_ad148a</benchflow-faban-client-jar.version>

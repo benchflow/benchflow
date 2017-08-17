@@ -4,6 +4,7 @@ import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,11 +33,9 @@ public class AbortRunningTestTask implements Runnable {
 
     try {
 
-      String experimentID = testModelDAO.getRunningExperiment(testID);
+      Optional<String> experimentID = testModelDAO.getRunningExperiment(testID);
 
-      if (experimentID != null) {
-        experimentManagerService.abortBenchFlowExperiment(experimentID);
-      }
+      experimentID.ifPresent(id -> experimentManagerService.abortBenchFlowExperiment(id));
 
     } catch (BenchFlowTestIDDoesNotExistException e) {
       // nothing to do
