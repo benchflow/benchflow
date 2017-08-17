@@ -1,7 +1,6 @@
 package cloud.benchflow.testmanager.scheduler.running;
 
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.*;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState.COMPLETED_WITH_FAILURE;
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState.GOAL_REACHED;
 
@@ -80,7 +79,7 @@ public class RunningStatesHandler {
     // replace with new task
     testTasks.put(testID, future);
 
-    waitForRunningTaskToComplete(testID, future, ADD_STORED_KNOWLEDGE);
+    waitForRunningTaskToComplete(testID, future, TestRunningState.ADD_STORED_KNOWLEDGE);
   }
 
   public void addStoredKnowledge(String testID) {
@@ -106,7 +105,8 @@ public class RunningStatesHandler {
       boolean hasRegressionModel = explorationModelDAO.hasRegressionModel(testID);
 
       TestRunningState nextState =
-          hasRegressionModel ? DETERMINE_EXECUTE_VALIDATION_SET : DETERMINE_EXECUTE_EXPERIMENTS;
+          hasRegressionModel ? TestRunningState.DETERMINE_EXECUTE_VALIDATION_SET
+              : TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS;
 
       testModelDAO.setTestRunningState(testID, nextState);
 
@@ -135,7 +135,7 @@ public class RunningStatesHandler {
     // replace with new task
     testTasks.put(testID, future);
 
-    waitForRunningTaskToComplete(testID, future, DETERMINE_EXECUTE_EXPERIMENTS);
+    waitForRunningTaskToComplete(testID, future, TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS);
 
   }
 
@@ -151,7 +151,7 @@ public class RunningStatesHandler {
     // replace with new task
     testTasks.put(testID, future);
 
-    waitForRunningTaskToComplete(testID, future, HANDLE_EXPERIMENT_RESULT);
+    waitForRunningTaskToComplete(testID, future, TestRunningState.HANDLE_EXPERIMENT_RESULT);
 
     // TODO: decide if it is actually needed
     //    // we don't wait for the task to complete since the experiment-manager
@@ -178,7 +178,7 @@ public class RunningStatesHandler {
     // replace with new task
     testTasks.put(testID, future);
 
-    waitForRunningTaskToComplete(testID, future, VALIDATE_PREDICTION_FUNCTION);
+    waitForRunningTaskToComplete(testID, future, TestRunningState.VALIDATE_PREDICTION_FUNCTION);
   }
 
   public void validatePredictionFunction(String testID) {
@@ -217,7 +217,7 @@ public class RunningStatesHandler {
 
       } else {
 
-        testModelDAO.setTestRunningState(testID, REMOVE_NON_REACHABLE_EXPERIMENTS);
+        testModelDAO.setTestRunningState(testID, TestRunningState.REMOVE_NON_REACHABLE_EXPERIMENTS);
 
       }
 
@@ -242,7 +242,7 @@ public class RunningStatesHandler {
     // replace with new task
     testTasks.put(testID, future);
 
-    waitForRunningTaskToComplete(testID, future, DETERMINE_EXECUTE_EXPERIMENTS);
+    waitForRunningTaskToComplete(testID, future, TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS);
   }
 
   public void validateTerminationCriteria(String testID) {
@@ -286,11 +286,12 @@ public class RunningStatesHandler {
           break;
 
         case GOAL_REACHABLE_REGRESSION_PREDICTION_NOT_ACCEPTABLE:
-          testModelDAO.setTestRunningState(testID, REMOVE_NON_REACHABLE_EXPERIMENTS);
+          testModelDAO.setTestRunningState(testID,
+              TestRunningState.REMOVE_NON_REACHABLE_EXPERIMENTS);
           break;
 
         case GOAL_REACHABLE_NO_REGRESSION_EXPERIMENTS_REMAINING:
-          testModelDAO.setTestRunningState(testID, DETERMINE_EXECUTE_EXPERIMENTS);
+          testModelDAO.setTestRunningState(testID, TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS);
           break;
 
         default:
@@ -330,8 +331,8 @@ public class RunningStatesHandler {
 
       Boolean hasRegressionModel = explorationModelDAO.hasRegressionModel(testID);
 
-      TestRunningState nextState =
-          hasRegressionModel ? DERIVE_PREDICTION_FUNCTION : VALIDATE_TERMINATION_CRITERIA;
+      TestRunningState nextState = hasRegressionModel ? TestRunningState.DERIVE_PREDICTION_FUNCTION
+          : TestRunningState.VALIDATE_TERMINATION_CRITERIA;
 
       testModelDAO.setTestRunningState(testID, nextState);
 
