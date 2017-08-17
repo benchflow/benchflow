@@ -1,8 +1,7 @@
 package cloud.benchflow.testmanager.scheduler;
 
 import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.*;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.DETERMINE_EXECUTE_VALIDATION_SET;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.HANDLE_EXPERIMENT_RESULT;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.*;
 
 import cloud.benchflow.dsl.definition.types.time.Time;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
@@ -89,6 +88,12 @@ public class TestTaskScheduler {
 
   // used for testing
   @VisibleForTesting
+  protected void setRunningStatesHandler(RunningStatesHandler runningStatesHandler) {
+    this.runningStatesHandler = runningStatesHandler;
+  }
+
+  // used for testing
+  @VisibleForTesting
   protected ConcurrentMap<String, ScheduledFuture> getTimeoutTasks() {
     return timeoutTasks;
   }
@@ -99,17 +104,14 @@ public class TestTaskScheduler {
     return timeoutScheduledThreadPoolExecutor;
   }
 
-  // used for testing
-  @VisibleForTesting
-  protected void setRunningStatesHandler(RunningStatesHandler runningStatesHandler) {
-    this.runningStatesHandler = runningStatesHandler;
-  }
-
   /**
    * Handle the Starting States of a Test.
+   *
    * @param testID the test ID
    */
   public synchronized void handleStartingTest(String testID) {
+
+    logger.info("handleStartingTest for " + testID);
 
     boolean exit = false;
     BenchFlowTestState testState;
@@ -130,9 +132,12 @@ public class TestTaskScheduler {
           break;
         }
 
-        // Exit as soon as ready is executed
-        if (prevTestState != null && testState != null
-            && prevTestState.name().equals(testState.name()) && testState == READY) {
+        logger.info("handleStartingTest: prevTestState == " + prevTestState);
+        logger.info("handleStartingTest: testState == " + testState);
+
+        // Exit as soon as ready is executed, or the test has been terminated
+        if (prevTestState != null && testState != null && prevTestState == testState
+            && (testState == READY || testState == TERMINATED)) {
           exit = true;
         }
 
@@ -145,14 +150,19 @@ public class TestTaskScheduler {
 
   /**
    * Handle the Running States of a Test.
+   *
    * @param testID the test ID
    */
   public synchronized void handleRunningTest(String testID) {
 
+    logger.info("handleRunningTest for " + testID);
+
     boolean exit = false;
     BenchFlowTestState testState;
+    TestRunningState testRunningState;
 
     try {
+
       testState = testModelDAO.getTestState(testID);
 
       // Stop when we reach a final state
@@ -167,10 +177,19 @@ public class TestTaskScheduler {
           break;
         }
 
+        testRunningState = testModelDAO.getTestRunningState(testID);
+        logger.info("handleRunningTest: prevTestState == " + prevTestState);
+        logger.info("handleRunningTest: testState == " + testState);
+
         // Exit as soon as final state is executed
         if (prevTestState != null && testState != null
             && prevTestState.name().equals(testState.name())
             && (testState == WAITING || testState == TERMINATED)) {
+          exit = true;
+        }
+        // Exit while waiting for the Experiment Manager to notify about the scheduled
+        // experiment to be executed. This exits before the execution of HANDLE_EXPERIMENT_RESULT
+        else if (testRunningState != null && testRunningState.equals(HANDLE_EXPERIMENT_RESULT)) {
           exit = true;
         }
 
@@ -220,8 +239,7 @@ public class TestTaskScheduler {
     return testModelDAO.getTestState(testID);
   }
 
-  @VisibleForTesting
-  synchronized void handleStartState(String testID) {
+  private void handleStartState(String testID) {
 
     logger.info("handle start state: " + testID);
 
@@ -246,7 +264,7 @@ public class TestTaskScheduler {
 
   }
 
-  private synchronized void handleWaitingState(String testID) {
+  private void handleWaitingState(String testID) {
 
     logger.info("handle waiting state: " + testID);
 
@@ -276,20 +294,26 @@ public class TestTaskScheduler {
 
   /**
    * Handles the Running Test Sub-States.
+   *
    * @param testID the test ID
    * @throws BenchFlowTestIDDoesNotExistException when the test ID does not exists
    */
-  public synchronized void handleRunningTestState(String testID)
-      throws BenchFlowTestIDDoesNotExistException {
+  private void handleRunningTestState(String testID) throws BenchFlowTestIDDoesNotExistException {
+
+    logger.info("handleRunningTestState for " + testID);
 
     boolean exit = false;
     BenchFlowTestState testState;
+    TestRunningState testRunningState = testModelDAO.getTestRunningState(testID);
+    TestRunningState prevTestRunningState;
 
     // set timeout if not already set, and a timeout is declared in the model
     setTimeoutIfNeeded(testID);
 
     // Stop when we reach a final state
     while (!exit) {
+
+      prevTestRunningState = testRunningState;
 
       try {
         testState = handleTestRunningState(testID);
@@ -298,8 +322,18 @@ public class TestTaskScheduler {
         break;
       }
 
+      testRunningState = testModelDAO.getTestRunningState(testID);
+      logger.info("handleRunningTestState: testState == " + testState);
+
       // Exit as soon as final state is executed
       if (testState != null && (testState == WAITING || testState == TERMINATED)) {
+        exit = true;
+      }
+      // Exit while waiting for the Experiment Manager to notify about the scheduled
+      // experiment to be executed.
+      else if (prevTestRunningState != null && testRunningState != null
+          && prevTestRunningState == DETERMINE_EXECUTE_EXPERIMENTS
+          && testRunningState == HANDLE_EXPERIMENT_RESULT) {
         exit = true;
       }
 
@@ -318,7 +352,7 @@ public class TestTaskScheduler {
     }
   }
 
-  protected synchronized BenchFlowTestState handleTestRunningState(String testID)
+  private BenchFlowTestState handleTestRunningState(String testID)
       throws BenchFlowTestIDDoesNotExistException {
 
     try {
@@ -393,12 +427,11 @@ public class TestTaskScheduler {
 
 
   /**
-   * Called when user terminates test or max run time has been reached.
-   * <p>
-   * Given that the method is not synchronized, it has not to wait that other synchronized
-   * of this class complete their execution, before getting access. This because the termination
-   * should happen as soon as it is triggered from a Timeout or a User.
-   * </p>
+   * Called when user terminates test or max run time has been reached. <p> Given that the method is
+   * not synchronized, it has not to wait that other synchronized of this class complete their
+   * execution, before getting access. This because the termination should happen as soon as it is
+   * triggered from a Timeout or a User. </p>
+   *
    * @param testID the test ID
    */
   public void terminateTest(String testID) {
@@ -513,6 +546,7 @@ public class TestTaskScheduler {
 
   /**
    * Get the Abortable Future Task from a Future.
+   *
    * @param future the AbortableFutureTask future
    * @return AbortableFutureTaskResult
    * @throws InterruptedException exception
@@ -541,48 +575,9 @@ public class TestTaskScheduler {
     return result;
   }
 
-  // holds the result of an abortable future
-  public class AbortableFutureTaskResult<T> {
-
-    // NOTE: currenlty the result is not used
-    private T result = null;
-    private boolean aborted = false;
-
-    public T getResult() {
-      // the result is only valid if the task was not aborted
-      if (!aborted)
-        return result;
-
-      return null;
-    }
-
-    /**
-     * Set the Result.
-     * @param result the test result
-     */
-    public void setResult(T result) {
-      this.result = result;
-    }
-
-    /**
-     * Check if the Test is Aborted.
-     * @return true if the test is aborted
-     */
-    public boolean isAborted() {
-      return aborted;
-    }
-
-    /**
-     * Set the Aborted Flab.
-     * @param aborted test
-     */
-    public void setAborted(boolean aborted) {
-      this.aborted = aborted;
-    }
-  }
-
   /**
    * Checks whether or not the Test reached the TERMINATED state.
+   *
    * @param testID the test ID
    * @return true if the test state is terminated.
    */
@@ -599,5 +594,49 @@ public class TestTaskScheduler {
       return true;
     }
 
+  }
+
+  // holds the result of an abortable future
+  public class AbortableFutureTaskResult<T> {
+
+    // NOTE: currenlty the result is not used
+    private T result = null;
+    private boolean aborted = false;
+
+    public T getResult() {
+      // the result is only valid if the task was not aborted
+      if (!aborted) {
+        return result;
+      }
+
+      return null;
+    }
+
+    /**
+     * Set the Result.
+     *
+     * @param result the test result
+     */
+    public void setResult(T result) {
+      this.result = result;
+    }
+
+    /**
+     * Check if the Test is Aborted.
+     *
+     * @return true if the test is aborted
+     */
+    public boolean isAborted() {
+      return aborted;
+    }
+
+    /**
+     * Set the Aborted Flab.
+     *
+     * @param aborted test
+     */
+    public void setAborted(boolean aborted) {
+      this.aborted = aborted;
+    }
   }
 }

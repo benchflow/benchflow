@@ -1,7 +1,9 @@
 package cloud.benchflow.testmanager.services.external;
 
-import static cloud.benchflow.testmanager.constants.BenchFlowConstants.*;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.MINIO_ID_DELIMITER;
+import static cloud.benchflow.testmanager.constants.BenchFlowConstants.TESTS_BUCKET;
 
+import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import io.minio.MinioClient;
 import io.minio.Result;
 import io.minio.errors.ErrorResponseException;
@@ -57,8 +59,8 @@ public class MinioService {
 
     logger.info("saveTestDefinition: " + testID);
 
-    String objectName =
-        minioCompatibleID(testID) + MINIO_ID_DELIMITER + TEST_EXPERIMENT_DEFINITION_FILE_NAME;
+    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.TEST_EXPERIMENT_DEFINITION_FILE_NAME;
 
     putInputStreamObject(definition, objectName);
   }
@@ -67,8 +69,8 @@ public class MinioService {
 
     logger.info("getTestDefinition: " + testID);
 
-    String objectName =
-        minioCompatibleID(testID) + MINIO_ID_DELIMITER + TEST_EXPERIMENT_DEFINITION_FILE_NAME;
+    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.TEST_EXPERIMENT_DEFINITION_FILE_NAME;
 
     return getInputStreamObject(objectName);
   }
@@ -77,8 +79,8 @@ public class MinioService {
 
     logger.info("removeTestDefinition: " + testID);
 
-    String objectName =
-        minioCompatibleID(testID) + MINIO_ID_DELIMITER + TEST_EXPERIMENT_DEFINITION_FILE_NAME;
+    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.TEST_EXPERIMENT_DEFINITION_FILE_NAME;
 
     removeObject(objectName);
   }
@@ -87,8 +89,8 @@ public class MinioService {
 
     logger.info("saveTestDeploymentDescriptor: " + testID);
 
-    String objectName =
-        minioCompatibleID(testID) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.DEPLOYMENT_DESCRIPTOR_FILE_NAME;
 
     putInputStreamObject(deploymentDescriptor, objectName);
   }
@@ -97,10 +99,10 @@ public class MinioService {
 
     logger.info("copyDeploymentDescriptorForExperiment: from:" + testID + " to:" + experimentID);
 
-    String testObjectID =
-        minioCompatibleID(testID) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
-    String experimentObjectID =
-        minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+    String testObjectID = minioCompatibleID(testID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+    String experimentObjectID = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.DEPLOYMENT_DESCRIPTOR_FILE_NAME;
 
     copyObject(testObjectID, experimentObjectID);
   }
@@ -109,8 +111,8 @@ public class MinioService {
 
     logger.info("getTestDeploymentDescriptor: " + testID);
 
-    String objectName =
-        minioCompatibleID(testID) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.DEPLOYMENT_DESCRIPTOR_FILE_NAME;
 
     return getInputStreamObject(objectName);
   }
@@ -119,8 +121,8 @@ public class MinioService {
 
     logger.info("removeTestDeploymentDescriptor: " + testID);
 
-    String objectName =
-        minioCompatibleID(testID) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.DEPLOYMENT_DESCRIPTOR_FILE_NAME;
 
     removeObject(objectName);
   }
@@ -129,8 +131,8 @@ public class MinioService {
 
     logger.info("saveTestBPMNModel: " + testID + MINIO_ID_DELIMITER + modelName);
 
-    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER + BPMN_MODELS_FOLDER_NAME
-        + MINIO_ID_DELIMITER + modelName;
+    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER + modelName;
 
     putInputStreamObject(model, objectName);
   }
@@ -140,10 +142,10 @@ public class MinioService {
     logger.info("copyBPMNModelForExperiment: from:" + testID + " to:" + experimentID + " model:"
         + modelName);
 
-    String testObjectID = minioCompatibleID(testID) + MINIO_ID_DELIMITER + BPMN_MODELS_FOLDER_NAME
-        + MINIO_ID_DELIMITER + modelName;
+    String testObjectID = minioCompatibleID(testID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER + modelName;
     String experimentObjectID = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER
-        + BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER + modelName;
+        + BenchFlowConstants.BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER + modelName;
 
     copyObject(testObjectID, experimentObjectID);
   }
@@ -152,8 +154,8 @@ public class MinioService {
 
     logger.info("getTestBPMNModel: " + testID + MINIO_ID_DELIMITER + modelName);
 
-    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER + BPMN_MODELS_FOLDER_NAME
-        + MINIO_ID_DELIMITER + modelName;
+    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER + modelName;
 
     return getInputStreamObject(objectName);
   }
@@ -168,8 +170,8 @@ public class MinioService {
 
     try {
 
-      objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER + BPMN_MODELS_FOLDER_NAME
-          + MINIO_ID_DELIMITER;
+      objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER
+          + BenchFlowConstants.BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER;
 
       for (Result<Item> item : minioClient.listObjects(TESTS_BUCKET, objectName)) {
         modelNames.add(item.get().objectName().replace(objectName, ""));
@@ -189,8 +191,8 @@ public class MinioService {
 
     logger.info("removeTestBPMNModel: " + testID + MINIO_ID_DELIMITER + modelName);
 
-    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER + BPMN_MODELS_FOLDER_NAME
-        + MINIO_ID_DELIMITER + modelName;
+    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER + modelName;
 
     removeObject(objectName);
   }
@@ -199,8 +201,8 @@ public class MinioService {
 
     logger.info("saveExperimentDefinition: " + experimentID);
 
-    String objectName =
-        minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + TEST_EXPERIMENT_DEFINITION_FILE_NAME;
+    String objectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.TEST_EXPERIMENT_DEFINITION_FILE_NAME;
 
     putInputStreamObject(definition, objectName);
   }
@@ -209,8 +211,8 @@ public class MinioService {
 
     logger.info("getExperimentDefinition: " + experimentID);
 
-    String objectName =
-        minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + TEST_EXPERIMENT_DEFINITION_FILE_NAME;
+    String objectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.TEST_EXPERIMENT_DEFINITION_FILE_NAME;
 
     return getInputStreamObject(objectName);
   }
@@ -219,8 +221,8 @@ public class MinioService {
 
     logger.info("removeExperimentDefinition: " + experimentID);
 
-    String objectName =
-        minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + TEST_EXPERIMENT_DEFINITION_FILE_NAME;
+    String objectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.TEST_EXPERIMENT_DEFINITION_FILE_NAME;
 
     removeObject(objectName);
   }
@@ -230,8 +232,8 @@ public class MinioService {
 
     logger.info("saveExperimentDeploymentDescriptor: " + experimentID);
 
-    String objectName =
-        minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+    String objectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.DEPLOYMENT_DESCRIPTOR_FILE_NAME;
 
     putInputStreamObject(deploymentDescriptor, objectName);
   }
@@ -240,8 +242,8 @@ public class MinioService {
 
     logger.info("getExperimentDeploymentDescriptor: " + experimentID);
 
-    String objectName =
-        minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+    String objectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.DEPLOYMENT_DESCRIPTOR_FILE_NAME;
 
     return getInputStreamObject(objectName);
   }
@@ -326,6 +328,6 @@ public class MinioService {
   }
 
   public static String minioCompatibleID(String id) {
-    return id.replace(MODEL_ID_DELIMITER, MINIO_ID_DELIMITER);
+    return id.replace(BenchFlowConstants.MODEL_ID_DELIMITER, MINIO_ID_DELIMITER);
   }
 }

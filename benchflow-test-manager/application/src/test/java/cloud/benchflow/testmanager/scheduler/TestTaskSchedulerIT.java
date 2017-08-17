@@ -14,9 +14,9 @@ import cloud.benchflow.testmanager.helpers.constants.TestBundle;
 import cloud.benchflow.testmanager.helpers.constants.TestConstants;
 import cloud.benchflow.testmanager.helpers.constants.TestFiles;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
-import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.RunningState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
+import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState;
 import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.models.explorationspace.MongoCompatibleExplorationSpace;
@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import javax.ws.rs.Path;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -491,6 +492,18 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       String experimentID = (String) invocationOnMock.getArguments()[0];
 
       experimentModelDAO.setExperimentState(experimentID, TERMINATED, null, COMPLETED);
+
+      new Thread(() -> {
+
+        // TODO - try to find a way to deterministically execute some code, after a given mocked method is called.
+        try {
+          Thread.sleep(2000);
+          testTaskScheduler.handleRunningTest(testID);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+
+      }).start();
 
       countDownLatch.countDown();
 

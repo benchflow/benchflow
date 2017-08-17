@@ -17,7 +17,7 @@ public class MongoCompatibleExplorationSpaceDimensions {
   // we use concrete collection classes for MongoDB + Morphia
 
   private Optional<List<Integer>> users;
-  private Optional<Map<String, List<Bytes>>> memory;
+  private Optional<Map<String, List<String>>> memory;
   private Optional<Map<String, Map<String, List<String>>>> environment;
 
   public MongoCompatibleExplorationSpaceDimensions() {
@@ -36,8 +36,9 @@ public class MongoCompatibleExplorationSpaceDimensions {
       Optional<Map<String, Map<String, List<String>>>> environment) {
     this.users = users.map(ArrayList::new);
 
-    this.memory = memory.map(map -> new HashMap<>(map.entrySet().stream()
-        .collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(e.getValue())))));
+    this.memory = memory.map(
+        map -> new HashMap<>(map.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
+            e -> e.getValue().stream().map(Bytes::toString).collect(Collectors.toList())))));
 
     this.environment = environment.map(map -> new HashMap<>(map.entrySet().stream()
         .collect(Collectors.toMap(Map.Entry::getKey,
@@ -53,11 +54,11 @@ public class MongoCompatibleExplorationSpaceDimensions {
     this.users = users;
   }
 
-  public Optional<Map<String, List<Bytes>>> getMemory() {
+  public Optional<Map<String, List<String>>> getMemory() {
     return memory;
   }
 
-  public void setMemory(Optional<Map<String, List<Bytes>>> memory) {
+  public void setMemory(Optional<Map<String, List<String>>> memory) {
     this.memory = memory;
   }
 
@@ -70,7 +71,13 @@ public class MongoCompatibleExplorationSpaceDimensions {
   }
 
   public JavaCompatExplorationSpaceDimensions toJavaCompat() {
-    return new JavaCompatExplorationSpaceDimensions(users, memory, environment);
+
+    return new JavaCompatExplorationSpaceDimensions(users,
+        memory
+            .map(map -> map.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().stream()
+                    .map(s -> Bytes.fromString(s).get()).collect(Collectors.toList())))),
+        environment);
   }
 
 }

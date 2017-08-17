@@ -8,7 +8,9 @@ import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistExcepti
 import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidTrialIDWebException;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
+import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
+import cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState;
 import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
@@ -19,7 +21,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,19 +39,19 @@ public class BenchFlowExperimentResource {
 
   private final BenchFlowExperimentModelDAO experimentModelDAO;
   private final BenchFlowTestModelDAO testModelDAO;
-  private final TestTaskScheduler testTaskController;
+  private final TestTaskScheduler testTaskScheduler;
 
   public BenchFlowExperimentResource() {
-    this.testTaskController = BenchFlowTestManagerApplication.getTestTaskScheduler();
+    this.testTaskScheduler = BenchFlowTestManagerApplication.getTestTaskScheduler();
     this.experimentModelDAO = BenchFlowTestManagerApplication.getExperimentModelDAO();
     this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
   }
 
   /* used for testing */
   public BenchFlowExperimentResource(BenchFlowExperimentModelDAO experimentModelDAO,
-      TestTaskScheduler testTaskController, BenchFlowTestModelDAO testModelDAO) {
+      TestTaskScheduler testTaskScheduler, BenchFlowTestModelDAO testModelDAO) {
     this.experimentModelDAO = experimentModelDAO;
-    this.testTaskController = testTaskController;
+    this.testTaskScheduler = testTaskScheduler;
     this.testModelDAO = testModelDAO;
   }
 
@@ -74,28 +75,30 @@ public class BenchFlowExperimentResource {
 
       BenchFlowTestModel.BenchFlowTestState testState = testModelDAO.getTestState(testID);
 
-      if (!testState.equals(BenchFlowTestModel.BenchFlowTestState.RUNNING)) {
-        throw new WebApplicationException("test not running");
+      // we update the experiment state also in the case that the test has terminated in order
+      // to be synchronized with the state on the experiment manager
+      experimentModelDAO.setExperimentState(experimentID, stateRequest.getState(),
+          stateRequest.getRunningState(), stateRequest.getTerminatedState());
+
+      BenchFlowExperimentModel.BenchFlowExperimentState experimentState = stateRequest.getState();
+
+      // if the test has not terminated (e.g is running) and the experiment state is terminated
+      // we inform the testTaskController
+
+      if (testState != BenchFlowTestState.TERMINATED
+          && experimentState == BenchFlowExperimentState.TERMINATED) {
+
+        testTaskScheduler.handleRunningTest(testID);
       }
+
+      // for now we ignore other states since we are only concerned if the experiment has terminated
 
     } catch (BenchFlowTestIDDoesNotExistException e) {
       throw new InvalidBenchFlowTestIDWebException();
-    }
-
-    try {
-      experimentModelDAO.setExperimentState(experimentID, stateRequest.getState(),
-          stateRequest.getRunningState(), stateRequest.getTerminatedState());
     } catch (BenchFlowExperimentIDDoesNotExistException e) {
       throw new InvalidTrialIDWebException();
     }
 
-    if (stateRequest.getState()
-        .equals(BenchFlowExperimentModel.BenchFlowExperimentState.TERMINATED)) {
-
-      testTaskController.handleRunningTest(testID);
-    }
-
-    // for now we ignore other states since we are only concerned if the experiment has terminated
 
   }
 }

@@ -55,7 +55,7 @@ public class BenchFlowExperimentModelDAO extends DAO {
     return experimentModel.getId();
   }
 
-  private synchronized BenchFlowExperimentModel getExperiment(String experimentID)
+  private BenchFlowExperimentModel getExperiment(String experimentID)
       throws BenchFlowExperimentIDDoesNotExistException {
 
     logger.info("getExperiment: " + experimentID);

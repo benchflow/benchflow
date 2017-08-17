@@ -44,7 +44,7 @@ public class BenchFlowTestModelDAO extends DAO {
     return model.getId();
   }
 
-  private synchronized long generateTestNumber(String testName, User user) {
+  private long generateTestNumber(String testName, User user) {
 
     String benchFlowTestIdentifier =
         BenchFlowTestNumber.generateBenchFlowTestIdentifier(user.getUsername(), testName);
