@@ -3,7 +3,6 @@ package cloud.benchflow.experimentmanager.configurations.factory;
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.client.Client;
 import org.hibernate.validator.constraints.NotEmpty;
 

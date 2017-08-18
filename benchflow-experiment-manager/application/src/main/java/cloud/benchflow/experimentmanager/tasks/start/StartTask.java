@@ -7,6 +7,7 @@ import cloud.benchflow.dsl.definition.workload.Workload;
 import cloud.benchflow.dsl.demo.DemoConverter;
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
+import cloud.benchflow.experimentmanager.exceptions.BenchmarkGenerationException;
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.external.faban.FabanManagerService;
@@ -106,6 +107,9 @@ public class StartTask extends AbortableCallable<Boolean> {
 
       return false;
 
+    } catch (BenchmarkGenerationException e) {
+      logger.error(e.getMessage());
+      return false;
     } catch (BenchFlowDeserializationException e) {
       // should already have been checked in previous step
       // TODO - handle me
