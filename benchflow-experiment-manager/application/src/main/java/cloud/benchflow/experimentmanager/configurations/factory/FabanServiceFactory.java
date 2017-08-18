@@ -14,6 +14,11 @@ import org.hibernate.validator.constraints.NotEmpty;
 public class FabanServiceFactory {
 
   private String user;
+  private String password;
+  @NotEmpty
+  private String address;
+  @NotNull
+  private int submitRetries;
 
   @JsonProperty
   public String getUser() {
@@ -25,8 +30,6 @@ public class FabanServiceFactory {
     this.user = user;
   }
 
-  private String password;
-
   @JsonProperty
   public String getPassword() {
     return password;
@@ -37,9 +40,6 @@ public class FabanServiceFactory {
     this.password = password;
   }
 
-  @NotEmpty
-  private String address;
-
   @JsonProperty
   public String getAddress() {
     return address;
@@ -49,9 +49,6 @@ public class FabanServiceFactory {
   public void setAddress(String address) {
     this.address = address;
   }
-
-  @NotNull
-  private int submitRetries;
 
   @JsonProperty
   public int getSubmitRetries() {

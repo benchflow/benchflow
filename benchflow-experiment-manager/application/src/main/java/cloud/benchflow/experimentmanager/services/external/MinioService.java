@@ -36,6 +36,10 @@ public class MinioService {
     this.minioClient = minioClient;
   }
 
+  public static String minioCompatibleID(String id) {
+    return id.replace(MODEL_ID_DELIMITER, MINIO_ID_DELIMITER);
+  }
+
   public void initializeBuckets() {
 
     try {
@@ -314,9 +318,5 @@ public class MinioService {
       // TODO - handle exception
       logger.error("Exception in copyObject: from:" + fromObjectName + " to:" + toObjectName, e);
     }
-  }
-
-  public static String minioCompatibleID(String id) {
-    return id.replace(MODEL_ID_DELIMITER, MINIO_ID_DELIMITER);
   }
 }

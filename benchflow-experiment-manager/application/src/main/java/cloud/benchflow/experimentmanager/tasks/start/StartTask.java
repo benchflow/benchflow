@@ -8,15 +8,15 @@ import cloud.benchflow.dsl.demo.DemoConverter;
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
-import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
+import cloud.benchflow.experimentmanager.services.external.faban.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
+import cloud.benchflow.experimentmanager.tasks.AbortableCallable;
 import cloud.benchflow.faban.client.exceptions.JarFileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.concurrent.Callable;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ import scala.collection.JavaConverters;
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19
  */
-public class StartTask implements Callable<Boolean> {
+public class StartTask extends AbortableCallable<Boolean> {
 
   private static Logger logger = LoggerFactory.getLogger(StartTask.class.getSimpleName());
 

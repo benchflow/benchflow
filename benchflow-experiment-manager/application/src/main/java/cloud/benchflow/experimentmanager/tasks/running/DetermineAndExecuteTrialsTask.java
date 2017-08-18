@@ -2,19 +2,19 @@ package cloud.benchflow.experimentmanager.tasks.running;
 
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
-import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
+import cloud.benchflow.experimentmanager.services.external.faban.FabanManagerService;
+import cloud.benchflow.experimentmanager.services.external.faban.FabanStatus;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
+import cloud.benchflow.experimentmanager.tasks.AbortableCallable;
 import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial;
-import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.FabanStatus;
-import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19
  */
-public class DetermineAndExecuteTrialsTask implements Callable<FabanStatus> {
+public class DetermineAndExecuteTrialsTask extends AbortableCallable<FabanStatus> {
 
   private static Logger logger =
       LoggerFactory.getLogger(DetermineAndExecuteTrialsTask.class.getSimpleName());
@@ -48,4 +48,5 @@ public class DetermineAndExecuteTrialsTask implements Callable<FabanStatus> {
 
     return null;
   }
+
 }

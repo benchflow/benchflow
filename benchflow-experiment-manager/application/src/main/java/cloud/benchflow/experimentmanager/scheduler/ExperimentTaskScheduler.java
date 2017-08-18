@@ -1,26 +1,23 @@
 package cloud.benchflow.experimentmanager.scheduler;
 
+import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState.READY;
+import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState.TERMINATED;
+
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
-import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.RunningState;
-import cloud.benchflow.experimentmanager.models.TrialModel.TrialStatus;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.TerminatedState;
+import cloud.benchflow.experimentmanager.scheduler.running.RunningStatesHandler;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
-import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
-import cloud.benchflow.experimentmanager.tasks.running.CheckTerminationCriteriaTask;
-import cloud.benchflow.experimentmanager.tasks.running.CheckTerminationCriteriaTask.TerminationCriteriaResult;
-import cloud.benchflow.experimentmanager.tasks.running.CheckTrialResultTask;
-import cloud.benchflow.experimentmanager.tasks.running.CheckTrialResultTask.TrialExecutionStatus;
-import cloud.benchflow.experimentmanager.tasks.running.DetermineAndExecuteTrialsTask;
-import cloud.benchflow.experimentmanager.tasks.running.ReExecuteTrialTask;
-import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.FabanStatus;
+import cloud.benchflow.experimentmanager.tasks.AbortableFutureTask;
 import cloud.benchflow.experimentmanager.tasks.start.StartTask;
-import cloud.benchflow.faban.client.responses.RunStatus.StatusCode;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
@@ -32,13 +29,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19
+ * @author Vincenzo Ferme (info@vincenzoferme.it)
  */
 public class ExperimentTaskScheduler {
 
   private static Logger logger =
       LoggerFactory.getLogger(ExperimentTaskScheduler.class.getSimpleName());
 
-  private ConcurrentMap<String, Future> experimentTasks = new ConcurrentHashMap<>();
+  private ConcurrentMap<String, AbortableFutureTask> experimentTasks = new ConcurrentHashMap<>();
 
   // ready queue
   private BlockingQueue<String> readyQueue = new LinkedBlockingDeque<>();
@@ -47,90 +45,192 @@ public class ExperimentTaskScheduler {
   private BlockingQueue<String> runningQueue = new ArrayBlockingQueue<>(1, true);
 
   private BenchFlowExperimentModelDAO experimentModelDAO;
-  private TrialModelDAO trialModelDAO;
   // TODO - should go into a stateless queue (so that we can recover)
-  private ExecutorService experimentTaskExecutorService;
+  private CustomFutureReturningExecutor experimentTaskExecutorService;
   private BenchFlowTestManagerService testManagerService;
 
-  public ExperimentTaskScheduler(ExecutorService experimentTaskExecutorService) {
+  private RunningStatesHandler runningStatesHandler;
+
+  public ExperimentTaskScheduler(CustomFutureReturningExecutor experimentTaskExecutorService) {
     this.experimentTaskExecutorService = experimentTaskExecutorService;
   }
 
   public void initialize() {
 
     this.experimentModelDAO = BenchFlowExperimentManagerApplication.getExperimentModelDAO();
-    this.trialModelDAO = BenchFlowExperimentManagerApplication.getTrialModelDAO();
     this.testManagerService = BenchFlowExperimentManagerApplication.getTestManagerService();
 
     // start dispatcher in separate thread
     new Thread(new ExperimentDispatcher(readyQueue, runningQueue)).start();
 
+    this.runningStatesHandler =
+        new RunningStatesHandler(experimentTasks, this, experimentTaskExecutorService);
+
+    this.runningStatesHandler.initialize();
+
   }
 
   // used for testing
+  @VisibleForTesting
   public ExecutorService getExperimentTaskExecutorService() {
     return experimentTaskExecutorService;
   }
 
-  public synchronized void handleExperimentState(String experimentID) {
+  // used for testing
+  @VisibleForTesting
+  protected RunningStatesHandler getRunningStatesHandler() {
+    return runningStatesHandler;
+  }
+
+  // used for testing
+  @VisibleForTesting
+  protected void setRunningStatesHandler(RunningStatesHandler runningStatesHandler) {
+    this.runningStatesHandler = runningStatesHandler;
+  }
+
+
+  /**
+   * Handle the Starting States of an Experiment.
+   *
+   * @param experimentID the experiment ID
+   */
+  public synchronized void handleStartingExperiment(String experimentID) {
+
+    boolean exit = false;
+    BenchFlowExperimentState experimentState;
 
     try {
 
-      BenchFlowExperimentState experimentState =
-          experimentModelDAO.getExperimentState(experimentID);
+      experimentState = experimentModelDAO.getExperimentState(experimentID);
 
-      logger.info("handleExperimentSate: " + experimentID + " state: " + experimentState.name());
+      // Stop when we reach a final starting state
+      while (!exit) {
 
-      switch (experimentState) {
-        case START:
-          handleStartState(experimentID);
+        BenchFlowExperimentState prevTestState = experimentState;
+
+        try {
+          experimentState = handleExperimentState(experimentID);
+        } catch (BenchFlowExperimentIDDoesNotExistException e) {
+          e.printStackTrace();
           break;
+        }
 
-        case READY:
-          // put test in shared (with dispatcher) ready queue
-          readyQueue.add(experimentID);
-          break;
+        // Exit as soon as ready or terminated is executed
+        // An experiment can go to the TERMINATED state from START in case of errors
+        if (prevTestState != null && experimentState != null
+            && prevTestState.name().equals(experimentState.name())
+            && (experimentState == READY || experimentState == TERMINATED)) {
+          exit = true;
+        }
 
-        case RUNNING:
-          handleRunningState(experimentID);
-          break;
+      }
+    } catch (BenchFlowExperimentIDDoesNotExistException e) {
+      e.printStackTrace();
+    }
 
-        case TERMINATED:
-          // remove test from running queue so dispatcher can run next experiment
-          runningQueue.remove(experimentID);
-          // experiment already executed
-          logger.info("Experiment already executed. Nothing to do.");
-          break;
+  }
 
-        default:
-          // no default
+  /**
+   * Handle the Running States of an Experiment.
+   *
+   * @param experimentID the experiment ID
+   */
+  public synchronized void handleRunningExperiment(String experimentID) {
+
+    boolean exit = false;
+    BenchFlowExperimentState experimentState;
+
+    try {
+      experimentState = experimentModelDAO.getExperimentState(experimentID);
+
+      // Stop when we reach a final state
+      while (!exit) {
+
+        BenchFlowExperimentState prevTestState = experimentState;
+
+        try {
+          experimentState = handleExperimentState(experimentID);
+        } catch (BenchFlowExperimentIDDoesNotExistException e) {
+          e.printStackTrace();
           break;
+        }
+
+        // Exit as soon as final state is executed
+        if (prevTestState != null && experimentState != null
+            && prevTestState.name().equals(experimentState.name())
+            && experimentState == TERMINATED) {
+          exit = true;
+        }
+
       }
 
     } catch (BenchFlowExperimentIDDoesNotExistException e) {
       e.printStackTrace();
     }
+
   }
 
-  private void handleStartState(String experimentID) {
+  private BenchFlowExperimentState handleExperimentState(String experimentID)
+      throws BenchFlowExperimentIDDoesNotExistException {
+
+    BenchFlowExperimentState experimentState = experimentModelDAO.getExperimentState(experimentID);
+
+    logger.info("handleExperimentSate: " + experimentID + " state: " + experimentState.name());
+
+    switch (experimentState) {
+      case START:
+        handleStartState(experimentID);
+        break;
+
+      case READY:
+        // put test in shared (with dispatcher) ready queue
+        readyQueue.add(experimentID);
+        break;
+
+      case RUNNING:
+        handleRunningExperimentState(experimentID);
+        break;
+
+      case TERMINATED:
+        handleTerminatedState(experimentID);
+        break;
+
+      default:
+        // no default
+        break;
+    }
+
+    return experimentModelDAO.getExperimentState(experimentID);
+  }
+
+  @VisibleForTesting
+  void handleStartState(String experimentID) {
 
     logger.info("handleStartState: " + experimentID);
 
     StartTask startTask = new StartTask(experimentID);
 
-    Future<Boolean> future = experimentTaskExecutorService.submit(startTask);
+    AbortableFutureTask future =
+        (AbortableFutureTask) experimentTaskExecutorService.submit(startTask);
 
     experimentTasks.put(experimentID, future);
 
     try {
 
-      boolean deployed = future.get();
+      // wait for task to complete
+      AbortableFutureTaskResult<Boolean> abortableFuture = getAbortableFutureTask(future);
+
+      // return if aborted
+      if (abortableFuture.isAborted()) {
+        return;
+      }
+
+      boolean deployed = abortableFuture.getResult();
 
       if (deployed) {
-        experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.READY);
-        handleExperimentState(experimentID);
+        experimentModelDAO.setExperimentState(experimentID, READY);
       } else {
-        experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED);
+        experimentModelDAO.setExperimentState(experimentID, TERMINATED);
         experimentModelDAO.setTerminatedState(experimentID,
             BenchFlowExperimentModel.TerminatedState.ERROR);
         testManagerService.setExperimentTerminatedState(experimentID,
@@ -143,240 +243,275 @@ public class ExperimentTaskScheduler {
     }
   }
 
-  private void handleRunningState(String experimentID) {
+  /**
+   * Handles the Running Experiment Sub-States.
+   *
+   * @param experimentID the experiment ID
+   * @throws BenchFlowExperimentIDDoesNotExistException when the experiment ID does not exists
+   */
+  private void handleRunningExperimentState(String experimentID)
+      throws BenchFlowExperimentIDDoesNotExistException {
+
+    boolean exit = false;
+    BenchFlowExperimentState experimentState;
+
+    // Stop when we reach a final state
+    while (!exit) {
+
+      try {
+        experimentState = handleExperimentRunningState(experimentID);
+      } catch (BenchFlowExperimentIDDoesNotExistException e) {
+        e.printStackTrace();
+        break;
+      }
+
+      // Exit as soon as final state is executed
+      if (experimentState != null && experimentState == TERMINATED) {
+        exit = true;
+      }
+
+    }
+
+  }
+
+  private BenchFlowExperimentState handleExperimentRunningState(String experimentID)
+      throws BenchFlowExperimentIDDoesNotExistException {
+
+    RunningState runningState = experimentModelDAO.getRunningState(experimentID);
+
+    logger.info("handleRunningState: " + experimentID + " state: " + runningState.name());
+
+    testManagerService.setExperimentRunningState(experimentID, runningState);
+
+    switch (runningState) {
+      case DETERMINE_EXECUTE_TRIALS:
+        runningStatesHandler.handleDetermineAndExecuteTrials(experimentID);
+        break;
+
+      case HANDLE_TRIAL_RESULT:
+        runningStatesHandler.handleTrialResult(experimentID);
+        break;
+
+      case CHECK_TERMINATION_CRITERIA:
+        runningStatesHandler.handleCheckTerminationCriteria(experimentID);
+        break;
+
+      default:
+        // no default
+        break;
+    }
+
+    return experimentModelDAO.getExperimentState(experimentID);
+
+  }
+
+  @VisibleForTesting
+  void handleTerminatedState(String experimentID)
+      throws BenchFlowExperimentIDDoesNotExistException {
+
+    TerminatedState terminatedState = experimentModelDAO.getTerminatedState(experimentID);
+    testManagerService.setExperimentTerminatedState(experimentID, terminatedState);
+
+    // remove any tasks left
+    experimentTasks.remove(experimentID);
+
+    // remove test from running queue so dispatcher can run next experiment
+    runningQueue.remove(experimentID);
+
+  }
+
+  /**
+   * Called when user terminates experiment. <p> Given that the method is not synchronized, it has
+   * not to wait that other synchronized of this class complete their execution, before getting
+   * access. This because the termination should happen as soon as it is triggered from a User.
+   * </p>
+   *
+   * @param experimentID the experiment ID
+   */
+  public void abortExperiment(String experimentID) {
+
+    logger.info("abortExperiment: " + experimentID);
 
     try {
 
-      RunningState runningState = experimentModelDAO.getRunningState(experimentID);
+      BenchFlowExperimentState experimentState =
+          experimentModelDAO.getExperimentState(experimentID);
 
-      logger.info("handleRunningState: " + experimentID + " state: " + runningState.name());
+      switch (experimentState) {
 
-      switch (runningState) {
-        case DETERMINE_EXECUTE_TRIALS:
-          handleDetermineAndExecuteTrials(experimentID);
+        case START:
+          // cancel the current running task, but let it complete before
+          cancelTask(experimentID);
+
           break;
 
-        case HANDLE_TRIAL_RESULT:
-          handleTrialResult(experimentID);
+        case READY:
+          // remove from ready queue
+          readyQueue.remove(experimentID);
+
+          // cancel the current running task, but let it complete before
+          cancelTask(experimentID);
+
           break;
 
-        case CHECK_TERMINATION_CRITERIA:
-          handleCheckTerminationCriteria(experimentID);
+        case RUNNING:
+
+          // cancel the current running task, but let it complete before
+          cancelTask(experimentID);
+
+          break;
+
+        case TERMINATED:
+          // already terminated
           break;
 
         default:
-          // no default
+          /// no default
           break;
+
       }
+
 
     } catch (BenchFlowExperimentIDDoesNotExistException e) {
-      // should not happen since it was added earlier
-      logger.error("experiment ID does not exist - should not happen");
-      e.printStackTrace();
-    }
-  }
-
-  private void handleDetermineAndExecuteTrials(String experimentID) {
-
-    logger.info("handleDetermineAndExecuteTrials: " + experimentID);
-
-    DetermineAndExecuteTrialsTask newTrialTask = new DetermineAndExecuteTrialsTask(experimentID);
-
-    Future<FabanStatus> future = experimentTaskExecutorService.submit(newTrialTask);
-
-    experimentTasks.put(experimentID, future);
-
-    // TODO - change this when faban interaction changes to non-polling
-
-    try {
-
-      FabanStatus fabanStatus = future.get();
-
-      String trialID = fabanStatus.getTrialID();
-
-      trialModelDAO.setFabanStatus(trialID, fabanStatus.getStatusCode());
-      trialModelDAO.setFabanResult(trialID, fabanStatus.getResult());
-
-      determineAndSetTrialStatus(trialID, fabanStatus);
-
-      experimentModelDAO.setRunningState(experimentID, RunningState.HANDLE_TRIAL_RESULT);
-      testManagerService.setExperimentRunningState(experimentID, RunningState.HANDLE_TRIAL_RESULT);
-
-      handleExperimentState(experimentID);
-
-    } catch (InterruptedException | ExecutionException e) {
+      // TODO - handle exception
       e.printStackTrace();
     }
 
   }
 
-  private void handleTrialResult(String experimentID) {
+  private void cancelTask(String experimentID) throws BenchFlowExperimentIDDoesNotExistException {
 
-    logger.info("handleTrialResult: " + experimentID);
+    //Cancel the task and remove it from the testTasks queue
+    Future future = experimentTasks.remove(experimentID);
 
-    try {
+    AbortableFutureTask abortableFutureTask = null;
 
-      String trialID = experimentModelDAO.getLastExecutedTrialID(experimentID);
-
-      handleCheckTrialResultTask(trialID);
-
-    } catch (BenchFlowExperimentIDDoesNotExistException e) {
-      e.printStackTrace();
-    }
-  }
-
-  private void handleCheckTrialResultTask(String trialID) {
-
-    logger.info("handleCheckTrialResultTask: " + trialID);
-
-    CheckTrialResultTask trialResultTask = new CheckTrialResultTask(trialID);
-
-    Future<TrialExecutionStatus> future = experimentTaskExecutorService.submit(trialResultTask);
-
-    String experimentID = BenchFlowConstants.getExperimentIDFromTrialID(trialID);
-    experimentTasks.put(experimentID, future);
-
-    try {
-
-      TrialExecutionStatus experimentResult = future.get();
-
-      switch (experimentResult) {
-
-        case SUCCESS:
-          experimentModelDAO.setRunningState(experimentID,
-              BenchFlowExperimentModel.RunningState.CHECK_TERMINATION_CRITERIA);
-          testManagerService.setExperimentRunningState(experimentID,
-              RunningState.CHECK_TERMINATION_CRITERIA);
-
-          handleExperimentState(experimentID);
-          break;
-
-        case RE_EXECUTE_TRIAL:
-          handleReExecuteTrial(trialID);
-          break;
-
-        default:
-          // no default
-          break;
-
-      }
-
-    } catch (InterruptedException | ExecutionException e) {
-      e.printStackTrace();
-    }
-
-  }
-
-  private void handleReExecuteTrial(String trialID) {
-
-    logger.info("handleReExecuteTrial: " + trialID);
-
-    try {
-
-      ReExecuteTrialTask reExecuteTrialTask = new ReExecuteTrialTask(trialID);
-
-      Future<FabanStatus> future = experimentTaskExecutorService.submit(reExecuteTrialTask);
-
-      String experimentID = BenchFlowConstants.getExperimentIDFromTrialID(trialID);
-      experimentTasks.put(experimentID, future);
-
-      // TODO - change this when faban interaction changes to non-polling
-      FabanStatus fabanStatus = future.get();
-
-      trialModelDAO.setFabanStatus(trialID, fabanStatus.getStatusCode());
-      trialModelDAO.setFabanResult(trialID, fabanStatus.getResult());
-
-      determineAndSetTrialStatus(trialID, fabanStatus);
-
-      handleCheckTrialResultTask(trialID);
-
-    } catch (InterruptedException | ExecutionException e) {
-      e.printStackTrace();
-    }
-  }
-
-  private void determineAndSetTrialStatus(String trialID, FabanStatus fabanStatus) {
-    if (fabanStatus.getStatusCode() == StatusCode.COMPLETED) {
-
-      switch (fabanStatus.getResult()) {
-        // if completed we check the result
-        case PASSED:
-          trialModelDAO.setTrialStatus(trialID, TrialStatus.SUCCESS);
-          break;
-
-        case FAILED:
-          trialModelDAO.setTrialStatus(trialID, TrialStatus.FAILED);
-          break;
-
-        case NA:
-        case UNKNOWN:
-        case NOT_AVAILABLE:
-        default:
-          trialModelDAO.setTrialStatus(trialID, TrialStatus.RANDOM_FAILURE);
-          break;
-      }
+    if (future instanceof AbortableFutureTask) {
+      abortableFutureTask = (AbortableFutureTask) future;
 
     } else {
-      // if not completed we treat it as a failed execution
-      // could be FAILED, KILLED, KILLING OR DENIED
-      trialModelDAO.setTrialStatus(trialID, TrialStatus.FAILED);
+      //TODO - Handle it properly (should never happen)
+      new Exception("An Unexpected Task Type is Scheduled in CustomFutureReturningExecutor")
+          .printStackTrace();
+    }
+
+    //Let the task complete before interrupting it
+    if (abortableFutureTask != null) {
+
+      // NOTE: enable if we need to cancel the executing task
+      //      abortableFutureTask.cancel(false);
+
+      // set test to terminated
+      experimentModelDAO.setExperimentState(experimentID, TERMINATED);
+      experimentModelDAO.setTerminatedState(experimentID, TerminatedState.ABORTED);
+
+      abortableFutureTask.abortTask();
+
     }
   }
 
-  private void handleCheckTerminationCriteria(String experimentID) {
-
-    logger.info("handleCheckTerminationCriteria: " + experimentID);
-
-    CheckTerminationCriteriaTask terminationCriteriaTask =
-        new CheckTerminationCriteriaTask(experimentID);
-
-    Future<TerminationCriteriaResult> future =
-        experimentTaskExecutorService.submit(terminationCriteriaTask);
-
-    experimentTasks.put(experimentID, future);
+  /**
+   * Checks whether or not the Experiment reached the TERMINATED state.
+   *
+   * @param experimentID the experiment ID
+   * @return true if the experiment state is terminated.
+   */
+  @Deprecated
+  public boolean isTerminated(String experimentID) {
 
     try {
+      BenchFlowExperimentState experimentState =
+          experimentModelDAO.getExperimentState(experimentID);
 
-      TerminationCriteriaResult terminationCriteriaResult = future.get();
+      return experimentState == TERMINATED;
 
-      switch (terminationCriteriaResult) {
-        case FULFILLED:
-          experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED);
-          experimentModelDAO.setTerminatedState(experimentID,
-              BenchFlowExperimentModel.TerminatedState.COMPLETED);
-          testManagerService.setExperimentTerminatedState(experimentID,
-              BenchFlowExperimentModel.TerminatedState.COMPLETED);
+    } catch (BenchFlowExperimentIDDoesNotExistException e) {
+      // if test is not in the DB we consider it as terminated
+      return true;
+    }
 
-          handleExperimentState(experimentID);
+  }
 
-          break;
 
-        case NOT_FULFILLED:
-          experimentModelDAO.setRunningState(experimentID, RunningState.DETERMINE_EXECUTE_TRIALS);
-          testManagerService.setExperimentRunningState(experimentID,
-              RunningState.DETERMINE_EXECUTE_TRIALS);
-          handleExperimentState(experimentID);
+  private boolean isTaskAborted(AbortableFutureTask future) {
 
-          break;
+    return future.isAborted();
 
-        case CANNOT_BE_FULFILLED:
-          experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED);
-          experimentModelDAO.setTerminatedState(experimentID,
-              BenchFlowExperimentModel.TerminatedState.FAILURE);
-          testManagerService.setExperimentTerminatedState(experimentID,
-              BenchFlowExperimentModel.TerminatedState.FAILURE);
+  }
 
-          handleExperimentState(experimentID);
+  /**
+   * Get the Abortable Future Task from a Future.
+   *
+   * @param future the AbortableFutureTask future
+   * @return AbortableFutureTaskResult
+   * @throws InterruptedException exception
+   * @throws ExecutionException exception
+   */
+  public AbortableFutureTaskResult getAbortableFutureTask(AbortableFutureTask future)
+      throws InterruptedException, ExecutionException {
 
-          break;
+    AbortableFutureTaskResult result = new AbortableFutureTaskResult();
 
-        default:
-          // no default
-          break;
+    try {
+      Object futureResult = future.get();
+      result.setResult(futureResult);
+    } catch (CancellationException e) {
+      // if experiment has been terminated (we cancel the task in terminateTest) we stop here
+      result.setAborted(true);
+    } finally {
+      // if experiment has been aborted (we cancel the task in terminateTest) we stop here
+      if (isTaskAborted(future)) {
+        result.setAborted(true);
+      }
+    }
+
+    logger.info(result.toString());
+
+    return result;
+  }
+
+  // holds the result of an abortable future
+  public class AbortableFutureTaskResult<T> {
+
+    private T result = null;
+    private boolean aborted = false;
+
+    public T getResult() {
+      // the result is only valid if the task was not aborted
+      if (!aborted) {
+        return result;
       }
 
-    } catch (InterruptedException | ExecutionException e) {
-      e.printStackTrace();
+      return null;
+    }
+
+    /**
+     * Set the Result.
+     *
+     * @param result the experiment result
+     */
+    public void setResult(T result) {
+      this.result = result;
+    }
+
+    /**
+     * Check if the Experiment is Aborted.
+     *
+     * @return true if the experiment is aborted
+     */
+    public boolean isAborted() {
+      return aborted;
+    }
+
+    /**
+     * Set the Aborted Flag.
+     *
+     * @param aborted experiment
+     */
+    public void setAborted(boolean aborted) {
+      this.aborted = aborted;
     }
   }
+
+
 }

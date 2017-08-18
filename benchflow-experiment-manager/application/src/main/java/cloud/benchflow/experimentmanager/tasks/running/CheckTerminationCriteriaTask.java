@@ -3,15 +3,15 @@ package cloud.benchflow.experimentmanager.tasks.running;
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.FailureStatus;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
-import java.util.concurrent.Callable;
+import cloud.benchflow.experimentmanager.tasks.AbortableCallable;
+import cloud.benchflow.experimentmanager.tasks.running.CheckTerminationCriteriaTask.TerminationCriteriaResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19
  */
-public class CheckTerminationCriteriaTask
-    implements Callable<CheckTerminationCriteriaTask.TerminationCriteriaResult> {
+public class CheckTerminationCriteriaTask extends AbortableCallable<TerminationCriteriaResult> {
 
   private static Logger logger =
       LoggerFactory.getLogger(CheckTerminationCriteriaTask.class.getSimpleName());

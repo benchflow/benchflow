@@ -21,4 +21,8 @@ public class BenchFlowExperimentStateResponse {
   public BenchFlowExperimentState getState() {
     return state;
   }
+
+  public void setState(BenchFlowExperimentState state) {
+    this.state = state;
+  }
 }

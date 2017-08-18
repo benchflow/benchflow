@@ -1,7 +1,6 @@
 package cloud.benchflow.experimentmanager.responses.lifecycle;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 /**
@@ -45,5 +44,13 @@ public class  ExperimentStatusResponse {
 
   public void addTrialStatus(TrialStatusResponse ts) {
     this.trialsStatus.add(ts);
+  }
+
+  public String getStatus() {
+    return status;
+  }
+
+  public void setStatus(String status) {
+    this.status = status;
   }
 }
