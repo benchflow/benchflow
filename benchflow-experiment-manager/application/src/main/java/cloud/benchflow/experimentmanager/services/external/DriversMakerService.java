@@ -22,9 +22,12 @@ public class DriversMakerService {
 
   private WebTarget driversMakerTarget;
 
-  public DriversMakerService(Client httpClient, String driversMakerAddress) {
+  private int numConnectionRetries;
+
+  public DriversMakerService(Client httpClient, String driversMakerAddress, int numConnectionRetries) {
 
     this.driversMakerTarget = httpClient.target("http://" + driversMakerAddress);
+    this.numConnectionRetries = numConnectionRetries;
   }
 
   public void generateBenchmark(String experimentName, long experimentNumber, int numTrials) {
