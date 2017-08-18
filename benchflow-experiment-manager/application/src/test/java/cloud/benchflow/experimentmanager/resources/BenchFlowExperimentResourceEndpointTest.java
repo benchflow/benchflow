@@ -57,6 +57,10 @@ public class BenchFlowExperimentResourceEndpointTest {
     trial2.setFabanStatus(StatusCode.COMPLETED);
     String fabanRunID2 = "FabanRunID2";
     trial2.setFabanRunID(fabanRunID2);
+    trial2.incrementRetries();
+    trial2.setFabanStatus(StatusCode.FAILED);
+    String fabanRunID3 = "FabanRunID3";
+    trial2.setFabanRunID(fabanRunID3);
 
     experimentModel.addTrial(1, trial2);
 
@@ -74,8 +78,14 @@ public class BenchFlowExperimentResourceEndpointTest {
     Assert.assertEquals(experimentID, receivedModel.getId());
     Assert.assertTrue(receivedModel.getDriverMakerExperimentBundle()
         .contains("/minio/" + BenchFlowConstants.TESTS_BUCKET));
-    Assert.assertTrue(receivedModel.getTrials().get(0L).getFabanRunStatus().contains(fabanRunID1));
-    Assert.assertTrue(receivedModel.getTrials().get(1L).getFabanRunStatus().contains(fabanRunID2));
+    Assert
+        .assertTrue(receivedModel.getTrials().get(0L).getFabanRunStatusURI().contains(fabanRunID1));
+
+    // assert all FabanInfo objects are available
+    TrialModel receivedTrial2 = receivedModel.getTrials().get(1L);
+    Assert.assertTrue(receivedTrial2.getFabanRunStatusURI().contains(fabanRunID3));
+
+    Assert.assertEquals(2, receivedTrial2.getFabanInfoList().size());
 
 
   }

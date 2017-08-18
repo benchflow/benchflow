@@ -1,11 +1,12 @@
 package cloud.benchflow.experimentmanager.models;
 
-import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
-import cloud.benchflow.faban.client.responses.RunInfo;
 import cloud.benchflow.faban.client.responses.RunInfo.Result;
-import cloud.benchflow.faban.client.responses.RunStatus;
+import cloud.benchflow.faban.client.responses.RunStatus.StatusCode;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Field;
 import org.mongodb.morphia.annotations.Id;
@@ -37,14 +38,11 @@ public class TrialModel {
   // used for potential sharding in the future
   @JsonIgnoreProperties(ignoreUnknown = true)
   private String hashedID;
-  private String fabanRunID;
   private Date start = new Date();
   private Date lastModified = new Date();
-  private RunStatus.StatusCode fabanStatus;
-  private RunInfo.Result fabanResult;
   private TrialStatus trialStatus;
   private int numRetries = 0;
-  private String fabanRunStatus;
+  private List<FabanInfo> fabanInfoList = new ArrayList<>();
 
   public TrialModel() {
     // Empty constructor for MongoDB + Morphia
@@ -76,44 +74,12 @@ public class TrialModel {
   }
 
 
-  public RunStatus.StatusCode getFabanStatus() {
-    return fabanStatus;
-  }
-
-  public void setFabanStatus(RunStatus.StatusCode fabanStatus) {
-    this.fabanStatus = fabanStatus;
-  }
-
-  public Result getFabanResult() {
-    return fabanResult;
-  }
-
-  public void setFabanResult(Result fabanResult) {
-    this.fabanResult = fabanResult;
-  }
-
   public TrialStatus getTrialStatus() {
     return trialStatus;
   }
 
   public void setTrialStatus(TrialStatus trialStatus) {
     this.trialStatus = trialStatus;
-  }
-
-  public String getFabanRunID() {
-    return fabanRunID;
-  }
-
-  public void setFabanRunID(String fabanRunID) {
-
-    this.fabanRunID = fabanRunID;
-    this.fabanRunStatus = BenchFlowExperimentManagerApplication.getFabanManagerServiceAddress()
-        + "/resultframe.jsp?runId=" + fabanRunID + "&result=summary.xml&show=logs";
-
-  }
-
-  public String getFabanRunStatus() {
-    return fabanRunStatus;
   }
 
   public int getNumRetries() {
@@ -130,6 +96,87 @@ public class TrialModel {
 
   public void setHashedID(String hashedID) {
     this.hashedID = hashedID;
+  }
+
+  public List<FabanInfo> getFabanInfoList() {
+    return fabanInfoList;
+  }
+
+  public void setFabanInfoList(List<FabanInfo> fabanInfoList) {
+    this.fabanInfoList = fabanInfoList;
+  }
+
+  @JsonIgnore
+  public void setFabanRunID(String fabanRunID) {
+
+    if (fabanInfoList.size() <= numRetries) {
+      fabanInfoList.add(new FabanInfo());
+    }
+
+    fabanInfoList.get(numRetries).setFabanRunID(fabanRunID);
+
+  }
+
+  @JsonIgnore
+  public String getFabanRunID() {
+
+    if (numRetries < fabanInfoList.size()) {
+      return fabanInfoList.get(numRetries).getFabanRunID();
+    }
+
+    return null;
+
+  }
+
+  @JsonIgnore
+  public void setFabanStatus(StatusCode fabanStatus) {
+
+    if (fabanInfoList.size() <= numRetries) {
+      fabanInfoList.add(new FabanInfo());
+    }
+
+    fabanInfoList.get(numRetries).setFabanStatus(fabanStatus);
+
+  }
+
+  @JsonIgnore
+  public StatusCode getFabanStatus() {
+
+    if (numRetries < fabanInfoList.size()) {
+      return fabanInfoList.get(numRetries).getFabanStatus();
+    }
+
+    return null;
+  }
+
+  @JsonIgnore
+  public void setFabanResult(Result fabanResult) {
+
+    if (fabanInfoList.size() <= numRetries) {
+      fabanInfoList.add(new FabanInfo());
+    }
+
+    fabanInfoList.get(numRetries).setFabanResult(fabanResult);
+
+  }
+
+  @JsonIgnore
+  public Result getFabanResult() {
+
+    if (numRetries < fabanInfoList.size()) {
+      return fabanInfoList.get(numRetries).getFabanResult();
+    }
+
+    return null;
+  }
+
+  @JsonIgnore
+  public String getFabanRunStatusURI() {
+    if (numRetries < fabanInfoList.size()) {
+      return fabanInfoList.get(numRetries).getFabanRunStatusURI();
+    }
+
+    return null;
   }
 
   public enum TrialStatus {
