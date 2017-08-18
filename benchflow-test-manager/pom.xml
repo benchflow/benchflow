@@ -27,16 +27,14 @@
         <main.basedir>${project.basedir}</main.basedir>
         <root.project.basedir>${project.basedir}/../</root.project.basedir>
         <java.version>1.8</java.version>
-        <dropwizard.version>1.1.3</dropwizard.version>
+        <dropwizard.version>1.0.6</dropwizard.version>
         <dropwizard.template.config.version>1.4.0</dropwizard.template.config.version>
         <morphia.version>1.3.2</morphia.version>
         <minio.version>3.0.3</minio.version>
         <commons-io.version>2.5</commons-io.version>
         <docker-compose-rule-junit4.version>0.31.1</docker-compose-rule-junit4.version>
         <wiremock.version>2.5.1</wiremock.version>
-        <mockito-core.version>2.8.47</mockito-core.version>
-        <mockito-all.version>1.10.19</mockito-all.version>
-        <dropwizard-swagger.version>1.1.2-1</dropwizard-swagger.version>
+        <dropwizard-swagger.version>1.0.6-1</dropwizard-swagger.version>
         <zt-zip.version>1.11</zt-zip.version>
         <benchflow-dsl.project.name>benchflow-dsl</benchflow-dsl.project.name>
         <benchflow-dsl-jar.version>feature-dsl-java-compat-exploration-space_f5f26b</benchflow-dsl-jar.version>
@@ -138,20 +136,6 @@
                 <artifactId>wiremock</artifactId>
                 <version>${wiremock.version}</version>
             </dependency>
-
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>${mockito-core.version}</version>
-                <scope>test</scope>
-            </dependency>
-
-          <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>${mockito-all.version}</version>
-            <scope>test</scope>
-          </dependency>
 
             <!--https://github.com/smoketurner/dropwizard-swagger-->
             <dependency>
@@ -438,6 +422,7 @@
                   </configuration>
               </plugin>
               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
                   <artifactId>maven-javadoc-plugin</artifactId>
                   <version>${maven-javadoc-plugin.version}</version>
               </plugin>
