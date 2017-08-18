@@ -189,27 +189,31 @@ object ExplorationSpaceGenerator {
     // calculate the overall size of the exploration space, e.g. how many possible experiments
     // it is the cartesian product of the possible values
     if (explorationSpaceDimensions.users.isEmpty && explorationSpaceDimensions.memory.isEmpty && explorationSpaceDimensions.environment.isEmpty) {
+
       None
-    }
 
-    val usersDimensionLength = explorationSpaceDimensions.users.map(_.length)
-      .getOrElse(1)
+    } else {
 
-    val memoryDimensionLength = explorationSpaceDimensions.memory
-      .map(memory => memory.map {
-        case (_, values) => values.length
-      }.product)
-      .getOrElse(1)
+      val usersDimensionLength = explorationSpaceDimensions.users.map(_.length)
+        .getOrElse(1)
 
-    val environmentDimensionLength = explorationSpaceDimensions.environment
-      .map(environmentMap => environmentMap.map {
-        case (_, variablesMap) => variablesMap.map {
+      val memoryDimensionLength = explorationSpaceDimensions.memory
+        .map(memory => memory.map {
           case (_, values) => values.length
-        }.product
-      }).map(_.product)
-      .getOrElse(1)
+        }.product)
+        .getOrElse(1)
 
-    Some(usersDimensionLength * memoryDimensionLength * environmentDimensionLength)
+      val environmentDimensionLength = explorationSpaceDimensions.environment
+        .map(environmentMap => environmentMap.map {
+          case (_, variablesMap) => variablesMap.map {
+            case (_, values) => values.length
+          }.product
+        }).map(_.product)
+        .getOrElse(1)
+
+      Some(usersDimensionLength * memoryDimensionLength * environmentDimensionLength)
+
+    }
 
   }
 

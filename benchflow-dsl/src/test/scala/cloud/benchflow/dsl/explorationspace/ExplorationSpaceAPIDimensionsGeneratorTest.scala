@@ -4,7 +4,7 @@ import java.nio.file.Paths
 
 import cloud.benchflow.dsl.definition.types.bytes.Bytes
 import cloud.benchflow.dsl.explorationspace.ExplorationSpaceGenerator.ExplorationSpacePoint
-import cloud.benchflow.dsl.{ BenchFlowExhaustiveExplorationUsersExample, BenchFlowExhaustiveExplorationUsersMemoryEnvironmentExample, BenchFlowExhaustiveExplorationMemoryExample, BenchFlowExhaustiveExplorationUsersEnvironmentExample, BenchFlowTestAPI }
+import cloud.benchflow.dsl._
 import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
 
@@ -199,6 +199,20 @@ class ExplorationSpaceAPIDimensionsGeneratorTest extends JUnitSuite {
     Assert.assertTrue(explorationSpaceMemory.usersDimension.isEmpty)
     Assert.assertTrue(explorationSpaceMemory.memoryDimension.isDefined)
     Assert.assertTrue(explorationSpaceMemory.environmentDimension.isEmpty)
+
+  }
+
+  @Test def generateExplorationSpaceEmptyTest(): Unit = {
+
+    // check load example (no exploration space)
+    val explorationSpaceLoad = getExplorationSpaceFromTestDefinitionFileName(BenchFlowLoadTestExample)
+
+    val loadExpectedSize = 0
+
+    Assert.assertEquals(loadExpectedSize, explorationSpaceLoad.size)
+    Assert.assertTrue(explorationSpaceLoad.usersDimension.isEmpty)
+    Assert.assertTrue(explorationSpaceLoad.memoryDimension.isEmpty)
+    Assert.assertTrue(explorationSpaceLoad.environmentDimension.isEmpty)
 
   }
 
