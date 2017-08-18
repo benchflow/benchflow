@@ -2,17 +2,24 @@
 # BenchFlow Test Definition
 ###############################################################################
 version: '1'
-name: WfMSLoadTest
-description: WfMSLoadTest
+name: WfMSExhaustiveExplorationOneAtATimeSelectionMemoryTest
+description: WfMSExhaustiveExplorationOneAtATimeSelectionMemoryTest
 
 ###############################################################################
 # Test Configuration
 ###############################################################################
 configuration:
   goal:
-    type: load
+    type: exhaustive_exploration
 
-  users: 10
+    exploration_space:
+      camunda:
+        resources:
+          memory:
+            values: [500m, 1000m]
+
+  strategy:
+    selection: one-at-a-time
 
   workload_execution:
      ramp_up: 5s

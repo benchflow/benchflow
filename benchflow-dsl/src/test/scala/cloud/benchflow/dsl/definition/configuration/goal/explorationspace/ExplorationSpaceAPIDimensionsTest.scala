@@ -1,6 +1,7 @@
 package cloud.benchflow.dsl.definition.configuration.goal.explorationspace
 
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.ExplorationSpaceYamlProtocol._
+import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.service.ServiceExplorationSpace
 import net.jcazevedo.moultingyaml._
 import org.junit.{ Assert, Test }
 import org.scalatest.junit.JUnitSuite
@@ -28,11 +29,21 @@ class ExplorationSpaceAPIDimensionsTest extends JUnitSuite {
       |    AN_ENUM : [value1, value2, value3]
     """.stripMargin
 
+  private val memoryExplorationSpaceYaml: String =
+    """some_service:
+      |  resources:
+      |    memory:
+      |      values: [1g,2g,10g,32g]
+    """.stripMargin
+
   @Test def workloadUserExplorationSpace(): Unit = {
 
     val triedExplorationSpace = workloadUsersExplorationSpaceYaml.parseYaml.convertTo[Try[ExplorationSpace]]
 
     Assert.assertTrue(triedExplorationSpace.isSuccess)
+
+    Assert.assertTrue(triedExplorationSpace.get.workload.get.users.isDefined)
+    Assert.assertTrue(triedExplorationSpace.get.services.isEmpty)
 
     val explorationSpaceYaml = triedExplorationSpace.get.toYaml
 
@@ -46,9 +57,33 @@ class ExplorationSpaceAPIDimensionsTest extends JUnitSuite {
 
     Assert.assertTrue(triedExplorationSpace.isSuccess)
 
+    Assert.assertTrue(triedExplorationSpace.get.workload.isEmpty)
+    Assert.assertTrue(triedExplorationSpace.get.services.isDefined)
+
     val explorationSpaceYaml = triedExplorationSpace.get.toYaml
 
     Assert.assertTrue(explorationSpaceYaml.prettyPrint.contains("AN_ENUM"))
+
+  }
+
+  @Test def memoryExplorationSpace(): Unit = {
+
+    val triedExplorationSpace = memoryExplorationSpaceYaml.parseYaml.convertTo[Try[ExplorationSpace]]
+
+    Assert.assertTrue(triedExplorationSpace.isSuccess)
+
+    Assert.assertTrue(triedExplorationSpace.get.workload.isEmpty)
+    Assert.assertTrue(triedExplorationSpace.get.services.isDefined)
+    Assert.assertTrue(triedExplorationSpace.get.services.head.get("some_service").isDefined)
+
+    val serviceExplorationSpace = triedExplorationSpace.get.services.head("some_service")
+
+    Assert.assertTrue(serviceExplorationSpace.resources.isDefined)
+    Assert.assertTrue(serviceExplorationSpace.environment.isEmpty)
+
+    val explorationSpaceYaml = triedExplorationSpace.get.toYaml
+
+    Assert.assertTrue(explorationSpaceYaml.prettyPrint.contains("memory:"))
 
   }
 

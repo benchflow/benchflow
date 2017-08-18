@@ -36,9 +36,10 @@ object ExplorationSpaceYamlProtocol extends DefaultYamlProtocol {
           keyString(WorkloadKey))
 
         services <- deserializationHandler(
-          Option(
-            yamlObject.fields.filterNot(value => value._1.equals(WorkloadKey))
-              .map(value => (value._1.convertTo[String], value._2.convertTo[Try[ServiceExplorationSpace]].get))),
+          yamlObject.fields.filterNot(value => value._1.equals(WorkloadKey)) match {
+            case map: Any if map.isEmpty => None
+            case map: Any => Some(map.map(value => (value._1.convertTo[String], value._2.convertTo[Try[ServiceExplorationSpace]].get)))
+          },
           keyString(YamlString("(some service)")))
 
       } yield ExplorationSpace(
@@ -57,9 +58,10 @@ object ExplorationSpaceYamlProtocol extends DefaultYamlProtocol {
       val yamlObject = Map[YamlValue, YamlValue]() ++
         obj.workload.map(key => WorkloadKey -> key.toYaml)
 
-      val serviceObject = obj.services.head.map(entry => entry._1.toYaml -> entry._2.toYaml)
-
-      YamlObject(yamlObject ++ serviceObject)
+      obj.services match {
+        case None => YamlObject(yamlObject)
+        case m: Any => YamlObject(yamlObject ++ m.head.map(entry => entry._1.toYaml -> entry._2.toYaml))
+      }
 
     }
 

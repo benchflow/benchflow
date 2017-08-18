@@ -68,6 +68,9 @@ object ExplorationSpaceGenerator {
           case (service, Some(memLimit)) => (service, memLimit)
         }
 
+      // only yield if the map is not empty
+      if serviceMemorySpace.nonEmpty
+
     } yield serviceMemorySpace
 
     // get the specified environment variable values per variable and service
@@ -79,8 +82,11 @@ object ExplorationSpaceGenerator {
 
       environmentVariables = services.mapValues(
         _.environment).collect {
-          case (service, Some(variableMap)) => (service, variableMap)
+          case (service, Some(variableMap)) if variableMap.nonEmpty => (service, variableMap)
         }
+
+      // only yield if the map is not empty
+      if environmentVariables.nonEmpty
 
     } yield environmentVariables
 
@@ -182,26 +188,28 @@ object ExplorationSpaceGenerator {
 
     // calculate the overall size of the exploration space, e.g. how many possible experiments
     // it is the cartesian product of the possible values
+    if (explorationSpaceDimensions.users.isEmpty && explorationSpaceDimensions.memory.isEmpty && explorationSpaceDimensions.environment.isEmpty) {
+      None
+    }
 
-    val explorationSpaceSizeOption: Option[Int] = for {
+    val usersDimensionLength = explorationSpaceDimensions.users.map(_.length)
+      .getOrElse(1)
 
-      usersDimensionLength <- explorationSpaceDimensions.users.map(_.length)
+    val memoryDimensionLength = explorationSpaceDimensions.memory
+      .map(memory => memory.map {
+        case (_, values) => values.length
+      }.product)
+      .getOrElse(1)
 
-      memoryDimensionLength <- explorationSpaceDimensions.memory
-        .map(memory => memory.map {
+    val environmentDimensionLength = explorationSpaceDimensions.environment
+      .map(environmentMap => environmentMap.map {
+        case (_, variablesMap) => variablesMap.map {
           case (_, values) => values.length
-        }.product)
+        }.product
+      }).map(_.product)
+      .getOrElse(1)
 
-      environmentDimensionLength <- explorationSpaceDimensions.environment
-        .map(environmentMap => environmentMap.map {
-          case (_, variablesMap) => variablesMap.map {
-            case (_, values) => values.length
-          }.product
-        }).map(_.product)
-
-    } yield usersDimensionLength * memoryDimensionLength * environmentDimensionLength
-
-    explorationSpaceSizeOption
+    Some(usersDimensionLength * memoryDimensionLength * environmentDimensionLength)
 
   }
 
