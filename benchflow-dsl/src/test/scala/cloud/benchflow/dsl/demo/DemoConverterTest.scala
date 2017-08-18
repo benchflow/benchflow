@@ -132,8 +132,8 @@ class DemoConverterTest extends JUnitSuite {
       |    - 12ParallelStructured.bpmn
       |
       |    mix:
-      |      flat: [50%, 50%]
-      |      deviation: 20
+      |      flat: [0.5, 0.5]
+      |      deviation: 0.2
       |
       |
       |sutConfiguration:
@@ -222,8 +222,8 @@ class DemoConverterTest extends JUnitSuite {
 
     val expectedFlatMixString =
       """    mix:
-        |      flat: [50%, 50%]
-        |      deviation: 20
+        |      flat: [0.5, 0.5]
+        |      deviation: 0.2
         |
         |""".stripMargin
 
@@ -260,7 +260,7 @@ class DemoConverterTest extends JUnitSuite {
     val expectedFixedSequenceMixString =
       """    mix:
         |      fixedSequence: [11ParallelStructured.bpmn, 12ParallelStructured.bpmn]
-        |      deviation: 20
+        |      deviation: 0.2
         |
         |""".stripMargin
 
@@ -299,10 +299,10 @@ class DemoConverterTest extends JUnitSuite {
 
     val expectedFlatSequenceMixString =
       """    mix:
-        |      flat: [40%, 60%]
+        |      flat: [0.4, 0.6]
         |      sequences: [[11ParallelStructured.bpmn, 12ParallelStructured.bpmn], [12ParallelStructured.bpmn,
         |    11ParallelStructured.bpmn]]
-        |      deviation: 20
+        |      deviation: 0.2
         |
         |""".stripMargin
 
@@ -340,8 +340,8 @@ class DemoConverterTest extends JUnitSuite {
 
     val expectedMatrixMixString =
       """    mix:
-        |      matrix: [[20%, 80%], [40%, 50%]]
-        |      deviation: 20
+        |      matrix: [[0.2, 0.8], [0.4, 0.5]]
+        |      deviation: 0.2
         |
         |""".stripMargin
 
