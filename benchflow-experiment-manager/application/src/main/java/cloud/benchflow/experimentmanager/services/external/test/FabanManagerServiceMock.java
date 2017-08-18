@@ -1,8 +1,8 @@
 package cloud.benchflow.experimentmanager.services.external.test;
 
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
-import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
-import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.FabanStatus;
+import cloud.benchflow.experimentmanager.services.external.faban.FabanManagerService;
+import cloud.benchflow.experimentmanager.services.external.faban.FabanStatus;
 import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.exceptions.JarFileNotFoundException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;

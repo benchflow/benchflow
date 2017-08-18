@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Simone D'Avico (simonedavico@gmail.com) - Created on 05/03/16.
+ * @author Vincenzo Ferme (info@vincenzoferme.it)
  */
 @Path("/v1/users/{username}/tests/{testName}/{testNumber}/experiments/{experimentNumber}")
 @Api(value = "benchflow-experiment")
@@ -35,6 +36,7 @@ public class BenchFlowExperimentResource {
   public static final String RUN_ACTION_PATH = "/run";
   public static final String ACTION_PATH = "/state";
   public static final String STATUS_PATH = "/status";
+  public static final String ABORT_PATH = "/abort";
 
   private static Logger logger =
       LoggerFactory.getLogger(BenchFlowExperimentResource.class.getSimpleName());
@@ -81,7 +83,7 @@ public class BenchFlowExperimentResource {
     experimentModelDAO.addExperiment(experimentID);
 
     // execute in separate thread so we can return
-    new Thread(() -> experimentTaskScheduler.handleExperimentState(experimentID)).start();
+    new Thread(() -> experimentTaskScheduler.handleStartingExperiment(experimentID)).start();
   }
 
   @GET
@@ -150,5 +152,22 @@ public class BenchFlowExperimentResource {
     }
 
     return new BenchFlowExperimentStateResponse(state);
+  }
+
+  @POST
+  @Path("/abort")
+  public void abortExperiment(@PathParam("username") String username,
+      @PathParam("testName") String testName, @PathParam("testNumber") int testNumber,
+      @PathParam("experimentNumber") int experimentNumber) {
+
+    String experimentID =
+        BenchFlowConstants.getExperimentID(username, testName, testNumber, experimentNumber);
+
+    logger.info("request received: POST " + BenchFlowConstants.getPathFromExperimentID(experimentID)
+        + ABORT_PATH);
+
+    // execute in separate thread so we can return
+    new Thread(() -> experimentTaskScheduler.abortExperiment(experimentID)).start();
+
   }
 }

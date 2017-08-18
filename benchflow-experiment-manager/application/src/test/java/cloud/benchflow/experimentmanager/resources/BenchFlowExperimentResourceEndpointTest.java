@@ -1,7 +1,7 @@
 package cloud.benchflow.experimentmanager.resources;
 
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
-import cloud.benchflow.experimentmanager.helpers.BenchFlowData;
+import cloud.benchflow.experimentmanager.helpers.data.BenchFlowData;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.models.TrialModel;

@@ -124,6 +124,14 @@ public class TrialModel {
     numRetries++;
   }
 
+  public String getHashedID() {
+    return hashedID;
+  }
+
+  public void setHashedID(String hashedID) {
+    this.hashedID = hashedID;
+  }
+
   public enum TrialStatus {
     SUCCESS, FAILED, RANDOM_FAILURE
   }

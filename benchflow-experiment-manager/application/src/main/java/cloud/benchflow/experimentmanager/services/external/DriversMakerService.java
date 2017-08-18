@@ -27,17 +27,17 @@ public class DriversMakerService {
     this.driversMakerTarget = httpClient.target("http://" + driversMakerAddress);
   }
 
-  public void generateBenchmark(String experimentName, long experimentNumber, int nTrials) {
+  public void generateBenchmark(String experimentName, long experimentNumber, int numTrials) {
 
     logger.info("generateBenchmark for " + experimentName + MODEL_ID_DELIMITER + experimentNumber
-        + " with " + nTrials + " trials.");
+        + " with " + numTrials + " trials.");
 
     // TODO - return result as a list of IDs
 
     MakeDriverRequestBody body = new MakeDriverRequestBody();
     body.setExperimentName(experimentName);
     body.setExperimentNumber(experimentNumber);
-    body.setTrials(nTrials);
+    body.setTrials(numTrials);
 
     Response response = driversMakerTarget.path(GENERATE_BENCHMARK_PATH).request()
         .post(Entity.entity(body, MediaType.APPLICATION_JSON));

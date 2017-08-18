@@ -9,8 +9,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import cloud.benchflow.experimentmanager.configurations.BenchFlowExperimentManagerConfiguration;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
-import cloud.benchflow.experimentmanager.helpers.BenchFlowData;
-import cloud.benchflow.experimentmanager.helpers.MinioTestData;
+import cloud.benchflow.experimentmanager.helpers.data.BenchFlowData;
+import cloud.benchflow.experimentmanager.helpers.data.MinioTestData;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.TerminatedState;
 import cloud.benchflow.experimentmanager.resources.BenchFlowExperimentResource;
@@ -27,6 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -67,6 +68,8 @@ public class BenchFlowExperimentManagerApplicationTestModeIT extends DockerCompo
   public void setUp() throws Exception {
     minioServiceSpy = Mockito.spy(BenchFlowExperimentManagerApplication.getMinioService());
     BenchFlowExperimentManagerApplication.setMinioService(minioServiceSpy);
+
+
 
     executorService = BenchFlowExperimentManagerApplication.getExperimentTaskScheduler()
         .getExperimentTaskExecutorService();
@@ -115,7 +118,8 @@ public class BenchFlowExperimentManagerApplicationTestModeIT extends DockerCompo
   private void runAlwaysCompleteOrDefaultOrFailFirst(String experimentID)
       throws FileNotFoundException, InterruptedException,
       BenchFlowExperimentIDDoesNotExistException {
-    setUpMocks(experimentID);
+
+    setUpMocks2Trials(experimentID);
 
     Response response = client.target(String.format("http://localhost:%d", RULE.getLocalPort()))
         .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
@@ -128,7 +132,7 @@ public class BenchFlowExperimentManagerApplicationTestModeIT extends DockerCompo
     Assert.assertNotNull(experimentModelDAO.getExperimentModel(experimentID));
 
     // wait long enough for tasks to start to be executed
-    executorService.awaitTermination(2, TimeUnit.SECONDS);
+    executorService.awaitTermination(5, TimeUnit.SECONDS);
 
     Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
         experimentModelDAO.getExperimentState(experimentID));
@@ -147,7 +151,7 @@ public class BenchFlowExperimentManagerApplicationTestModeIT extends DockerCompo
 
     String experimentID = BenchFlowData.SCENARIO_ALWAYS_FAIL_EXPERIMENT_ID;
 
-    setUpMocks(experimentID);
+    setUpMocks2Trials(experimentID);
 
     Response response = client.target(String.format("http://localhost:%d", RULE.getLocalPort()))
         .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
@@ -184,7 +188,7 @@ public class BenchFlowExperimentManagerApplicationTestModeIT extends DockerCompo
 
       String experimentID = testID + BenchFlowConstants.MODEL_ID_DELIMITER + i;
 
-      setUpMocks(experimentID);
+      setUpMocks2Trials(experimentID);
 
       Response response = client.target(String.format("http://localhost:%d", RULE.getLocalPort()))
           .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
@@ -213,7 +217,6 @@ public class BenchFlowExperimentManagerApplicationTestModeIT extends DockerCompo
         expectedExecutedTrials = 2;
       }
 
-
       long executedTrials = BenchFlowExperimentManagerApplication.getExperimentModelDAO()
           .getNumExecutedTrials(experimentID);
 
@@ -223,19 +226,72 @@ public class BenchFlowExperimentManagerApplicationTestModeIT extends DockerCompo
 
   }
 
-  private void setUpMocks(String experimentID) throws FileNotFoundException {
+  @Test
+  public void abortRunningExperiment() throws Exception {
+
+    String experimentID = BenchFlowData.SCENARIO_ALWAYS_COMPLETED_EXPERIMENT_ID;
+
+    setUpMocks100Trials(experimentID);
+
+    BenchFlowExperimentModelDAO experimentModelDAO = new BenchFlowExperimentModelDAO(mongoClient);
+
+    Response response = client.target(String.format("http://localhost:%d", RULE.getLocalPort()))
+        .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
+        .path(BenchFlowExperimentResource.RUN_ACTION_PATH).request().post(null);
+
+    Assert.assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
+    Assert.assertNotNull(experimentModelDAO.getExperimentModel(experimentID));
+
+    Response abortResponse =
+        client.target(String.format("http://localhost:%d", RULE.getLocalPort()))
+            .path(BenchFlowConstants.getPathFromExperimentID(experimentID))
+            .path(BenchFlowExperimentResource.ABORT_PATH).request().post(null);
+
+    Assert.assertEquals(Status.NO_CONTENT.getStatusCode(), abortResponse.getStatus());
+
+    // wait long enough for tasks to start to be executed
+    executorService.awaitTermination(10, TimeUnit.SECONDS);
+
+    Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
+        experimentModelDAO.getExperimentState(experimentID));
+    Assert.assertEquals(TerminatedState.ABORTED,
+        experimentModelDAO.getTerminatedState(experimentID));
+
+  }
+
+  private void setUpMocks2Trials(String experimentID) throws FileNotFoundException {
 
     int numTrials = 2;
 
     // make sure experiment has been saved to minio
     minioServiceSpy.saveExperimentDefinition(experimentID,
         MinioTestData.getExperiment2TrialsDefinition());
-    minioServiceSpy.saveExperimentDeploymentDescriptor(experimentID,
-        MinioTestData.getDeploymentDescriptor());
+
+    setUpOtherMocks(experimentID, numTrials);
+
+  }
+
+  private void setUpMocks100Trials(String experimentID) throws FileNotFoundException {
+
+    int numTrials = 100;
+
+    // make sure experiment has been saved to minio
+    minioServiceSpy.saveExperimentDefinition(experimentID,
+        MinioTestData.getExperiment100TrialsDefinition());
+
+    setUpOtherMocks(experimentID, numTrials);
+  }
+
+  private void setUpOtherMocks(String experimentID, int numTrials) throws FileNotFoundException {
+
     minioServiceSpy.saveExperimentBPMNModel(experimentID, MinioTestData.BPMN_MODEL_TEST_NAME,
         MinioTestData.getTestModel());
     minioServiceSpy.saveExperimentBPMNModel(experimentID, MinioTestData.BPMN_MODEL_MOCK_NAME,
         MinioTestData.getMockModel());
+
+    minioServiceSpy.saveExperimentDeploymentDescriptor(experimentID,
+        MinioTestData.getDeploymentDescriptor());
 
     // make sure also drivers-maker benchmark is returned
     Mockito.doReturn(MinioTestData.getGeneratedBenchmark()).when(minioServiceSpy)
@@ -266,4 +322,5 @@ public class BenchFlowExperimentManagerApplicationTestModeIT extends DockerCompo
             .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
 
   }
+
 }

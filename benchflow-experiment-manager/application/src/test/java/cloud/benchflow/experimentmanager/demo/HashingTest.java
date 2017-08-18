@@ -3,7 +3,7 @@ package cloud.benchflow.experimentmanager.demo;
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MINIO_ID_DELIMITER;
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 
-import cloud.benchflow.experimentmanager.helpers.BenchFlowData;
+import cloud.benchflow.experimentmanager.helpers.data.BenchFlowData;
 import org.junit.Test;
 
 /**

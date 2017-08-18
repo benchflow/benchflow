@@ -1,6 +1,6 @@
 package cloud.benchflow.experimentmanager.scheduler;
 
-import static cloud.benchflow.experimentmanager.services.external.FabanManagerService.getFabanTrialID;
+import static cloud.benchflow.experimentmanager.services.external.faban.FabanManagerService.getFabanTrialID;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.put;
@@ -11,16 +11,20 @@ import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.DockerComposeIT;
 import cloud.benchflow.experimentmanager.configurations.BenchFlowExperimentManagerConfiguration;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
-import cloud.benchflow.experimentmanager.helpers.BenchFlowData;
-import cloud.benchflow.experimentmanager.helpers.MinioTestData;
+import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
+import cloud.benchflow.experimentmanager.helpers.WaitExperimentCheck;
+import cloud.benchflow.experimentmanager.helpers.WaitExperimentTermination;
+import cloud.benchflow.experimentmanager.helpers.data.BenchFlowData;
+import cloud.benchflow.experimentmanager.helpers.data.MinioTestData;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.TerminatedState;
+import cloud.benchflow.experimentmanager.scheduler.running.RunningStatesHandler;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
-import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
+import cloud.benchflow.experimentmanager.services.external.faban.FabanManagerService;
+import cloud.benchflow.experimentmanager.services.external.faban.FabanStatus;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
-import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.FabanStatus;
 import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.exceptions.BenchmarkNameNotFoundRuntimeException;
 import cloud.benchflow.faban.client.exceptions.ConfigFileNotFoundException;
@@ -46,6 +50,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 /**
@@ -75,6 +80,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   private FabanClient fabanClientMock = Mockito.mock(FabanClient.class);
 
   private ExperimentTaskScheduler experimentTaskScheduler;
+  private RunningStatesHandler runningStatesHandler;
   private ExecutorService experimentTaskExecutorServer;
   private BenchFlowExperimentModelDAO experimentModelDAO;
   private FabanManagerService fabanManagerServiceSpy;
@@ -133,6 +139,11 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     experimentTaskScheduler = BenchFlowExperimentManagerApplication.getExperimentTaskScheduler();
 
+    experimentTaskScheduler
+        .setRunningStatesHandler(Mockito.spy(experimentTaskScheduler.getRunningStatesHandler()));
+
+    runningStatesHandler = experimentTaskScheduler.getRunningStatesHandler();
+
     experimentTaskExecutorServer = experimentTaskScheduler.getExperimentTaskExecutorService();
 
   }
@@ -147,10 +158,9 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     experimentModelDAO.addExperiment(experimentID);
 
-    experimentTaskScheduler.handleExperimentState(experimentID);
+    experimentTaskScheduler.handleStartingExperiment(experimentID);
 
-    // wait for tasks to finish
-    experimentTaskExecutorServer.awaitTermination(1, TimeUnit.SECONDS);
+    waitExperimentTerminationForOneMinute(experimentID);
 
     Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
         experimentModelDAO.getExperimentState(experimentID));
@@ -169,16 +179,19 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     experimentModelDAO.addExperiment(experimentID);
 
-    experimentTaskScheduler.handleExperimentState(experimentID);
+    experimentTaskScheduler.handleStartingExperiment(experimentID);
 
-    // wait for tasks to finish
-    experimentTaskExecutorServer.awaitTermination(1, TimeUnit.SECONDS);
+    waitExperimentTerminationForOneMinute(experimentID);
 
     Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
         experimentModelDAO.getExperimentState(experimentID));
 
     Assert.assertEquals(TerminatedState.COMPLETED,
         experimentModelDAO.getTerminatedState(experimentID));
+
+    // assert that the trial has been re-executed
+    Mockito.verify(runningStatesHandler, Mockito.atLeast(1))
+        .handleReExecuteTrial(Matchers.anyString());
   }
 
   @Test
@@ -191,10 +204,9 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     experimentModelDAO.addExperiment(experimentID);
 
-    experimentTaskScheduler.handleExperimentState(experimentID);
+    experimentTaskScheduler.handleStartingExperiment(experimentID);
 
-    // wait for tasks to finish
-    experimentTaskExecutorServer.awaitTermination(1, TimeUnit.SECONDS);
+    waitExperimentTerminationForOneMinute(experimentID);
 
     Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
         experimentModelDAO.getExperimentState(experimentID));
@@ -216,10 +228,9 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     experimentModelDAO.addExperiment(experimentID);
 
-    experimentTaskScheduler.handleExperimentState(experimentID);
+    experimentTaskScheduler.handleStartingExperiment(experimentID);
 
-    // wait for tasks to finish
-    experimentTaskExecutorServer.awaitTermination(1, TimeUnit.SECONDS);
+    waitExperimentTerminationForOneMinute(experimentID);
 
     Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
         experimentModelDAO.getExperimentState(experimentID));
@@ -243,10 +254,9 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     experimentModelDAO.addExperiment(experimentID);
 
-    experimentTaskScheduler.handleExperimentState(experimentID);
+    experimentTaskScheduler.handleStartingExperiment(experimentID);
 
-    // wait for tasks to finish
-    experimentTaskExecutorServer.awaitTermination(1, TimeUnit.SECONDS);
+    waitExperimentTerminationForOneMinute(experimentID);
 
     Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
         experimentModelDAO.getExperimentState(experimentID));
@@ -256,6 +266,22 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     Assert.assertEquals(1, experimentModelDAO.getNumExecutedTrials(experimentID));
 
+  }
+
+  private void waitExperimentTerminationForOneMinute(String experimentID)
+      throws BenchFlowExperimentIDDoesNotExistException, InterruptedException {
+    long timeout = 1 * 60 * 1000; //1 minute
+
+    // check when the test reaches the final state, with a timeout
+    WaitExperimentCheck waitExperimentCheck = () -> {
+
+      // wait for tasks to finish
+      experimentTaskExecutorServer.awaitTermination(1, TimeUnit.SECONDS);
+
+    };
+
+    WaitExperimentTermination.waitForExperimentTerminationWithTimeout(experimentID,
+        experimentModelDAO, waitExperimentCheck, timeout);
   }
 
   @Test
@@ -281,13 +307,22 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     }
 
+    long timeout = 1 * 60 * 1000; //1 minute
+
+    // check when the test reaches the final state, with a timeout
+    WaitExperimentCheck waitExperimentCheck = () -> {
+
+      // wait for tasks to finish
+      experimentTaskExecutorServer.awaitTermination(1, TimeUnit.SECONDS);
+
+    };
+
     // schedule experiments one after the other
     for (String experimentID : experimentIDs) {
-      experimentTaskScheduler.handleExperimentState(experimentID);
+      experimentTaskScheduler.handleStartingExperiment(experimentID);
+      WaitExperimentTermination.waitForExperimentTerminationWithTimeout(experimentID,
+          experimentModelDAO, waitExperimentCheck, timeout);
     }
-
-    // wait for tasks to finish
-    experimentTaskExecutorServer.awaitTermination(10, TimeUnit.SECONDS);
 
     for (String experimentID : experimentIDs) {
       Assert.assertEquals(BenchFlowExperimentState.TERMINATED,

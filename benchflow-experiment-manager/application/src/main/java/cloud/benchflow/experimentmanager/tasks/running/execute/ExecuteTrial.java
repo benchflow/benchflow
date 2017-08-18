@@ -3,17 +3,17 @@ package cloud.benchflow.experimentmanager.tasks.running.execute;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
 import cloud.benchflow.experimentmanager.exceptions.TrialIDDoesNotExistException;
-import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
+import cloud.benchflow.experimentmanager.services.external.faban.FabanManagerService;
+import cloud.benchflow.experimentmanager.services.external.faban.FabanStatus;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunId;
-import cloud.benchflow.faban.client.responses.RunInfo;
 import cloud.benchflow.faban.client.responses.RunInfo.Result;
 import cloud.benchflow.faban.client.responses.RunStatus;
 import java.io.IOException;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-05-07
+ * @author Vincenzo Ferme (info@vincenzoferme.it) on 15.08.17
  */
 public class ExecuteTrial {
 
@@ -51,28 +51,4 @@ public class ExecuteTrial {
 
   }
 
-  public static class FabanStatus {
-
-    private String trialID;
-    private RunStatus.StatusCode statusCode;
-    private RunInfo.Result result;
-
-    public FabanStatus(String trialID, RunStatus.StatusCode statusCode, RunInfo.Result result) {
-      this.trialID = trialID;
-      this.statusCode = statusCode;
-      this.result = result;
-    }
-
-    public String getTrialID() {
-      return trialID;
-    }
-
-    public RunStatus.StatusCode getStatusCode() {
-      return statusCode;
-    }
-
-    public Result getResult() {
-      return result;
-    }
-  }
 }

@@ -2,11 +2,12 @@ package cloud.benchflow.experimentmanager;
 
 import cloud.benchflow.experimentmanager.configurations.BenchFlowExperimentManagerConfiguration;
 import cloud.benchflow.experimentmanager.resources.BenchFlowExperimentResource;
+import cloud.benchflow.experimentmanager.scheduler.CustomFutureReturningExecutor;
 import cloud.benchflow.experimentmanager.scheduler.ExperimentTaskScheduler;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
-import cloud.benchflow.experimentmanager.services.external.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
+import cloud.benchflow.experimentmanager.services.external.faban.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.external.test.FabanManagerServiceMock;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
@@ -20,16 +21,12 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-import java.util.concurrent.ExecutorService;
 import javax.ws.rs.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BenchFlowExperimentManagerApplication
     extends Application<BenchFlowExperimentManagerConfiguration> {
-
-  private Logger logger =
-      LoggerFactory.getLogger(BenchFlowExperimentManagerApplication.class.getSimpleName());
 
   private static BenchFlowExperimentModelDAO experimentModelDAO;
   private static TrialModelDAO trialModelDAO;
@@ -41,6 +38,8 @@ public class BenchFlowExperimentManagerApplication
   private static int submitRetries;
   private static String minioServiceAddress;
   private static String fabanManagerServiceAddress;
+  private Logger logger =
+      LoggerFactory.getLogger(BenchFlowExperimentManagerApplication.class.getSimpleName());
 
   public static void main(String[] args) throws Exception {
     new BenchFlowExperimentManagerApplication().run(args);
@@ -58,20 +57,13 @@ public class BenchFlowExperimentManagerApplication
     return minioService;
   }
 
+  // used for testing to insert mock/spy object
+  public static void setMinioService(MinioService minioService) {
+    BenchFlowExperimentManagerApplication.minioService = minioService;
+  }
+
   public static FabanManagerService getFabanManagerService() {
     return fabanManagerService;
-  }
-
-  public static DriversMakerService getDriversMakerService() {
-    return driversMakerService;
-  }
-
-  public static BenchFlowTestManagerService getTestManagerService() {
-    return testManagerService;
-  }
-
-  public static ExperimentTaskScheduler getExperimentTaskScheduler() {
-    return experimentTaskScheduler;
   }
 
   // used for testing to insert mock/spy object
@@ -79,9 +71,17 @@ public class BenchFlowExperimentManagerApplication
     BenchFlowExperimentManagerApplication.fabanManagerService = fabanManagerService;
   }
 
+  public static DriversMakerService getDriversMakerService() {
+    return driversMakerService;
+  }
+
   // used for testing to insert mock/spy object
   public static void setDriversMakerService(DriversMakerService driversMakerService) {
     BenchFlowExperimentManagerApplication.driversMakerService = driversMakerService;
+  }
+
+  public static BenchFlowTestManagerService getTestManagerService() {
+    return testManagerService;
   }
 
   // used for testing to insert mock/spy object
@@ -89,9 +89,8 @@ public class BenchFlowExperimentManagerApplication
     BenchFlowExperimentManagerApplication.testManagerService = testManagerService;
   }
 
-  // used for testing to insert mock/spy object
-  public static void setMinioService(MinioService minioService) {
-    BenchFlowExperimentManagerApplication.minioService = minioService;
+  public static ExperimentTaskScheduler getExperimentTaskScheduler() {
+    return experimentTaskScheduler;
   }
 
   public static int getSubmitRetries() {
@@ -147,8 +146,10 @@ public class BenchFlowExperimentManagerApplication
     FabanClient fabanClient = configuration.getFabanServiceFactory().build();
 
     // services
-    final ExecutorService experimentTaskExecutorService =
+    CustomFutureReturningExecutor taskExecutor =
         configuration.getExperimentTaskExecutorFactory().build(environment);
+
+    experimentTaskScheduler = new ExperimentTaskScheduler(taskExecutor);
 
     experimentModelDAO = new BenchFlowExperimentModelDAO(mongoClient);
     trialModelDAO = new TrialModelDAO(mongoClient);
@@ -163,8 +164,6 @@ public class BenchFlowExperimentManagerApplication
     } else {
       fabanManagerService = new FabanManagerService(fabanClient);
     }
-
-    experimentTaskScheduler = new ExperimentTaskScheduler(experimentTaskExecutorService);
 
     submitRetries = configuration.getFabanServiceFactory().getSubmitRetries();
 

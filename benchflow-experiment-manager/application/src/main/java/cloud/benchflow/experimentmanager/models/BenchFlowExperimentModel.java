@@ -170,6 +170,14 @@ public class BenchFlowExperimentModel {
     return trials.lastEntry().getValue().getId();
   }
 
+  public String getHashedID() {
+    return hashedID;
+  }
+
+  public void setHashedID(String hashedID) {
+    this.hashedID = hashedID;
+  }
+
   public enum BenchFlowExperimentState {
     START, READY, RUNNING, TERMINATED
   }

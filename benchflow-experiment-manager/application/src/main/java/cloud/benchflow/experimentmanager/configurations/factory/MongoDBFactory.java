@@ -13,6 +13,9 @@ public class MongoDBFactory {
 
   @NotEmpty
   private String host;
+  @Min(1)
+  @Max(65535)
+  private int port;
 
   @JsonProperty("hostname")
   public String getHost() {
@@ -23,10 +26,6 @@ public class MongoDBFactory {
   public void setHost(String host) {
     this.host = host;
   }
-
-  @Min(1)
-  @Max(65535)
-  private int port;
 
   @JsonProperty
   public int getPort() {

@@ -1,14 +1,11 @@
-package cloud.benchflow.experimentmanager.services.external;
+package cloud.benchflow.experimentmanager.services.external.faban;
 
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
-import static cloud.benchflow.faban.client.responses.RunStatus.StatusCode.QUEUED;
-import static cloud.benchflow.faban.client.responses.RunStatus.StatusCode.RECEIVED;
-import static cloud.benchflow.faban.client.responses.RunStatus.StatusCode.STARTED;
-import static cloud.benchflow.faban.client.responses.RunStatus.StatusCode.UNKNOWN;
+import static cloud.benchflow.faban.client.responses.RunStatus.StatusCode.*;
 
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
-import cloud.benchflow.experimentmanager.tasks.running.execute.ExecuteTrial.FabanStatus;
+import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.exceptions.BenchmarkNameNotFoundRuntimeException;
 import cloud.benchflow.faban.client.exceptions.ConfigFileNotFoundException;

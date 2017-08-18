@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import cloud.benchflow.experimentmanager.DockerComposeIT;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
-import cloud.benchflow.experimentmanager.helpers.BenchFlowData;
+import cloud.benchflow.experimentmanager.helpers.data.BenchFlowData;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
 import com.mongodb.MongoClient;
 import org.junit.After;

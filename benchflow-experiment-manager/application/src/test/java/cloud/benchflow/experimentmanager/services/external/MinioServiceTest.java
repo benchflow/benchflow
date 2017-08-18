@@ -7,6 +7,7 @@ import org.junit.Test;
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-03-21
  */
 public class MinioServiceTest {
+
   @Before
   public void setUp() throws Exception {}
 
