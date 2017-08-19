@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.minio.MinioClient;
 import io.minio.errors.InvalidEndpointException;
 import io.minio.errors.InvalidPortException;
+import javax.validation.constraints.Min;
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
@@ -18,6 +19,9 @@ public class MinioServiceFactory {
   private String accessKey;
   @NotEmpty
   private String secretKey;
+
+  @Min(0)
+  private int numConnectionRetries;
 
   @JsonProperty
   public String getAddress() {
@@ -49,10 +53,20 @@ public class MinioServiceFactory {
     this.secretKey = secretKey;
   }
 
+  @JsonProperty
+  public int getNumConnectionRetries() {
+    return numConnectionRetries;
+  }
+
+  @JsonProperty
+  public void setNumConnectionRetries(int numConnectionRetries) {
+    this.numConnectionRetries = numConnectionRetries;
+  }
+
   public MinioService build() throws InvalidPortException, InvalidEndpointException {
 
     MinioClient minioClient = new MinioClient(getAddress(), getAccessKey(), getSecretKey());
 
-    return new MinioService(minioClient);
+    return new MinioService(minioClient, numConnectionRetries);
   }
 }
