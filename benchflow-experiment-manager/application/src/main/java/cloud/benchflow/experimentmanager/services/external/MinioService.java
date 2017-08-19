@@ -1,15 +1,16 @@
 package cloud.benchflow.experimentmanager.services.external;
 
-import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.*;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MINIO_ID_DELIMITER;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
+import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.TESTS_BUCKET;
 import static cloud.benchflow.experimentmanager.demo.Hashing.hashKey;
 
+import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import io.minio.MinioClient;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
-import io.minio.errors.InvalidArgumentException;
 import io.minio.errors.InvalidBucketNameException;
-import io.minio.errors.MinioException;
 import io.minio.errors.NoResponseException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +18,9 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.TimeUnit;
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +36,25 @@ public class MinioService {
   private static Logger logger = LoggerFactory.getLogger(MinioService.class.getSimpleName());
   private MinioClient minioClient;
 
-  public MinioService(MinioClient minioClient) {
+  private int numConnectionRetries;
+
+  private RetryPolicy minioConnectionRetryPolicy =
+      new RetryPolicy().retryOn(NoResponseException.class) // upon no response from server
+          .retryOn(IOException.class) // upon connection error
+          .retryOn(ErrorResponseException.class) // upon unsuccessful execution
+          .abortOn(InvalidBucketNameException.class) // upon invalid bucket name
+          .abortOn(InvalidKeyException.class) // upon an invalid access key or secret key
+          .abortOn(XmlPullParserException.class) // upon parsing response XML
+          .abortOn(InternalException.class) // upon internal library error
+          .abortOn(NoSuchAlgorithmException.class) // upon requested algorithm was not found during
+          // signature calculation
+          .abortOn(InsufficientDataException.class) // Thrown to indicate that reading given InputStream
+          // gets EOFException before reading given length.
+          .withDelay(1, TimeUnit.SECONDS).withMaxRetries(numConnectionRetries);
+
+  public MinioService(MinioClient minioClient, int numConnectionRetries) {
     this.minioClient = minioClient;
+    this.numConnectionRetries = numConnectionRetries;
   }
 
   public static String minioCompatibleID(String id) {
@@ -43,13 +64,14 @@ public class MinioService {
   public void initializeBuckets() {
 
     try {
-      if (!minioClient.bucketExists(TESTS_BUCKET)) {
-        minioClient.makeBucket(TESTS_BUCKET);
-      }
 
-    } catch (InvalidBucketNameException | NoSuchAlgorithmException | IOException
-        | InsufficientDataException | InvalidKeyException | NoResponseException
-        | XmlPullParserException | ErrorResponseException | InternalException e) {
+      Failsafe.with(minioConnectionRetryPolicy).run(() -> {
+        if (!minioClient.bucketExists(TESTS_BUCKET)) {
+          minioClient.makeBucket(TESTS_BUCKET);
+        }
+      });
+
+    } catch (Exception e) {
       // TODO - handle exception
       logger.error("Exception in initializeBuckets ", e);
     }
@@ -59,21 +81,24 @@ public class MinioService {
 
     logger.info("isValidExperimentID: " + experimentID);
 
-    String objectName =
-        minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + PT_PE_DEFINITION_FILE_NAME;
+    String objectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.PT_PE_DEFINITION_FILE_NAME;
 
     try {
-      boolean valid = minioClient.bucketExists(TESTS_BUCKET);
 
-      if (valid) {
+      return Failsafe.with(minioConnectionRetryPolicy).get(() -> {
 
-        valid = minioClient.listObjects(TESTS_BUCKET, objectName).iterator().hasNext();
-      }
+        boolean validID = minioClient.bucketExists(TESTS_BUCKET);
 
-      return valid;
+        if (validID) {
+          validID = minioClient.listObjects(TESTS_BUCKET, objectName).iterator().hasNext();
+        }
 
-    } catch (MinioException | NoSuchAlgorithmException | XmlPullParserException | IOException
-        | InvalidKeyException e) {
+        return validID;
+
+      });
+
+    } catch (Exception e) {
       logger.error(e.getMessage());
       return false;
     }
@@ -83,8 +108,8 @@ public class MinioService {
 
     logger.info("saveExperimentDefinition: " + experimentID);
 
-    String objectName =
-        minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + PT_PE_DEFINITION_FILE_NAME;
+    String objectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.PT_PE_DEFINITION_FILE_NAME;
 
     putInputStreamObject(definitionInputStream, objectName);
   }
@@ -93,8 +118,8 @@ public class MinioService {
 
     logger.info("getExperimentDefinition: " + experimentID);
 
-    String objectName =
-        minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + PT_PE_DEFINITION_FILE_NAME;
+    String objectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.PT_PE_DEFINITION_FILE_NAME;
 
     return getInputStreamObject(objectName);
   }
@@ -112,7 +137,7 @@ public class MinioService {
     try {
 
       String hashedObjectName = hashKey(objectName) + MINIO_ID_DELIMITER + experimentNumber
-          + MINIO_ID_DELIMITER + PT_PE_DEFINITION_FILE_NAME;
+          + MINIO_ID_DELIMITER + BenchFlowConstants.PT_PE_DEFINITION_FILE_NAME;
       putInputStreamObject(definitionInputStream, hashedObjectName);
 
     } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
@@ -125,8 +150,8 @@ public class MinioService {
 
     logger.info("saveExperimentDeploymentDescriptor: " + experimentID);
 
-    String objectName =
-        minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+    String objectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.DEPLOYMENT_DESCRIPTOR_FILE_NAME;
 
     putInputStreamObject(definitionInputStream, objectName);
   }
@@ -137,8 +162,8 @@ public class MinioService {
 
     logger.info("getExperimentDeploymentDescriptor: " + experimentID);
 
-    String objectName =
-        minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+    String objectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.DEPLOYMENT_DESCRIPTOR_FILE_NAME;
 
     return getInputStreamObject(objectName);
   }
@@ -151,14 +176,14 @@ public class MinioService {
     logger.info("copyDeploymentDescriptorForDriversMaker: " + experimentID + MODEL_ID_DELIMITER
         + experimentNumber);
 
-    String experimentObjectName =
-        minioCompatibleID(experimentID) + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+    String experimentObjectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.DEPLOYMENT_DESCRIPTOR_FILE_NAME;
 
     try {
 
-      String driversMakerObjectName =
-          hashKey(minioCompatibleID(driversMakerExperimentID)) + MINIO_ID_DELIMITER
-              + experimentNumber + MINIO_ID_DELIMITER + DEPLOYMENT_DESCRIPTOR_FILE_NAME;
+      String driversMakerObjectName = hashKey(minioCompatibleID(driversMakerExperimentID))
+          + MINIO_ID_DELIMITER + experimentNumber + MINIO_ID_DELIMITER
+          + BenchFlowConstants.DEPLOYMENT_DESCRIPTOR_FILE_NAME;
       copyObject(experimentObjectName, driversMakerObjectName);
 
     } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
@@ -172,7 +197,7 @@ public class MinioService {
     logger.info("saveExperimentBPMNModel: " + experimentID);
 
     String objectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER
-        + BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER + modelName;
+        + BenchFlowConstants.BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER + modelName;
 
     putInputStreamObject(definitionInputStream, objectName);
   }
@@ -185,8 +210,8 @@ public class MinioService {
 
     String testID = experimentID.substring(0, experimentID.lastIndexOf("."));
 
-    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER + BPMN_MODELS_FOLDER_NAME
-        + MINIO_ID_DELIMITER + modelName;
+    String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER + modelName;
 
     return getInputStreamObject(objectName);
   }
@@ -200,11 +225,12 @@ public class MinioService {
         + MINIO_ID_DELIMITER + modelName);
 
     String experimentObjectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER
-        + BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER + modelName;
+        + BenchFlowConstants.BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER + modelName;
 
     try {
-      String driversMakerObjectName = hashKey(minioCompatibleID(driversMakerExperimentID))
-          + MINIO_ID_DELIMITER + BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER + modelName;
+      String driversMakerObjectName =
+          hashKey(minioCompatibleID(driversMakerExperimentID)) + MINIO_ID_DELIMITER
+              + BenchFlowConstants.BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER + modelName;
       copyObject(experimentObjectName, driversMakerObjectName);
     } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
       logger.error(e.getMessage());
@@ -224,7 +250,7 @@ public class MinioService {
     try {
 
       String hashedObjectName = hashKey(objectName) + MINIO_ID_DELIMITER + experimentNumber
-          + MINIO_ID_DELIMITER + GENERATED_BENCHMARK_FILENAME;
+          + MINIO_ID_DELIMITER + BenchFlowConstants.GENERATED_BENCHMARK_FILENAME;
       return getInputStreamObject(hashedObjectName);
 
     } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
@@ -245,8 +271,9 @@ public class MinioService {
     String objectName = minioCompatibleID(driversMakerExperimentID);
 
     try {
-      String hashedObjectName = hashKey(objectName) + MINIO_ID_DELIMITER + experimentNumber
-          + MINIO_ID_DELIMITER + trialNumber + MINIO_ID_DELIMITER + FABAN_CONFIG_FILENAME;
+      String hashedObjectName =
+          hashKey(objectName) + MINIO_ID_DELIMITER + experimentNumber + MINIO_ID_DELIMITER
+              + trialNumber + MINIO_ID_DELIMITER + BenchFlowConstants.FABAN_CONFIG_FILENAME;
       return getInputStreamObject(hashedObjectName);
 
     } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
@@ -262,14 +289,12 @@ public class MinioService {
 
     try {
 
-      minioClient.putObject(TESTS_BUCKET, objectName, inputStream, inputStream.available(),
-          CONTENT_TYPE);
+      Failsafe.with(minioConnectionRetryPolicy).run(() -> minioClient.putObject(TESTS_BUCKET,
+          objectName, inputStream, inputStream.available(), CONTENT_TYPE));
 
-      logger.info("putInputStreamObject: added ");
+      logger.info("putInputStreamObject: added " + objectName);
 
-    } catch (InvalidBucketNameException | NoSuchAlgorithmException | InsufficientDataException
-        | IOException | NoResponseException | InvalidKeyException | ErrorResponseException
-        | XmlPullParserException | InvalidArgumentException | InternalException e) {
+    } catch (Exception e) {
       // TODO - handle exception
       logger.error("Exception in putInputStreamObject: " + objectName, e);
     }
@@ -281,19 +306,15 @@ public class MinioService {
 
     try {
 
-      return minioClient.getObject(TESTS_BUCKET, objectName);
+      return Failsafe.with(minioConnectionRetryPolicy)
+          .get(() -> minioClient.getObject(TESTS_BUCKET, objectName));
 
-    } catch (InvalidBucketNameException | NoSuchAlgorithmException | InsufficientDataException
-        | IOException | InvalidKeyException | NoResponseException | XmlPullParserException
-        | InternalException | InvalidArgumentException e) {
+    } catch (Exception e) {
       // TODO - handle exception
       logger.error("Exception in getInputStreamObject: " + objectName, e);
       return null;
-
-    } catch (ErrorResponseException e) {
-      /* happens if the object doesn't exist*/
-      return null;
     }
+
   }
 
   private void copyObject(String fromObjectName, String toObjectName) {
@@ -301,20 +322,24 @@ public class MinioService {
     logger.info("copyObject: from:" + fromObjectName + " to:" + toObjectName);
 
     try {
-      // the provided copyObject does not seem to work, so we do this workaround
-      // minioClient.copyObject(TESTS_BUCKET, fromObjectName, TESTS_BUCKET, toObjectName);
 
-      // convert to buffered input stream as the type minio returns cannot be put
-      String temp = IOUtils.toString(minioClient.getObject(TESTS_BUCKET, fromObjectName),
-          StandardCharsets.UTF_8);
-      InputStream tempInputStream = IOUtils.toInputStream(temp, StandardCharsets.UTF_8);
+      Failsafe.with(minioConnectionRetryPolicy).run(() -> {
 
-      minioClient.putObject(TESTS_BUCKET, toObjectName, tempInputStream,
-          tempInputStream.available(), CONTENT_TYPE);
+        // the provided copyObject does not seem to work, so we do this workaround
+        // minioClient.copyObject(TESTS_BUCKET, fromObjectName, TESTS_BUCKET, toObjectName);
 
-    } catch (InvalidKeyException | InvalidBucketNameException | NoSuchAlgorithmException
-        | InsufficientDataException | NoResponseException | ErrorResponseException
-        | InternalException | IOException | XmlPullParserException | InvalidArgumentException e) {
+        // convert to buffered input stream as the type minio returns cannot be put
+        String temp = IOUtils.toString(minioClient.getObject(TESTS_BUCKET, fromObjectName),
+            StandardCharsets.UTF_8);
+        InputStream tempInputStream = IOUtils.toInputStream(temp, StandardCharsets.UTF_8);
+
+        minioClient.putObject(TESTS_BUCKET, toObjectName, tempInputStream,
+            tempInputStream.available(), CONTENT_TYPE);
+
+      });
+
+
+    } catch (Exception e) {
       // TODO - handle exception
       logger.error("Exception in copyObject: from:" + fromObjectName + " to:" + toObjectName, e);
     }
