@@ -2,8 +2,8 @@
 # BenchFlow Test Definition
 ###############################################################################
 version: '1'
-name: WfMSTest
-description: A WfMS test
+name: WfMSExhaustiveExplorationOneAtATimeSelectionUsersEnvironmentTest
+description: WfMSExhaustiveExplorationOneAtATimeSelectionUsersEnvironmentTest
 
 ###############################################################################
 # Test Configuration
@@ -14,23 +14,19 @@ configuration:
 
     exploration_space:
       camunda:
-        resources:
-          memory:
-            range: [1g, 5g]
         environment:
-          SIZE_OF_THREADPOOL: ["1","2","3","5"]
-          AN_ENUM: [A,B,C]
+          JAVA_OPTS: ["-Xms128m", "-Xms512m", "-Xms1024m"]
       workload:
         users:
-          values: [5, 10, 15, 20]
+          values: [5, 10]
 
   strategy:
     selection: one-at-a-time
 
   workload_execution:
-     ramp_up: 0s
+     ramp_up: 5s
      steady_state: 60s
-     ramp_down: 0s
+     ramp_down: 5s
 
   termination_criteria:
     test:
@@ -38,14 +34,14 @@ configuration:
 
     experiment:
       type: fixed
-      number_of_trials: 3
+      number_of_trials: 2
 
 ###############################################################################
 # SUT Info Section
 ###############################################################################
 sut:
   name: camunda
-  version: 3.5.0
+  version: 7.5.0
   type: wfms
 
   configuration:
@@ -60,17 +56,12 @@ sut:
 
 ###############################################################################
 # Workload Modeling Section
-# this is specific to the SUT type
 ###############################################################################
 workload:
-  mymodel:
+  test_workload:
     driver_type: start
     operations:
-      - myModel.bpmn
-
-    mix:
-      fixed_sequence: [ myModel ]
-      max_deviation: 5%
+      - test.bpmn
 
 ###############################################################################
 # Data Collection Section
@@ -78,13 +69,11 @@ workload:
 data_collection:
   client_side:
     faban:
-      max_run_time: 6s
-      interval: 2s
-      workload:
-        mymodel: 30s
+      max_run_time: 1h
+      interval: 1s
 
   server_side:
-    camunda: stats
+    camunda: [properties, stats]
 
     db:
       mysql:
@@ -93,5 +82,7 @@ data_collection:
           MYSQL_USER: camunda
           MYSQL_USER_PASSWORD: camunda
           TABLE_NAMES: ACT_HI_PROCINST,ACT_HI_ACTINST
-          MYSQL_PORT: "3306"
-          MY_MONITOR_QUERY: complete
+          MYSQL_PORT: '3306'
+          COMPLETION_QUERY: SELECT+COUNT(*)+FROM+ACT_HI_PROCINST+WHERE+END_TIME_+IS+NULL
+          COMPLETION_QUERY_VALUE: '0'
+          COMPLETION_QUERY_METHOD: equal

@@ -2,8 +2,8 @@
 # BenchFlow Test Definition
 ###############################################################################
 version: '1'
-name: WfMSLoadTest
-description: WfMSLoadTest
+name: TestTerminationCriteriaTest
+description: TestTerminationCriteriaTest
 
 ###############################################################################
 # Test Configuration
@@ -21,7 +21,7 @@ configuration:
 
   termination_criteria:
     test:
-      max_time: 1h
+      max_time: 5s
 
     experiment:
       type: fixed

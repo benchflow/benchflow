@@ -3,7 +3,7 @@ package cloud.benchflow.dsl.definition.yamlprotocol.valuesrange
 import cloud.benchflow.dsl.definition.configuration.goal.explorationspace.step.RangeWithStep
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationExceptionMessage
 
-import scala.util.{Failure, Try}
+import scala.util.{ Failure, Try }
 
 /**
  * @author Vincenzo Ferme <info@vincenzoferme.it>

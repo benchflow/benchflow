@@ -2,17 +2,24 @@
 # BenchFlow Test Definition
 ###############################################################################
 version: '1'
-name: WfMSLoadTest
-description: WfMSLoadTest
+name: WfMSStepUsersExhaustiveExplorationTest
+description: WfMSStepUsersExhaustiveExplorationTest
 
 ###############################################################################
 # Test Configuration
 ###############################################################################
 configuration:
   goal:
-    type: load
+    type: exhaustive_exploration
 
-  users: 10
+    exploration_space:
+      workload:
+        users:
+          range: [50, 175]
+          step: '+50'
+
+  strategy:
+    selection: one-at-a-time
 
   workload_execution:
      ramp_up: 5s
@@ -25,7 +32,7 @@ configuration:
 
     experiment:
       type: fixed
-      number_of_trials: 3
+      number_of_trials: 2
 
 ###############################################################################
 # SUT Info Section

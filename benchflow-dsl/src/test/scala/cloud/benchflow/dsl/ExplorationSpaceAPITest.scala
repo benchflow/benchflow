@@ -20,7 +20,7 @@ class ExplorationSpaceAPITest extends JUnitSuite {
 
   @Test def explorationSpaceDimensionsFromTestYamlTest(): Unit = {
 
-    val testYaml = Source.fromFile(Paths.get(BenchFlowExhaustiveExplorationMultipleExample).toFile).mkString
+    val testYaml = Source.fromFile(Paths.get(BenchFlowExhaustiveExplorationUsersMemoryEnvironmentExample).toFile).mkString
 
     val explorationSpace = ExplorationSpaceAPI.explorationSpaceDimensionsFromTestYaml(testYaml)
 
@@ -34,11 +34,11 @@ class ExplorationSpaceAPITest extends JUnitSuite {
 
   @Test def explorationSpaceFromTestYamlTest(): Unit = {
 
-    val testYaml = Source.fromFile(Paths.get(BenchFlowExhaustiveExplorationMultipleExample).toFile).mkString
+    val testYaml = Source.fromFile(Paths.get(BenchFlowExhaustiveExplorationUsersMemoryEnvironmentExample).toFile).mkString
 
     val explorationSpace = ExplorationSpaceAPI.explorationSpaceFromTestYaml(testYaml)
 
-    val expectedExplorationSpaceSize = 5 * 4 * 3 * 4
+    val expectedExplorationSpaceSize = 2 * 2 * 2 * 2
 
     Assert.assertEquals(expectedExplorationSpaceSize, explorationSpace.usersDimension.get().size())
 
@@ -46,9 +46,9 @@ class ExplorationSpaceAPITest extends JUnitSuite {
 
   @Test def generateExperimentBundleWithNumberTest(): Unit = {
 
-    val experimentIndex = 10
+    val experimentIndex = 3
 
-    val testYaml = Source.fromFile(Paths.get(BenchFlowExhaustiveExplorationMultipleExample).toFile).mkString
+    val testYaml = Source.fromFile(Paths.get(BenchFlowExhaustiveExplorationUsersMemoryEnvironmentExample).toFile).mkString
 
     val dockerComposeYamlString = DockerComposeYamlString
 
@@ -62,22 +62,22 @@ class ExplorationSpaceAPITest extends JUnitSuite {
 
     Assert.assertTrue(experimentDefinition.contains("users: " + 5))
 
-    Assert.assertTrue(newDockerCompose.contains("SIZE_OF_THREADPOOL=3"))
-    Assert.assertTrue(newDockerCompose.contains("AN_ENUM=C"))
-    Assert.assertTrue(newDockerCompose.contains("mem_limit: 1g"))
+    Assert.assertTrue(newDockerCompose.contains("SIZE_OF_THREADPOOL=2"))
+    Assert.assertTrue(newDockerCompose.contains("AN_ENUM=B"))
+    Assert.assertTrue(newDockerCompose.contains("mem_limit: 500m"))
 
   }
 
   @Test def generateExperimentBundleWithConfigurationTest(): Unit = {
 
-    val expectedExperimentIndex = 10
+    val expectedExperimentIndex = 3
 
     val javaCompatExplorationSpacePoint = JavaCompatExplorationSpacePoint(
       Optional.ofNullable(5),
-      Optional.ofNullable(Map("camunda" -> Bytes.fromString("1g").get).asJava),
-      Optional.ofNullable(Map("camunda" -> Map("AN_ENUM" -> "C", "SIZE_OF_THREADPOOL" -> "3").asJava).asJava))
+      Optional.ofNullable(Map("camunda" -> Bytes.fromString("500m").get).asJava),
+      Optional.ofNullable(Map("camunda" -> Map("AN_ENUM" -> "B", "SIZE_OF_THREADPOOL" -> "2").asJava).asJava))
 
-    val testYaml = Source.fromFile(Paths.get(BenchFlowExhaustiveExplorationMultipleExample).toFile).mkString
+    val testYaml = Source.fromFile(Paths.get(BenchFlowExhaustiveExplorationUsersMemoryEnvironmentExample).toFile).mkString
 
     val dockerComposeYamlString = DockerComposeYamlString
 
@@ -97,9 +97,9 @@ class ExplorationSpaceAPITest extends JUnitSuite {
 
     Assert.assertTrue(experimentDefinition.contains("users: " + 5))
 
-    Assert.assertTrue(newDockerCompose.contains("SIZE_OF_THREADPOOL=3"))
-    Assert.assertTrue(newDockerCompose.contains("AN_ENUM=C"))
-    Assert.assertTrue(newDockerCompose.contains("mem_limit: 1g"))
+    Assert.assertTrue(newDockerCompose.contains("SIZE_OF_THREADPOOL=2"))
+    Assert.assertTrue(newDockerCompose.contains("AN_ENUM=B"))
+    Assert.assertTrue(newDockerCompose.contains("mem_limit: 500m"))
 
   }
 

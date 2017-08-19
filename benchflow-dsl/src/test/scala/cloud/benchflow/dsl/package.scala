@@ -10,7 +10,27 @@ package object dsl {
 
   val BenchFlowLoadTestExample: String = BenchFlowTestExamplesFolder + "load/benchflow-test.yml"
 
-  val BenchFlowExhaustiveExplorationUsersExample: String = BenchFlowTestExamplesFolder + "exhaustive-exploration/one-at-a-time/users/benchflow-test.yml"
-  val BenchFlowExhaustiveExplorationMultipleExample: String = BenchFlowTestExamplesFolder + "exhaustive-exploration/one-at-a-time/multiple/benchflow-test.yml"
+  private val exhaustiveFolder = "exhaustive_exploration/"
+  private val oneAtATimeFolder = "one-at-a-time/"
+
+  val BenchFlowExhaustiveExplorationUsersExample: String = BenchFlowTestExamplesFolder +
+    exhaustiveFolder +
+    oneAtATimeFolder +
+    "users/benchflow-test.yml"
+
+  val BenchFlowExhaustiveExplorationUsersMemoryEnvironmentExample: String = BenchFlowTestExamplesFolder +
+    exhaustiveFolder +
+    oneAtATimeFolder +
+    "users-memory-environment/benchflow-test.yml"
+
+  val BenchFlowExhaustiveExplorationMemoryExample: String = BenchFlowTestExamplesFolder +
+    exhaustiveFolder +
+    oneAtATimeFolder +
+    "memory/benchflow-test.yml"
+
+  val BenchFlowExhaustiveExplorationUsersEnvironmentExample: String = BenchFlowTestExamplesFolder +
+    exhaustiveFolder +
+    oneAtATimeFolder +
+    "users-environment/benchflow-test.yml"
 
 }
