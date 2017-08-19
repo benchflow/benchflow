@@ -2,6 +2,7 @@ package cloud.benchflow.experimentmanager.configurations;
 
 import cloud.benchflow.experimentmanager.configurations.factory.BenchFlowEnvironmentFactory;
 import cloud.benchflow.experimentmanager.configurations.factory.DriversMakerServiceFactory;
+import cloud.benchflow.experimentmanager.configurations.factory.FabanManagerServiceFactory;
 import cloud.benchflow.experimentmanager.configurations.factory.FabanServiceFactory;
 import cloud.benchflow.experimentmanager.configurations.factory.MinioServiceFactory;
 import cloud.benchflow.experimentmanager.configurations.factory.MongoDBFactory;
@@ -42,6 +43,10 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
   @Valid
   @NotNull
   private FabanServiceFactory fabanServiceFactory = new FabanServiceFactory();
+
+  @Valid
+  @NotNull
+  private FabanManagerServiceFactory fabanManagerServiceFactory = new FabanManagerServiceFactory();
 
   @Valid
   @NotNull
@@ -121,6 +126,15 @@ public class BenchFlowExperimentManagerConfiguration extends Configuration {
     this.fabanServiceFactory = fabanServiceFactory;
   }
 
+  @JsonProperty("fabanManager")
+  public FabanManagerServiceFactory getFabanManagerServiceFactory() {
+    return fabanManagerServiceFactory;
+  }
+
+  @JsonProperty("fabanManager")
+  public void setFabanManagerServiceFactory(FabanManagerServiceFactory fabanManagerServiceFactory) {
+    this.fabanManagerServiceFactory = fabanManagerServiceFactory;
+  }
 
   @JsonProperty("driversMaker")
   public DriversMakerServiceFactory getDriversMakerServiceFactory() {

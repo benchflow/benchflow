@@ -43,6 +43,7 @@
     <docker-compose-rule-junit4.version>0.31.1</docker-compose-rule-junit4.version>
     <wiremock.version>2.5.1</wiremock.version>
     <dropwizard-swagger.version>1.0.6-1</dropwizard-swagger.version>
+    <failsafe.version>1.0.4</failsafe.version>
     <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
     <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
     <maven-source-plugin.version>2.4</maven-source-plugin.version>
@@ -147,6 +148,14 @@
         <groupId>com.github.tomakehurst</groupId>
         <artifactId>wiremock-standalone</artifactId>
         <version>${wiremock.version}</version>
+      </dependency>
+
+      <!-- https://github.com/jhalterman/failsafe -->
+      <!-- for handling failures (e.g. retries) -->
+      <dependency>
+        <groupId>net.jodah</groupId>
+        <artifactId>failsafe</artifactId>
+        <version>${failsafe.version}</version>
       </dependency>
 
       <!--https://github.com/smoketurner/dropwizard-swagger-->

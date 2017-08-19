@@ -162,7 +162,7 @@ public class BenchFlowExperimentManagerApplication
     if (configuration.getTestModeFactory().isMockFaban()) {
       fabanManagerService = new FabanManagerServiceMock(fabanClient);
     } else {
-      fabanManagerService = new FabanManagerService(fabanClient);
+      fabanManagerService = configuration.getFabanManagerServiceFactory().build(fabanClient);
     }
 
     submitRetries = configuration.getFabanServiceFactory().getSubmitRetries();

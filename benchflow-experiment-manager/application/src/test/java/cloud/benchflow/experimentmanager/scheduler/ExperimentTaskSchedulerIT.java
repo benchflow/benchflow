@@ -96,7 +96,8 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     BenchFlowExperimentManagerApplication.setMinioService(minioServiceSpy);
 
     // set faban client as mock
-    fabanManagerServiceSpy = Mockito.spy(new FabanManagerService(fabanClientMock, minioServiceSpy));
+    fabanManagerServiceSpy =
+        Mockito.spy(new FabanManagerService(fabanClientMock, minioServiceSpy, 0));
     BenchFlowExperimentManagerApplication.setFabanManagerService(fabanManagerServiceSpy);
 
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment1TrialDefinition())

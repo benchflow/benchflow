@@ -86,6 +86,11 @@
     <!--</dependency>-->
 
     <dependency>
+      <groupId>net.jodah</groupId>
+      <artifactId>failsafe</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>com.palantir.docker.compose</groupId>
       <artifactId>docker-compose-rule-junit4</artifactId>
       <scope>test</scope>
