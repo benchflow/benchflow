@@ -39,7 +39,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.ArgumentMatchers;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 /**
@@ -232,8 +232,7 @@ public class TestManagerSmokeTestsIT extends DockerComposeIT {
 
       return null;
 
-    }).when(benchFlowExperimentManagerServiceSpy)
-        .runBenchFlowExperiment(ArgumentMatchers.anyString());
+    }).when(benchFlowExperimentManagerServiceSpy).runBenchFlowExperiment(Matchers.anyString());
 
     // setup the client and submit test
 
