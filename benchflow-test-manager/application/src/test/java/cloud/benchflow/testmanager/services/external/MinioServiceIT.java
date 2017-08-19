@@ -51,7 +51,7 @@ public class MinioServiceIT extends DockerComposeIT {
       minioClient.makeBucket(BenchFlowConstants.TESTS_BUCKET);
     }
 
-    minioService = new MinioService(minioClient);
+    minioService = new MinioService(minioClient, 3);
 
     ptDefinitionInputStream = TestBundle.getValidTestDefinitionInputStream();
 
