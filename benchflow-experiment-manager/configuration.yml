@@ -77,6 +77,9 @@ faban:
   address: ${env.FABAN_ADDRESS!"SET_ME"}
   submitRetries: ${env.FABAN_SUBMIT_RETRIES!3}
 
+fabanManager:
+  numConnectionRetries: 3
+
 driversMaker:
   address: ${env.DRIVERS_MAKER_ADDRESS!"SET_ME"}
   numConnectionRetries: 3

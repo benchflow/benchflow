@@ -4,7 +4,6 @@ import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.services.external.faban.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.external.faban.FabanStatus;
 import cloud.benchflow.faban.client.FabanClient;
-import cloud.benchflow.faban.client.exceptions.JarFileNotFoundException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunId;
 import cloud.benchflow.faban.client.responses.RunInfo.Result;
@@ -39,12 +38,12 @@ public class FabanManagerServiceMock extends FabanManagerService {
   private long runIdCounter = 0;
 
   public FabanManagerServiceMock(FabanClient fabanClient) {
-    super(fabanClient);
+    super(fabanClient, 0);
   }
 
   @Override
   public void deployExperimentToFaban(String experimentID, String driversMakerExperimentID,
-      long experimentNumber) throws IOException, JarFileNotFoundException {
+      long experimentNumber) {
     // we do not do anything here since there is no need to deploy
     logger.info("deployExperimentToFaban: " + experimentID);
   }

@@ -1,10 +1,10 @@
 package cloud.benchflow.experimentmanager.services.external.faban;
 
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
-import static cloud.benchflow.faban.client.responses.RunStatus.StatusCode.*;
 
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
+import cloud.benchflow.experimentmanager.exceptions.BenchMarkDeploymentException;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.exceptions.BenchmarkNameNotFoundRuntimeException;
@@ -17,17 +17,23 @@ import cloud.benchflow.faban.client.exceptions.FabanClientIOException;
 import cloud.benchflow.faban.client.exceptions.IllegalRunIdException;
 import cloud.benchflow.faban.client.exceptions.IllegalRunInfoResultException;
 import cloud.benchflow.faban.client.exceptions.IllegalRunStatusException;
-import cloud.benchflow.faban.client.exceptions.JarFileNotFoundException;
 import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
+import cloud.benchflow.faban.client.responses.DeployStatus;
+import cloud.benchflow.faban.client.responses.DeployStatus.Code;
 import cloud.benchflow.faban.client.responses.RunId;
 import cloud.benchflow.faban.client.responses.RunInfo;
 import cloud.benchflow.faban.client.responses.RunInfo.Result;
 import cloud.benchflow.faban.client.responses.RunStatus;
+import cloud.benchflow.faban.client.responses.RunStatus.StatusCode;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -46,14 +52,19 @@ public class FabanManagerService {
   private FabanClient fabanClient;
   private MinioService minioService;
 
-  public FabanManagerService(FabanClient fabanClient) {
+  private int numConnectionRetries;
+
+  public FabanManagerService(FabanClient fabanClient, int numConnectionRetries) {
     this.fabanClient = fabanClient;
+    this.numConnectionRetries = numConnectionRetries;
   }
 
-  // used for testing
-  public FabanManagerService(FabanClient fabanClient, MinioService minioService) {
+  @VisibleForTesting
+  public FabanManagerService(FabanClient fabanClient, MinioService minioService,
+      int numConnectionRetries) {
     this.fabanClient = fabanClient;
     this.minioService = minioService;
+    this.numConnectionRetries = numConnectionRetries;
   }
 
   public static String getFabanExperimentID(String experimentID) {
@@ -79,7 +90,7 @@ public class FabanManagerService {
   }
 
   public void deployExperimentToFaban(String experimentID, String driversMakerExperimentID,
-      long experimentNumber) throws IOException, JarFileNotFoundException {
+      long experimentNumber) throws BenchMarkDeploymentException {
 
     logger.info("deploying benchmark to Faban: " + experimentID);
 
@@ -95,18 +106,43 @@ public class FabanManagerService {
     java.nio.file.Path benchmarkPath = Paths.get(TEMP_DIR).resolve(experimentID)
         .resolve(fabanExperimentId + BENCHMARK_FILE_ENDING);
 
-    FileUtils.copyInputStreamToFile(fabanBenchmark, benchmarkPath.toFile());
-
-    // deploy experiment to Faban
     try {
-      fabanClient.deploy(benchmarkPath.toFile());
-    } catch (FabanClientIOException | DeployException | MalformedURIException e) {
-      // TODO - handle properly
-      e.printStackTrace();
+
+      FileUtils.copyInputStreamToFile(fabanBenchmark, benchmarkPath.toFile());
+
+      // add retry policy for resilience
+      RetryPolicy retryPolicy = new RetryPolicy().retryOn(FabanClientIOException.class)
+          .abortOn(DeployException.class).abortOn(MalformedURIException.class)
+          .withDelay(1, TimeUnit.SECONDS).withMaxRetries(numConnectionRetries);
+
+      // deploy experiment to Faban
+      DeployStatus deployStatus =
+          Failsafe.with(retryPolicy).get(() -> fabanClient.deploy(benchmarkPath.toFile()));
+
+      // if the benchmark could not be deployed
+      if (deployStatus.getCode() != Code.CREATED) {
+        throw new BenchMarkDeploymentException(experimentID,
+            "DeployStatus is " + deployStatus.getCode());
+      }
+
+    } catch (Exception e) {
+      throw new BenchMarkDeploymentException(experimentID, e.getMessage());
+    } finally {
+
+      if (benchmarkPath.toFile().exists()) {
+        // remove file that was sent to fabanClient
+        try {
+          FileUtils.forceDelete(benchmarkPath.toFile());
+        } catch (IOException e) {
+          // we already check that the file exists so should not happen
+          e.printStackTrace();
+        }
+      }
+
+
+
     }
 
-    // remove file that was sent to fabanClient
-    FileUtils.forceDelete(benchmarkPath.toFile());
 
   }
 
@@ -182,8 +218,10 @@ public class FabanManagerService {
 
       status = fabanClient.status(runId);
 
-      while (status.getStatus().equals(QUEUED) || status.getStatus().equals(RECEIVED)
-          || status.getStatus().equals(STARTED) || status.getStatus().equals(UNKNOWN)) {
+      while (status.getStatus().equals(StatusCode.QUEUED)
+          || status.getStatus().equals(StatusCode.RECEIVED)
+          || status.getStatus().equals(StatusCode.STARTED)
+          || status.getStatus().equals(StatusCode.UNKNOWN)) {
 
         try {
           Thread.sleep(30 * 1000);
@@ -209,7 +247,7 @@ public class FabanManagerService {
     }
 
     //See https://github.com/benchflow/benchflow/pull/473/files#r128371872
-    return new FabanStatus(trialID, UNKNOWN, Result.UNKNOWN);
+    return new FabanStatus(trialID, StatusCode.UNKNOWN, Result.UNKNOWN);
 
   }
 

@@ -7,13 +7,15 @@ import cloud.benchflow.dsl.definition.workload.Workload;
 import cloud.benchflow.dsl.demo.DemoConverter;
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
+import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
+import cloud.benchflow.experimentmanager.exceptions.BenchMarkDeploymentException;
 import cloud.benchflow.experimentmanager.exceptions.BenchmarkGenerationException;
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.external.faban.FabanManagerService;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.tasks.AbortableCallable;
-import cloud.benchflow.faban.client.exceptions.JarFileNotFoundException;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -47,8 +49,19 @@ public class StartTask extends AbortableCallable<Boolean> {
     this.driversMakerService = BenchFlowExperimentManagerApplication.getDriversMakerService();
   }
 
+  @VisibleForTesting
+  public StartTask(String experimentID, BenchFlowExperimentModelDAO experimentModelDAO,
+      MinioService minioService, FabanManagerService fabanManagerService,
+      DriversMakerService driversMakerService) {
+    this.experimentID = experimentID;
+    this.experimentModelDAO = experimentModelDAO;
+    this.minioService = minioService;
+    this.fabanManagerService = fabanManagerService;
+    this.driversMakerService = driversMakerService;
+  }
+
   @Override
-  public Boolean call() throws Exception {
+  public Boolean call() {
 
     // DEPLOY EXPERIMENT TO FABAN
 
@@ -101,21 +114,16 @@ public class StartTask extends AbortableCallable<Boolean> {
 
       return false;
 
-    } catch (JarFileNotFoundException e) {
-
-      logger.error("could not find jar for " + experimentID + " : " + e.getMessage());
-
-      return false;
-
-    } catch (BenchmarkGenerationException e) {
+    } catch (BenchmarkGenerationException | BenchMarkDeploymentException e) {
       logger.error(e.getMessage());
       return false;
-    } catch (BenchFlowDeserializationException e) {
+    } catch (BenchFlowDeserializationException | BenchFlowExperimentIDDoesNotExistException e) {
       // should already have been checked in previous step
       // TODO - handle me
       e.printStackTrace();
       return false;
     }
+
   }
 
   private void saveDriversMakerCompatibleFilesOnMinio(BenchFlowExperiment experiment,

@@ -77,7 +77,8 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
 
     BenchFlowExperimentManagerApplication.setMinioService(minioServiceSpy);
 
-    fabanManagerServiceSpy = Mockito.spy(new FabanManagerService(fabanClientMock, minioServiceSpy));
+    fabanManagerServiceSpy =
+        Mockito.spy(new FabanManagerService(fabanClientMock, minioServiceSpy, 0));
 
     BenchFlowExperimentManagerApplication.setFabanManagerService(fabanManagerServiceSpy);
 

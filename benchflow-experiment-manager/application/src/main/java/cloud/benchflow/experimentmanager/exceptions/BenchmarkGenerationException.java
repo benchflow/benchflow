@@ -6,7 +6,7 @@ package cloud.benchflow.experimentmanager.exceptions;
  */
 public class BenchmarkGenerationException extends Exception {
 
-  public static final String MESSAGE = "Couldn't extract experiment archive for ";
+  private static final String MESSAGE = "Couldn't extract experiment archive for ";
 
   public BenchmarkGenerationException(String experimentID, int status) {
     super(MESSAGE + " for " + experimentID + " with response status " + status);
