@@ -11,7 +11,6 @@ import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperime
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 /**
@@ -48,7 +47,6 @@ public class StartTaskTest {
     // deployment successful
     Mockito.doNothing().when(fabanManagerServiceMock).deployExperimentToFaban(Mockito.anyString(),
         Mockito.anyString(), Mockito.anyLong());
-
 
     StartTask startTask = new StartTask(experimentID, experimentModelDAOMock, minioServiceMock,
         fabanManagerServiceMock, driversMakerServiceMock);
