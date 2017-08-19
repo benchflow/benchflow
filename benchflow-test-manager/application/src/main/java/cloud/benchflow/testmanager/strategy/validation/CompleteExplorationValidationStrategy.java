@@ -53,7 +53,8 @@ public class CompleteExplorationValidationStrategy implements ValidationStrategy
       List<Integer> explorationPointIndices =
           explorationModelDAO.getExecutedExplorationPointIndices(testID);
 
-      // if the exploration size is greater (should not be) or equal the number executed points it is complete
+      // if the exploration size is greater or equal the number executed points it is complete
+      // include greater here to terminate in case there would be some error
       return explorationPointIndices.size() >= explorationSpace.size();
 
     } catch (BenchFlowTestIDDoesNotExistException | IOException
