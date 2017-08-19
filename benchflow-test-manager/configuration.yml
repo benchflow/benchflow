@@ -74,6 +74,7 @@ minio:
   address: ${env.MINIO_ADDRESS!"SET_ME"}
   accessKey: ${env.MINIO_ACCESS_KEY!"SET_ME"}
   secretKey: ${env.MINIO_SECRET_KEY!"SET_ME"}
+  numConnectionRetries: 3
 
 taskExecutor:
   minThreads: 5

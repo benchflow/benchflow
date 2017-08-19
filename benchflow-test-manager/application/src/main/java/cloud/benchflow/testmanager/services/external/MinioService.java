@@ -9,9 +9,7 @@ import io.minio.Result;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
-import io.minio.errors.InvalidArgumentException;
 import io.minio.errors.InvalidBucketNameException;
-import io.minio.errors.MinioException;
 import io.minio.errors.NoResponseException;
 import io.minio.messages.Item;
 import java.io.IOException;
@@ -21,6 +19,9 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,21 +36,41 @@ public class MinioService {
   private static final String CONTENT_TYPE = "application/octet-stream";
   private static Logger logger = LoggerFactory.getLogger(MinioService.class.getSimpleName());
   private MinioClient minioClient;
+  private int numConnectionRetries;
 
-  public MinioService(MinioClient minioClient) {
+  private RetryPolicy minioConnectionRetryPolicy =
+      new RetryPolicy().retryOn(NoResponseException.class) // upon no response from server
+          .retryOn(IOException.class) // upon connection error
+          .retryOn(ErrorResponseException.class) // upon unsuccessful execution
+          .abortOn(InvalidBucketNameException.class) // upon invalid bucket name
+          .abortOn(InvalidKeyException.class) // upon an invalid access key or secret key
+          .abortOn(XmlPullParserException.class) // upon parsing response XML
+          .abortOn(InternalException.class) // upon internal library error
+          .abortOn(NoSuchAlgorithmException.class) // upon requested algorithm was not found during
+          // signature calculation
+          .abortOn(InsufficientDataException.class) // Thrown to indicate that reading given InputStream
+          // gets EOFException before reading given length.
+          .withDelay(1, TimeUnit.SECONDS).withMaxRetries(numConnectionRetries);
+
+  public MinioService(MinioClient minioClient, int numConnectionRetries) {
     this.minioClient = minioClient;
+    this.numConnectionRetries = numConnectionRetries;
+  }
+
+  public static String minioCompatibleID(String id) {
+    return id.replace(BenchFlowConstants.MODEL_ID_DELIMITER, MINIO_ID_DELIMITER);
   }
 
   public void initializeBuckets() {
 
     try {
-      if (!minioClient.bucketExists(TESTS_BUCKET)) {
-        minioClient.makeBucket(TESTS_BUCKET);
-      }
+      Failsafe.with(minioConnectionRetryPolicy).run(() -> {
+        if (!minioClient.bucketExists(TESTS_BUCKET)) {
+          minioClient.makeBucket(TESTS_BUCKET);
+        }
+      });
 
-    } catch (InvalidBucketNameException | NoSuchAlgorithmException | IOException
-        | InsufficientDataException | InvalidKeyException | NoResponseException
-        | XmlPullParserException | ErrorResponseException | InternalException e) {
+    } catch (Exception e) {
       // TODO - handle exception
       logger.error("Exception in initializeBuckets ", e);
     }
@@ -166,20 +187,19 @@ public class MinioService {
 
     List<String> modelNames = new ArrayList<>();
 
-    String objectName = null;
+    final String objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER;
 
     try {
 
-      objectName = minioCompatibleID(testID) + MINIO_ID_DELIMITER
-          + BenchFlowConstants.BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER;
+      Failsafe.with(minioConnectionRetryPolicy).run(() -> {
+        for (Result<Item> item : minioClient.listObjects(TESTS_BUCKET, objectName)) {
+          modelNames.add(item.get().objectName().replace(objectName, ""));
+        }
+      });
 
-      for (Result<Item> item : minioClient.listObjects(TESTS_BUCKET, objectName)) {
-        modelNames.add(item.get().objectName().replace(objectName, ""));
-      }
 
-    } catch (MinioException | XmlPullParserException | NoSuchAlgorithmException
-        | InvalidKeyException | IOException e) {
-
+    } catch (Exception e) {
       // TODO - handle exception
       logger.error("Exception in getAllTestBPMNModels: " + objectName, e);
     }
@@ -254,12 +274,10 @@ public class MinioService {
 
     try {
 
-      minioClient.putObject(TESTS_BUCKET, objectName, inputStream, inputStream.available(),
-          CONTENT_TYPE);
+      Failsafe.with(minioConnectionRetryPolicy).run(() -> minioClient.putObject(TESTS_BUCKET,
+          objectName, inputStream, inputStream.available(), CONTENT_TYPE));
 
-    } catch (InvalidBucketNameException | NoSuchAlgorithmException | InsufficientDataException
-        | IOException | NoResponseException | InvalidKeyException | ErrorResponseException
-        | XmlPullParserException | InvalidArgumentException | InternalException e) {
+    } catch (Exception e) {
       // TODO - handle exception
       logger.error("Exception in putInputStreamObject: " + objectName, e);
     }
@@ -271,18 +289,14 @@ public class MinioService {
 
     try {
 
-      return minioClient.getObject(TESTS_BUCKET, objectName);
+      return Failsafe.with(minioConnectionRetryPolicy)
+          .get(() -> minioClient.getObject(TESTS_BUCKET, objectName));
 
-    } catch (InvalidBucketNameException | NoSuchAlgorithmException | InsufficientDataException
-        | IOException | InvalidKeyException | NoResponseException | XmlPullParserException
-        | InternalException | InvalidArgumentException e) {
+    } catch (Exception e) {
       // TODO - handle exception
       logger.error("Exception in getInputStreamObject: " + objectName, e);
       return null;
 
-    } catch (ErrorResponseException e) {
-      /* happens if the object doesn't exist*/
-      return null;
     }
   }
 
@@ -291,14 +305,15 @@ public class MinioService {
     logger.info("removeObject: " + objectName);
 
     try {
-      minioClient.removeObject(TESTS_BUCKET, objectName);
-    } catch (InvalidBucketNameException | NoSuchAlgorithmException | InsufficientDataException
-        | IOException | InvalidKeyException | NoResponseException | XmlPullParserException
-        | InternalException e) {
+      Failsafe.with(minioConnectionRetryPolicy)
+          .run(() -> minioClient.removeObject(TESTS_BUCKET, objectName));
+
+    } catch (Exception e) {
+
+      // TODO - handle ErrorResponseException happens if the object to remove doesn't exist, do nothing */
+      //      logger.error("Exception in removeObject: " + objectName, e);
+
       // TODO - handle exception
-      logger.error("Exception in removeObject: " + objectName, e);
-    } catch (ErrorResponseException e) {
-      /* happens if the object to remove doesn't exist, do nothing */
       logger.error("Exception in removeObject: " + objectName, e);
     }
   }
@@ -308,26 +323,24 @@ public class MinioService {
     logger.info("copyObject: from:" + fromObjectName + " to:" + toObjectName);
 
     try {
-      // the provided copyObject does not seem to work, so we do this workaround
-      // minioClient.copyObject(TESTS_BUCKET, fromObjectName, TESTS_BUCKET, toObjectName);
+      Failsafe.with(minioConnectionRetryPolicy).run(() -> {
 
-      // convert to buffered input stream as the type minio returns cannot be put
-      String temp = IOUtils.toString(minioClient.getObject(TESTS_BUCKET, fromObjectName),
-          StandardCharsets.UTF_8);
-      InputStream tempInputStream = IOUtils.toInputStream(temp, StandardCharsets.UTF_8);
+        // the provided copyObject does not seem to work, so we do this workaround
+        // minioClient.copyObject(TESTS_BUCKET, fromObjectName, TESTS_BUCKET, toObjectName);
 
-      minioClient.putObject(TESTS_BUCKET, toObjectName, tempInputStream,
-          tempInputStream.available(), CONTENT_TYPE);
+        // convert to buffered input stream as the type minio returns cannot be put
+        String temp = IOUtils.toString(minioClient.getObject(TESTS_BUCKET, fromObjectName),
+            StandardCharsets.UTF_8);
+        InputStream tempInputStream = IOUtils.toInputStream(temp, StandardCharsets.UTF_8);
 
-    } catch (InvalidKeyException | InvalidBucketNameException | NoSuchAlgorithmException
-        | InsufficientDataException | NoResponseException | ErrorResponseException
-        | InternalException | IOException | XmlPullParserException | InvalidArgumentException e) {
+        minioClient.putObject(TESTS_BUCKET, toObjectName, tempInputStream,
+            tempInputStream.available(), CONTENT_TYPE);
+
+      });
+
+    } catch (Exception e) {
       // TODO - handle exception
       logger.error("Exception in copyObject: from:" + fromObjectName + " to:" + toObjectName, e);
     }
-  }
-
-  public static String minioCompatibleID(String id) {
-    return id.replace(BenchFlowConstants.MODEL_ID_DELIMITER, MINIO_ID_DELIMITER);
   }
 }
