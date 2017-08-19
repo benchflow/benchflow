@@ -7,6 +7,7 @@ import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminat
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState;
+import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState;
 import cloud.benchflow.testmanager.scheduler.CustomFutureReturningExecutor;
 import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
 import cloud.benchflow.testmanager.scheduler.TestTaskScheduler.AbortableFutureTaskResult;
@@ -343,6 +344,20 @@ public class RunningStatesHandler {
       // should not happen since it was added earlier
       logger.error("test ID does not exist - should not happen");
     }
+  }
+
+  public void terminating(String testID) {
+
+    // set to terminated
+    try {
+
+      testModelDAO.setTestState(testID, TERMINATED);
+      testModelDAO.setTestTerminatedState(testID, TestTerminatedState.PARTIALLY_COMPLETE);
+
+    } catch (BenchFlowTestIDDoesNotExistException e) {
+      e.printStackTrace();
+    }
+
   }
 
   private void waitForRunningTaskToComplete(String testID, AbortableFutureTask future,

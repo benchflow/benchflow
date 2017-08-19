@@ -435,10 +435,13 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     }).when(experimentManagerService).runBenchFlowExperiment(Matchers.anyString());
 
     // set the experiment state as terminated when an abort is triggered
+    // and inform test task scheduler to handle next state
     Mockito.doAnswer(invocationOnMock -> {
       String experimentID = (String) invocationOnMock.getArguments()[0];
 
       experimentModelDAO.setExperimentState(experimentID, TERMINATED, null, COMPLETED);
+
+      scheduleHandleRunningTest(testID);
 
       return null;
     }).when(experimentManagerService).abortBenchFlowExperiment(Matchers.anyString());
@@ -497,6 +500,20 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
 
   }
 
+  private void scheduleHandleRunningTest(String testID) {
+    new Thread(() -> {
+
+      // TODO - try to find a way to deterministically execute some code, after a given mocked method is called.
+      try {
+        Thread.sleep(2000);
+        testTaskScheduler.handleRunningTest(testID);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+
+    }).start();
+  }
+
   private CountDownLatch setUpExplorationMocks(String testID, int expectedNumExperiments,
       String testDefinitionString) throws IOException {
 
@@ -513,17 +530,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
 
       experimentModelDAO.setExperimentState(experimentID, TERMINATED, null, COMPLETED);
 
-      new Thread(() -> {
-
-        // TODO - try to find a way to deterministically execute some code, after a given mocked method is called.
-        try {
-          Thread.sleep(2000);
-          testTaskScheduler.handleRunningTest(testID);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-
-      }).start();
+      scheduleHandleRunningTest(testID);
 
       countDownLatch.countDown();
 

@@ -1,7 +1,8 @@
 package cloud.benchflow.testmanager.scheduler;
 
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.*;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.*;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.READY;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.WAITING;
 
 import cloud.benchflow.dsl.definition.types.time.Time;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
@@ -189,7 +190,8 @@ public class TestTaskScheduler {
         }
         // Exit while waiting for the Experiment Manager to notify about the scheduled
         // experiment to be executed. This exits before the execution of HANDLE_EXPERIMENT_RESULT
-        else if (testRunningState != null && testRunningState.equals(HANDLE_EXPERIMENT_RESULT)) {
+        else if (testRunningState != null
+            && testRunningState.equals(TestRunningState.HANDLE_EXPERIMENT_RESULT)) {
           exit = true;
         }
 
@@ -330,10 +332,11 @@ public class TestTaskScheduler {
         exit = true;
       }
       // Exit while waiting for the Experiment Manager to notify about the scheduled
-      // experiment to be executed.
+      // experiment to be executed or aborted (terminating state)
       else if (prevTestRunningState != null && testRunningState != null
-          && prevTestRunningState == DETERMINE_EXECUTE_EXPERIMENTS
-          && testRunningState == HANDLE_EXPERIMENT_RESULT) {
+          && prevTestRunningState == TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS
+          && testRunningState == TestRunningState.HANDLE_EXPERIMENT_RESULT
+          || testRunningState == TestRunningState.TERMINATING) {
         exit = true;
       }
 
@@ -399,6 +402,10 @@ public class TestTaskScheduler {
           runningStatesHandler.removeNonReachableExperiments(testID);
           break;
 
+        case TERMINATING:
+          runningStatesHandler.terminating(testID);
+          break;
+
         default:
           break;
       }
@@ -452,12 +459,20 @@ public class TestTaskScheduler {
           // cancel the current running task, but let it complete before
           cancelTask(testID);
 
+          // set to terminated
+          testModelDAO.setTestState(testID, TERMINATED);
+          testModelDAO.setTestTerminatedState(testID, TestTerminatedState.PARTIALLY_COMPLETE);
+
           break;
 
         case WAITING:
         case START:
           // cancel the current running task, but let it complete before
           cancelTask(testID);
+
+          // set to terminated
+          testModelDAO.setTestState(testID, TERMINATED);
+          testModelDAO.setTestTerminatedState(testID, TestTerminatedState.PARTIALLY_COMPLETE);
 
           break;
 
@@ -468,8 +483,8 @@ public class TestTaskScheduler {
           // cancel the current running task, but let it complete before
           cancelTask(testID);
 
-          if (runningState == HANDLE_EXPERIMENT_RESULT
-              || runningState == DETERMINE_EXECUTE_VALIDATION_SET) {
+          if (runningState == TestRunningState.HANDLE_EXPERIMENT_RESULT
+              || runningState == TestRunningState.DETERMINE_EXECUTE_VALIDATION_SET) {
 
             logger.info("Need to execute AbortRunningTask");
 
@@ -480,13 +495,18 @@ public class TestTaskScheduler {
             Future abortRunningTestTaskFuture = taskExecutorService.submit(abortRunningTestTask);
 
             try {
+
               abortRunningTestTaskFuture.get();
+
             } catch (InterruptedException | ExecutionException e) {
               // nothing to do
               e.printStackTrace();
             }
 
           }
+
+          // set to TERMINATING and wait for experiment to terminate
+          testModelDAO.setTestRunningState(testID, TestRunningState.TERMINATING);
 
           break;
 
@@ -528,10 +548,6 @@ public class TestTaskScheduler {
 
       // NOTE: enable if we need to cancel the executing task
       //      abortableFutureTask.cancel(false);
-
-      // set to terminated
-      testModelDAO.setTestState(testID, TERMINATED);
-      testModelDAO.setTestTerminatedState(testID, TestTerminatedState.PARTIALLY_COMPLETE);
 
       abortableFutureTask.abortTask();
 

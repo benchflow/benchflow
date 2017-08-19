@@ -82,7 +82,7 @@ public class BenchFlowExperimentResource {
 
       BenchFlowExperimentModel.BenchFlowExperimentState experimentState = stateRequest.getState();
 
-      // if the test has not terminated (e.g is running) and the experiment state is terminated
+      // if the test has not terminated (e.g is running or terminating) and the experiment state is terminated
       // we inform the testTaskController
 
       if (testState != BenchFlowTestState.TERMINATED
