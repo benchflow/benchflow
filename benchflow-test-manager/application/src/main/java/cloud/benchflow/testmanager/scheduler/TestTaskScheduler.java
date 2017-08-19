@@ -76,7 +76,7 @@ public class TestTaskScheduler {
 
   // used for testing
   @VisibleForTesting
-  protected CustomFutureReturningExecutor getTaskExecutorService() {
+  public CustomFutureReturningExecutor getTaskExecutorService() {
     return taskExecutorService;
   }
 

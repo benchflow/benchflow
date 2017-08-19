@@ -16,8 +16,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Field;
 import org.mongodb.morphia.annotations.Id;
@@ -72,7 +73,7 @@ public class BenchFlowTestModel {
   private TestRunningState runningState;
   private TestTerminatedState terminatedState;
   @Reference
-  private TreeMap<Long, BenchFlowExperimentModel> experiments = new TreeMap<>();
+  private Map<Long, BenchFlowExperimentModel> experiments = new HashMap<>();
 
   private ExplorationModel explorationModel = new ExplorationModel();
 
@@ -183,7 +184,7 @@ public class BenchFlowTestModel {
     return experiments.containsKey(experimentNumber);
   }
 
-  public TreeMap<Long, BenchFlowExperimentModel> getExperiments() {
+  public Map<Long, BenchFlowExperimentModel> getExperiments() {
     return experiments;
   }
 
@@ -206,11 +207,7 @@ public class BenchFlowTestModel {
   @JsonIgnore
   public long getNextExperimentNumber() {
 
-    if (experiments.size() == 0) {
-      return 1;
-    }
-
-    return experiments.lastKey() + 1;
+    return experiments.size() + 1;
   }
 
   public String getTestBundle() {

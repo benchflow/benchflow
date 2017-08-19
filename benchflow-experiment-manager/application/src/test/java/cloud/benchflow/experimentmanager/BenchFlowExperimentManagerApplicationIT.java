@@ -72,6 +72,7 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
 
   @Before
   public void setUp() throws Exception {
+
     minioServiceSpy = Mockito.spy(BenchFlowExperimentManagerApplication.getMinioService());
 
     BenchFlowExperimentManagerApplication.setMinioService(minioServiceSpy);

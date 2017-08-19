@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.Path;
@@ -163,6 +164,13 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
 
     Assert.assertEquals(expectedNumExperiments, explorationSpace.getSize());
 
+    // assert that the experiment IDs are correct
+    Set<Long> experimentNumbers = testModelDAO.getExperimentNumbers(testID);
+    for (long i = 1; i <= expectedNumExperiments; i++) {
+      Assert.assertTrue(experimentNumbers.contains(i));
+    }
+
+
   }
 
   @Test
@@ -217,6 +225,12 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
 
     explorationPointIndices.sort(Integer::compareTo);
     Assert.assertEquals(sortedIndices, explorationPointIndices);
+
+    // assert that the experiment IDs are correct
+    Set<Long> experimentNumbers = testModelDAO.getExperimentNumbers(testID);
+    for (long i = 1; i <= expectedNumExperiments; i++) {
+      Assert.assertTrue(experimentNumbers.contains(i));
+    }
 
   }
 
@@ -277,6 +291,12 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     // assert environment changed
     Assert.assertTrue(deploymentDescriptor1.contains("SIZE_OF_THREADPOOL=1"));
     Assert.assertTrue(deploymentDescriptor1.contains("AN_ENUM=A"));
+
+    // assert that the experiment IDs are correct
+    Set<Long> experimentNumbers = testModelDAO.getExperimentNumbers(testID);
+    for (long i = 1; i <= expectedNumExperiments; i++) {
+      Assert.assertTrue(experimentNumbers.contains(i));
+    }
 
 
   }
