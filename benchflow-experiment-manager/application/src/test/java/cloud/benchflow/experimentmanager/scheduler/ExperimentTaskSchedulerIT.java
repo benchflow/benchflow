@@ -403,7 +403,8 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
       new Thread(() -> {
 
-        // TODO - try to find a way to deterministically execute some code, after a given mocked method is called.
+        // TODO - try to find a way to deterministically execute some code, after a
+        // given mocked method is called.
 
         try {
           Thread.sleep(500);
