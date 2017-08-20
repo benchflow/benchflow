@@ -315,7 +315,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     }
 
-    long timeout = 1 * 60 * 1000; //1 minute
+    long timeout = 1 * 60 * 1000; // 1 minute
 
     // check when the experiment reaches the final state, with a timeout
     WaitExperimentCheck waitExperimentCheck = () -> {
