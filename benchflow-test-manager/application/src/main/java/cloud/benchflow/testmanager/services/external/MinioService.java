@@ -48,8 +48,8 @@ public class MinioService {
           .abortOn(InternalException.class) // upon internal library error
           .abortOn(NoSuchAlgorithmException.class) // upon requested algorithm was not found during
           // signature calculation
-          .abortOn(InsufficientDataException.class) // Thrown to indicate that reading given InputStream
-          // gets EOFException before reading given length.
+          .abortOn(InsufficientDataException.class) // Thrown to indicate that reading
+          // given InputStream gets EOFException before reading given length.
           .withDelay(1, TimeUnit.SECONDS).withMaxRetries(numConnectionRetries);
 
   public MinioService(MinioClient minioClient, int numConnectionRetries) {
@@ -310,7 +310,8 @@ public class MinioService {
 
     } catch (Exception e) {
 
-      // TODO - handle ErrorResponseException happens if the object to remove doesn't exist, do nothing */
+      // TODO - handle ErrorResponseException happens if the object to remove doesn't exist,
+      // do nothing
       //      logger.error("Exception in removeObject: " + objectName, e);
 
       // TODO - handle exception
