@@ -143,11 +143,13 @@ public class ExperimentTaskScheduler {
     try {
 
       experimentState = experimentModelDAO.getExperimentState(experimentID);
+      runningState = experimentModelDAO.getRunningState(experimentID);
 
       // Stop when we reach a final state
       while (!exit) {
 
         BenchFlowExperimentState prevExperimentState = experimentState;
+        RunningState prevRunningState = runningState;
 
         try {
           experimentState = handleExperimentState(experimentID);
@@ -161,12 +163,14 @@ public class ExperimentTaskScheduler {
         logger.info("handleRunningExperiment: runningState == " + runningState);
 
         // Exit as soon as final state is executed
-        if (prevExperimentState == experimentState && experimentState == TERMINATED) {
+        if (prevExperimentState == TERMINATED) {
           exit = true;
         }
         // Exit while waiting for the Faban Manager to notify about the result of the scheduled
         // trial. This exits before the execution of HANDLE_EXPERIMENT_RESULT
-        else if (runningState == RunningState.HANDLE_TRIAL_RESULT) {
+        else if (runningState == RunningState.HANDLE_TRIAL_RESULT
+            || runningState == RunningState.TERMINATING
+                && prevRunningState == RunningState.HANDLE_TRIAL_RESULT) {
           exit = true;
         }
 
@@ -284,7 +288,8 @@ public class ExperimentTaskScheduler {
 
       // Exit while waiting for the Faban Manager to notify about the result of the scheduled
       // trial. This exits before the execution of HANDLE_EXPERIMENT_RESULT
-      else if (runningState == RunningState.HANDLE_TRIAL_RESULT) {
+      else if (runningState == RunningState.HANDLE_TRIAL_RESULT
+          || runningState == RunningState.TERMINATING) {
         exit = true;
       }
 
@@ -312,6 +317,10 @@ public class ExperimentTaskScheduler {
 
       case CHECK_TERMINATION_CRITERIA:
         runningStatesHandler.handleCheckTerminationCriteria(experimentID);
+        break;
+
+      case TERMINATING:
+        runningStatesHandler.handleTerminating(experimentID);
         break;
 
       default:
@@ -358,6 +367,11 @@ public class ExperimentTaskScheduler {
       switch (experimentState) {
 
         case START:
+
+          // set test to terminated
+          experimentModelDAO.setExperimentState(experimentID, TERMINATED);
+          experimentModelDAO.setTerminatedState(experimentID, TerminatedState.ABORTED);
+
           // cancel the current running task, but let it complete before
           cancelTask(experimentID);
 
@@ -367,6 +381,10 @@ public class ExperimentTaskScheduler {
           // remove from ready queue
           readyQueue.remove(experimentID);
 
+          // set test to terminated
+          experimentModelDAO.setExperimentState(experimentID, TERMINATED);
+          experimentModelDAO.setTerminatedState(experimentID, TerminatedState.ABORTED);
+
           // cancel the current running task, but let it complete before
           cancelTask(experimentID);
 
@@ -374,8 +392,22 @@ public class ExperimentTaskScheduler {
 
         case RUNNING:
 
-          // cancel the current running task, but let it complete before
-          cancelTask(experimentID);
+          RunningState runningState = experimentModelDAO.getRunningState(experimentID);
+
+          // if experiment is not already terminating
+          if (runningState != RunningState.TERMINATING) {
+
+            experimentModelDAO.setRunningState(experimentID, RunningState.TERMINATING);
+
+            // cancel the current running task, but let it complete before
+            cancelTask(experimentID);
+
+            // IF not waiting for Faban Manager we go into TERMINATING
+            if (runningState != RunningState.HANDLE_TRIAL_RESULT) {
+              handleRunningExperiment(experimentID);
+            }
+
+          }
 
           break;
 
@@ -418,10 +450,6 @@ public class ExperimentTaskScheduler {
 
       // NOTE: enable if we need to cancel the executing task
       //      abortableFutureTask.cancel(false);
-
-      // set test to terminated
-      experimentModelDAO.setExperimentState(experimentID, TERMINATED);
-      experimentModelDAO.setTerminatedState(experimentID, TerminatedState.ABORTED);
 
       abortableFutureTask.abortTask();
 

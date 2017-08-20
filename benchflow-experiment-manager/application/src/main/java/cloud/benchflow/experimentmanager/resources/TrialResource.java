@@ -7,6 +7,7 @@ import cloud.benchflow.experimentmanager.exceptions.web.NoSuchExperimentIdExcept
 import cloud.benchflow.experimentmanager.scheduler.ExperimentTaskScheduler;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.experimentmanager.services.internal.dao.TrialModelDAO;
+import com.google.common.annotations.VisibleForTesting;
 import io.swagger.annotations.Api;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -38,6 +39,10 @@ public class TrialResource {
         BenchFlowExperimentManagerApplication.getExperimentTaskScheduler();
   }
 
+  @VisibleForTesting
+  public void setExperimentTaskScheduler(ExperimentTaskScheduler experimentTaskScheduler) {
+    this.experimentTaskScheduler = experimentTaskScheduler;
+  }
 
   @PUT
   @Path("/result")

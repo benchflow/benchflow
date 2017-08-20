@@ -97,6 +97,10 @@ public class BenchFlowExperimentManagerApplication
     return experimentTaskScheduler;
   }
 
+  public static void setExperimentTaskScheduler(ExperimentTaskScheduler experimentTaskScheduler) {
+    BenchFlowExperimentManagerApplication.experimentTaskScheduler = experimentTaskScheduler;
+  }
+
   public static int getSubmitRetries() {
     return submitRetries;
   }

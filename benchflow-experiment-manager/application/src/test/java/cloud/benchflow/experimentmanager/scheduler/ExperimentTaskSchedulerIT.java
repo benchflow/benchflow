@@ -81,8 +81,8 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
   private FabanClient fabanClientMock = Mockito.mock(FabanClient.class);
 
-  private ExperimentTaskScheduler experimentTaskScheduler;
-  private RunningStatesHandler runningStatesHandler;
+  private ExperimentTaskScheduler experimentTaskSchedulerSpy;
+  private RunningStatesHandler runningStatesHandlerSpy;
   private ExecutorService experimentTaskExecutorServer;
   private BenchFlowExperimentModelDAO experimentModelDAO;
   private FabanManagerService fabanManagerServiceSpy;
@@ -140,14 +140,19 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     Mockito.doReturn(new DeployStatus(201)).when(fabanClientMock).deploy(Mockito.any());
 
-    experimentTaskScheduler = BenchFlowExperimentManagerApplication.getExperimentTaskScheduler();
+    experimentTaskSchedulerSpy =
+        Mockito.spy(BenchFlowExperimentManagerApplication.getExperimentTaskScheduler());
 
-    experimentTaskScheduler
-        .setRunningStatesHandler(Mockito.spy(experimentTaskScheduler.getRunningStatesHandler()));
+    BenchFlowExperimentManagerApplication.setExperimentTaskScheduler(experimentTaskSchedulerSpy);
 
-    runningStatesHandler = experimentTaskScheduler.getRunningStatesHandler();
+    BenchFlowExperimentManagerApplication.getTrialResource()
+        .setExperimentTaskScheduler(experimentTaskSchedulerSpy);
 
-    experimentTaskExecutorServer = experimentTaskScheduler.getExperimentTaskExecutorService();
+    runningStatesHandlerSpy = Mockito.spy(experimentTaskSchedulerSpy.getRunningStatesHandler());
+
+    experimentTaskSchedulerSpy.setRunningStatesHandler(runningStatesHandlerSpy);
+
+    experimentTaskExecutorServer = experimentTaskSchedulerSpy.getExperimentTaskExecutorService();
 
   }
 
@@ -161,7 +166,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     experimentModelDAO.addExperiment(experimentID);
 
-    experimentTaskScheduler.handleStartingExperiment(experimentID);
+    experimentTaskSchedulerSpy.handleStartingExperiment(experimentID);
 
     waitExperimentTerminationForOneMinute(experimentID);
 
@@ -182,7 +187,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     experimentModelDAO.addExperiment(experimentID);
 
-    experimentTaskScheduler.handleStartingExperiment(experimentID);
+    experimentTaskSchedulerSpy.handleStartingExperiment(experimentID);
 
     waitExperimentTerminationForOneMinute(experimentID);
 
@@ -193,7 +198,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
         experimentModelDAO.getTerminatedState(experimentID));
 
     // assert that the trial has been re-executed
-    Mockito.verify(runningStatesHandler, Mockito.atLeast(1))
+    Mockito.verify(runningStatesHandlerSpy, Mockito.atLeast(1))
         .handleReExecuteTrial(Matchers.anyString());
   }
 
@@ -207,7 +212,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     experimentModelDAO.addExperiment(experimentID);
 
-    experimentTaskScheduler.handleStartingExperiment(experimentID);
+    experimentTaskSchedulerSpy.handleStartingExperiment(experimentID);
 
     waitExperimentTerminationForOneMinute(experimentID);
 
@@ -231,7 +236,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     experimentModelDAO.addExperiment(experimentID);
 
-    experimentTaskScheduler.handleStartingExperiment(experimentID);
+    experimentTaskSchedulerSpy.handleStartingExperiment(experimentID);
 
     waitExperimentTerminationForOneMinute(experimentID);
 
@@ -257,7 +262,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     experimentModelDAO.addExperiment(experimentID);
 
-    experimentTaskScheduler.handleStartingExperiment(experimentID);
+    experimentTaskSchedulerSpy.handleStartingExperiment(experimentID);
 
     waitExperimentTerminationForOneMinute(experimentID);
 
@@ -275,7 +280,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
       throws BenchFlowExperimentIDDoesNotExistException, InterruptedException {
     long timeout = 1 * 60 * 1000; //1 minute
 
-    // check when the test reaches the final state, with a timeout
+    // check when the experiment reaches the final state, with a timeout
     WaitExperimentCheck waitExperimentCheck = () -> {
 
       // wait for tasks to finish
@@ -312,7 +317,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     long timeout = 1 * 60 * 1000; //1 minute
 
-    // check when the test reaches the final state, with a timeout
+    // check when the experiment reaches the final state, with a timeout
     WaitExperimentCheck waitExperimentCheck = () -> {
 
       // wait for tasks to finish
@@ -322,7 +327,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     // schedule experiments one after the other
     for (String experimentID : experimentIDs) {
-      experimentTaskScheduler.handleStartingExperiment(experimentID);
+      experimentTaskSchedulerSpy.handleStartingExperiment(experimentID);
       WaitExperimentTermination.waitForExperimentTerminationWithTimeout(experimentID,
           experimentModelDAO, waitExperimentCheck, timeout);
     }
@@ -336,6 +341,102 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
       Assert.assertEquals(2, experimentModelDAO.getNumExecutedTrials(experimentID));
     }
+
+  }
+
+  @Test
+  public void abortRunningExperimentNoTrialOnFaban() throws Exception {
+
+    String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_2_TRIAL;
+
+    setupExperimentMocks(experimentID);
+
+    for (int i = 1; i <= 2; i++) {
+      setupTrialMocksSuccessful(experimentID, i);
+    }
+
+    // abort the test in CheckTerminationCriteria
+    Mockito.doAnswer(invocationOnMock -> {
+
+      // trigger the abort
+      new Thread(() -> experimentTaskSchedulerSpy.abortExperiment(experimentID)).start();
+
+      // call the regular implementation
+      return invocationOnMock.callRealMethod();
+
+    }).when(runningStatesHandlerSpy).handleCheckTerminationCriteria(experimentID);
+
+    experimentModelDAO.addExperiment(experimentID);
+
+    experimentTaskSchedulerSpy.handleStartingExperiment(experimentID);
+
+    waitExperimentTerminationForOneMinute(experimentID);
+
+    // assertions
+
+    Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
+        experimentModelDAO.getExperimentState(experimentID));
+
+    Assert.assertEquals(TerminatedState.ABORTED,
+        experimentModelDAO.getTerminatedState(experimentID));
+
+    Mockito.verify(runningStatesHandlerSpy, Mockito.times(1)).handleTerminating(experimentID);
+
+    Mockito.verify(experimentTaskSchedulerSpy, Mockito.times(1))
+        .handleTerminatedState(experimentID);
+
+  }
+
+  @Test
+  public void abortRunningExperimentWithTrialOnFaban() throws Exception {
+
+    String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_2_TRIAL;
+
+    setupExperimentMocks(experimentID);
+
+    for (int i = 1; i <= 2; i++) {
+      setupTrialMocksSuccessful(experimentID, i);
+    }
+
+    // abort the test in HandleDetermineAndExecuteTrials to wait for Faban Manager
+    Mockito.doAnswer(invocationOnMock -> {
+
+      new Thread(() -> {
+
+        // TODO - try to find a way to deterministically execute some code, after a given mocked method is called.
+
+        try {
+          Thread.sleep(500);
+          experimentTaskSchedulerSpy.abortExperiment(experimentID);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+
+      }).start();
+
+      // call the regular implementation
+      return invocationOnMock.callRealMethod();
+
+    }).when(runningStatesHandlerSpy).handleDetermineAndExecuteTrials(experimentID);
+
+    experimentModelDAO.addExperiment(experimentID);
+
+    experimentTaskSchedulerSpy.handleStartingExperiment(experimentID);
+
+    waitExperimentTerminationForOneMinute(experimentID);
+
+    // assertions
+
+    Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
+        experimentModelDAO.getExperimentState(experimentID));
+
+    Assert.assertEquals(TerminatedState.ABORTED,
+        experimentModelDAO.getTerminatedState(experimentID));
+
+    Mockito.verify(runningStatesHandlerSpy, Mockito.times(1)).handleTerminating(experimentID);
+
+    Mockito.verify(experimentTaskSchedulerSpy, Mockito.times(1))
+        .handleTerminatedState(experimentID);
 
   }
 
@@ -363,10 +464,8 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     // we mock this because otherwise we have to wait for first polling (60s)
     Mockito.doAnswer(invocationOnMock -> {
 
-      FabanStatusRequest fabanStatusRequest =
-          new FabanStatusRequest(trialID, StatusCode.COMPLETED, Result.PASSED);
-
-      sendFabanStatus(trialID, fabanStatusRequest);
+      simulateFabanExecution(trialID,
+          new FabanStatusRequest(trialID, StatusCode.COMPLETED, Result.PASSED));
 
       return null;
 
@@ -409,23 +508,38 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     // we mock this because otherwise we have to wait for first polling (60s)
     Mockito.doAnswer(invocationOnMock -> {
 
-      FabanStatusRequest fabanStatusRequest =
-          new FabanStatusRequest(trialID, StatusCode.COMPLETED, Result.UNKNOWN);
-
-      sendFabanStatus(trialID, fabanStatusRequest);
+      simulateFabanExecution(trialID,
+          new FabanStatusRequest(trialID, StatusCode.COMPLETED, Result.UNKNOWN));
 
       return null;
 
     }).doAnswer(invocationOnMock -> {
 
-      FabanStatusRequest fabanStatusRequest =
-          new FabanStatusRequest(trialID, StatusCode.COMPLETED, Result.PASSED);
-
-      sendFabanStatus(trialID, fabanStatusRequest);
+      simulateFabanExecution(trialID,
+          new FabanStatusRequest(trialID, StatusCode.COMPLETED, Result.PASSED));
 
       return null;
 
     }).when(fabanManagerServiceSpy).pollForTrialStatus(trialID, runId);
+
+  }
+
+  private void simulateFabanExecution(String trialID, FabanStatusRequest fabanStatusRequest) {
+
+    new Thread(() -> {
+
+      try {
+
+        // sleep to simulate execution
+        Thread.sleep(2000);
+
+        sendFabanStatus(trialID, fabanStatusRequest);
+
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+
+    }).start();
 
   }
 

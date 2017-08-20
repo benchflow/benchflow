@@ -1,11 +1,13 @@
 package cloud.benchflow.experimentmanager.scheduler.running;
 
+import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState.TERMINATED;
+
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel;
-import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.RunningState;
+import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.TerminatedState;
 import cloud.benchflow.experimentmanager.models.TrialModel.TrialStatus;
 import cloud.benchflow.experimentmanager.scheduler.CustomFutureReturningExecutor;
 import cloud.benchflow.experimentmanager.scheduler.ExperimentTaskScheduler;
@@ -258,7 +260,7 @@ public class RunningStatesHandler {
 
       switch (futureResult.getResult()) {
         case FULFILLED:
-          experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED);
+          experimentModelDAO.setExperimentState(experimentID, TERMINATED);
           experimentModelDAO.setTerminatedState(experimentID,
               BenchFlowExperimentModel.TerminatedState.COMPLETED);
           break;
@@ -268,7 +270,7 @@ public class RunningStatesHandler {
           break;
 
         case CANNOT_BE_FULFILLED:
-          experimentModelDAO.setExperimentState(experimentID, BenchFlowExperimentState.TERMINATED);
+          experimentModelDAO.setExperimentState(experimentID, TERMINATED);
           experimentModelDAO.setTerminatedState(experimentID,
               BenchFlowExperimentModel.TerminatedState.FAILURE);
 
@@ -282,6 +284,16 @@ public class RunningStatesHandler {
     } catch (InterruptedException | ExecutionException e) {
       e.printStackTrace();
     }
+  }
+
+  public void handleTerminating(String experimentID) {
+
+    logger.info("handleTerminating: " + experimentID);
+
+    // set experiment to terminated
+    experimentModelDAO.setExperimentState(experimentID, TERMINATED);
+    experimentModelDAO.setTerminatedState(experimentID, TerminatedState.ABORTED);
+
   }
 
 }
