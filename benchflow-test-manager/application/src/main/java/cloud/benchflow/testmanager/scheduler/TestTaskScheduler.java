@@ -137,8 +137,7 @@ public class TestTaskScheduler {
         logger.info("handleStartingTest: testState == " + testState);
 
         // Exit as soon as ready is executed, or the test has been terminated
-        if (prevTestState != null && testState != null && prevTestState == testState
-            && (testState == READY || testState == TERMINATED)) {
+        if (prevTestState == testState && (testState == READY || testState == TERMINATED)) {
           exit = true;
         }
 
@@ -183,15 +182,13 @@ public class TestTaskScheduler {
         logger.info("handleRunningTest: testState == " + testState);
 
         // Exit as soon as final state is executed
-        if (prevTestState != null && testState != null
-            && prevTestState.name().equals(testState.name())
-            && (testState == WAITING || testState == TERMINATED)) {
+        if (prevTestState == testState && (testState == WAITING || testState == TERMINATED)) {
           exit = true;
         }
         // Exit while waiting for the Experiment Manager to notify about the scheduled
         // experiment to be executed. This exits before the execution of HANDLE_EXPERIMENT_RESULT
-        else if (testRunningState != null
-            && testRunningState.equals(TestRunningState.HANDLE_EXPERIMENT_RESULT)) {
+        else if (testRunningState == TestRunningState.HANDLE_EXPERIMENT_RESULT
+            || testRunningState == TestRunningState.TERMINATING) {
           exit = true;
         }
 
@@ -306,16 +303,13 @@ public class TestTaskScheduler {
 
     boolean exit = false;
     BenchFlowTestState testState;
-    TestRunningState testRunningState = testModelDAO.getTestRunningState(testID);
-    TestRunningState prevTestRunningState;
+    TestRunningState testRunningState;
 
     // set timeout if not already set, and a timeout is declared in the model
     setTimeoutIfNeeded(testID);
 
     // Stop when we reach a final state
     while (!exit) {
-
-      prevTestRunningState = testRunningState;
 
       try {
         testState = handleTestRunningState(testID);
@@ -328,14 +322,12 @@ public class TestTaskScheduler {
       logger.info("handleRunningTestState: testState == " + testState);
 
       // Exit as soon as final state is executed
-      if (testState != null && (testState == WAITING || testState == TERMINATED)) {
+      if (testState == WAITING || testState == TERMINATED) {
         exit = true;
       }
       // Exit while waiting for the Experiment Manager to notify about the scheduled
       // experiment to be executed or aborted (terminating state)
-      else if (prevTestRunningState != null && testRunningState != null
-          && prevTestRunningState == TestRunningState.DETERMINE_EXECUTE_EXPERIMENTS
-          && testRunningState == TestRunningState.HANDLE_EXPERIMENT_RESULT
+      else if (testRunningState == TestRunningState.HANDLE_EXPERIMENT_RESULT
           || testRunningState == TestRunningState.TERMINATING) {
         exit = true;
       }
@@ -480,6 +472,9 @@ public class TestTaskScheduler {
 
           TestRunningState runningState = testModelDAO.getTestRunningState(testID);
 
+          // set to TERMINATING
+          testModelDAO.setTestRunningState(testID, TestRunningState.TERMINATING);
+
           // cancel the current running task, but let it complete before
           cancelTask(testID);
 
@@ -505,8 +500,8 @@ public class TestTaskScheduler {
 
           }
 
-          // set to TERMINATING and wait for experiment to terminate
-          testModelDAO.setTestRunningState(testID, TestRunningState.TERMINATING);
+          // run the TERMINATING state to terminate
+          handleRunningTest(testID);
 
           break;
 

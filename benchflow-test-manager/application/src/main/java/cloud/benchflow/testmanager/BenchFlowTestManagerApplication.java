@@ -99,7 +99,7 @@ public class BenchFlowTestManagerApplication
 
   @Override
   public String getName() {
-    return "benchflow-test-orchestrator";
+    return "benchflow-test-manager";
   }
 
   @Override

@@ -16,7 +16,6 @@ import cloud.benchflow.testmanager.helpers.constants.TestFiles;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.RunningState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
-import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState;
 import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.models.explorationspace.MongoCompatibleExplorationSpace;
@@ -40,7 +39,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import javax.ws.rs.Path;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -73,7 +71,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
 
   private TestTaskScheduler testTaskScheduler;
   private RunningStatesHandler notMockedRunningStatesHandler;
-  private RunningStatesHandler runningStatesHandler;
+  private RunningStatesHandler runningStatesHandlerSpy;
   private BenchFlowTestModelDAO testModelDAO;
   private BenchFlowExperimentModelDAO experimentModelDAO;
   private ExplorationModelDAO explorationModelDAO;
@@ -88,9 +86,9 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
 
     testTaskScheduler = BenchFlowTestManagerApplication.getTestTaskScheduler();
     notMockedRunningStatesHandler = testTaskScheduler.getRunningStatesHandler();
-    testTaskScheduler
-        .setRunningStatesHandler(Mockito.spy(testTaskScheduler.getRunningStatesHandler()));
-    runningStatesHandler = testTaskScheduler.getRunningStatesHandler();
+    runningStatesHandlerSpy = Mockito.spy(testTaskScheduler.getRunningStatesHandler());
+    testTaskScheduler.setRunningStatesHandler(runningStatesHandlerSpy);
+
     executorService = testTaskScheduler.getTaskExecutorService();
 
     userDAO = BenchFlowTestManagerApplication.getUserDAO();
@@ -367,7 +365,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       }
 
       return null;
-    }).when(runningStatesHandler).determineExplorationStrategy(Matchers.anyString());
+    }).when(runningStatesHandlerSpy).determineExplorationStrategy(Matchers.anyString());
 
     // Wait in ADD_STORED_KNOWLEDGE state
     Mockito.doAnswer(invocationOnMock -> {
@@ -382,7 +380,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       }
 
       return null;
-    }).when(runningStatesHandler).addStoredKnowledge(Matchers.anyString());
+    }).when(runningStatesHandlerSpy).addStoredKnowledge(Matchers.anyString());
 
     setupTestOnMinio(testID, testDefinitionString);
 
@@ -409,6 +407,9 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     // assert that test has been set as PARTIALLY_COMPLETE
     Assert.assertEquals(TestTerminatedState.PARTIALLY_COMPLETE,
         testModelDAO.getTestTerminatedState(testID));
+
+    // assert that terminating was called
+    Mockito.verify(runningStatesHandlerSpy, Mockito.times(1)).terminating(testID);
 
   }
 
@@ -458,7 +459,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       }
 
       return null;
-    }).when(runningStatesHandler).handleExperimentResult(Matchers.anyString());
+    }).when(runningStatesHandlerSpy).handleExperimentResult(Matchers.anyString());
 
     setupTestOnMinio(testID, testDefinitionString);
 
@@ -497,6 +498,9 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     // assert that test was removed from experiment-manager
     Mockito.verify(experimentManagerService, Mockito.times(1))
         .abortBenchFlowExperiment(Matchers.anyString());
+
+    // assert that terminating was called
+    Mockito.verify(runningStatesHandlerSpy, Mockito.times(1)).terminating(testID);
 
   }
 
