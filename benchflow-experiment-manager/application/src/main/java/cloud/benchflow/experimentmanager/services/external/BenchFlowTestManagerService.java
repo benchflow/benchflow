@@ -67,7 +67,7 @@ public class BenchFlowTestManagerService {
   public void setExperimentTerminatedState(String experimentID,
       BenchFlowExperimentModel.TerminatedState terminatedState) {
 
-    logger.info("setExperimentRunningState for " + experimentID + " terminatedState: "
+    logger.info("setExperimentTerminatedState for " + experimentID + " terminatedState: "
         + terminatedState.name());
 
     BenchFlowExperimentStateRequest stateRequest =

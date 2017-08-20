@@ -104,3 +104,6 @@ mongo-data/
 
 # Downloaded external libraries
 external/
+
+# All temporary files
+tmp/

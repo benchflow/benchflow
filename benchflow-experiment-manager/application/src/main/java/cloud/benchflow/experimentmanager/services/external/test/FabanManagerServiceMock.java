@@ -1,10 +1,12 @@
 package cloud.benchflow.experimentmanager.services.external.test;
 
+import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
+import cloud.benchflow.experimentmanager.api.request.FabanStatusRequest;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
+import cloud.benchflow.experimentmanager.constants.BenchFlowConstants.TrialIDElements;
+import cloud.benchflow.experimentmanager.resources.TrialResource;
 import cloud.benchflow.experimentmanager.services.external.faban.FabanManagerService;
-import cloud.benchflow.experimentmanager.services.external.faban.FabanStatus;
 import cloud.benchflow.faban.client.FabanClient;
-import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunId;
 import cloud.benchflow.faban.client.responses.RunInfo.Result;
 import cloud.benchflow.faban.client.responses.RunStatus.StatusCode;
@@ -70,68 +72,95 @@ public class FabanManagerServiceMock extends FabanManagerService {
   }
 
   @Override
-  public FabanStatus pollForTrialStatus(String trialID, RunId runId) throws RunIdNotFoundException {
+  public void pollForTrialStatus(String trialID, RunId runId) {
 
     logger.info("pollForTrialStatus: " + trialID);
 
-    // here we need to return a FabanStatus depending on the scenario
+    // execute in a thread to be asynchronous (similar to when faban manager is a service)
+    new Thread(() -> {
 
-    String scenario = BenchFlowConstants.getTestNameFromTrialID(trialID);
+      FabanStatusRequest fabanStatusRequest = null;
 
-    FabanStatus fabanStatus;
+      // waith a little to simulate execution time
+      try {
+        Thread.sleep(1000);
 
-    switch (scenario.toLowerCase()) {
+        // here we need to return a FabanStatus depending on the scenario
 
-      case SCENARIO_ALWAYS_FAIL:
+        String scenario = BenchFlowConstants.getTestNameFromTrialID(trialID);
 
-        fabanStatus = new FabanStatus(trialID, StatusCode.FAILED, Result.FAILED);
+        switch (scenario.toLowerCase()) {
 
-        break;
+          case SCENARIO_ALWAYS_FAIL:
 
-      case SCENARIO_FAIL_FIRST_EXECUTION:
+            fabanStatusRequest = new FabanStatusRequest(trialID, StatusCode.FAILED, Result.FAILED);
+            break;
 
-        fabanStatus = handleFailFirstExecution(trialID);
-        break;
+          case SCENARIO_FAIL_FIRST_EXECUTION:
 
-      case SCENARIO_FAIL_EVERY_SECOND_EXPERIMENT:
+            fabanStatusRequest = handleFailFirstExecution(trialID);
+            break;
 
-        fabanStatus = handleFailEverySecondExperiment(trialID);
-        break;
+          case SCENARIO_FAIL_EVERY_SECOND_EXPERIMENT:
 
-      case SCENARIO_ALWAYS_COMPLETED:
-      default:
+            fabanStatusRequest = handleFailEverySecondExperiment(trialID);
+            break;
 
-        fabanStatus = new FabanStatus(trialID, StatusCode.COMPLETED, Result.PASSED);
+          case SCENARIO_ALWAYS_COMPLETED:
+          default:
 
-        break;
+            fabanStatusRequest =
+                new FabanStatusRequest(trialID, StatusCode.COMPLETED, Result.PASSED);
+            break;
 
-    }
+        }
 
-    return fabanStatus;
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      } finally {
+
+        // in case there was some error
+        if (fabanStatusRequest == null) {
+          //See https://github.com/benchflow/benchflow/pull/473/files#r128371872
+          fabanStatusRequest = new FabanStatusRequest(trialID, StatusCode.UNKNOWN, Result.UNKNOWN);
+        }
+
+        // send status to experiment manager
+        TrialResource trialResource = BenchFlowExperimentManagerApplication.getTrialResource();
+
+        TrialIDElements trialIDElements = new TrialIDElements(trialID);
+
+        trialResource.setFabanResult(trialIDElements.getUsername(), trialIDElements.getTestName(),
+            trialIDElements.getTestNumber(), trialIDElements.getExperimentNumber(),
+            trialIDElements.getTrialNumber(), fabanStatusRequest);
+
+      }
+
+    }).start();
 
   }
 
-  private FabanStatus handleFailFirstExecution(String trialID) {
+  private FabanStatusRequest handleFailFirstExecution(String trialID) {
 
     int numExecutions = trialRunIdMap.get(trialID);
 
     if (numExecutions < 2) {
-      return new FabanStatus(trialID, StatusCode.COMPLETED, Result.UNKNOWN);
+      return new FabanStatusRequest(trialID, StatusCode.COMPLETED, Result.UNKNOWN);
     }
 
-    return new FabanStatus(trialID, StatusCode.COMPLETED, Result.PASSED);
+    return new FabanStatusRequest(trialID, StatusCode.COMPLETED, Result.PASSED);
 
   }
 
-  private FabanStatus handleFailEverySecondExperiment(String trialID) {
+  private FabanStatusRequest handleFailEverySecondExperiment(String trialID) {
 
     int experimentNumber = BenchFlowConstants.getExperimentNumberFromTrialID(trialID);
 
     if (experimentNumber % 2 == 0) {
-      return new FabanStatus(trialID, StatusCode.FAILED, Result.FAILED);
+      return new FabanStatusRequest(trialID, StatusCode.FAILED, Result.FAILED);
     }
 
-    return new FabanStatus(trialID, StatusCode.COMPLETED, Result.PASSED);
+    return new FabanStatusRequest(trialID, StatusCode.COMPLETED, Result.PASSED);
 
   }
 }

@@ -2,6 +2,7 @@ package cloud.benchflow.experimentmanager;
 
 import cloud.benchflow.experimentmanager.configurations.BenchFlowExperimentManagerConfiguration;
 import cloud.benchflow.experimentmanager.resources.BenchFlowExperimentResource;
+import cloud.benchflow.experimentmanager.resources.TrialResource;
 import cloud.benchflow.experimentmanager.scheduler.CustomFutureReturningExecutor;
 import cloud.benchflow.experimentmanager.scheduler.ExperimentTaskScheduler;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
@@ -40,6 +41,9 @@ public class BenchFlowExperimentManagerApplication
   private static String fabanManagerServiceAddress;
   private Logger logger =
       LoggerFactory.getLogger(BenchFlowExperimentManagerApplication.class.getSimpleName());
+
+  // TODO - remove when faban manager is separate service
+  private static TrialResource trialResource;
 
   public static void main(String[] args) throws Exception {
     new BenchFlowExperimentManagerApplication().run(args);
@@ -103,6 +107,10 @@ public class BenchFlowExperimentManagerApplication
 
   public static String getFabanManagerServiceAddress() {
     return fabanManagerServiceAddress;
+  }
+
+  public static TrialResource getTrialResource() {
+    return trialResource;
   }
 
   @Override
@@ -176,6 +184,7 @@ public class BenchFlowExperimentManagerApplication
 
     // instantiate resources
     BenchFlowExperimentResource experimentResource = new BenchFlowExperimentResource();
+    trialResource = new TrialResource();
 
     // TODO - health checks for all services
     //        final TemplateHealthCheck healthCheck =
@@ -184,5 +193,6 @@ public class BenchFlowExperimentManagerApplication
 
     // register resources
     environment.jersey().register(experimentResource);
+    environment.jersey().register(trialResource);
   }
 }

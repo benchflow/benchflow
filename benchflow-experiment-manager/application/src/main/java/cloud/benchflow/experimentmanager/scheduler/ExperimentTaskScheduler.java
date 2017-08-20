@@ -117,8 +117,7 @@ public class ExperimentTaskScheduler {
 
         // Exit as soon as ready or terminated is executed
         // An experiment can go to the TERMINATED state from START in case of errors
-        if (prevTestState != null && experimentState != null
-            && prevTestState.name().equals(experimentState.name())
+        if (prevTestState == experimentState
             && (experimentState == READY || experimentState == TERMINATED)) {
           exit = true;
         }
@@ -139,14 +138,16 @@ public class ExperimentTaskScheduler {
 
     boolean exit = false;
     BenchFlowExperimentState experimentState;
+    RunningState runningState;
 
     try {
+
       experimentState = experimentModelDAO.getExperimentState(experimentID);
 
       // Stop when we reach a final state
       while (!exit) {
 
-        BenchFlowExperimentState prevTestState = experimentState;
+        BenchFlowExperimentState prevExperimentState = experimentState;
 
         try {
           experimentState = handleExperimentState(experimentID);
@@ -155,10 +156,17 @@ public class ExperimentTaskScheduler {
           break;
         }
 
+        runningState = experimentModelDAO.getRunningState(experimentID);
+        logger.info("handleRunningExperiment: prevExperimentState == " + prevExperimentState);
+        logger.info("handleRunningExperiment: runningState == " + runningState);
+
         // Exit as soon as final state is executed
-        if (prevTestState != null && experimentState != null
-            && prevTestState.name().equals(experimentState.name())
-            && experimentState == TERMINATED) {
+        if (prevExperimentState == experimentState && experimentState == TERMINATED) {
+          exit = true;
+        }
+        // Exit while waiting for the Faban Manager to notify about the result of the scheduled
+        // trial. This exits before the execution of HANDLE_EXPERIMENT_RESULT
+        else if (runningState == RunningState.HANDLE_TRIAL_RESULT) {
           exit = true;
         }
 
@@ -254,6 +262,7 @@ public class ExperimentTaskScheduler {
 
     boolean exit = false;
     BenchFlowExperimentState experimentState;
+    RunningState runningState;
 
     // Stop when we reach a final state
     while (!exit) {
@@ -265,8 +274,17 @@ public class ExperimentTaskScheduler {
         break;
       }
 
+      runningState = experimentModelDAO.getRunningState(experimentID);
+      logger.info("handleRunningExperimentState: runningState == " + runningState);
+
       // Exit as soon as final state is executed
-      if (experimentState != null && experimentState == TERMINATED) {
+      if (experimentState == TERMINATED) {
+        exit = true;
+      }
+
+      // Exit while waiting for the Faban Manager to notify about the result of the scheduled
+      // trial. This exits before the execution of HANDLE_EXPERIMENT_RESULT
+      else if (runningState == RunningState.HANDLE_TRIAL_RESULT) {
         exit = true;
       }
 

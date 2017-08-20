@@ -3,8 +3,11 @@ package cloud.benchflow.experimentmanager.services.external.faban;
 import static cloud.benchflow.experimentmanager.constants.BenchFlowConstants.MODEL_ID_DELIMITER;
 
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
+import cloud.benchflow.experimentmanager.api.request.FabanStatusRequest;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
+import cloud.benchflow.experimentmanager.constants.BenchFlowConstants.TrialIDElements;
 import cloud.benchflow.experimentmanager.exceptions.BenchMarkDeploymentException;
+import cloud.benchflow.experimentmanager.resources.TrialResource;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.exceptions.BenchmarkNameNotFoundRuntimeException;
@@ -140,7 +143,6 @@ public class FabanManagerService {
       }
 
 
-
     }
 
 
@@ -200,54 +202,75 @@ public class FabanManagerService {
 
   }
 
-  public FabanStatus pollForTrialStatus(String trialID, RunId runId) throws RunIdNotFoundException {
+  public void pollForTrialStatus(String trialID, RunId runId) {
 
-    // B) wait/poll for trial to complete and store the trial result in the DB
-    // TODO - is this the status we want to use? No it is a subset, should also
-    // include metrics computation status
-    RunStatus status;
+    // execute in a thread to be asynchronous (similar to when faban manager is a service)
+    new Thread(() -> {
 
-    try {
+      // B) wait/poll for trial to complete and store the trial result in the DB
+      // TODO - is this the status we want to use? No it is a subset, should also
+      // include metrics computation status
+      RunStatus status;
+      FabanStatusRequest fabanStatusRequest = null;
 
-      // wait 60s before polling (Faban needs time to setup)
       try {
-        Thread.sleep(60 * 1000);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
 
-      status = fabanClient.status(runId);
-
-      while (status.getStatus().equals(StatusCode.QUEUED)
-          || status.getStatus().equals(StatusCode.RECEIVED)
-          || status.getStatus().equals(StatusCode.STARTED)
-          || status.getStatus().equals(StatusCode.UNKNOWN)) {
-
+        // wait 60s before polling (Faban needs time to setup)
         try {
-          Thread.sleep(30 * 1000);
+          Thread.sleep(60 * 1000);
         } catch (InterruptedException e) {
           e.printStackTrace();
         }
 
         status = fabanClient.status(runId);
 
+        while (status.getStatus().equals(StatusCode.QUEUED)
+            || status.getStatus().equals(StatusCode.RECEIVED)
+            || status.getStatus().equals(StatusCode.STARTED)
+            || status.getStatus().equals(StatusCode.UNKNOWN)) {
+
+          try {
+            Thread.sleep(30 * 1000);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+
+          status = fabanClient.status(runId);
+
+        }
+
+        RunInfo runInfo = fabanClient.runInfo(runId);
+
+        fabanStatusRequest =
+            new FabanStatusRequest(trialID, status.getStatus(), runInfo.getResult());
+
+      } catch (FabanClientIOException | IllegalRunStatusException | MalformedURIException
+          | FabanClientBadRequestException | IllegalRunInfoResultException
+          | RunIdNotFoundException e) {
+        // TODO - handle me
+        e.printStackTrace();
+
+      } finally {
+
+        // in case there was some error
+        if (fabanStatusRequest == null) {
+          //See https://github.com/benchflow/benchflow/pull/473/files#r128371872
+          fabanStatusRequest = new FabanStatusRequest(trialID, StatusCode.UNKNOWN, Result.UNKNOWN);
+        }
+
+        // send status to experiment manager
+        TrialResource trialResource = BenchFlowExperimentManagerApplication.getTrialResource();
+
+        TrialIDElements trialIDElements = new TrialIDElements(trialID);
+
+        trialResource.setFabanResult(trialIDElements.getUsername(), trialIDElements.getTestName(),
+            trialIDElements.getTestNumber(), trialIDElements.getExperimentNumber(),
+            trialIDElements.getTrialNumber(), fabanStatusRequest);
       }
 
-      RunInfo runInfo = fabanClient.runInfo(runId);
+    }).start();
 
-      return new FabanStatus(trialID, status.getStatus(), runInfo.getResult());
 
-    } catch (FabanClientIOException | IllegalRunStatusException | MalformedURIException
-        | FabanClientBadRequestException e) {
-      // TODO - handle me
-      e.printStackTrace();
-    } catch (IllegalRunInfoResultException e) {
-      // TODO - handle me
-      e.printStackTrace();
-    }
-
-    //See https://github.com/benchflow/benchflow/pull/473/files#r128371872
-    return new FabanStatus(trialID, StatusCode.UNKNOWN, Result.UNKNOWN);
 
   }
 

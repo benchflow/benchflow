@@ -9,8 +9,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.DockerComposeIT;
+import cloud.benchflow.experimentmanager.api.request.FabanStatusRequest;
 import cloud.benchflow.experimentmanager.configurations.BenchFlowExperimentManagerConfiguration;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
+import cloud.benchflow.experimentmanager.constants.BenchFlowConstants.TrialIDElements;
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.helpers.WaitExperimentCheck;
 import cloud.benchflow.experimentmanager.helpers.WaitExperimentTermination;
@@ -18,12 +20,12 @@ import cloud.benchflow.experimentmanager.helpers.data.BenchFlowData;
 import cloud.benchflow.experimentmanager.helpers.data.MinioTestData;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.TerminatedState;
+import cloud.benchflow.experimentmanager.resources.TrialResource;
 import cloud.benchflow.experimentmanager.scheduler.running.RunningStatesHandler;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.external.faban.FabanManagerService;
-import cloud.benchflow.experimentmanager.services.external.faban.FabanStatus;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.exceptions.BenchmarkNameNotFoundRuntimeException;
@@ -359,9 +361,28 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     // TODO - alternative would be to have configuration setting to change first polling to 0s
     // we mock this because otherwise we have to wait for first polling (60s)
-    Mockito.doReturn(new FabanStatus(trialID, StatusCode.COMPLETED, Result.PASSED))
-        .when(fabanManagerServiceSpy).pollForTrialStatus(trialID, runId);
+    Mockito.doAnswer(invocationOnMock -> {
 
+      FabanStatusRequest fabanStatusRequest =
+          new FabanStatusRequest(trialID, StatusCode.COMPLETED, Result.PASSED);
+
+      sendFabanStatus(trialID, fabanStatusRequest);
+
+      return null;
+
+    }).when(fabanManagerServiceSpy).pollForTrialStatus(trialID, runId);
+
+  }
+
+  private void sendFabanStatus(String trialID, FabanStatusRequest fabanStatusRequest) {
+    // send status to experiment manager
+    TrialResource trialResource = BenchFlowExperimentManagerApplication.getTrialResource();
+
+    TrialIDElements trialIDElements = new TrialIDElements(trialID);
+
+    trialResource.setFabanResult(trialIDElements.getUsername(), trialIDElements.getTestName(),
+        trialIDElements.getTestNumber(), trialIDElements.getExperimentNumber(),
+        trialIDElements.getTrialNumber(), fabanStatusRequest);
   }
 
   private void setupTrialMocksWithRandomFailureAndSuccess(String experimentID, long trialNumber)
@@ -386,9 +407,25 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     // TODO - alternative would be to have configuration setting to change first polling to 0s
     // we mock this because otherwise we have to wait for first polling (60s)
-    Mockito.doReturn(new FabanStatus(trialID, StatusCode.COMPLETED, Result.UNKNOWN))
-        .doReturn(new FabanStatus(trialID, StatusCode.COMPLETED, Result.PASSED))
-        .when(fabanManagerServiceSpy).pollForTrialStatus(trialID, runId);
+    Mockito.doAnswer(invocationOnMock -> {
+
+      FabanStatusRequest fabanStatusRequest =
+          new FabanStatusRequest(trialID, StatusCode.COMPLETED, Result.UNKNOWN);
+
+      sendFabanStatus(trialID, fabanStatusRequest);
+
+      return null;
+
+    }).doAnswer(invocationOnMock -> {
+
+      FabanStatusRequest fabanStatusRequest =
+          new FabanStatusRequest(trialID, StatusCode.COMPLETED, Result.PASSED);
+
+      sendFabanStatus(trialID, fabanStatusRequest);
+
+      return null;
+
+    }).when(fabanManagerServiceSpy).pollForTrialStatus(trialID, runId);
 
   }
 
@@ -414,8 +451,16 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     // TODO - alternative would be to have configuration setting to change first polling to 0s
     // we mock this because otherwise we have to wait for first polling (60s)
-    Mockito.doReturn(new FabanStatus(trialID, StatusCode.FAILED, Result.FAILED))
-        .when(fabanManagerServiceSpy).pollForTrialStatus(trialID, runId);
+    Mockito.doAnswer(invocationOnMock -> {
+
+      FabanStatusRequest fabanStatusRequest =
+          new FabanStatusRequest(trialID, StatusCode.FAILED, Result.FAILED);
+
+      sendFabanStatus(trialID, fabanStatusRequest);
+
+      return null;
+
+    }).when(fabanManagerServiceSpy).pollForTrialStatus(trialID, runId);
 
 
   }
