@@ -90,13 +90,13 @@ public class TestTaskScheduler {
 
   // used for testing
   @VisibleForTesting
-  protected RunningStatesHandler getRunningStatesHandler() {
+  public RunningStatesHandler getRunningStatesHandler() {
     return runningStatesHandler;
   }
 
   // used for testing
   @VisibleForTesting
-  protected void setRunningStatesHandler(RunningStatesHandler runningStatesHandler) {
+  public void setRunningStatesHandler(RunningStatesHandler runningStatesHandler) {
     this.runningStatesHandler = runningStatesHandler;
   }
 
@@ -426,7 +426,7 @@ public class TestTaskScheduler {
   }
 
   @VisibleForTesting
-  void handleTerminatedState(String testID) {
+  public void handleTerminatedState(String testID) {
 
     logger.info("handleTerminatedState for " + testID);
 
