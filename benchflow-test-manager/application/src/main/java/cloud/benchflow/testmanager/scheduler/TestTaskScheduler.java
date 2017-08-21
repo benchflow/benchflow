@@ -198,8 +198,19 @@ public class TestTaskScheduler {
         if (prevTestState == testState && (testState == WAITING || testState == TERMINATED)) {
           exit = true;
         }
-        // Exit while waiting for the Experiment Manager to notify about the scheduled
-        // experiment to be executed. This exits before the execution of HANDLE_EXPERIMENT_RESULT
+
+        /*
+          Case HANDLE_EXPERIMENT_RESULT:
+          Exit while waiting for the Experiment Manager to notify about the scheduled
+          experiment to be executed. This exits before the execution of HANDLE_EXPERIMENT_RESULT
+        
+          Case TERMINATING:
+          Check depends if the system is waiting for input from the ExperimentManager or not. In
+          the inner loop for running experiment we exit, but in the outer loop (HERE) we check if
+          we expect a result from the ExperimentManager or not. If we do not expect it we run the
+          loop again so that the TERMINATED state handling gets executed, otherwise we wait for
+          the Experiment result to trigger the TERMINATED handling.
+         */
         else if (testRunningState == TestRunningState.HANDLE_EXPERIMENT_RESULT
             || testRunningState == TestRunningState.TERMINATING
                 && (prevTestRunningState == TestRunningState.HANDLE_EXPERIMENT_RESULT
@@ -341,8 +352,19 @@ public class TestTaskScheduler {
       if (testState == WAITING || testState == TERMINATED) {
         exit = true;
       }
-      // Exit while waiting for the Experiment Manager to notify about the scheduled
-      // experiment to be executed or aborted (terminating state)
+
+      /*
+        Case HANDLE_EXPERIMENT_RESULT:
+        Exit while waiting for the Experiment Manager to notify about the scheduled
+        experiment to be executed. This exits before the execution of HANDLE_EXPERIMENT_RESULT
+      
+        Case TERMINATING:
+        Check depends if the system is waiting for input from the ExperimentManager or not. In
+        the inner (HERE) loop for running experiment we exit, but in the outer loop we check if
+        we expect a result from the ExperimentManager or not. If we do not expect it we run the
+        loop again so that the TERMINATED state handling gets executed, otherwise we wait for
+        the Experiment result to trigger the TERMINATED handling.
+      */
       else if (testRunningState == TestRunningState.HANDLE_EXPERIMENT_RESULT
           || testRunningState == TestRunningState.TERMINATING) {
         exit = true;
