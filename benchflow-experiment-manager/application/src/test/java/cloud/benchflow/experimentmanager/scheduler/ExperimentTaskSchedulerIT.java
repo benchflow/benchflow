@@ -347,7 +347,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   @Test
   public void abortRunningExperimentNoTrialOnFaban() throws Exception {
 
-    String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_2_TRIAL;
+    final String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_2_TRIAL;
 
     setupExperimentMocks(experimentID);
 
@@ -356,10 +356,12 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     }
 
     // abort the test in CheckTerminationCriteria
+    Thread abortThread = new Thread(() -> experimentTaskSchedulerSpy.abortExperiment(experimentID));
+
     Mockito.doAnswer(invocationOnMock -> {
 
       // trigger the abort
-      new Thread(() -> experimentTaskSchedulerSpy.abortExperiment(experimentID)).start();
+      abortThread.start();
 
       // call the regular implementation
       return invocationOnMock.callRealMethod();
@@ -371,6 +373,9 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     experimentTaskSchedulerSpy.handleStartingExperiment(experimentID);
 
     waitExperimentTerminationForOneMinute(experimentID);
+
+    // ensure that thread has finished before continuing
+    abortThread.join();
 
     // assertions
 
@@ -390,7 +395,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   @Test
   public void abortRunningExperimentWithTrialOnFaban() throws Exception {
 
-    String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_2_TRIAL;
+    final String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_2_TRIAL;
 
     setupExperimentMocks(experimentID);
 
@@ -398,22 +403,24 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
       setupTrialMocksSuccessful(experimentID, i);
     }
 
+    Thread abortThread = new Thread(() -> {
+
+      // TODO - try to find a way to deterministically execute some code, after a
+      // given mocked method is called.
+
+      try {
+        Thread.sleep(500);
+        experimentTaskSchedulerSpy.abortExperiment(experimentID);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+
+    });
+
     // abort the test in HandleDetermineAndExecuteTrials to wait for Faban Manager
     Mockito.doAnswer(invocationOnMock -> {
 
-      new Thread(() -> {
-
-        // TODO - try to find a way to deterministically execute some code, after a
-        // given mocked method is called.
-
-        try {
-          Thread.sleep(500);
-          experimentTaskSchedulerSpy.abortExperiment(experimentID);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-
-      }).start();
+      abortThread.start();
 
       // call the regular implementation
       return invocationOnMock.callRealMethod();
@@ -425,6 +432,9 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     experimentTaskSchedulerSpy.handleStartingExperiment(experimentID);
 
     waitExperimentTerminationForOneMinute(experimentID);
+
+    // ensure that thread has finished before continuing
+    abortThread.join();
 
     // assertions
 

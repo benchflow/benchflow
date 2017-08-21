@@ -375,66 +375,72 @@ public class ExperimentTaskScheduler {
   public void abortExperiment(String experimentID) {
 
     logger.info("abortExperiment: " + experimentID);
-
+    
     try {
 
-      BenchFlowExperimentState experimentState =
-          experimentModelDAO.getExperimentState(experimentID);
+      // cancel the current running task, but let it complete before
+      cancelTask(experimentID);
 
-      switch (experimentState) {
+      /*
+      When we terminate an experiment it is important that we first cancel any running task and
+      then change the state to TERMINATED otherwise the state might be overwritten.
+      */
 
-        case START:
+      // lock to ensure execution is atomic
+      synchronized (this) {
 
-          // set test to terminated
-          experimentModelDAO.setExperimentState(experimentID, TERMINATED);
-          experimentModelDAO.setTerminatedState(experimentID, TerminatedState.ABORTED);
+        BenchFlowExperimentState experimentState =
+            experimentModelDAO.getExperimentState(experimentID);
 
-          // cancel the current running task, but let it complete before
-          cancelTask(experimentID);
+        switch (experimentState) {
 
-          break;
+          case START:
 
-        case READY:
-          // remove from ready queue
-          readyQueue.remove(experimentID);
+            // set test to terminated
+            experimentModelDAO.setExperimentState(experimentID, TERMINATED);
+            experimentModelDAO.setTerminatedState(experimentID, TerminatedState.ABORTED);
 
-          // set test to terminated
-          experimentModelDAO.setExperimentState(experimentID, TERMINATED);
-          experimentModelDAO.setTerminatedState(experimentID, TerminatedState.ABORTED);
+            handleExperimentState(experimentID);
 
-          // cancel the current running task, but let it complete before
-          cancelTask(experimentID);
+            break;
 
-          break;
+          case READY:
 
-        case RUNNING:
+            // remove from ready queue
+            readyQueue.remove(experimentID);
 
-          RunningState runningState = experimentModelDAO.getRunningState(experimentID);
+            // set test to terminated
+            experimentModelDAO.setExperimentState(experimentID, TERMINATED);
+            experimentModelDAO.setTerminatedState(experimentID, TerminatedState.ABORTED);
 
-          // if experiment is not already terminating
-          if (runningState != RunningState.TERMINATING) {
+            handleExperimentState(experimentID);
 
-            experimentModelDAO.setRunningState(experimentID, RunningState.TERMINATING);
+            break;
 
-            // cancel the current running task, but let it complete before
-            cancelTask(experimentID);
+          case RUNNING:
 
-            // IF not waiting for Faban Manager we go into TERMINATING
-            if (runningState != RunningState.HANDLE_TRIAL_RESULT) {
+            RunningState runningState = experimentModelDAO.getRunningState(experimentID);
+
+            // if experiment is not already terminating
+            if (runningState != RunningState.TERMINATING) {
+
+              experimentModelDAO.setRunningState(experimentID, RunningState.TERMINATING);
+
               handleRunningExperiment(experimentID);
+
             }
 
-          }
+            break;
 
-          break;
+          case TERMINATED:
+            // already terminated
+            break;
 
-        case TERMINATED:
-          // already terminated
-          break;
+          default:
+            /// no default
+            break;
 
-        default:
-          /// no default
-          break;
+        }
 
       }
 
@@ -444,9 +450,12 @@ public class ExperimentTaskScheduler {
       e.printStackTrace();
     }
 
+
   }
 
   private void cancelTask(String experimentID) throws BenchFlowExperimentIDDoesNotExistException {
+
+    logger.info("cancelTask " + experimentID);
 
     //Cancel the task and remove it from the testTasks queue
     Future future = experimentTasks.remove(experimentID);
@@ -473,29 +482,6 @@ public class ExperimentTaskScheduler {
     }
   }
 
-  /**
-   * Checks whether or not the Experiment reached the TERMINATED state.
-   *
-   * @param experimentID the experiment ID
-   * @return true if the experiment state is terminated.
-   */
-  @Deprecated
-  public boolean isTerminated(String experimentID) {
-
-    try {
-      BenchFlowExperimentState experimentState =
-          experimentModelDAO.getExperimentState(experimentID);
-
-      return experimentState == TERMINATED;
-
-    } catch (BenchFlowExperimentIDDoesNotExistException e) {
-      // if test is not in the DB we consider it as terminated
-      return true;
-    }
-
-  }
-
-
   private boolean isTaskAborted(AbortableFutureTask future) {
 
     return future.isAborted();
@@ -513,6 +499,8 @@ public class ExperimentTaskScheduler {
   public AbortableFutureTaskResult getAbortableFutureTask(AbortableFutureTask future)
       throws InterruptedException, ExecutionException {
 
+    logger.info("getAbortableFutureTask");
+
     AbortableFutureTaskResult result = new AbortableFutureTaskResult();
 
     try {
@@ -528,7 +516,7 @@ public class ExperimentTaskScheduler {
       }
     }
 
-    logger.info(result.toString());
+    logger.info("getAbortableFutureTask: " + result.toString());
 
     return result;
   }
@@ -573,6 +561,11 @@ public class ExperimentTaskScheduler {
      */
     public void setAborted(boolean aborted) {
       this.aborted = aborted;
+    }
+
+    @Override
+    public String toString() {
+      return "AbortableFutureTaskResult{" + "result=" + result + ", aborted=" + aborted + '}';
     }
   }
 

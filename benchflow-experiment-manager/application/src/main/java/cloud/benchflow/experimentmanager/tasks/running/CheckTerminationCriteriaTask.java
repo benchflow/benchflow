@@ -36,6 +36,8 @@ public class CheckTerminationCriteriaTask extends AbortableCallable<TerminationC
 
     // TODO - add confidence interval (read termination criteria)
 
+    logger.info("failureStatus == " + failureStatus);
+
     if (failureStatus == null && numExectuedTrials < numTrials) {
 
       return TerminationCriteriaResult.NOT_FULFILLED;
