@@ -114,7 +114,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getFabanConfiguration())
         .when(minioServiceSpy).getDriversMakerGeneratedFabanConfiguration(Mockito.anyString(),
-        Mockito.anyLong(), Mockito.anyLong());
+            Mockito.anyLong(), Mockito.anyLong());
 
     Mockito.doNothing().when(minioServiceSpy).copyDeploymentDescriptorForDriversMaker(
         Mockito.anyString(), Mockito.anyString(), Mockito.anyLong());
@@ -153,8 +153,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     String experimentID = "benchflow.runSingleExperimentSingleTrial.1.1";
 
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment1TrialDefinition())
-        .when(minioServiceSpy)
-        .getExperimentDefinition(Mockito.contains(experimentID));
+        .when(minioServiceSpy).getExperimentDefinition(Mockito.contains(experimentID));
 
     setupExperimentMocks(experimentID);
     setupTrialMocksSuccessful(experimentID, 1);
@@ -178,8 +177,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     String experimentID = "benchflow.runSingleExperimentSingleTrialWithRandomFailureAndSuccess.1.1";
 
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment1TrialDefinition())
-        .when(minioServiceSpy)
-        .getExperimentDefinition(Mockito.contains(experimentID));
+        .when(minioServiceSpy).getExperimentDefinition(Mockito.contains(experimentID));
 
     setupExperimentMocks(experimentID);
     setupTrialMocksWithRandomFailureAndSuccess(experimentID, 1);
@@ -207,8 +205,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     String experimentID = "benchflow.runSingleExperimentSingleTrialWithExperimentFailure.1.1";
 
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment1TrialDefinition())
-        .when(minioServiceSpy)
-        .getExperimentDefinition(Mockito.contains(experimentID));
+        .when(minioServiceSpy).getExperimentDefinition(Mockito.contains(experimentID));
 
     setupExperimentMocks(experimentID);
     setupTrialMocksWithOnlyFailure(experimentID, 1);
@@ -229,11 +226,10 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   @Test
   public void runSingleExperimentMultipleTrials() throws Exception {
 
-    String experimentID = "benchflow.runSingleExperimentSingleTrialWithExperimentFailure.1.1";
+    String experimentID = "benchflow.runSingleExperimentMultipleTrials.1.1";
 
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment2TrialsDefinition())
-        .when(minioServiceSpy)
-        .getExperimentDefinition(Mockito.contains(experimentID));
+        .when(minioServiceSpy).getExperimentDefinition(Mockito.contains(experimentID));
 
     setupExperimentMocks(experimentID);
 
@@ -262,8 +258,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     String experimentID = "benchflow.runSingleExperimentMultipleTrialsWithExperimentFailure.1.1";
 
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment2TrialsDefinition())
-        .when(minioServiceSpy)
-        .getExperimentDefinition(Mockito.contains(experimentID));
+        .when(minioServiceSpy).getExperimentDefinition(Mockito.contains(experimentID));
 
     setupExperimentMocks(experimentID);
 
@@ -295,7 +290,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     WaitExperimentCheck waitExperimentCheck = () -> {
 
       // wait for tasks to finish
-      experimentTaskExecutorServer.awaitTermination(1, TimeUnit.SECONDS);
+      experimentTaskExecutorServer.awaitTermination(5, TimeUnit.SECONDS);
 
     };
 
@@ -306,7 +301,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   @Test
   public void runMultipleExperimentMultipleTrialsWithRandomFailures() throws Exception {
 
-    int[] experimentNumbers = new int[]{1, 2};
+    int[] experimentNumbers = new int[] {1, 2};
     String[] experimentIDs = new String[2];
 
     for (int i = 0; i < experimentNumbers.length; i++) {
@@ -317,8 +312,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
       experimentIDs[i] = experimentID;
 
       Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment2TrialsDefinition())
-          .when(minioServiceSpy)
-          .getExperimentDefinition(Mockito.contains(experimentID));
+          .when(minioServiceSpy).getExperimentDefinition(Mockito.contains(experimentID));
 
       setupExperimentMocks(experimentID);
 
@@ -336,7 +330,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     WaitExperimentCheck waitExperimentCheck = () -> {
 
       // wait for tasks to finish
-      experimentTaskExecutorServer.awaitTermination(1, TimeUnit.SECONDS);
+      experimentTaskExecutorServer.awaitTermination(5, TimeUnit.SECONDS);
 
     };
 
@@ -365,8 +359,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     final String experimentID = "benchflow.abortRunningExperimentNoTrialOnFaban.1.1";
 
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment2TrialsDefinition())
-        .when(minioServiceSpy)
-        .getExperimentDefinition(Mockito.contains(experimentID));
+        .when(minioServiceSpy).getExperimentDefinition(Mockito.contains(experimentID));
 
     setupExperimentMocks(experimentID);
 
@@ -417,8 +410,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     final String experimentID = "benchflow.abortRunningExperimentWithTrialOnFaban.1.1";
 
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment2TrialsDefinition())
-        .when(minioServiceSpy)
-        .getExperimentDefinition(Mockito.contains(experimentID));
+        .when(minioServiceSpy).getExperimentDefinition(Mockito.contains(experimentID));
 
     setupExperimentMocks(experimentID);
 
@@ -489,7 +481,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     // Test Manager Trial Status Stub
     stubFor(put(urlEqualTo(BenchFlowConstants.getPathFromTrialID(trialID)
         + BenchFlowTestManagerService.TRIAL_STATUS_PATH))
-        .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
+            .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
 
     Mockito.doReturn(runId).when(fabanClientMock).submit(Mockito.matches(fabanExperimentId),
         Mockito.matches(getFabanTrialID(trialID)), Mockito.any(File.class));
@@ -533,7 +525,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     // Test Manager Trial Status Stub
     stubFor(put(urlEqualTo(BenchFlowConstants.getPathFromTrialID(trialID)
         + BenchFlowTestManagerService.TRIAL_STATUS_PATH))
-        .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
+            .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
 
     Mockito.doReturn(runId).when(fabanClientMock).submit(Mockito.matches(fabanExperimentId),
         Mockito.matches(getFabanTrialID(trialID)), Mockito.any(File.class));
@@ -592,7 +584,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     // Test Manager Trial Status Stub
     stubFor(put(urlEqualTo(BenchFlowConstants.getPathFromTrialID(trialID)
         + BenchFlowTestManagerService.TRIAL_STATUS_PATH))
-        .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
+            .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
 
     Mockito.doReturn(runId).when(fabanClientMock).submit(Mockito.matches(fabanExperimentId),
         Mockito.matches(getFabanTrialID(trialID)), Mockito.any(File.class));
@@ -618,7 +610,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     // Test Manager Experiment State Stub
     stubFor(put(urlEqualTo(BenchFlowConstants.getPathFromExperimentID(experimentID)
         + BenchFlowTestManagerService.EXPERIMENT_STATE_PATH))
-        .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
+            .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
 
 
   }

@@ -158,7 +158,7 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
 
     // TODO - alternative would be to have configuration setting to change first polling to 0s
     // wait long enough for tasks to start to be executed
-    executorService.awaitTermination(10, TimeUnit.SECONDS);
+    executorService.awaitTermination(5, TimeUnit.SECONDS);
 
     Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
         experimentModelDAO.getExperimentState(experimentID));

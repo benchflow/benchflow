@@ -1,6 +1,7 @@
 package cloud.benchflow.experimentmanager.scheduler;
 
 import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState.READY;
+import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState.RUNNING;
 import static cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState.TERMINATED;
 
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
@@ -96,30 +97,40 @@ public class ExperimentTaskScheduler {
    */
   public synchronized void handleStartingExperiment(String experimentID) {
 
-    boolean exit = false;
     BenchFlowExperimentState experimentState;
+    BenchFlowExperimentState prevExperimentState;
 
     try {
 
       experimentState = experimentModelDAO.getExperimentState(experimentID);
+      logger.info("handleStartingExperiment: experimentState == " + experimentState);
 
-      // Stop when we reach a final starting state
-      while (!exit) {
+      while (true) {
 
-        BenchFlowExperimentState prevTestState = experimentState;
+        prevExperimentState = experimentState;
 
         try {
-          experimentState = handleExperimentState(experimentID);
+          handleExperimentState(experimentID);
         } catch (BenchFlowExperimentIDDoesNotExistException e) {
           e.printStackTrace();
           break;
         }
 
-        // Exit as soon as ready or terminated is executed
+        experimentState = experimentModelDAO.getExperimentState(experimentID);
+        logger.info("handleStartingExperiment: (while) experimentState == " + experimentState);
+        logger.info(
+            "handleStartingExperiment: (while) prevExperimentState == " + prevExperimentState);
+
+        // Exit as soon as ready or terminated has been executed
         // An experiment can go to the TERMINATED state from START in case of errors
-        if (prevTestState == experimentState
-            && (experimentState == READY || experimentState == TERMINATED)) {
-          exit = true;
+        if (prevExperimentState == READY || prevExperimentState == TERMINATED) {
+          break;
+        }
+
+        // if the dispatcher changes the state before we exit this loop we also exit
+        // TODO - add test ensuring we always exit in this case
+        if (experimentState == RUNNING) {
+          break;
         }
 
       }
@@ -136,7 +147,6 @@ public class ExperimentTaskScheduler {
    */
   public synchronized void handleRunningExperiment(String experimentID) {
 
-    boolean exit = false;
     BenchFlowExperimentState experimentState;
     BenchFlowExperimentState prevExperimentState;
     RunningState runningState;
@@ -146,42 +156,37 @@ public class ExperimentTaskScheduler {
 
       experimentState = experimentModelDAO.getExperimentState(experimentID);
       runningState = experimentModelDAO.getRunningState(experimentID);
+      logger.info("handleRunningExperiment: experimentState == " + experimentState);
+      logger.info("handleRunningExperiment: runningState == " + runningState);
 
-      // Stop when we reach a final state
-      while (!exit) {
+      while (true) {
 
         prevExperimentState = experimentState;
         prevRunningState = runningState;
 
         try {
-          experimentState = handleExperimentState(experimentID);
+          handleExperimentState(experimentID);
         } catch (BenchFlowExperimentIDDoesNotExistException e) {
           e.printStackTrace();
           break;
         }
 
+        experimentState = experimentModelDAO.getExperimentState(experimentID);
         runningState = experimentModelDAO.getRunningState(experimentID);
-        logger.info("handleRunningExperiment: runningState == " + runningState);
-        logger.info("handleRunningExperiment: prevRunningState == " + prevRunningState);
+        logger.info("handleRunningExperiment: (while) experimentState == " + experimentState);
+        logger.info("handleRunningExperiment: (while) runningState == " + runningState);
+        logger.info("handleRunningExperiment: (while) prevRunningState == " + prevRunningState);
 
-        // Exit as soon as final state is executed
+        // Exit as soon as the final state has been executed
         if (prevExperimentState == TERMINATED) {
-          exit = true;
+          break;
         }
 
-        /*
-        Exit while waiting for the Faban Manager to notify about the result of the scheduled
-        trial. This exits before the execution of HANDLE_EXPERIMENT_RESULT
-        
-        NOTE for TERMINATING: Check depends if the system is waiting for input from the FabanManager
-        or not. So in the inner loop for running experiment we exit, but in the outer loop (HERE) we
-        check if we expect a result from the FabanManager or not. If we do not expect it we run the
-        loop again so that the TERMINATED state handling gets executed.
-        */
-        else if (runningState == RunningState.HANDLE_TRIAL_RESULT
-            || runningState == RunningState.TERMINATING
-                && prevRunningState == RunningState.HANDLE_TRIAL_RESULT) {
-          exit = true;
+
+        // Exit while waiting for the Faban Manager to notify about the result of the scheduled
+        // trial. This exits before the execution of HANDLE_EXPERIMENT_RESULT
+        if (runningState == RunningState.HANDLE_TRIAL_RESULT) {
+          break;
         }
 
       }
@@ -192,12 +197,12 @@ public class ExperimentTaskScheduler {
 
   }
 
-  private BenchFlowExperimentState handleExperimentState(String experimentID)
+  private void handleExperimentState(String experimentID)
       throws BenchFlowExperimentIDDoesNotExistException {
 
     BenchFlowExperimentState experimentState = experimentModelDAO.getExperimentState(experimentID);
 
-    logger.info("handleExperimentSate: " + experimentID + " state: " + experimentState.name());
+    logger.info("handleExperimentState: " + experimentID + " state: " + experimentState.name());
 
     switch (experimentState) {
       case START:
@@ -210,7 +215,7 @@ public class ExperimentTaskScheduler {
         break;
 
       case RUNNING:
-        handleRunningExperimentState(experimentID);
+        handleRunningState(experimentID);
         break;
 
       case TERMINATED:
@@ -222,7 +227,6 @@ public class ExperimentTaskScheduler {
         break;
     }
 
-    return experimentModelDAO.getExperimentState(experimentID);
   }
 
   @VisibleForTesting
@@ -263,58 +267,10 @@ public class ExperimentTaskScheduler {
       // TODO - handle properly
       e.printStackTrace();
     }
-  }
-
-  /**
-   * Handles the Running Experiment Sub-States.
-   *
-   * @param experimentID the experiment ID
-   * @throws BenchFlowExperimentIDDoesNotExistException when the experiment ID does not exists
-   */
-  private void handleRunningExperimentState(String experimentID)
-      throws BenchFlowExperimentIDDoesNotExistException {
-
-    boolean exit = false;
-    BenchFlowExperimentState experimentState;
-    RunningState runningState;
-
-    // Stop when we reach a final state
-    while (!exit) {
-
-      try {
-        experimentState = handleExperimentRunningState(experimentID);
-      } catch (BenchFlowExperimentIDDoesNotExistException e) {
-        e.printStackTrace();
-        break;
-      }
-
-      runningState = experimentModelDAO.getRunningState(experimentID);
-      logger.info("handleRunningExperimentState: runningState == " + runningState);
-
-      // Exit as soon as final state is executed
-      if (experimentState == TERMINATED) {
-        exit = true;
-      }
-
-      /*
-        Exit while waiting for the Faban Manager to notify about the result of the scheduled
-        trial. This exits before the execution of HANDLE_EXPERIMENT_RESULT
-      
-        NOTE for TERMINATING: Check depends if the system is waiting for input from the FabanManager
-        or not. So in the inner loop (HERE) for running experiment we exit, but in the outer loop we check
-        if we expect a result from the FabanManager or not. If we do not expect it we run the loop
-        again so that the TERMINATED state handling gets executed.
-       */
-      else if (runningState == RunningState.HANDLE_TRIAL_RESULT
-          || runningState == RunningState.TERMINATING) {
-        exit = true;
-      }
-
-    }
 
   }
 
-  private BenchFlowExperimentState handleExperimentRunningState(String experimentID)
+  private void handleRunningState(String experimentID)
       throws BenchFlowExperimentIDDoesNotExistException {
 
     RunningState runningState = experimentModelDAO.getRunningState(experimentID);
@@ -344,8 +300,6 @@ public class ExperimentTaskScheduler {
         // no default
         break;
     }
-
-    return experimentModelDAO.getExperimentState(experimentID);
 
   }
 
@@ -400,7 +354,7 @@ public class ExperimentTaskScheduler {
             experimentModelDAO.setExperimentState(experimentID, TERMINATED);
             experimentModelDAO.setTerminatedState(experimentID, TerminatedState.ABORTED);
 
-            handleExperimentState(experimentID);
+            handleTerminatedState(experimentID);
 
             break;
 
@@ -413,7 +367,7 @@ public class ExperimentTaskScheduler {
             experimentModelDAO.setExperimentState(experimentID, TERMINATED);
             experimentModelDAO.setTerminatedState(experimentID, TerminatedState.ABORTED);
 
-            handleExperimentState(experimentID);
+            handleTerminatedState(experimentID);
 
             break;
 
@@ -426,7 +380,10 @@ public class ExperimentTaskScheduler {
 
               experimentModelDAO.setRunningState(experimentID, RunningState.TERMINATING);
 
-              handleRunningExperiment(experimentID);
+              // if we don't expect a result form Faban we terminate directly
+              if (runningState != RunningState.HANDLE_TRIAL_RESULT) {
+                handleRunningExperiment(experimentID);
+              }
 
             }
 

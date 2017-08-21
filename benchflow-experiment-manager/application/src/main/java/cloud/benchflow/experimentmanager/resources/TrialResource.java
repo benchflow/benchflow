@@ -69,6 +69,8 @@ public class TrialResource {
     trialModelDAO.setFabanResult(trialID, fabanStatusRequest.getResult());
 
     // continue handling in task scheduler
+    // we do not check if the experiment is running since only if the experiment is running
+    // we expect this resource method to be called
     new Thread(() -> experimentTaskScheduler.handleRunningExperiment(experimentID)).start();
 
   }
