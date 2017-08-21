@@ -16,7 +16,6 @@ import cloud.benchflow.experimentmanager.constants.BenchFlowConstants.TrialIDEle
 import cloud.benchflow.experimentmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.experimentmanager.helpers.WaitExperimentCheck;
 import cloud.benchflow.experimentmanager.helpers.WaitExperimentTermination;
-import cloud.benchflow.experimentmanager.helpers.data.BenchFlowData;
 import cloud.benchflow.experimentmanager.helpers.data.MinioTestData;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.TerminatedState;
@@ -86,6 +85,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   private ExecutorService experimentTaskExecutorServer;
   private BenchFlowExperimentModelDAO experimentModelDAO;
   private FabanManagerService fabanManagerServiceSpy;
+  private MinioService minioServiceSpy;
 
   @Before
   public void setUp() throws Exception {
@@ -93,22 +93,13 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     experimentModelDAO = BenchFlowExperimentManagerApplication.getExperimentModelDAO();
 
     // spy on minio to return files saved by other services
-    MinioService minioServiceSpy =
-        Mockito.spy(BenchFlowExperimentManagerApplication.getMinioService());
+    minioServiceSpy = Mockito.spy(BenchFlowExperimentManagerApplication.getMinioService());
     BenchFlowExperimentManagerApplication.setMinioService(minioServiceSpy);
 
     // set faban client as mock
     fabanManagerServiceSpy =
         Mockito.spy(new FabanManagerService(fabanClientMock, minioServiceSpy, 0));
     BenchFlowExperimentManagerApplication.setFabanManagerService(fabanManagerServiceSpy);
-
-    Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment1TrialDefinition())
-        .when(minioServiceSpy)
-        .getExperimentDefinition(Mockito.contains(BenchFlowData.VALID_TEST_ID_1_TRIAL));
-
-    Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment2TrialsDefinition())
-        .when(minioServiceSpy)
-        .getExperimentDefinition(Mockito.contains(BenchFlowData.VALID_TEST_ID_2_TRIAL));
 
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getDeploymentDescriptor())
         .when(minioServiceSpy).getExperimentDeploymentDescriptor(Mockito.anyString());
@@ -123,7 +114,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
 
     Mockito.doAnswer(invocationOnMock -> MinioTestData.getFabanConfiguration())
         .when(minioServiceSpy).getDriversMakerGeneratedFabanConfiguration(Mockito.anyString(),
-            Mockito.anyLong(), Mockito.anyLong());
+        Mockito.anyLong(), Mockito.anyLong());
 
     Mockito.doNothing().when(minioServiceSpy).copyDeploymentDescriptorForDriversMaker(
         Mockito.anyString(), Mockito.anyString(), Mockito.anyLong());
@@ -159,7 +150,11 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   @Test
   public void runSingleExperimentSingleTrial() throws Exception {
 
-    String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_1_TRIAL;
+    String experimentID = "benchflow.runSingleExperimentSingleTrial.1.1";
+
+    Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment1TrialDefinition())
+        .when(minioServiceSpy)
+        .getExperimentDefinition(Mockito.contains(experimentID));
 
     setupExperimentMocks(experimentID);
     setupTrialMocksSuccessful(experimentID, 1);
@@ -180,7 +175,11 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   @Test
   public void runSingleExperimentSingleTrialWithRandomFailureAndSuccess() throws Exception {
 
-    String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_1_TRIAL;
+    String experimentID = "benchflow.runSingleExperimentSingleTrialWithRandomFailureAndSuccess.1.1";
+
+    Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment1TrialDefinition())
+        .when(minioServiceSpy)
+        .getExperimentDefinition(Mockito.contains(experimentID));
 
     setupExperimentMocks(experimentID);
     setupTrialMocksWithRandomFailureAndSuccess(experimentID, 1);
@@ -205,7 +204,11 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   @Test
   public void runSingleExperimentSingleTrialWithExperimentFailure() throws Exception {
 
-    String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_1_TRIAL;
+    String experimentID = "benchflow.runSingleExperimentSingleTrialWithExperimentFailure.1.1";
+
+    Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment1TrialDefinition())
+        .when(minioServiceSpy)
+        .getExperimentDefinition(Mockito.contains(experimentID));
 
     setupExperimentMocks(experimentID);
     setupTrialMocksWithOnlyFailure(experimentID, 1);
@@ -226,7 +229,11 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   @Test
   public void runSingleExperimentMultipleTrials() throws Exception {
 
-    String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_2_TRIAL;
+    String experimentID = "benchflow.runSingleExperimentSingleTrialWithExperimentFailure.1.1";
+
+    Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment2TrialsDefinition())
+        .when(minioServiceSpy)
+        .getExperimentDefinition(Mockito.contains(experimentID));
 
     setupExperimentMocks(experimentID);
 
@@ -252,7 +259,11 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   @Test
   public void runSingleExperimentMultipleTrialsWithExperimentFailure() throws Exception {
 
-    String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_2_TRIAL;
+    String experimentID = "benchflow.runSingleExperimentMultipleTrialsWithExperimentFailure.1.1";
+
+    Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment2TrialsDefinition())
+        .when(minioServiceSpy)
+        .getExperimentDefinition(Mockito.contains(experimentID));
 
     setupExperimentMocks(experimentID);
 
@@ -295,15 +306,19 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   @Test
   public void runMultipleExperimentMultipleTrialsWithRandomFailures() throws Exception {
 
-    int[] experimentNumbers = new int[] {1, 2};
+    int[] experimentNumbers = new int[]{1, 2};
     String[] experimentIDs = new String[2];
 
     for (int i = 0; i < experimentNumbers.length; i++) {
 
-      String experimentID =
-          BenchFlowData.getValidExperimentID2TrialFromNumber(experimentNumbers[i]);
+      String experimentID = "benchflow.runMultipleExperimentMultipleTrialsWithRandomFailures.1."
+          + experimentNumbers[i];
 
       experimentIDs[i] = experimentID;
+
+      Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment2TrialsDefinition())
+          .when(minioServiceSpy)
+          .getExperimentDefinition(Mockito.contains(experimentID));
 
       setupExperimentMocks(experimentID);
 
@@ -347,7 +362,11 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   @Test
   public void abortRunningExperimentNoTrialOnFaban() throws Exception {
 
-    final String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_2_TRIAL;
+    final String experimentID = "benchflow.abortRunningExperimentNoTrialOnFaban.1.1";
+
+    Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment2TrialsDefinition())
+        .when(minioServiceSpy)
+        .getExperimentDefinition(Mockito.contains(experimentID));
 
     setupExperimentMocks(experimentID);
 
@@ -395,7 +414,11 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   @Test
   public void abortRunningExperimentWithTrialOnFaban() throws Exception {
 
-    final String experimentID = BenchFlowData.VALID_EXPERIMENT_ID_2_TRIAL;
+    final String experimentID = "benchflow.abortRunningExperimentWithTrialOnFaban.1.1";
+
+    Mockito.doAnswer(invocationOnMock -> MinioTestData.getExperiment2TrialsDefinition())
+        .when(minioServiceSpy)
+        .getExperimentDefinition(Mockito.contains(experimentID));
 
     setupExperimentMocks(experimentID);
 
@@ -466,7 +489,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     // Test Manager Trial Status Stub
     stubFor(put(urlEqualTo(BenchFlowConstants.getPathFromTrialID(trialID)
         + BenchFlowTestManagerService.TRIAL_STATUS_PATH))
-            .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
+        .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
 
     Mockito.doReturn(runId).when(fabanClientMock).submit(Mockito.matches(fabanExperimentId),
         Mockito.matches(getFabanTrialID(trialID)), Mockito.any(File.class));
@@ -510,7 +533,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     // Test Manager Trial Status Stub
     stubFor(put(urlEqualTo(BenchFlowConstants.getPathFromTrialID(trialID)
         + BenchFlowTestManagerService.TRIAL_STATUS_PATH))
-            .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
+        .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
 
     Mockito.doReturn(runId).when(fabanClientMock).submit(Mockito.matches(fabanExperimentId),
         Mockito.matches(getFabanTrialID(trialID)), Mockito.any(File.class));
@@ -569,7 +592,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     // Test Manager Trial Status Stub
     stubFor(put(urlEqualTo(BenchFlowConstants.getPathFromTrialID(trialID)
         + BenchFlowTestManagerService.TRIAL_STATUS_PATH))
-            .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
+        .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
 
     Mockito.doReturn(runId).when(fabanClientMock).submit(Mockito.matches(fabanExperimentId),
         Mockito.matches(getFabanTrialID(trialID)), Mockito.any(File.class));
@@ -595,7 +618,7 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
     // Test Manager Experiment State Stub
     stubFor(put(urlEqualTo(BenchFlowConstants.getPathFromExperimentID(experimentID)
         + BenchFlowTestManagerService.EXPERIMENT_STATE_PATH))
-            .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
+        .willReturn(aResponse().withStatus(Response.Status.NO_CONTENT.getStatusCode())));
 
 
   }
