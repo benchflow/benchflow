@@ -74,6 +74,9 @@ minio:
   address: ${env.MINIO_ADDRESS!"SET_ME"}
   accessKey: ${env.MINIO_ACCESS_KEY!"SET_ME"}
   secretKey: ${env.MINIO_SECRET_KEY!"SET_ME"}
+  connectTimeout: 5000
+  writeTimeout: 5000
+  readTimeout: 5000
   numConnectionRetries: 3
 
 taskExecutor:
