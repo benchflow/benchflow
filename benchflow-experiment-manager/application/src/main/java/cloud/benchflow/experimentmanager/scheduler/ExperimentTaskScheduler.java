@@ -168,11 +168,19 @@ public class ExperimentTaskScheduler {
         if (prevExperimentState == TERMINATED) {
           exit = true;
         }
-        // Exit while waiting for the Faban Manager to notify about the result of the scheduled
-        // trial. This exits before the execution of HANDLE_EXPERIMENT_RESULT
+
+        /*
+        Exit while waiting for the Faban Manager to notify about the result of the scheduled
+        trial. This exits before the execution of HANDLE_EXPERIMENT_RESULT
+        
+        NOTE for TERMINATING: Check depends if the system is waiting for input from the FabanManager
+        or not. So in the inner loop for running experiment we exit, but in the outer loop (HERE) we
+        check if we expect a result from the FabanManager or not. If we do not expect it we run the
+        loop again so that the TERMINATED state handling gets executed.
+        */
         else if (runningState == RunningState.HANDLE_TRIAL_RESULT
             || runningState == RunningState.TERMINATING
-            && prevRunningState == RunningState.HANDLE_TRIAL_RESULT) {
+                && prevRunningState == RunningState.HANDLE_TRIAL_RESULT) {
           exit = true;
         }
 
@@ -288,8 +296,15 @@ public class ExperimentTaskScheduler {
         exit = true;
       }
 
-      // Exit while waiting for the Faban Manager to notify about the result of the scheduled
-      // trial. This exits before the execution of HANDLE_EXPERIMENT_RESULT
+      /*
+        Exit while waiting for the Faban Manager to notify about the result of the scheduled
+        trial. This exits before the execution of HANDLE_EXPERIMENT_RESULT
+      
+        NOTE for TERMINATING: Check depends if the system is waiting for input from the FabanManager
+        or not. So in the inner loop (HERE) for running experiment we exit, but in the outer loop we check
+        if we expect a result from the FabanManager or not. If we do not expect it we run the loop
+        again so that the TERMINATED state handling gets executed.
+       */
       else if (runningState == RunningState.HANDLE_TRIAL_RESULT
           || runningState == RunningState.TERMINATING) {
         exit = true;

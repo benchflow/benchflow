@@ -204,6 +204,13 @@ public class FabanManagerService {
 
   public void pollForTrialStatus(String trialID, RunId runId) {
 
+    /*
+      This code is executed as part of the DETERMINE_EXECUTE_TRIALS, and since it is in a thread
+      it will be asynchronous, which will make the state of the experiment change to
+      HANDLE_TRIAL_RESULT and the while loop will finish. Once the FabanManager has a result it
+      will then invoke the Scheduler again and then the life cycle continues.
+     */
+
     // execute in a thread to be asynchronous (similar to when faban manager is a service)
     new Thread(() -> {
 
@@ -263,13 +270,13 @@ public class FabanManagerService {
 
         TrialIDElements trialIDElements = new TrialIDElements(trialID);
 
+        // invoke the resource by calling the method
         trialResource.setFabanResult(trialIDElements.getUsername(), trialIDElements.getTestName(),
             trialIDElements.getTestNumber(), trialIDElements.getExperimentNumber(),
             trialIDElements.getTrialNumber(), fabanStatusRequest);
       }
 
     }).start();
-
 
 
   }
