@@ -114,8 +114,11 @@ public class StartTask extends AbortableCallable<Boolean> {
 
       return false;
 
-    } catch (BenchmarkGenerationException | BenchMarkDeploymentException e) {
-      logger.error(e.getMessage());
+    } catch (BenchmarkGenerationException e) {
+      logger.info("BenchmarkGenerationException - " + e.getMessage());
+      return false;
+    } catch (BenchMarkDeploymentException e) {
+      logger.info("BenchMarkDeploymentException - " + e.getMessage());
       return false;
     } catch (BenchFlowDeserializationException | BenchFlowExperimentIDDoesNotExistException e) {
       // should already have been checked in previous step
