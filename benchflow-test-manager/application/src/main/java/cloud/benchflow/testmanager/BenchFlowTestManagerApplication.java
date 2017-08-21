@@ -40,6 +40,7 @@ public class BenchFlowTestManagerApplication
   private static String experimentManagerAddress;
   private Logger logger =
       LoggerFactory.getLogger(BenchFlowTestManagerApplication.class.getSimpleName());
+  private static BenchFlowExperimentResource experimentResource;
 
   public static void main(String[] args) throws Exception {
     new BenchFlowTestManagerApplication().run(args);
@@ -97,9 +98,13 @@ public class BenchFlowTestManagerApplication
     return experimentManagerAddress;
   }
 
+  public static BenchFlowExperimentResource getExperimentResource() {
+    return experimentResource;
+  }
+
   @Override
   public String getName() {
-    return "benchflow-test-orchestrator";
+    return "benchflow-test-manager";
   }
 
   @Override
@@ -164,7 +169,7 @@ public class BenchFlowTestManagerApplication
     //        final BenchFlowUserResource userResource = new BenchFlowUserResource();
 
     final BenchFlowTestResource testResource = new BenchFlowTestResource();
-    final BenchFlowExperimentResource experimentResource = new BenchFlowExperimentResource();
+    experimentResource = new BenchFlowExperimentResource();
     final BenchFlowTrialResource trialResource = new BenchFlowTrialResource();
     final ExplorationPointResource explorationPointResource = new ExplorationPointResource();
 

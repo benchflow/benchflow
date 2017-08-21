@@ -1,7 +1,8 @@
 package cloud.benchflow.testmanager.scheduler;
 
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.*;
-import static cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState.*;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.READY;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.TERMINATED;
+import static cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState.WAITING;
 
 import cloud.benchflow.dsl.definition.types.time.Time;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
@@ -57,6 +58,8 @@ public class TestTaskScheduler {
 
   private RunningStatesHandler runningStatesHandler;
 
+  private TestDispatcher testDispatcher;
+
   public TestTaskScheduler(CustomFutureReturningExecutor taskExecutorService,
       ScheduledThreadPoolExecutor timeoutScheduledThreadPoolExecutor) {
     this.taskExecutorService = taskExecutorService;
@@ -67,11 +70,16 @@ public class TestTaskScheduler {
     this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
 
     // start dispatcher in separate thread
-    new Thread(new TestDispatcher(readyQueue, runningQueue)).start();
+    new Thread(testDispatcher = new TestDispatcher(readyQueue, runningQueue)).start();
 
     this.runningStatesHandler = new RunningStatesHandler(testTasks, taskExecutorService, this);
     this.runningStatesHandler.initialize();
 
+  }
+
+  @VisibleForTesting
+  public TestDispatcher getTestDispatcher() {
+    return testDispatcher;
   }
 
   // used for testing
@@ -82,13 +90,13 @@ public class TestTaskScheduler {
 
   // used for testing
   @VisibleForTesting
-  protected RunningStatesHandler getRunningStatesHandler() {
+  public RunningStatesHandler getRunningStatesHandler() {
     return runningStatesHandler;
   }
 
   // used for testing
   @VisibleForTesting
-  protected void setRunningStatesHandler(RunningStatesHandler runningStatesHandler) {
+  public void setRunningStatesHandler(RunningStatesHandler runningStatesHandler) {
     this.runningStatesHandler = runningStatesHandler;
   }
 
@@ -136,8 +144,7 @@ public class TestTaskScheduler {
         logger.info("handleStartingTest: testState == " + testState);
 
         // Exit as soon as ready is executed, or the test has been terminated
-        if (prevTestState != null && testState != null && prevTestState == testState
-            && (testState == READY || testState == TERMINATED)) {
+        if (prevTestState == testState && (testState == READY || testState == TERMINATED)) {
           exit = true;
         }
 
@@ -159,16 +166,20 @@ public class TestTaskScheduler {
 
     boolean exit = false;
     BenchFlowTestState testState;
+    BenchFlowTestState prevTestState;
     TestRunningState testRunningState;
+    TestRunningState prevTestRunningState;
 
     try {
 
       testState = testModelDAO.getTestState(testID);
+      testRunningState = testModelDAO.getTestRunningState(testID);
 
       // Stop when we reach a final state
       while (!exit) {
 
-        BenchFlowTestState prevTestState = testState;
+        prevTestState = testState;
+        prevTestRunningState = testRunningState;
 
         try {
           testState = handleTestState(testID);
@@ -180,16 +191,30 @@ public class TestTaskScheduler {
         testRunningState = testModelDAO.getTestRunningState(testID);
         logger.info("handleRunningTest: prevTestState == " + prevTestState);
         logger.info("handleRunningTest: testState == " + testState);
+        logger.info("handleRunningTest: testRunningState == " + testRunningState);
+        logger.info("handleRunningTest: prevTestRunningState == " + prevTestRunningState);
 
         // Exit as soon as final state is executed
-        if (prevTestState != null && testState != null
-            && prevTestState.name().equals(testState.name())
-            && (testState == WAITING || testState == TERMINATED)) {
+        if (prevTestState == testState && (testState == WAITING || testState == TERMINATED)) {
           exit = true;
         }
-        // Exit while waiting for the Experiment Manager to notify about the scheduled
-        // experiment to be executed. This exits before the execution of HANDLE_EXPERIMENT_RESULT
-        else if (testRunningState != null && testRunningState.equals(HANDLE_EXPERIMENT_RESULT)) {
+
+        /*
+          Case HANDLE_EXPERIMENT_RESULT:
+          Exit while waiting for the Experiment Manager to notify about the scheduled
+          experiment to be executed. This exits before the execution of HANDLE_EXPERIMENT_RESULT
+        
+          Case TERMINATING:
+          Check depends if the system is waiting for input from the ExperimentManager or not. In
+          the inner loop for running experiment we exit, but in the outer loop (HERE) we check if
+          we expect a result from the ExperimentManager or not. If we do not expect it we run the
+          loop again so that the TERMINATED state handling gets executed, otherwise we wait for
+          the Experiment result to trigger the TERMINATED handling.
+         */
+        else if (testRunningState == TestRunningState.HANDLE_EXPERIMENT_RESULT
+            || testRunningState == TestRunningState.TERMINATING
+                && (prevTestRunningState == TestRunningState.HANDLE_EXPERIMENT_RESULT
+                    || prevTestRunningState == TestRunningState.DETERMINE_EXECUTE_VALIDATION_SET)) {
           exit = true;
         }
 
@@ -304,16 +329,13 @@ public class TestTaskScheduler {
 
     boolean exit = false;
     BenchFlowTestState testState;
-    TestRunningState testRunningState = testModelDAO.getTestRunningState(testID);
-    TestRunningState prevTestRunningState;
+    TestRunningState testRunningState;
 
     // set timeout if not already set, and a timeout is declared in the model
     setTimeoutIfNeeded(testID);
 
     // Stop when we reach a final state
     while (!exit) {
-
-      prevTestRunningState = testRunningState;
 
       try {
         testState = handleTestRunningState(testID);
@@ -324,16 +346,27 @@ public class TestTaskScheduler {
 
       testRunningState = testModelDAO.getTestRunningState(testID);
       logger.info("handleRunningTestState: testState == " + testState);
+      logger.info("handleRunningTestState: testRunningState == " + testRunningState);
 
       // Exit as soon as final state is executed
-      if (testState != null && (testState == WAITING || testState == TERMINATED)) {
+      if (testState == WAITING || testState == TERMINATED) {
         exit = true;
       }
-      // Exit while waiting for the Experiment Manager to notify about the scheduled
-      // experiment to be executed.
-      else if (prevTestRunningState != null && testRunningState != null
-          && prevTestRunningState == DETERMINE_EXECUTE_EXPERIMENTS
-          && testRunningState == HANDLE_EXPERIMENT_RESULT) {
+
+      /*
+        Case HANDLE_EXPERIMENT_RESULT:
+        Exit while waiting for the Experiment Manager to notify about the scheduled
+        experiment to be executed. This exits before the execution of HANDLE_EXPERIMENT_RESULT
+      
+        Case TERMINATING:
+        Check depends if the system is waiting for input from the ExperimentManager or not. In
+        the inner (HERE) loop for running experiment we exit, but in the outer loop we check if
+        we expect a result from the ExperimentManager or not. If we do not expect it we run the
+        loop again so that the TERMINATED state handling gets executed, otherwise we wait for
+        the Experiment result to trigger the TERMINATED handling.
+      */
+      else if (testRunningState == TestRunningState.HANDLE_EXPERIMENT_RESULT
+          || testRunningState == TestRunningState.TERMINATING) {
         exit = true;
       }
 
@@ -399,6 +432,10 @@ public class TestTaskScheduler {
           runningStatesHandler.removeNonReachableExperiments(testID);
           break;
 
+        case TERMINATING:
+          runningStatesHandler.terminating(testID);
+          break;
+
         default:
           break;
       }
@@ -411,7 +448,10 @@ public class TestTaskScheduler {
   }
 
   @VisibleForTesting
-  void handleTerminatedState(String testID) {
+  public void handleTerminatedState(String testID) {
+
+    logger.info("handleTerminatedState for " + testID);
+
     // remove max running time timeout, if present
     ScheduledFuture timeoutTaskFuture = timeoutTasks.remove(testID);
     if (timeoutTaskFuture != null) {
@@ -452,6 +492,10 @@ public class TestTaskScheduler {
           // cancel the current running task, but let it complete before
           cancelTask(testID);
 
+          // set to terminated
+          testModelDAO.setTestState(testID, TERMINATED);
+          testModelDAO.setTestTerminatedState(testID, TestTerminatedState.PARTIALLY_COMPLETE);
+
           break;
 
         case WAITING:
@@ -459,17 +503,24 @@ public class TestTaskScheduler {
           // cancel the current running task, but let it complete before
           cancelTask(testID);
 
+          // set to terminated
+          testModelDAO.setTestState(testID, TERMINATED);
+          testModelDAO.setTestTerminatedState(testID, TestTerminatedState.PARTIALLY_COMPLETE);
+
           break;
 
         case RUNNING:
 
           TestRunningState runningState = testModelDAO.getTestRunningState(testID);
 
+          // set to TERMINATING
+          testModelDAO.setTestRunningState(testID, TestRunningState.TERMINATING);
+
           // cancel the current running task, but let it complete before
           cancelTask(testID);
 
-          if (runningState == HANDLE_EXPERIMENT_RESULT
-              || runningState == DETERMINE_EXECUTE_VALIDATION_SET) {
+          if (runningState == TestRunningState.HANDLE_EXPERIMENT_RESULT
+              || runningState == TestRunningState.DETERMINE_EXECUTE_VALIDATION_SET) {
 
             logger.info("Need to execute AbortRunningTask");
 
@@ -480,12 +531,17 @@ public class TestTaskScheduler {
             Future abortRunningTestTaskFuture = taskExecutorService.submit(abortRunningTestTask);
 
             try {
+
               abortRunningTestTaskFuture.get();
+
             } catch (InterruptedException | ExecutionException e) {
               // nothing to do
               e.printStackTrace();
             }
 
+          } else {
+            // run the TERMINATING state to terminate
+            handleRunningTest(testID);
           }
 
           break;
@@ -528,10 +584,6 @@ public class TestTaskScheduler {
 
       // NOTE: enable if we need to cancel the executing task
       //      abortableFutureTask.cancel(false);
-
-      // set to terminated
-      testModelDAO.setTestState(testID, TERMINATED);
-      testModelDAO.setTestTerminatedState(testID, TestTerminatedState.PARTIALLY_COMPLETE);
 
       abortableFutureTask.abortTask();
 

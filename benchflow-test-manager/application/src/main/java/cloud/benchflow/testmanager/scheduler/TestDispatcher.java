@@ -4,6 +4,7 @@ import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.concurrent.BlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,7 @@ public class TestDispatcher implements Runnable {
   private final BlockingQueue<String> readyQueue;
   private final BlockingQueue<String> runningQueue;
 
-  private final TestTaskScheduler taskScheduler;
+  private TestTaskScheduler taskScheduler;
   private final BenchFlowTestModelDAO testModelDAO;
 
   public TestDispatcher(BlockingQueue<String> readyQueue, BlockingQueue<String> runningQueue) {
@@ -27,6 +28,11 @@ public class TestDispatcher implements Runnable {
 
     this.taskScheduler = BenchFlowTestManagerApplication.getTestTaskScheduler();
     this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
+  }
+
+  @VisibleForTesting
+  public void setTaskScheduler(TestTaskScheduler taskScheduler) {
+    this.taskScheduler = taskScheduler;
   }
 
   @Override

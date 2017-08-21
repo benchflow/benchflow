@@ -17,6 +17,8 @@ import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.TerminatedSta
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.BenchFlowTestState;
 import cloud.benchflow.testmanager.resources.BenchFlowExperimentResource;
 import cloud.benchflow.testmanager.resources.BenchFlowTestResource;
+import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
+import cloud.benchflow.testmanager.scheduler.running.RunningStatesHandler;
 import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import io.dropwizard.client.JerseyClientBuilder;
@@ -72,6 +74,8 @@ public class TestManagerSmokeTestsIT extends DockerComposeIT {
   private Client client;
   private BenchFlowExperimentManagerService benchFlowExperimentManagerServiceSpy;
   private BenchFlowTestModelDAO testModelDAO;
+  private TestTaskScheduler testTaskSchedulerSpy;
+  private RunningStatesHandler runningStatesHandlerSpy;
 
   @Before
   public void setUp() throws Exception {
@@ -91,6 +95,18 @@ public class TestManagerSmokeTestsIT extends DockerComposeIT {
         .setExperimentManagerService(benchFlowExperimentManagerServiceSpy);
 
     testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
+
+    // setup TestTaskScheduler for spy
+    testTaskSchedulerSpy = Mockito.spy(BenchFlowTestManagerApplication.getTestTaskScheduler());
+    BenchFlowTestManagerApplication.setTestTaskScheduler(testTaskSchedulerSpy);
+
+    testTaskSchedulerSpy.getTestDispatcher().setTaskScheduler(testTaskSchedulerSpy);
+
+    runningStatesHandlerSpy = Mockito.spy(testTaskSchedulerSpy.getRunningStatesHandler());
+    testTaskSchedulerSpy.setRunningStatesHandler(runningStatesHandlerSpy);
+
+    BenchFlowTestManagerApplication.getExperimentResource()
+        .setTestTaskScheduler(testTaskSchedulerSpy);
 
   }
 
@@ -270,6 +286,8 @@ public class TestManagerSmokeTestsIT extends DockerComposeIT {
     BenchFlowTestState testState = testModelDAO.getTestState(expectedTestID);
 
     Assert.assertEquals(BenchFlowTestState.TERMINATED, testState);
+
+    Mockito.verify(testTaskSchedulerSpy, Mockito.times(1)).handleTerminatedState(expectedTestID);
 
     // assert all test were executed
     Set<Long> experimentNumbers = testModelDAO.getExperimentNumbers(getExpectedTestID(testName));

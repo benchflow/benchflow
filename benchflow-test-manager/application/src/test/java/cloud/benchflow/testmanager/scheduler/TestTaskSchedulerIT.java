@@ -16,7 +16,6 @@ import cloud.benchflow.testmanager.helpers.constants.TestFiles;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.RunningState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
-import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestRunningState;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState;
 import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.models.explorationspace.MongoCompatibleExplorationSpace;
@@ -40,7 +39,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import javax.ws.rs.Path;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -71,36 +69,40 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder(new File("target"));
 
-  private TestTaskScheduler testTaskScheduler;
-  private RunningStatesHandler notMockedRunningStatesHandler;
-  private RunningStatesHandler runningStatesHandler;
+  private TestTaskScheduler testTaskSchedulerSpy;
+  private RunningStatesHandler runningStatesHandlerSpy;
   private BenchFlowTestModelDAO testModelDAO;
   private BenchFlowExperimentModelDAO experimentModelDAO;
   private ExplorationModelDAO explorationModelDAO;
   private UserDAO userDAO;
   private MinioService minioService;
-  private BenchFlowExperimentManagerService experimentManagerService;
+  private BenchFlowExperimentManagerService experimentManagerServiceSpy;
   private CustomFutureReturningExecutor executorService;
   private User user;
 
   @Before
   public void setUp() throws Exception {
 
-    testTaskScheduler = BenchFlowTestManagerApplication.getTestTaskScheduler();
-    notMockedRunningStatesHandler = testTaskScheduler.getRunningStatesHandler();
-    testTaskScheduler
-        .setRunningStatesHandler(Mockito.spy(testTaskScheduler.getRunningStatesHandler()));
-    runningStatesHandler = testTaskScheduler.getRunningStatesHandler();
-    executorService = testTaskScheduler.getTaskExecutorService();
+    testTaskSchedulerSpy = Mockito.spy(BenchFlowTestManagerApplication.getTestTaskScheduler());
+    BenchFlowTestManagerApplication.setTestTaskScheduler(testTaskSchedulerSpy);
+    BenchFlowTestManagerApplication.getExperimentResource()
+        .setTestTaskScheduler(testTaskSchedulerSpy);
+    testTaskSchedulerSpy.getTestDispatcher().setTaskScheduler(testTaskSchedulerSpy);
+
+    runningStatesHandlerSpy = Mockito.spy(testTaskSchedulerSpy.getRunningStatesHandler());
+    testTaskSchedulerSpy.setRunningStatesHandler(runningStatesHandlerSpy);
+
+    executorService = testTaskSchedulerSpy.getTaskExecutorService();
 
     userDAO = BenchFlowTestManagerApplication.getUserDAO();
     testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
     experimentModelDAO = BenchFlowTestManagerApplication.getExperimentModelDAO();
     explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
     minioService = BenchFlowTestManagerApplication.getMinioService();
-    BenchFlowTestManagerApplication.setExperimentManagerService(
-        Mockito.spy(BenchFlowTestManagerApplication.getExperimentManagerService()));
-    experimentManagerService = BenchFlowTestManagerApplication.getExperimentManagerService();
+
+    experimentManagerServiceSpy =
+        Mockito.spy(BenchFlowTestManagerApplication.getExperimentManagerService());
+    BenchFlowTestManagerApplication.setExperimentManagerService(experimentManagerServiceSpy);
 
     user = userDAO.addUser(TestConstants.TEST_USER_NAME);
 
@@ -126,7 +128,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
         setUpExplorationMocks(testID, expectedNumExperiments, testDefinitionString);
 
     // handle in scheduler
-    testTaskScheduler.handleStartingTest(testID);
+    testTaskSchedulerSpy.handleStartingTest(testID);
 
     // check when the test reaches the final state, with a timeout
     long timeout = 3 * 60 * 1000; //3 minutes
@@ -148,6 +150,8 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     // assert that test has been set as TERMINATED
     Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
         testModelDAO.getTestState(testID));
+
+    Mockito.verify(testTaskSchedulerSpy, Mockito.times(1)).handleTerminatedState(testID);
 
     // assert that the complete exploration space has been execution
     List<Integer> expectedIndices = new ArrayList<>();
@@ -188,7 +192,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
         setUpExplorationMocks(testID, expectedNumExperiments, testDefinitionString);
 
     // handle in scheduler
-    testTaskScheduler.handleStartingTest(testID);
+    testTaskSchedulerSpy.handleStartingTest(testID);
 
     // check when the test reaches the final state, with a timeout
     long timeout = 1 * 60 * 1000; //3 minutes
@@ -210,6 +214,8 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     // assert that test has been set as TERMINATED
     Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
         testModelDAO.getTestState(testID));
+
+    Mockito.verify(testTaskSchedulerSpy, Mockito.times(1)).handleTerminatedState(testID);
 
     // assert that the complete exploration space has been execution
     List<Integer> explorationPointIndices =
@@ -250,7 +256,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
         setUpExplorationMocks(testID, expectedNumExperiments, testDefinitionString);
 
     // handle in scheduler
-    testTaskScheduler.handleStartingTest(testID);
+    testTaskSchedulerSpy.handleStartingTest(testID);
 
     // check when the test reaches the final state, with a timeout
     long timeout = 2 * 60 * 1000; //3 minutes
@@ -272,6 +278,8 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     // assert that test has been set as TERMINATED
     Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
         testModelDAO.getTestState(testID));
+
+    Mockito.verify(testTaskSchedulerSpy, Mockito.times(1)).handleTerminatedState(testID);
 
     // assert that the complete exploration space has been execution
     List<Integer> expectedIndices = new ArrayList<>();
@@ -316,7 +324,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
         setUpExplorationMocks(testID, expectedNumExperiments, testDefinitionString);
 
     // handle in scheduler
-    testTaskScheduler.handleStartingTest(testID);
+    testTaskSchedulerSpy.handleStartingTest(testID);
 
     // check when the test reaches the final state, with a timeout
     long timeout = 2 * 60 * 1000; //2 minutes
@@ -339,6 +347,8 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
         testModelDAO.getTestState(testID));
 
+    Mockito.verify(testTaskSchedulerSpy, Mockito.times(1)).handleTerminatedState(testID);
+
   }
 
   @Test
@@ -357,7 +367,8 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       String testIDCalledMethod = (String) invocationOnMock.getArguments()[0];
 
       // Execute the real method
-      notMockedRunningStatesHandler.determineExplorationStrategy(testIDCalledMethod);
+
+      invocationOnMock.callRealMethod();
 
       try {
         long timeout = testModelDAO.getMaxRunningTime(testIDCalledMethod).toMillisPart();
@@ -367,7 +378,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       }
 
       return null;
-    }).when(runningStatesHandler).determineExplorationStrategy(Matchers.anyString());
+    }).when(runningStatesHandlerSpy).determineExplorationStrategy(Matchers.anyString());
 
     // Wait in ADD_STORED_KNOWLEDGE state
     Mockito.doAnswer(invocationOnMock -> {
@@ -382,12 +393,12 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       }
 
       return null;
-    }).when(runningStatesHandler).addStoredKnowledge(Matchers.anyString());
+    }).when(runningStatesHandlerSpy).addStoredKnowledge(Matchers.anyString());
 
     setupTestOnMinio(testID, testDefinitionString);
 
     // handle in scheduler
-    testTaskScheduler.handleStartingTest(testID);
+    testTaskSchedulerSpy.handleStartingTest(testID);
 
     // check when the test reaches the final state, with a timeout
     long timeout = 2 * 60 * 1000; //2 minutes
@@ -406,9 +417,14 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
         testModelDAO.getTestState(testID));
 
+    Mockito.verify(testTaskSchedulerSpy, Mockito.times(1)).handleTerminatedState(testID);
+
     // assert that test has been set as PARTIALLY_COMPLETE
     Assert.assertEquals(TestTerminatedState.PARTIALLY_COMPLETE,
         testModelDAO.getTestTerminatedState(testID));
+
+    // assert that terminating was called
+    Mockito.verify(runningStatesHandlerSpy, Mockito.times(1)).terminating(testID);
 
   }
 
@@ -432,16 +448,19 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
           RunningState.DETERMINE_EXECUTE_TRIALS, null);
 
       return null;
-    }).when(experimentManagerService).runBenchFlowExperiment(Matchers.anyString());
+    }).when(experimentManagerServiceSpy).runBenchFlowExperiment(Matchers.anyString());
 
     // set the experiment state as terminated when an abort is triggered
+    // and inform test task scheduler to handle next state
     Mockito.doAnswer(invocationOnMock -> {
       String experimentID = (String) invocationOnMock.getArguments()[0];
 
       experimentModelDAO.setExperimentState(experimentID, TERMINATED, null, COMPLETED);
 
+      scheduleHandleRunningTest(testID);
+
       return null;
-    }).when(experimentManagerService).abortBenchFlowExperiment(Matchers.anyString());
+    }).when(experimentManagerServiceSpy).abortBenchFlowExperiment(Matchers.anyString());
 
     Mockito.doAnswer(invocationOnMock -> {
 
@@ -455,12 +474,12 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       }
 
       return null;
-    }).when(runningStatesHandler).handleExperimentResult(Matchers.anyString());
+    }).when(runningStatesHandlerSpy).handleExperimentResult(Matchers.anyString());
 
     setupTestOnMinio(testID, testDefinitionString);
 
     // handle in scheduler
-    testTaskScheduler.handleStartingTest(testID);
+    testTaskSchedulerSpy.handleStartingTest(testID);
 
     // check when the test reaches the final state, with a timeout
     long timeout = 2 * 60 * 1000; //3 minutes
@@ -479,6 +498,8 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
         testModelDAO.getTestState(testID));
 
+    Mockito.verify(testTaskSchedulerSpy, Mockito.times(1)).handleTerminatedState(testID);
+
     // assert that test has been set as PARTIALLY_COMPLETE
     Assert.assertEquals(TestTerminatedState.PARTIALLY_COMPLETE,
         testModelDAO.getTestTerminatedState(testID));
@@ -492,9 +513,26 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     Assert.assertEquals(TERMINATED, experimentsArray[expectedNumExperiments - 1].getState());
 
     // assert that test was removed from experiment-manager
-    Mockito.verify(experimentManagerService, Mockito.times(1))
+    Mockito.verify(experimentManagerServiceSpy, Mockito.times(1))
         .abortBenchFlowExperiment(Matchers.anyString());
 
+    // assert that terminating was called
+    Mockito.verify(runningStatesHandlerSpy, Mockito.times(1)).terminating(testID);
+
+  }
+
+  private void scheduleHandleRunningTest(String testID) {
+    new Thread(() -> {
+
+      // TODO - try to find a way to deterministically execute some code, after a given mocked method is called.
+      try {
+        Thread.sleep(2000);
+        testTaskSchedulerSpy.handleRunningTest(testID);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+
+    }).start();
   }
 
   private CountDownLatch setUpExplorationMocks(String testID, int expectedNumExperiments,
@@ -513,22 +551,12 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
 
       experimentModelDAO.setExperimentState(experimentID, TERMINATED, null, COMPLETED);
 
-      new Thread(() -> {
-
-        // TODO - try to find a way to deterministically execute some code, after a given mocked method is called.
-        try {
-          Thread.sleep(2000);
-          testTaskScheduler.handleRunningTest(testID);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-
-      }).start();
+      scheduleHandleRunningTest(testID);
 
       countDownLatch.countDown();
 
       return null;
-    }).when(experimentManagerService).runBenchFlowExperiment(Matchers.anyString());
+    }).when(experimentManagerServiceSpy).runBenchFlowExperiment(Matchers.anyString());
 
     setupTestOnMinio(testID, testDefinitionString);
 
@@ -575,12 +603,12 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
   //      }
   //
   //      return null;
-  //    }).doCallRealMethod().when(testTaskScheduler).handleStartState(Matchers.anyString());
+  //    }).doCallRealMethod().when(testTaskSchedulerSpy).handleStartState(Matchers.anyString());
   //
   //    setupTestOnMinio(testID, testDefinitionString);
   //
   //    // handle in scheduler
-  //    testTaskScheduler.handleStartingTest(testID);
+  //    testTaskSchedulerSpy.handleStartingTest(testID);
   //
   //    // check when the test reaches the final state, with a timeout
   //    long timeout = 1 * 60 * 1000; //3 minutes
