@@ -340,7 +340,9 @@ public class ExperimentTaskScheduler {
       then change the state to TERMINATED otherwise the state might be overwritten.
       */
 
-      // lock to ensure execution is atomic
+      // Lock to ensure execution is executed in an atomic fashion.
+      // It is practically atomic since the handleStartingExperiment and handleRunningExperiment
+      // are the only two other entry points and these methods are synchronized.
       synchronized (this) {
 
         BenchFlowExperimentState experimentState =
