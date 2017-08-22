@@ -39,7 +39,7 @@ import org.mockito.Mockito;
  */
 public class BenchFlowExperimentManagerApplicationTestModeIT extends DockerComposeIT {
 
-  private static final int TEST_PORT = 8080;
+  private static final int TEST_PORT = 8085;
   private static final String TEST_ADDRESS = "localhost:" + TEST_PORT;
 
   @Rule
