@@ -140,7 +140,7 @@ public class StartTask extends AbortableCallable<Boolean> {
         definitionInputStream);
     minioService.copyDeploymentDescriptorForDriversMaker(experimentID, driversMakerExperimentID,
         experimentNumber);
-    
+
     // save models for experiment
     List<String> bpmnFileNames = minioService.getAllTestBPMNModels(experimentID);
     bpmnFileNames.forEach(fileName -> minioService
