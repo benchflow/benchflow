@@ -424,6 +424,9 @@ public class TestTaskScheduler {
       // cancel the current running task, but let it complete before
       cancelTask(testID);
 
+      // Lock to ensure execution is executed in an atomic fashion.
+      // It is practically atomic since the handleStartingExperiment and handleRunningExperiment
+      // are the only two other entry points and these methods are synchronized.
       synchronized (this) {
 
         BenchFlowTestState testState = testModelDAO.getTestState(testID);
