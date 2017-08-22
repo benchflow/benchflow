@@ -367,7 +367,6 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       String testIDCalledMethod = (String) invocationOnMock.getArguments()[0];
 
       // Execute the real method
-
       invocationOnMock.callRealMethod();
 
       try {
@@ -378,6 +377,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       }
 
       return null;
+
     }).when(runningStatesHandlerSpy).determineExplorationStrategy(Matchers.anyString());
 
     // Wait in ADD_STORED_KNOWLEDGE state
@@ -393,6 +393,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       }
 
       return null;
+
     }).when(runningStatesHandlerSpy).addStoredKnowledge(Matchers.anyString());
 
     setupTestOnMinio(testID, testDefinitionString);
@@ -482,7 +483,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
     testTaskSchedulerSpy.handleStartingTest(testID);
 
     // check when the test reaches the final state, with a timeout
-    long timeout = 2 * 60 * 1000; //3 minutes
+    long timeout = 2 * 60 * 1000; // 2 minutes
 
     WaitTestCheck waitTestCheck = () -> {
 
