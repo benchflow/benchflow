@@ -60,6 +60,7 @@ public class ShowLogsCommand extends Configurable<ShowLogsConfig> implements Com
         throw new RunIdNotFoundException("Run id not found");
       }
 
+      //TODO: determine the expected HTTP status from Faban, and validate we get that one
       HttpEntity ent = resp.getEntity();
       InputStream in = resp.getEntity().getContent();
       BufferedReader reader =

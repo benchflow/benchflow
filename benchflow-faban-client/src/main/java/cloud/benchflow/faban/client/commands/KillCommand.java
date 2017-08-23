@@ -76,7 +76,8 @@ public class KillCommand extends Configurable<RunConfig> implements Command<RunS
         throw new EmptyHarnessResponseException();
       }
 
-      return new RunStatus(new BasicResponseHandler().handleEntity(resp.getEntity()), runId);
+      //Handle generic HTTP exceptions (TODO: determine the expected HTTP status from Faban, and validate we get that one)
+      return new RunStatus(new BasicResponseHandler().handleResponse(resp), runId);
 
     } catch (URISyntaxException e) {
       throw new MalformedURIException("Attempted to kill to malformed URI " + e.getInput(), e);

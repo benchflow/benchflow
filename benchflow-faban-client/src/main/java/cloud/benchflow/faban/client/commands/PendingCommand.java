@@ -59,6 +59,7 @@ public class PendingCommand extends Configurable implements Command<RunQueue> {
         throw new FabanClientBadRequestException("Bad request");
       }
 
+      //TODO: determine the expected HTTP status from Faban, and validate we get that one
       HttpEntity ent = resp.getEntity();
       InputStream in = resp.getEntity().getContent();
 

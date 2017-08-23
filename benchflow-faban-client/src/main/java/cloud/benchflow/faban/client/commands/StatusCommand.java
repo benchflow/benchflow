@@ -61,9 +61,9 @@ public class StatusCommand extends Configurable<RunConfig> implements Command<Ru
         throw new FabanClientBadRequestException("Illegal status request");
       }
 
+      //Handle generic HTTP exceptions (TODO: determine the expected HTTP status from Faban, and validate we get that one)
       //TODO: check that the call to .handleEntity(..) actually returns the expected string
-      RunStatus runStatus =
-          new RunStatus(new BasicResponseHandler().handleEntity(resp.getEntity()), runId);
+      RunStatus runStatus = new RunStatus(new BasicResponseHandler().handleResponse(resp), runId);
 
       return runStatus;
 

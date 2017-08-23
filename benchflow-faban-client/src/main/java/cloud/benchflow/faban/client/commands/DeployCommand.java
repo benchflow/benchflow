@@ -86,7 +86,8 @@ public class DeployCommand extends Configurable<DeployConfig> implements Command
         throw new FabanClientBadRequestException("Bad request");
       }
 
-      DeployStatus dresp = new DeployStatus(resp.getStatusLine().getStatusCode());
+      //TODO: determine the expected HTTP status from Faban, and validate we get that one
+      DeployStatus dresp = new DeployStatus(status);
 
       return dresp;
 

@@ -66,9 +66,10 @@ public class RunInfoCommand extends Configurable<RunConfig> implements Command<R
         throw new FabanClientBadRequestException("Illegal runInfo request");
       }
 
+      //Handle generic HTTP exceptions (TODO: determine the expected HTTP status from Faban, and validate we get that one)
       //TODO: check that the call to .handleEntity(..) actually returns the expected string
-      RunInfo runInfo = new RunInfo(
-          Jsoup.parse(new BasicResponseHandler().handleEntity(resp.getEntity())), runId);
+      RunInfo runInfo =
+          new RunInfo(Jsoup.parse(new BasicResponseHandler().handleResponse(resp)), runId);
 
       return runInfo;
 
