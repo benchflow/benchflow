@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Simone D'Avico (simonedavico@gmail.com) - Created on 05/03/16.
  * @author Vincenzo Ferme (info@vincenzoferme.it)
+ * @author Jesper Findahl (jesper.findahl@gmail.com)
  */
 @Path("/v1/users/{username}/tests/{testName}/{testNumber}/experiments/{experimentNumber}")
 @Api(value = "benchflow-experiment")
@@ -170,4 +171,5 @@ public class BenchFlowExperimentResource {
     new Thread(() -> experimentTaskScheduler.abortExperiment(experimentID)).start();
 
   }
+
 }

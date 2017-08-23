@@ -39,7 +39,7 @@ import org.mockito.Mockito;
  */
 public class BenchFlowExperimentManagerApplicationTestModeIT extends DockerComposeIT {
 
-  private static final int TEST_PORT = 8080;
+  private static final int TEST_PORT = 8085;
   private static final String TEST_ADDRESS = "localhost:" + TEST_PORT;
 
   @Rule
@@ -68,8 +68,6 @@ public class BenchFlowExperimentManagerApplicationTestModeIT extends DockerCompo
   public void setUp() throws Exception {
     minioServiceSpy = Mockito.spy(BenchFlowExperimentManagerApplication.getMinioService());
     BenchFlowExperimentManagerApplication.setMinioService(minioServiceSpy);
-
-
 
     executorService = BenchFlowExperimentManagerApplication.getExperimentTaskScheduler()
         .getExperimentTaskExecutorService();
@@ -164,7 +162,7 @@ public class BenchFlowExperimentManagerApplicationTestModeIT extends DockerCompo
     Assert.assertNotNull(experimentModelDAO.getExperimentModel(experimentID));
 
     // wait long enough for tasks to start to be executed
-    executorService.awaitTermination(2, TimeUnit.SECONDS);
+    executorService.awaitTermination(5, TimeUnit.SECONDS);
 
     Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
         experimentModelDAO.getExperimentState(experimentID));
@@ -201,7 +199,7 @@ public class BenchFlowExperimentManagerApplicationTestModeIT extends DockerCompo
       Assert.assertNotNull(experimentModelDAO.getExperimentModel(experimentID));
 
       // wait long enough for tasks to start to be executed
-      executorService.awaitTermination(2, TimeUnit.SECONDS);
+      executorService.awaitTermination(5, TimeUnit.SECONDS);
 
       Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
           experimentModelDAO.getExperimentState(experimentID));
@@ -251,7 +249,7 @@ public class BenchFlowExperimentManagerApplicationTestModeIT extends DockerCompo
     Assert.assertEquals(Status.NO_CONTENT.getStatusCode(), abortResponse.getStatus());
 
     // wait long enough for tasks to start to be executed
-    executorService.awaitTermination(10, TimeUnit.SECONDS);
+    executorService.awaitTermination(5, TimeUnit.SECONDS);
 
     Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
         experimentModelDAO.getExperimentState(experimentID));

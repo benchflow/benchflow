@@ -15,6 +15,7 @@ import io.minio.errors.NoResponseException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -42,14 +43,15 @@ public class MinioService {
       new RetryPolicy().retryOn(NoResponseException.class) // upon no response from server
           .retryOn(IOException.class) // upon connection error
           .retryOn(ErrorResponseException.class) // upon unsuccessful execution
+          .retryOn(SocketTimeoutException.class) // not in minio client specification, but happens
           .abortOn(InvalidBucketNameException.class) // upon invalid bucket name
           .abortOn(InvalidKeyException.class) // upon an invalid access key or secret key
           .abortOn(XmlPullParserException.class) // upon parsing response XML
           .abortOn(InternalException.class) // upon internal library error
           .abortOn(NoSuchAlgorithmException.class) // upon requested algorithm was not found during
           // signature calculation
-          .abortOn(InsufficientDataException.class) // Thrown to indicate that reading given InputStream
-          // gets EOFException before reading given length.
+          .abortOn(InsufficientDataException.class) // Thrown to indicate that reading given
+          // InputStream gets EOFException before reading given length.
           .withDelay(1, TimeUnit.SECONDS).withMaxRetries(numConnectionRetries);
 
   public MinioService(MinioClient minioClient, int numConnectionRetries) {

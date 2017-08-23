@@ -6,18 +6,20 @@ import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 
+import cloud.benchflow.experimentmanager.api.request.FabanStatusRequest;
 import cloud.benchflow.experimentmanager.configurations.BenchFlowExperimentManagerConfiguration;
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
+import cloud.benchflow.experimentmanager.constants.BenchFlowConstants.TrialIDElements;
 import cloud.benchflow.experimentmanager.helpers.data.BenchFlowData;
 import cloud.benchflow.experimentmanager.helpers.data.MinioTestData;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.experimentmanager.models.BenchFlowExperimentModel.TerminatedState;
 import cloud.benchflow.experimentmanager.resources.BenchFlowExperimentResource;
+import cloud.benchflow.experimentmanager.resources.TrialResource;
 import cloud.benchflow.experimentmanager.services.external.BenchFlowTestManagerService;
 import cloud.benchflow.experimentmanager.services.external.DriversMakerService;
 import cloud.benchflow.experimentmanager.services.external.MinioService;
 import cloud.benchflow.experimentmanager.services.external.faban.FabanManagerService;
-import cloud.benchflow.experimentmanager.services.external.faban.FabanStatus;
 import cloud.benchflow.experimentmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.responses.DeployStatus;
@@ -44,7 +46,7 @@ import org.mockito.Mockito;
  */
 public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
 
-  private static final int TEST_PORT = 8080;
+  private static final int TEST_PORT = 8085;
   private static final String TEST_ADDRESS = "localhost:" + TEST_PORT;
 
   @Rule
@@ -117,8 +119,16 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
         Mockito.anyString(), Mockito.any(File.class));
 
     // we mock this because otherwise waits 60s for first request to Faban
-    Mockito.doReturn(new FabanStatus(trialID, StatusCode.COMPLETED, Result.PASSED))
-        .when(fabanManagerServiceSpy).pollForTrialStatus(trialID, fabanRunId);
+    Mockito.doAnswer(invocationOnMock -> {
+
+      FabanStatusRequest fabanStatusRequest =
+          new FabanStatusRequest(trialID, StatusCode.COMPLETED, Result.PASSED);
+
+      sendFabanStatus(trialID, fabanStatusRequest);
+
+      return null;
+
+    }).when(fabanManagerServiceSpy).pollForTrialStatus(trialID, fabanRunId);
 
     // Drivers Maker Stub
     stubFor(post(urlEqualTo(DriversMakerService.GENERATE_BENCHMARK_PATH))
@@ -148,7 +158,7 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
 
     // TODO - alternative would be to have configuration setting to change first polling to 0s
     // wait long enough for tasks to start to be executed
-    executorService.awaitTermination(10, TimeUnit.SECONDS);
+    executorService.awaitTermination(5, TimeUnit.SECONDS);
 
     Assert.assertEquals(BenchFlowExperimentState.TERMINATED,
         experimentModelDAO.getExperimentState(experimentID));
@@ -168,6 +178,17 @@ public class BenchFlowExperimentManagerApplicationIT extends DockerComposeIT {
         .path(BenchFlowExperimentResource.RUN_ACTION_PATH).request().post(null);
 
     Assert.assertEquals(Response.Status.PRECONDITION_FAILED.getStatusCode(), response.getStatus());
+  }
+
+  private void sendFabanStatus(String trialID, FabanStatusRequest fabanStatusRequest) {
+    // send status to experiment manager
+    TrialResource trialResource = BenchFlowExperimentManagerApplication.getTrialResource();
+
+    TrialIDElements trialIDElements = new TrialIDElements(trialID);
+
+    trialResource.setFabanResult(trialIDElements.getUsername(), trialIDElements.getTestName(),
+        trialIDElements.getTestNumber(), trialIDElements.getExperimentNumber(),
+        trialIDElements.getTrialNumber(), fabanStatusRequest);
   }
 
 }

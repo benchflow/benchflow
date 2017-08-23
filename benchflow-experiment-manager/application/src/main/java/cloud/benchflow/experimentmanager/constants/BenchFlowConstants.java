@@ -68,6 +68,8 @@ public class BenchFlowConstants {
         + EXPERIMENTS_PATH + experimentNumber + TRIALS_PATH + trialNumber;
   }
 
+
+
   public static int getTrialNumberFromTrialID(String trialID) {
 
     String[] trialIDArray = trialID.split(MODEL_ID_DELIMITER_REGEX);
@@ -100,6 +102,44 @@ public class BenchFlowConstants {
     String experimentNumber = trialIDArray[3];
 
     return Integer.parseInt(experimentNumber);
+  }
+
+  public static class TrialIDElements {
+
+    private String username;
+    private String testName;
+    private int testNumber;
+    private int experimentNumber;
+    private int trialNumber;
+
+    public TrialIDElements(String trialID) {
+      String[] trialIDArray = trialID.split(MODEL_ID_DELIMITER_REGEX);
+      this.username = trialIDArray[0];
+      this.testName = trialIDArray[1];
+      this.testNumber = Integer.parseInt(trialIDArray[2]);
+      this.experimentNumber = Integer.parseInt(trialIDArray[3]);
+      this.trialNumber = Integer.parseInt(trialIDArray[4]);
+    }
+
+    public String getUsername() {
+      return username;
+    }
+
+    public String getTestName() {
+      return testName;
+    }
+
+    public int getTestNumber() {
+      return testNumber;
+    }
+
+    public int getExperimentNumber() {
+      return experimentNumber;
+    }
+
+    public int getTrialNumber() {
+      return trialNumber;
+    }
   }
 
 }

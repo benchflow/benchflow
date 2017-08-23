@@ -183,7 +183,7 @@ public class BenchFlowExperimentModel {
   }
 
   public enum RunningState {
-    DETERMINE_EXECUTE_TRIALS, HANDLE_TRIAL_RESULT, CHECK_TERMINATION_CRITERIA
+    DETERMINE_EXECUTE_TRIALS, HANDLE_TRIAL_RESULT, CHECK_TERMINATION_CRITERIA, TERMINATING
   }
 
   public enum TerminatedState {

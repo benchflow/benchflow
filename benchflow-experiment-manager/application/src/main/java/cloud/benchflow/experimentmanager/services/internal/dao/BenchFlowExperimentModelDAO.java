@@ -42,6 +42,16 @@ public class BenchFlowExperimentModelDAO extends AbstractDAO {
         .equal(experimentID).get();
   }
 
+  public synchronized boolean experimentExists(String experimentID) {
+
+    logger.info("getExperimentState: " + experimentID);
+
+    BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
+
+    return experimentModel != null;
+
+  }
+
   public synchronized BenchFlowExperimentState getExperimentState(String experimentID)
       throws BenchFlowExperimentIDDoesNotExistException {
 
@@ -59,7 +69,7 @@ public class BenchFlowExperimentModelDAO extends AbstractDAO {
   public synchronized BenchFlowExperimentState setExperimentState(String experimentID,
       BenchFlowExperimentState state) {
 
-    logger.info("setExperimentRunningState: " + experimentID + " to " + state.name());
+    logger.info("setExperimentState: " + experimentID + " to " + state.name());
 
     BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
 
@@ -74,10 +84,12 @@ public class BenchFlowExperimentModelDAO extends AbstractDAO {
     return experimentModel.getState();
   }
 
+
+
   public synchronized RunningState getRunningState(String experimentID)
       throws BenchFlowExperimentIDDoesNotExistException {
 
-    logger.info("getExperimentState: " + experimentID);
+    logger.info("getRunningState: " + experimentID);
 
     BenchFlowExperimentModel experimentModel = getExperimentModel(experimentID);
 
