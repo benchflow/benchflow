@@ -211,6 +211,13 @@ public class FabanManagerService {
       will then invoke the Scheduler again and then the life cycle continues.
      */
 
+    RetryPolicy pollRetryPolicy = new RetryPolicy().retryOn(FabanClientIOException.class) // retry if we get a timeout or similar
+        .abortOn(IllegalRunStatusException.class).abortOn(MalformedURIException.class)
+        .abortOn(FabanClientBadRequestException.class).abortOn(IllegalRunInfoResultException.class)
+        .abortOn(RunIdNotFoundException.class).withDelay(10, TimeUnit.SECONDS)
+        .withMaxRetries(numConnectionRetries);
+
+
     // execute in a thread to be asynchronous (similar to when faban manager is a service)
     new Thread(() -> {
 
@@ -229,7 +236,7 @@ public class FabanManagerService {
           e.printStackTrace();
         }
 
-        status = fabanClient.status(runId);
+        status = Failsafe.with(pollRetryPolicy).get(() -> fabanClient.status(runId));
 
         while (status.getStatus().equals(StatusCode.QUEUED)
             || status.getStatus().equals(StatusCode.RECEIVED)
@@ -242,18 +249,16 @@ public class FabanManagerService {
             e.printStackTrace();
           }
 
-          status = fabanClient.status(runId);
+          status = Failsafe.with(pollRetryPolicy).get(() -> fabanClient.status(runId));
 
         }
 
-        RunInfo runInfo = fabanClient.runInfo(runId);
+        RunInfo runInfo = Failsafe.with(pollRetryPolicy).get(() -> fabanClient.runInfo(runId));
 
         fabanStatusRequest =
             new FabanStatusRequest(trialID, status.getStatus(), runInfo.getResult());
 
-      } catch (FabanClientIOException | IllegalRunStatusException | MalformedURIException
-          | FabanClientBadRequestException | IllegalRunInfoResultException
-          | RunIdNotFoundException e) {
+      } catch (Exception e) {
         // TODO - handle me
         e.printStackTrace();
 

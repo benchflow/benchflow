@@ -7,11 +7,13 @@ import static cloud.benchflow.experimentmanager.demo.Hashing.hashKey;
 
 import cloud.benchflow.experimentmanager.constants.BenchFlowConstants;
 import io.minio.MinioClient;
+import io.minio.Result;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
 import io.minio.errors.InvalidBucketNameException;
 import io.minio.errors.NoResponseException;
+import io.minio.messages.Item;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -19,6 +21,8 @@ import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
@@ -216,6 +220,32 @@ public class MinioService {
         + BenchFlowConstants.BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER + modelName;
 
     return getInputStreamObject(objectName);
+  }
+
+  public List<String> getAllTestBPMNModels(final String experimentID) {
+
+    logger.info("getAllTestBPMNModels: " + experimentID);
+
+    List<String> modelNames = new ArrayList<>();
+
+    final String objectName = minioCompatibleID(experimentID) + MINIO_ID_DELIMITER
+        + BenchFlowConstants.BPMN_MODELS_FOLDER_NAME + MINIO_ID_DELIMITER;
+
+    try {
+
+      Failsafe.with(minioConnectionRetryPolicy).run(() -> {
+        for (Result<Item> item : minioClient.listObjects(TESTS_BUCKET, objectName)) {
+          modelNames.add(item.get().objectName().replace(objectName, ""));
+        }
+      });
+
+
+    } catch (Exception e) {
+      // TODO - handle exception
+      logger.error("Exception in getAllTestBPMNModels: " + objectName, e);
+    }
+
+    return modelNames;
   }
 
   public void copyExperimentBPMNModelForDriversMaker(String experimentID,

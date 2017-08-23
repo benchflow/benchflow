@@ -3,7 +3,6 @@ package cloud.benchflow.experimentmanager.tasks.start;
 import cloud.benchflow.dsl.BenchFlowExperimentAPI;
 import cloud.benchflow.dsl.definition.BenchFlowExperiment;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
-import cloud.benchflow.dsl.definition.workload.Workload;
 import cloud.benchflow.dsl.demo.DemoConverter;
 import cloud.benchflow.experimentmanager.BenchFlowExperimentManagerApplication;
 import cloud.benchflow.experimentmanager.demo.DriversMakerCompatibleID;
@@ -19,11 +18,10 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
+import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.collection.JavaConverters;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-19
@@ -143,19 +141,10 @@ public class StartTask extends AbortableCallable<Boolean> {
     minioService.copyDeploymentDescriptorForDriversMaker(experimentID, driversMakerExperimentID,
         experimentNumber);
 
-    // convert to Java compatible type
-    Collection<Workload> workloadCollection =
-        JavaConverters.asJavaCollectionConverter(experiment.workload().values()).asJavaCollection();
-
-    for (Workload workload : workloadCollection) {
-
-      for (String operationName : JavaConverters.asJavaCollectionConverter(workload.operations())
-          .asJavaCollection()) {
-        minioService.copyExperimentBPMNModelForDriversMaker(experimentID, driversMakerExperimentID,
-            operationName);
-      }
-
-    }
+    // save models for experiment
+    List<String> bpmnFileNames = minioService.getAllTestBPMNModels(experimentID);
+    bpmnFileNames.forEach(fileName -> minioService
+        .copyExperimentBPMNModelForDriversMaker(experimentID, driversMakerExperimentID, fileName));
 
     // TODO - think how to handle this is a cleaner way
     // copy necessary mock.bpmn

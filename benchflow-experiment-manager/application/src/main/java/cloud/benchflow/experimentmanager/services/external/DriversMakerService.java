@@ -56,24 +56,30 @@ public class DriversMakerService {
     body.setTrials(numTrials);
 
     // add retry policy for resilience
-    RetryPolicy retryPolicy =
-        new RetryPolicy()
-            .retryIf(
-                (Response response) -> response.getStatus() != Response.Status.OK.getStatusCode())
-            .withDelay(1, TimeUnit.SECONDS).withMaxRetries(numConnectionRetries);
+    RetryPolicy retryPolicy = new RetryPolicy().retryWhen(NullPointerException.class) // some times
+        .retryIf((Response response) -> response == null
+            || response.getStatus() != Response.Status.OK.getStatusCode())
+        .withDelay(1, TimeUnit.SECONDS).withMaxRetries(numConnectionRetries);
 
-    Response response =
-        Failsafe.with(retryPolicy).get(() -> driversMakerTarget.path(GENERATE_BENCHMARK_PATH)
-            .request().post(Entity.entity(body, MediaType.APPLICATION_JSON)));
+    try {
 
-    if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+      Response response =
+          Failsafe.with(retryPolicy).get(() -> driversMakerTarget.path(GENERATE_BENCHMARK_PATH)
+              .request().post(Entity.entity(body, MediaType.APPLICATION_JSON)));
 
-      logger.error("generateBenchmark: error connecting - " + response.getStatus());
-      throw new BenchmarkGenerationException(experimentID, response.getStatus());
+      if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+        logger.error("generateBenchmark: error connecting - " + response.getStatus());
+        throw new BenchmarkGenerationException(experimentID, response.getStatus());
+      }
+
+      logger.info("generateBenchmark: generated Benchmark with response: "
+          + response.readEntity(String.class));
+
+    } catch (Exception e) {
+      logger.error("generateBenchmark: exception - " + e);
+      throw new BenchmarkGenerationException(experimentID, -1);
     }
 
-    logger.info("generateBenchmark: generated Benchmark with response: "
-        + response.readEntity(String.class));
   }
 
   private static class MakeDriverRequestBody {
