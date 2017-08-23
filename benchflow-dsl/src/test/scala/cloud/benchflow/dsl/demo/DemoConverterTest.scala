@@ -126,15 +126,13 @@ class DemoConverterTest extends JUnitSuite {
       |drivers:
       |- start:
       |    configuration:
-      |      max90th: 60
+      |      max90th: 90
+      |      mix:
+      |        flat: [50, 50]
+      |        deviation: 20
       |    operations:
       |    - 11ParallelStructured.bpmn
-      |    - 12ParallelStructured.bpmn
-      |
-      |    mix:
-      |      flat: [50, 50]
-      |      deviation: 20
-      |
+      |    - 12ParallelStructured.bpmn|
       |
       |sutConfiguration:
       |
@@ -221,9 +219,9 @@ class DemoConverterTest extends JUnitSuite {
       """.stripMargin
 
     val expectedFlatMixString =
-      """    mix:
-        |      flat: [50, 50]
-        |      deviation: 20
+      """      mix:
+        |        flat: [50, 50]
+        |        deviation: 20
         |
         |""".stripMargin
 
@@ -258,9 +256,9 @@ class DemoConverterTest extends JUnitSuite {
       """.stripMargin
 
     val expectedFixedSequenceMixString =
-      """    mix:
-        |      fixedSequence: [11ParallelStructured.bpmn, 12ParallelStructured.bpmn]
-        |      deviation: 20
+      """      mix:
+        |        fixedSequence: [11ParallelStructured.bpmn, 12ParallelStructured.bpmn]
+        |        deviation: 20
         |
         |""".stripMargin
 
@@ -298,11 +296,11 @@ class DemoConverterTest extends JUnitSuite {
       """.stripMargin
 
     val expectedFlatSequenceMixString =
-      """    mix:
-        |      flat: [40, 60]
-        |      sequences: [[11ParallelStructured.bpmn, 12ParallelStructured.bpmn], [12ParallelStructured.bpmn,
+      """      mix:
+        |        flat: [40, 60]
+        |        sequences: [[11ParallelStructured.bpmn, 12ParallelStructured.bpmn], [12ParallelStructured.bpmn,
         |    11ParallelStructured.bpmn]]
-        |      deviation: 20
+        |        deviation: 20
         |
         |""".stripMargin
 
@@ -339,9 +337,9 @@ class DemoConverterTest extends JUnitSuite {
       """.stripMargin
 
     val expectedMatrixMixString =
-      """    mix:
-        |      matrix: [[20, 80], [40, 50]]
-        |      deviation: 20
+      """      mix:
+        |        matrix: [[20, 80], [40, 50]]
+        |        deviation: 20
         |
         |""".stripMargin
 

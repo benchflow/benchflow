@@ -55,10 +55,10 @@ object DemoConverter {
 
     // currently only supports 1 workload
     val firstWorkload = benchFlowExperiment.workload(benchFlowExperiment.workload.keySet.head)
+    // mix should come here
+    appendDriversMix(yamlStringBuilder, firstWorkload)
 
     appendDriversOperations(yamlStringBuilder, firstWorkload)
-
-    appendDriversMix(yamlStringBuilder, firstWorkload)
 
     yamlStringBuilder.append(Properties.lineSeparator)
 
@@ -156,31 +156,31 @@ object DemoConverter {
     firstWorkload.mix match {
       case Some(mix) =>
 
-        yamlStringBuilder.append((tab * 2) + "mix" + ":")
+        yamlStringBuilder.append((tab * 3) + "mix" + ":")
         yamlStringBuilder.append(Properties.lineSeparator)
 
         // add mix
         mix.mix match {
 
           case FixedSequenceMix(seqMix: Seq[String]) =>
-            yamlStringBuilder.append((tab * 3) + "fixedSequence" + ": " + seqMix.toYaml.print(flowStyle = Flow))
+            yamlStringBuilder.append((tab * 4) + "fixedSequence" + ": " + seqMix.toYaml.print(flowStyle = Flow))
 
           case FlatMix(flatMix: Seq[Percent]) =>
-            yamlStringBuilder.append((tab * 3) + "flat" + ": " + flatMix.map(x => (x.underlying * 100).toInt).toYaml.print(flowStyle = Flow))
+            yamlStringBuilder.append((tab * 4) + "flat" + ": " + flatMix.map(x => (x.underlying * 100).toInt).toYaml.print(flowStyle = Flow))
 
           case FlatSequenceMix(mixPercents: Seq[Percent], sequences: Seq[Seq[String]]) =>
-            yamlStringBuilder.append((tab * 3) + "flat" + ": " + mixPercents.map(x => (x.underlying * 100).toInt).toYaml.print(flowStyle = Flow))
-            yamlStringBuilder.append((tab * 3) + "sequences" + ": " + sequences.toYaml.print(flowStyle = Flow))
+            yamlStringBuilder.append((tab * 4) + "flat" + ": " + mixPercents.map(x => (x.underlying * 100).toInt).toYaml.print(flowStyle = Flow))
+            yamlStringBuilder.append((tab * 4) + "sequences" + ": " + sequences.toYaml.print(flowStyle = Flow))
 
           case MatrixMix(matrixMix: Seq[Seq[Percent]]) =>
-            yamlStringBuilder.append((tab * 3) + "matrix" + ": " + matrixMix.map(
+            yamlStringBuilder.append((tab * 4) + "matrix" + ": " + matrixMix.map(
               _.map(x => (x.underlying * 100).toInt)).toYaml.print(flowStyle = Flow))
         }
 
         // add deviation
         mix.maxDeviation match {
           case Some(deviation) =>
-            yamlStringBuilder.append((tab * 3) + "deviation" + ": " + (deviation.underlying * 100).toInt.toYaml.prettyPrint)
+            yamlStringBuilder.append((tab * 4) + "deviation" + ": " + (deviation.underlying * 100).toInt.toYaml.prettyPrint)
             yamlStringBuilder.append(Properties.lineSeparator)
 
           case None => // don't add deviation
@@ -209,7 +209,7 @@ object DemoConverter {
     yamlStringBuilder.append(Properties.lineSeparator)
     yamlStringBuilder.append((tab * 2) + "configuration" + ": ")
     yamlStringBuilder.append(Properties.lineSeparator)
-    yamlStringBuilder.append((tab * 3) + "max90th" + ": " + "60")
+    yamlStringBuilder.append((tab * 3) + "max90th" + ": " + "90")
     yamlStringBuilder.append(Properties.lineSeparator)
   }
 
