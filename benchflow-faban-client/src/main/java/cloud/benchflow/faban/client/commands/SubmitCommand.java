@@ -5,6 +5,7 @@ import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.configurations.SubmitConfig;
 import cloud.benchflow.faban.client.exceptions.BenchmarkNameNotFoundRuntimeException;
 import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
+import cloud.benchflow.faban.client.exceptions.FabanClientBadRequestException;
 import cloud.benchflow.faban.client.exceptions.IllegalRunIdException;
 import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.responses.RunId;
@@ -15,6 +16,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
@@ -35,7 +37,7 @@ public class SubmitCommand extends Configurable<SubmitConfig> implements Command
 
   public RunId exec(FabanClientConfig fabanConfig)
       throws IOException, BenchmarkNameNotFoundRuntimeException, EmptyHarnessResponseException,
-      MalformedURIException, IllegalRunIdException {
+      MalformedURIException, IllegalRunIdException, FabanClientBadRequestException {
     return submit(fabanConfig);
   }
 
@@ -47,9 +49,9 @@ public class SubmitCommand extends Configurable<SubmitConfig> implements Command
    * @throws IOException when there are issues in reading the benchmark file
    * @throws BenchmarkNameNotFoundRuntimeException when the requested benchmark is not found
    */
-  public RunId submit(FabanClientConfig fabanConfig)
-      throws IOException, BenchmarkNameNotFoundRuntimeException, EmptyHarnessResponseException,
-      MalformedURIException, IllegalRunIdException {
+  public RunId submit(FabanClientConfig fabanConfig) throws HttpResponseException, IOException,
+      BenchmarkNameNotFoundRuntimeException, EmptyHarnessResponseException, MalformedURIException,
+      IllegalRunIdException, FabanClientBadRequestException {
 
     String benchmarkName = config.getBenchmarkName();
     String profile = config.getProfile();
@@ -78,15 +80,19 @@ public class SubmitCommand extends Configurable<SubmitConfig> implements Command
 
       CloseableHttpResponse resp = httpClient.execute(post);
       int statusCode = resp.getStatusLine().getStatusCode();
+      //Handle command specific exceptions
       if (statusCode == HttpStatus.SC_NOT_FOUND) {
         throw new BenchmarkNameNotFoundRuntimeException(
             "Benchmark " + benchmarkName + " not deployed.");
+      } else if (statusCode == HttpStatus.SC_BAD_REQUEST) {
+        throw new FabanClientBadRequestException("Bad request");
       } else if (statusCode == HttpStatus.SC_NO_CONTENT) {
         throw new EmptyHarnessResponseException();
       }
 
+      //Handle generic HTTP exceptions (TODO: determine the expected HTTP status from Faban, and validate we get that one)
       //TODO: check that this does indeed work
-      RunId runId = new RunId(new BasicResponseHandler().handleEntity(resp.getEntity()));
+      RunId runId = new RunId(new BasicResponseHandler().handleResponse(resp));
 
       return runId;
 

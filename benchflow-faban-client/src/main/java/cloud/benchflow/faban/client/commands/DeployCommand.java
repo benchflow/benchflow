@@ -4,6 +4,7 @@ import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.DeployConfig;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.exceptions.DeployException;
+import cloud.benchflow.faban.client.exceptions.FabanClientBadRequestException;
 import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.responses.DeployStatus;
 import java.io.File;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
@@ -37,7 +39,7 @@ public class DeployCommand extends Configurable<DeployConfig> implements Command
    * @throws IOException when there are issues in reading the benchmark file
    */
   public DeployStatus exec(FabanClientConfig fabanConfig)
-      throws IOException, DeployException, MalformedURIException {
+      throws IOException, DeployException, MalformedURIException, FabanClientBadRequestException {
     return deploy(fabanConfig);
   }
 
@@ -51,7 +53,7 @@ public class DeployCommand extends Configurable<DeployConfig> implements Command
       Nevertheless, this solution is good enough until we figure out how to
       send a stream of data to Faban. */
   private DeployStatus deploy(FabanClientConfig fabanConfig)
-      throws IOException, DeployException, MalformedURIException {
+      throws IOException, DeployException, MalformedURIException, FabanClientBadRequestException {
 
     //TODO: evaluate if it possible to convert back to lamba expression handling (line 43)
     //      when checked exceptions are supported. See: http://www.baeldung.com/java-lambda-exceptions
@@ -78,8 +80,14 @@ public class DeployCommand extends Configurable<DeployConfig> implements Command
       post.setHeader("Accept", "text/plain");
 
       CloseableHttpResponse resp = httpclient.execute(post);
+      int status = resp.getStatusLine().getStatusCode();
 
-      DeployStatus dresp = new DeployStatus(resp.getStatusLine().getStatusCode());
+      if (status == HttpStatus.SC_BAD_REQUEST) {
+        throw new FabanClientBadRequestException("Bad request");
+      }
+
+      //TODO: determine the expected HTTP status from Faban, and validate we get that one
+      DeployStatus dresp = new DeployStatus(status);
 
       return dresp;
 

@@ -4,6 +4,7 @@ import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.configurations.ShowLogsConfig;
 import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
+import cloud.benchflow.faban.client.exceptions.FabanClientBadRequestException;
 import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.exceptions.RunIdNotFoundException;
 import cloud.benchflow.faban.client.responses.RunLogStream;
@@ -31,13 +32,15 @@ public class ShowLogsCommand extends Configurable<ShowLogsConfig> implements Com
   private static String SHOWLOGS_URL = "/logs";
 
 
-  public RunLogStream exec(FabanClientConfig fabanConfig) throws IOException,
-      RunIdNotFoundException, EmptyHarnessResponseException, MalformedURIException {
+  public RunLogStream exec(FabanClientConfig fabanConfig)
+      throws IOException, RunIdNotFoundException, EmptyHarnessResponseException,
+      MalformedURIException, FabanClientBadRequestException {
     return showlogs(fabanConfig);
   }
 
-  private RunLogStream showlogs(FabanClientConfig fabanConfig) throws IOException,
-      RunIdNotFoundException, EmptyHarnessResponseException, MalformedURIException {
+  private RunLogStream showlogs(FabanClientConfig fabanConfig)
+      throws IOException, RunIdNotFoundException, EmptyHarnessResponseException,
+      MalformedURIException, FabanClientBadRequestException {
 
     try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 
@@ -51,10 +54,13 @@ public class ShowLogsCommand extends Configurable<ShowLogsConfig> implements Com
       if (status == HttpStatus.SC_NO_CONTENT) {
         throw new EmptyHarnessResponseException(
             "Harness returned empty response to pending request");
+      } else if (status == HttpStatus.SC_BAD_REQUEST) {
+        throw new FabanClientBadRequestException("Bad request");
       } else if (status == HttpStatus.SC_NOT_FOUND) {
         throw new RunIdNotFoundException("Run id not found");
       }
 
+      //TODO: determine the expected HTTP status from Faban, and validate we get that one
       HttpEntity ent = resp.getEntity();
       InputStream in = resp.getEntity().getContent();
       BufferedReader reader =
