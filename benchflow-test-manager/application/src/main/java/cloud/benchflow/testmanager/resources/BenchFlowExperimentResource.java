@@ -94,7 +94,8 @@ public class BenchFlowExperimentResource {
       if (testState != BenchFlowTestState.TERMINATED
           && experimentState == BenchFlowExperimentState.TERMINATED) {
 
-        testTaskScheduler.handleRunningTest(testID);
+        new Thread(() -> testTaskScheduler.handleRunningTest(testID)).start();
+
       }
 
       // for now we ignore other states since we are only concerned if the experiment has terminated
