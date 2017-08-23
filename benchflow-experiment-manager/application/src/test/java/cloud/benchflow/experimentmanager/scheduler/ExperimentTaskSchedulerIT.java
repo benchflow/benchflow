@@ -30,6 +30,8 @@ import cloud.benchflow.faban.client.FabanClient;
 import cloud.benchflow.faban.client.exceptions.BenchmarkNameNotFoundRuntimeException;
 import cloud.benchflow.faban.client.exceptions.ConfigFileNotFoundException;
 import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
+import cloud.benchflow.faban.client.exceptions.FabanClientBadRequestException;
+import cloud.benchflow.faban.client.exceptions.FabanClientHttpResponseException;
 import cloud.benchflow.faban.client.exceptions.FabanClientIOException;
 import cloud.benchflow.faban.client.exceptions.IllegalRunIdException;
 import cloud.benchflow.faban.client.exceptions.JarFileNotFoundException;
@@ -469,7 +471,8 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   private void setupTrialMocksSuccessful(String experimentID, long trialNumber)
       throws JarFileNotFoundException, ConfigFileNotFoundException, RunIdNotFoundException,
       IllegalRunIdException, BenchmarkNameNotFoundRuntimeException, FabanClientIOException,
-      MalformedURIException, EmptyHarnessResponseException {
+      MalformedURIException, EmptyHarnessResponseException, FabanClientBadRequestException,
+      FabanClientHttpResponseException {
 
     String fabanID = "test_faban_id_" + trialNumber;
     String fabanExperimentId = FabanManagerService.getFabanExperimentID(experimentID);
@@ -513,7 +516,8 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   private void setupTrialMocksWithRandomFailureAndSuccess(String experimentID, long trialNumber)
       throws RunIdNotFoundException, ConfigFileNotFoundException, IllegalRunIdException,
       BenchmarkNameNotFoundRuntimeException, FabanClientIOException, MalformedURIException,
-      EmptyHarnessResponseException {
+      EmptyHarnessResponseException, FabanClientBadRequestException,
+      FabanClientHttpResponseException {
 
     String fabanID = "test_faban_id_" + trialNumber;
     String fabanExperimentId = FabanManagerService.getFabanExperimentID(experimentID);
@@ -572,7 +576,8 @@ public class ExperimentTaskSchedulerIT extends DockerComposeIT {
   private void setupTrialMocksWithOnlyFailure(String experimentID, long trialNumber)
       throws RunIdNotFoundException, ConfigFileNotFoundException, IllegalRunIdException,
       BenchmarkNameNotFoundRuntimeException, FabanClientIOException, MalformedURIException,
-      EmptyHarnessResponseException {
+      EmptyHarnessResponseException, FabanClientBadRequestException,
+      FabanClientHttpResponseException {
 
     String fabanID = "test_faban_id_" + trialNumber;
     String fabanExperimentId = FabanManagerService.getFabanExperimentID(experimentID);

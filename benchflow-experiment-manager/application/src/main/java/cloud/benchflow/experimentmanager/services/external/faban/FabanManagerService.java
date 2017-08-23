@@ -16,6 +16,7 @@ import cloud.benchflow.faban.client.exceptions.DeployException;
 import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
 import cloud.benchflow.faban.client.exceptions.FabanClientBadRequestException;
 import cloud.benchflow.faban.client.exceptions.FabanClientException;
+import cloud.benchflow.faban.client.exceptions.FabanClientHttpResponseException;
 import cloud.benchflow.faban.client.exceptions.FabanClientIOException;
 import cloud.benchflow.faban.client.exceptions.IllegalRunIdException;
 import cloud.benchflow.faban.client.exceptions.IllegalRunInfoResultException;
@@ -187,7 +188,8 @@ public class FabanManagerService {
             throw e;
           } catch (FabanClientIOException | ConfigFileNotFoundException
               | EmptyHarnessResponseException | IllegalRunIdException
-              | BenchmarkNameNotFoundRuntimeException | MalformedURIException e1) {
+              | BenchmarkNameNotFoundRuntimeException | MalformedURIException
+              | FabanClientBadRequestException | FabanClientHttpResponseException e1) {
             // TODO - handle me
             e1.printStackTrace();
           }

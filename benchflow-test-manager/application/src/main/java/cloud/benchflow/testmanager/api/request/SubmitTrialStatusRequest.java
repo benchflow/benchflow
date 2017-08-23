@@ -11,19 +11,19 @@ public class SubmitTrialStatusRequest {
 
   @NotNull
   @JsonProperty
-  private RunStatus.Code status;
+  private RunStatus.StatusCode status;
 
   public SubmitTrialStatusRequest() {}
 
-  public SubmitTrialStatusRequest(RunStatus.Code status) {
+  public SubmitTrialStatusRequest(RunStatus.StatusCode status) {
     this.status = status;
   }
 
-  public RunStatus.Code getStatus() {
+  public RunStatus.StatusCode getStatus() {
     return status;
   }
 
-  public void setStatus(RunStatus.Code status) {
+  public void setStatus(RunStatus.StatusCode status) {
     this.status = status;
   }
 }

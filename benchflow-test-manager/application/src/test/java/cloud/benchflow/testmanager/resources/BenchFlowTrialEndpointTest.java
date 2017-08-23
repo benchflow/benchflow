@@ -31,7 +31,8 @@ public class BenchFlowTrialEndpointTest {
 
     String trialID = TestConstants.LOAD_TRIAL_ID;
 
-    SubmitTrialStatusRequest statusRequest = new SubmitTrialStatusRequest(RunStatus.Code.COMPLETED);
+    SubmitTrialStatusRequest statusRequest =
+        new SubmitTrialStatusRequest(RunStatus.StatusCode.COMPLETED);
 
     Response response = resources.client().target(BenchFlowConstants.getPathFromTrialID(trialID))
         .path(BenchFlowTrialResource.STATUS_PATH).request()
