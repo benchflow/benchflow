@@ -62,7 +62,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
    * @return a response enclosing the status of the operation
    */
   public DeployStatus deploy(File jarFile) throws FabanClientIOException, JarFileNotFoundException,
-      DeployException, MalformedURIException {
+      DeployException, MalformedURIException, FabanClientBadRequestException {
 
     String benchmarkName = jarFile.getName();
     DeployConfig deployConfig = new DeployConfig(jarFile, benchmarkName);
@@ -95,7 +95,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
    */
   public <R extends DeployStatus, T> T deploy(File jarFile, String driverName,
       Function<R, T> handler) throws FabanClientIOException, JarFileNotFoundException,
-      DeployException, MalformedURIException {
+      DeployException, MalformedURIException, FabanClientBadRequestException {
     return this.deploy(jarFile).handle(handler);
   }
 
@@ -108,7 +108,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
    */
   public <R extends DeployStatus> void deploy(File jarFile, String driverName, Consumer<R> handler)
       throws FabanClientIOException, JarFileNotFoundException, DeployException,
-      MalformedURIException {
+      MalformedURIException, FabanClientBadRequestException {
     this.deploy(jarFile).handle(handler);
   }
 
@@ -123,7 +123,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
    */
   public <R extends DeployStatus, T> T deploy(File jarFile, Function<R, T> handler)
       throws JarFileNotFoundException, FabanClientIOException, DeployException,
-      MalformedURIException {
+      MalformedURIException, FabanClientBadRequestException {
     return this.deploy(jarFile).handle(handler);
   }
 
@@ -137,7 +137,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
    */
   public <R extends DeployStatus> void deploy(File jarFile, Consumer<R> handler)
       throws JarFileNotFoundException, FabanClientIOException, DeployException,
-      MalformedURIException {
+      MalformedURIException, FabanClientBadRequestException {
     this.deploy(jarFile).handle(handler);
   }
 
@@ -252,7 +252,8 @@ public class FabanClient extends Configurable<FabanClientConfig> {
    */
   public RunId submit(String benchmarkName, String profile, InputStream configFile)
       throws FabanClientIOException, EmptyHarnessResponseException,
-      BenchmarkNameNotFoundRuntimeException, IllegalRunIdException, MalformedURIException {
+      BenchmarkNameNotFoundRuntimeException, IllegalRunIdException, MalformedURIException,
+      FabanClientBadRequestException {
 
     SubmitConfig runConfig = new SubmitConfig(benchmarkName, profile, configFile);
     SubmitCommand submit = new SubmitCommand().withConfig(runConfig);
@@ -278,7 +279,8 @@ public class FabanClient extends Configurable<FabanClientConfig> {
    */
   public RunId submit(String benchmarkName, String profile, File configFile)
       throws FabanClientIOException, ConfigFileNotFoundException, EmptyHarnessResponseException,
-      BenchmarkNameNotFoundRuntimeException, IllegalRunIdException, MalformedURIException {
+      BenchmarkNameNotFoundRuntimeException, IllegalRunIdException, MalformedURIException,
+      FabanClientBadRequestException {
 
     //if(configFile.exists()) {
     try (FileInputStream fin = new FileInputStream(configFile)) {
@@ -306,9 +308,9 @@ public class FabanClient extends Configurable<FabanClientConfig> {
    * @return a run id
    */
   public <R extends RunId, T> T submit(String benchmarkName, String profile, InputStream configFile,
-      Function<R, T> handler)
-      throws FabanClientIOException, ConfigFileNotFoundException, EmptyHarnessResponseException,
-      BenchmarkNameNotFoundRuntimeException, IllegalRunIdException, MalformedURIException {
+      Function<R, T> handler) throws FabanClientIOException, ConfigFileNotFoundException,
+      EmptyHarnessResponseException, BenchmarkNameNotFoundRuntimeException, IllegalRunIdException,
+      MalformedURIException, FabanClientBadRequestException {
     return this.submit(benchmarkName, profile, configFile).handle(handler);
   }
 
@@ -321,9 +323,9 @@ public class FabanClient extends Configurable<FabanClientConfig> {
    * @param handler a callback function
    */
   public <R extends RunId> void submit(String benchmarkName, String profile, InputStream configFile,
-      Consumer<R> handler)
-      throws FabanClientIOException, ConfigFileNotFoundException, EmptyHarnessResponseException,
-      BenchmarkNameNotFoundRuntimeException, IllegalRunIdException, MalformedURIException {
+      Consumer<R> handler) throws FabanClientIOException, ConfigFileNotFoundException,
+      EmptyHarnessResponseException, BenchmarkNameNotFoundRuntimeException, IllegalRunIdException,
+      MalformedURIException, FabanClientBadRequestException {
     this.submit(benchmarkName, profile, configFile).handle(handler);
   }
 
@@ -339,9 +341,9 @@ public class FabanClient extends Configurable<FabanClientConfig> {
    * @return the run id for the run
    */
   public <R extends RunId, T> T submit(String benchmarkName, String profile, File configFile,
-      Function<R, T> handler)
-      throws FabanClientIOException, ConfigFileNotFoundException, EmptyHarnessResponseException,
-      BenchmarkNameNotFoundRuntimeException, IllegalRunIdException, MalformedURIException {
+      Function<R, T> handler) throws FabanClientIOException, ConfigFileNotFoundException,
+      EmptyHarnessResponseException, BenchmarkNameNotFoundRuntimeException, IllegalRunIdException,
+      MalformedURIException, FabanClientBadRequestException {
     return this.submit(benchmarkName, profile, configFile).handle(handler);
   }
 
@@ -355,9 +357,9 @@ public class FabanClient extends Configurable<FabanClientConfig> {
    * @param <R> a subclass of {@link RunId}
    */
   public <R extends RunId> void submit(String benchmarkName, String profile, File configFile,
-      Consumer<R> handler)
-      throws FabanClientIOException, ConfigFileNotFoundException, EmptyHarnessResponseException,
-      BenchmarkNameNotFoundRuntimeException, IllegalRunIdException, MalformedURIException {
+      Consumer<R> handler) throws FabanClientIOException, ConfigFileNotFoundException,
+      EmptyHarnessResponseException, BenchmarkNameNotFoundRuntimeException, IllegalRunIdException,
+      MalformedURIException, FabanClientBadRequestException {
     this.submit(benchmarkName, profile, configFile).handle(handler);
   }
 
@@ -420,7 +422,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
    * @return a queue of pending run ids
    */
   public RunQueue pending() throws FabanClientIOException, EmptyHarnessResponseException,
-      MalformedURIException, IllegalRunIdException {
+      MalformedURIException, IllegalRunIdException, FabanClientBadRequestException {
 
     PendingCommand pending = new PendingCommand();
     FabanClientConfig fabanConfig = chooseConfig();
@@ -443,7 +445,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
    */
   public <R extends RunQueue, T> T pending(Function<R, T> handler)
       throws EmptyHarnessResponseException, FabanClientIOException, MalformedURIException,
-      IllegalRunIdException {
+      IllegalRunIdException, FabanClientBadRequestException {
     return this.pending().handle(handler);
   }
 
@@ -455,7 +457,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
    */
   public <R extends RunQueue> void pending(Consumer<R> handler)
       throws EmptyHarnessResponseException, MalformedURIException, IllegalRunIdException,
-      FabanClientIOException {
+      FabanClientIOException, FabanClientBadRequestException {
     this.pending().handle(handler);
   }
 
@@ -466,7 +468,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
    * @return a LogStream
    */
   public RunLogStream showlogs(RunId runId) throws FabanClientIOException, RunIdNotFoundException,
-      EmptyHarnessResponseException, MalformedURIException {
+      EmptyHarnessResponseException, MalformedURIException, FabanClientBadRequestException {
 
     ShowLogsConfig logsConfig = new ShowLogsConfig(runId);
     ShowLogsCommand showlogs = new ShowLogsCommand().withConfig(logsConfig);
@@ -490,7 +492,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
    */
   public <R extends RunLogStream, T> T showlogs(RunId runId, Function<R, T> handler)
       throws FabanClientIOException, RunIdNotFoundException, EmptyHarnessResponseException,
-      MalformedURIException {
+      MalformedURIException, FabanClientBadRequestException {
     return this.showlogs(runId).handle(handler);
   }
 
@@ -502,7 +504,7 @@ public class FabanClient extends Configurable<FabanClientConfig> {
    */
   public <R extends RunLogStream> void showlogs(RunId runId, Consumer<R> handler)
       throws FabanClientIOException, RunIdNotFoundException, EmptyHarnessResponseException,
-      MalformedURIException {
+      MalformedURIException, FabanClientBadRequestException {
     this.showlogs(runId).handle(handler);
   }
 

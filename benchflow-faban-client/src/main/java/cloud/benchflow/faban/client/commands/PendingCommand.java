@@ -3,6 +3,7 @@ package cloud.benchflow.faban.client.commands;
 import cloud.benchflow.faban.client.configurations.Configurable;
 import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
+import cloud.benchflow.faban.client.exceptions.FabanClientBadRequestException;
 import cloud.benchflow.faban.client.exceptions.IllegalRunIdException;
 import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.responses.RunId;
@@ -31,13 +32,15 @@ public class PendingCommand extends Configurable implements Command<RunQueue> {
 
   private static String PENDING_URL = "/pending";
 
-  public RunQueue exec(FabanClientConfig fabanConfig) throws IOException,
-      EmptyHarnessResponseException, MalformedURIException, IllegalRunIdException {
+  public RunQueue exec(FabanClientConfig fabanConfig)
+      throws IOException, EmptyHarnessResponseException, MalformedURIException,
+      IllegalRunIdException, FabanClientBadRequestException {
     return pending(fabanConfig);
   }
 
-  private RunQueue pending(FabanClientConfig fabanConfig) throws IOException,
-      EmptyHarnessResponseException, MalformedURIException, IllegalRunIdException {
+  private RunQueue pending(FabanClientConfig fabanConfig)
+      throws IOException, EmptyHarnessResponseException, MalformedURIException,
+      IllegalRunIdException, FabanClientBadRequestException {
 
     try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 
@@ -52,6 +55,8 @@ public class PendingCommand extends Configurable implements Command<RunQueue> {
       if (status == HttpStatus.SC_NO_CONTENT) {
         throw new EmptyHarnessResponseException(
             "Harness returned empty response to pending request");
+      } else if (status == HttpStatus.SC_BAD_REQUEST) {
+        throw new FabanClientBadRequestException("Bad request");
       }
 
       HttpEntity ent = resp.getEntity();

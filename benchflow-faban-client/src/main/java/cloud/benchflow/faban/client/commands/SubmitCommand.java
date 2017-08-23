@@ -5,6 +5,7 @@ import cloud.benchflow.faban.client.configurations.FabanClientConfig;
 import cloud.benchflow.faban.client.configurations.SubmitConfig;
 import cloud.benchflow.faban.client.exceptions.BenchmarkNameNotFoundRuntimeException;
 import cloud.benchflow.faban.client.exceptions.EmptyHarnessResponseException;
+import cloud.benchflow.faban.client.exceptions.FabanClientBadRequestException;
 import cloud.benchflow.faban.client.exceptions.IllegalRunIdException;
 import cloud.benchflow.faban.client.exceptions.MalformedURIException;
 import cloud.benchflow.faban.client.responses.RunId;
@@ -35,7 +36,7 @@ public class SubmitCommand extends Configurable<SubmitConfig> implements Command
 
   public RunId exec(FabanClientConfig fabanConfig)
       throws IOException, BenchmarkNameNotFoundRuntimeException, EmptyHarnessResponseException,
-      MalformedURIException, IllegalRunIdException {
+      MalformedURIException, IllegalRunIdException, FabanClientBadRequestException {
     return submit(fabanConfig);
   }
 
@@ -49,7 +50,7 @@ public class SubmitCommand extends Configurable<SubmitConfig> implements Command
    */
   public RunId submit(FabanClientConfig fabanConfig)
       throws IOException, BenchmarkNameNotFoundRuntimeException, EmptyHarnessResponseException,
-      MalformedURIException, IllegalRunIdException {
+      MalformedURIException, IllegalRunIdException, FabanClientBadRequestException {
 
     String benchmarkName = config.getBenchmarkName();
     String profile = config.getProfile();
@@ -81,6 +82,8 @@ public class SubmitCommand extends Configurable<SubmitConfig> implements Command
       if (statusCode == HttpStatus.SC_NOT_FOUND) {
         throw new BenchmarkNameNotFoundRuntimeException(
             "Benchmark " + benchmarkName + " not deployed.");
+      } else if (statusCode == HttpStatus.SC_BAD_REQUEST) {
+        throw new FabanClientBadRequestException("Bad request");
       } else if (statusCode == HttpStatus.SC_NO_CONTENT) {
         throw new EmptyHarnessResponseException();
       }
