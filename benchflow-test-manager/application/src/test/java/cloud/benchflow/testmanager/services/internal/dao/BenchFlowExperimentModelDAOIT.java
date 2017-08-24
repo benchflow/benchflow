@@ -67,18 +67,18 @@ public class BenchFlowExperimentModelDAOIT extends DockerComposeIT {
     String experimentID = experimentModelDAO.addExperiment(testID);
 
     // STARTED
-    experimentModelDAO.addTrialStatus(experimentID, trialNumber, RunStatus.Code.STARTED);
-    RunStatus.Code trialStatus = experimentModelDAO.getTrialStatus(experimentID, trialNumber);
+    experimentModelDAO.addTrialStatus(experimentID, trialNumber, RunStatus.StatusCode.STARTED);
+    RunStatus.StatusCode trialStatus = experimentModelDAO.getTrialStatus(experimentID, trialNumber);
 
     Assert.assertNotNull(trialStatus);
-    assertEquals(RunStatus.Code.STARTED, trialStatus);
+    assertEquals(RunStatus.StatusCode.STARTED, trialStatus);
 
     // TERMINATED
-    experimentModelDAO.addTrialStatus(experimentID, trialNumber, RunStatus.Code.COMPLETED);
+    experimentModelDAO.addTrialStatus(experimentID, trialNumber, RunStatus.StatusCode.COMPLETED);
     trialStatus = experimentModelDAO.getTrialStatus(experimentID, trialNumber);
 
     Assert.assertNotNull(trialStatus);
-    assertEquals(RunStatus.Code.COMPLETED, trialStatus);
+    assertEquals(RunStatus.StatusCode.COMPLETED, trialStatus);
   }
 
   @Test
@@ -108,7 +108,7 @@ public class BenchFlowExperimentModelDAOIT extends DockerComposeIT {
 
     exception.expect(BenchFlowExperimentIDDoesNotExistException.class);
 
-    experimentModelDAO.addTrialStatus("not_valid", 1, RunStatus.Code.COMPLETED);
+    experimentModelDAO.addTrialStatus("not_valid", 1, RunStatus.StatusCode.COMPLETED);
   }
 
   @Test

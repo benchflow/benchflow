@@ -50,7 +50,7 @@ public class BenchFlowExperimentModel {
   private BenchFlowExperimentState state;
   private RunningState runningState;
   private TerminatedState terminatedState;
-  private Map<Long, RunStatus.Code> trials = new HashMap<>();
+  private Map<Long, RunStatus.StatusCode> trials = new HashMap<>();
 
   private String experimentBundle;
   private String collectedData;
@@ -151,16 +151,16 @@ public class BenchFlowExperimentModel {
     this.terminatedState = terminatedState;
   }
 
-  public Map<Long, RunStatus.Code> getTrials() {
+  public Map<Long, RunStatus.StatusCode> getTrials() {
     return trials;
   }
 
-  public void setTrialStatus(long trialNumber, RunStatus.Code status) {
+  public void setTrialStatus(long trialNumber, RunStatus.StatusCode status) {
 
     trials.put(trialNumber, status);
   }
 
-  public RunStatus.Code getTrialStatus(long trialNumber) {
+  public RunStatus.StatusCode getTrialStatus(long trialNumber) {
 
     return trials.get(trialNumber);
   }

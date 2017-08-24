@@ -43,7 +43,7 @@ public class BenchFlowTrialResourceTest {
     String experimentID = TestConstants.VALID_EXPERIMENT_ID;
     int trialNumber = 1;
     String trialID = experimentID + BenchFlowConstants.MODEL_ID_DELIMITER + trialNumber;
-    request.setStatus(RunStatus.Code.COMPLETED);
+    request.setStatus(RunStatus.StatusCode.COMPLETED);
 
     String[] trialIDArray = trialID.split(MODEL_ID_DELIMITER_REGEX);
 
@@ -67,7 +67,7 @@ public class BenchFlowTrialResourceTest {
 
     String trialID = experimentID + BenchFlowConstants.MODEL_ID_DELIMITER + trialNumber;
 
-    request.setStatus(RunStatus.Code.COMPLETED);
+    request.setStatus(RunStatus.StatusCode.COMPLETED);
 
     Mockito.doThrow(BenchFlowExperimentIDDoesNotExistException.class).when(experimentModelDAOMock)
         .addTrialStatus(experimentID, trialNumber, request.getStatus());

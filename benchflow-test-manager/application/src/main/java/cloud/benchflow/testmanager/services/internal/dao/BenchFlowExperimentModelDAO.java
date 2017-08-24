@@ -117,7 +117,7 @@ public class BenchFlowExperimentModelDAO extends DAO {
   }
 
   public synchronized void addTrialStatus(String experimentID, long trialNUmber,
-      RunStatus.Code status) throws BenchFlowExperimentIDDoesNotExistException {
+      RunStatus.StatusCode status) throws BenchFlowExperimentIDDoesNotExistException {
 
     logger.info("addTrialStatus: " + experimentID + MODEL_ID_DELIMITER + trialNUmber + " : "
         + status.name());
@@ -130,7 +130,7 @@ public class BenchFlowExperimentModelDAO extends DAO {
     datastore.save(experimentModel);
   }
 
-  public synchronized RunStatus.Code getTrialStatus(String experimentID, long trialNumber)
+  public synchronized RunStatus.StatusCode getTrialStatus(String experimentID, long trialNumber)
       throws BenchFlowExperimentIDDoesNotExistException {
 
     logger.info("getTrialStatus: " + experimentID + MODEL_ID_DELIMITER + trialNumber);

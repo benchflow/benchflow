@@ -33,7 +33,7 @@
     <benchflow-dsl.project.name>benchflow-dsl</benchflow-dsl.project.name>
     <benchflow-dsl-jar.version>fix-dm-demo-conversion-mix_8653a4</benchflow-dsl-jar.version>
     <benchflow-faban-client.project.name>benchflow-faban-client</benchflow-faban-client.project.name>
-    <benchflow-faban-client-jar.version>devel_326a27</benchflow-faban-client-jar.version>
+    <benchflow-faban-client-jar.version>devel_e23d01</benchflow-faban-client-jar.version>
     <benchflow-faban-client.version>0.1.0</benchflow-faban-client.version>
     <benchflow-dsl.version>0.1.0</benchflow-dsl.version>
     <guava.version>22.0</guava.version>

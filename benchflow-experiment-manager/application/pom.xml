@@ -40,18 +40,6 @@
       <groupId>cloud.benchflow</groupId>
       <artifactId>faban-client</artifactId>
     </dependency>
-    <!--TODO - remove when faban client changes-->
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-      <version>4.5.1</version>
-    </dependency>
-    <!--TODO - remove when faban client changes-->
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpmime</artifactId>
-      <version>4.5.1</version>
-    </dependency>
 
     <dependency>
       <groupId>cloud.benchflow</groupId>
