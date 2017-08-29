@@ -25,6 +25,7 @@ object BenchFlowTestAPI {
    * @return
    */
   @throws(classOf[BenchFlowDeserializationException])
+  @throws(classOf[BenchFlowDeserializationExceptionMessage])
   def testFromYaml(testDefinitionYaml: String): BenchFlowTest = {
 
     // validates syntax

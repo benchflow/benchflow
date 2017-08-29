@@ -32,6 +32,7 @@ object YamlErrorHandler {
     case e: NoSuchElementException => missingKeyFailure(key, e)
     case e: DeserializationException => unexpectedTypeFailure(key, e)
     case e: BenchFlowDeserializationExceptionMessage => benchFlowMessageTypeFailure(key, e)
+    case e: BenchFlowDeserializationException => Failure(e)
     case e: Exception => unexpectedException(e)
   }
 

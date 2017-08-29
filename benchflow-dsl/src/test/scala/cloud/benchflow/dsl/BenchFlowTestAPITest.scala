@@ -34,17 +34,18 @@ class BenchFlowTestAPITest extends JUnitSuite {
 
   }
 
-  @Test(expected = classOf[BenchFlowDeserializationException])
-  def loadInvalidTestDefinition(): Unit = {
+  @Test def loadInvalidTestDefinition(): Unit = {
 
     val testYaml =
       """
         |version: '1'
         |name: WfMSTest
         |description: A WfMS test
+        |configuration:
+        |  goal:
       """.stripMargin
 
-    val benchFlowTest = BenchFlowTestAPI.testFromYaml(testYaml)
+    intercept[BenchFlowDeserializationException] { BenchFlowTestAPI.testFromYaml(testYaml) }
 
   }
 
