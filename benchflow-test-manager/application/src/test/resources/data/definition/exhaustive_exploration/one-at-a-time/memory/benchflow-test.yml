@@ -18,6 +18,8 @@ configuration:
           memory:
             values: [500m, 1000m]
 
+  users: 50
+
   strategy:
     selection: one-at-a-time
 
