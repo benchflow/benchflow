@@ -2,7 +2,7 @@ package cloud.benchflow.dsl
 
 import java.nio.file.Paths
 
-import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
+import cloud.benchflow.dsl.definition.errorhandling.{ BenchFlowDeserializationException, BenchFlowDeserializationExceptionMessage }
 import cloud.benchflow.dsl.definition.types.bytes.{ Bytes, BytesUnit }
 import cloud.benchflow.dsl.dockercompose.DockerComposeYamlString
 import org.junit.{ Assert, Test }
@@ -100,6 +100,18 @@ class BenchFlowTestAPITest extends JUnitSuite {
     Assert.assertTrue(generatedComposeString.contains(s"mem_limit: ${memLimit.underlying}${memLimit.unit}"))
     Assert.assertTrue(generatedComposeString.contains(s"$environmentKey=$environmentValue"))
     Assert.assertFalse(generatedComposeString.contains(s"DB_DRIVER=com.mysql.jdbc.Driver"))
+
+  }
+
+  @Test def invalidTestSemanticCheck(): Unit = {
+
+    val testYaml = Source.fromFile(Paths.get(BenchFlowInvalidSemanticLoadExample).toFile).mkString
+
+    intercept[BenchFlowDeserializationExceptionMessage] { BenchFlowTestAPI.testFromYaml(testYaml) }
+
+    val testYaml2 = Source.fromFile(Paths.get(BenchFlowInvalidSemanticExplorationExample).toFile).mkString
+
+    intercept[BenchFlowDeserializationExceptionMessage] { BenchFlowTestAPI.testFromYaml(testYaml2) }
 
   }
 

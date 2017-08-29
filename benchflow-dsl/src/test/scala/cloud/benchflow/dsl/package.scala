@@ -10,6 +10,9 @@ package object dsl {
 
   val BenchFlowLoadTestExample: String = BenchFlowTestExamplesFolder + "load/benchflow-test.yml"
 
+  val BenchFlowInvalidSemanticExplorationExample: String = BenchFlowTestExamplesFolder + "invalid/semantic/exploration/benchflow-test.yml"
+  val BenchFlowInvalidSemanticLoadExample: String = BenchFlowTestExamplesFolder + "invalid/semantic/load/benchflow-test.yml"
+
   private val exhaustiveFolder = "exhaustive_exploration/"
   private val oneAtATimeFolder = "one-at-a-time/"
 
