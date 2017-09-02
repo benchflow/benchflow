@@ -213,6 +213,20 @@ public class TestManagerSmokeTestsIT extends DockerComposeIT {
 
   }
 
+  @Test
+  public void runTestMultipleServicesUsersFile() throws Exception {
+
+    String testName = "WfMSMemoryEnvironmentStepUsersExhaustiveExplorationTest";
+    int expectedNumExperiments = 12;
+
+    FileDataBodyPart fileDataBodyPart = new FileDataBodyPart("benchFlowTestBundle",
+        TestBundle.getTestMultipleServicesUsersBundleFile(temporaryFolder),
+        MediaType.APPLICATION_OCTET_STREAM_TYPE);
+
+    runTest(testName, fileDataBodyPart, expectedNumExperiments);
+
+  }
+
   private void runTest(String testName, FileDataBodyPart fileDataBodyPart,
       int expectedNumExperiments)
       throws BenchFlowTestIDDoesNotExistException, InterruptedException {

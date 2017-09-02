@@ -113,6 +113,17 @@ public class TestBundle {
 
   }
 
+  public static File getTestMultipleServicesUsersBundleFile(TemporaryFolder temporaryFolder)
+      throws IOException {
+
+    FileSource testDefinitionFileSource =
+        new FileSource(TestFiles.getTestMultipleServicesUsersFile().getName(),
+            TestFiles.getTestMultipleServicesUsersFile());
+
+    return createBundleFile(testDefinitionFileSource, temporaryFolder);
+
+  }
+
 
 
   /**
