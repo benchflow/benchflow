@@ -217,7 +217,7 @@ public class TestManagerSmokeTestsIT extends DockerComposeIT {
   public void runTestMultipleServicesUsersFile() throws Exception {
 
     String testName = "WfMSMemoryEnvironmentStepUsersExhaustiveExplorationTest";
-    int expectedNumExperiments = 12;
+    int expectedNumExperiments = 16;
 
     FileDataBodyPart fileDataBodyPart = new FileDataBodyPart("benchFlowTestBundle",
         TestBundle.getTestMultipleServicesUsersBundleFile(temporaryFolder),
@@ -305,6 +305,7 @@ public class TestManagerSmokeTestsIT extends DockerComposeIT {
 
     // assert all test were executed
     Set<Long> experimentNumbers = testModelDAO.getExperimentNumbers(getExpectedTestID(testName));
+    Assert.assertEquals(expectedNumExperiments, experimentNumbers.size());
     for (long i = 1; i <= expectedNumExperiments; i++) {
       Assert.assertTrue(experimentNumbers.contains(i));
     }
