@@ -2,8 +2,8 @@
 # BenchFlow Test Definition
 ###############################################################################
 version: '1'
-name: WfMSExhaustiveExplorationOneAtATimeSelectionMemoryTest
-description: WfMSExhaustiveExplorationOneAtATimeSelectionMemoryTest
+name: WfMSMemoryEnvironmentStepUsersExhaustiveExplorationTest
+description: WfMSMemoryEnvironmentStepUsersExhaustiveExplorationTest
 
 ###############################################################################
 # Test Configuration
@@ -16,21 +16,27 @@ configuration:
       camunda:
         resources:
           memory:
-            values: [500m, 1000m]
+            values: [4g, 8g]
+      db:
+        environment:
+          JAVA_OPTS: ["-Xms128m", "-Xms1024m"]
 
-  users: 50
+      workload:
+        users:
+          range: [50, 250]
+          step: '*2'
 
   strategy:
     selection: one-at-a-time
 
   workload_execution:
-     ramp_up: 5s
-     steady_state: 60s
-     ramp_down: 5s
+     ramp_up: 30s
+     steady_state: 10m
+     ramp_down: 30s
 
   termination_criteria:
     test:
-      max_time: 1h
+      max_time: 16h
 
     experiment:
       type: fixed
