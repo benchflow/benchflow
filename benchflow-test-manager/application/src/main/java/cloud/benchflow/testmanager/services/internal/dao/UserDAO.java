@@ -25,6 +25,16 @@ public class UserDAO extends DAO {
     this.testModelDAO = benchFlowTestModelDAO;
   }
 
+  public synchronized List getUsers() {
+
+    logger.info("getUsers");
+
+    final Query<User> userModelQuery = datastore.createQuery(User.class);
+
+    return userModelQuery.asList().stream().map(User::getUsername).collect(Collectors.toList());
+
+  }
+
   public synchronized User addUser(String username) throws UserIDAlreadyExistsException {
 
     logger.info("addUser: " + username);
