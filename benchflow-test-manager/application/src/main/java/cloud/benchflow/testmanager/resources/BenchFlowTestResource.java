@@ -5,6 +5,7 @@ import cloud.benchflow.dsl.definition.BenchFlowTest;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationExceptionMessage;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
+import cloud.benchflow.testmanager.api.response.GetUserTestsResponse;
 import cloud.benchflow.testmanager.api.response.RunBenchFlowTestResponse;
 import cloud.benchflow.testmanager.bundle.BenchFlowTestBundleExtractor;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
@@ -13,6 +14,7 @@ import cloud.benchflow.testmanager.exceptions.InvalidTestBundleException;
 import cloud.benchflow.testmanager.exceptions.UserIDAlreadyExistsException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidTestBundleWebException;
+import cloud.benchflow.testmanager.exceptions.web.InvalidUsernameWebException;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
@@ -26,6 +28,8 @@ import io.swagger.annotations.Api;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -51,6 +55,7 @@ import org.slf4j.LoggerFactory;
 @Api(value = "benchflow-test")
 public class BenchFlowTestResource {
 
+  public static String TEST_PATH = "/tests";
   public static String RUN_PATH = "/run";
   public static String STATUS_PATH = "/status";
   public static String ABORT_PATH = "/abort";
@@ -82,6 +87,35 @@ public class BenchFlowTestResource {
     this.minioService = minioService;
   }
 
+  @GET
+  @Path("/")
+  @Produces(MediaType.APPLICATION_JSON)
+  public GetUserTestsResponse getUserTests(@PathParam("username") String username) {
+
+    logger.info(
+        "request received: GET " + BenchFlowConstants.getPathFromUsername(username) + TEST_PATH);
+
+    User user = userDAO.getUser(username);
+
+    if (user == null) {
+      throw new InvalidUsernameWebException();
+    }
+
+    List testIDsRaw = testModelDAO.getUserTestModels(user);
+
+    List<String> testIDs = new ArrayList<>();
+
+    for (Object o : testIDsRaw) {
+      testIDs.add(o.toString());
+    }
+
+    GetUserTestsResponse userTestsResponse = new GetUserTestsResponse();
+    userTestsResponse.setTestIDs(testIDs);
+
+    return userTestsResponse;
+
+  }
+
   @POST
   @Path("/run")
   @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -90,8 +124,8 @@ public class BenchFlowTestResource {
       @FormDataParam("benchFlowTestBundle") final InputStream benchFlowTestBundle,
       @Context HttpServletRequest request) {
 
-    logger.info(
-        "request received: POST " + BenchFlowConstants.getPathFromUsername(username) + RUN_PATH);
+    logger.info("request received: POST " + BenchFlowConstants.getPathFromUsername(username)
+        + TEST_PATH + RUN_PATH);
 
     if (benchFlowTestBundle == null) {
       logger.info("runBenchFlowTest: test bundle == null");
