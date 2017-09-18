@@ -131,6 +131,17 @@ public class BenchFlowTestModelDAO extends DAO {
         .collect(Collectors.toList());
   }
 
+  public synchronized List<String> getUserTestModels(User user) {
+
+    logger.info("getUserTestModels");
+
+    final Query<BenchFlowTestModel> testModelQuery =
+        datastore.createQuery(BenchFlowTestModel.class).field("user").equal(user);
+
+    return testModelQuery.asList().stream().map(BenchFlowTestModel::getId)
+        .collect(Collectors.toList());
+  }
+
 
   public synchronized void setMaxRunTime(String testID, Time maxRunTime)
       throws BenchFlowTestIDDoesNotExistException {

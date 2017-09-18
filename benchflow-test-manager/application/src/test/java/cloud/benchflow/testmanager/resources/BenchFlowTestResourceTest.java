@@ -110,55 +110,6 @@ public class BenchFlowTestResourceTest {
   }
 
   @Test
-  public void changeBenchFlowTestState() throws Exception {
-
-    Mockito.doReturn(RUNNING).when(testModelDAOMock).setTestState(TestConstants.VALID_TEST_ID,
-        RUNNING);
-    Mockito.doReturn(TERMINATED).when(testModelDAOMock).setTestState(TestConstants.VALID_TEST_ID,
-        TERMINATED);
-
-    request.setState(RUNNING);
-
-    String[] testIDArray = TestConstants.VALID_TEST_ID.split(MODEL_ID_DELIMITER_REGEX);
-
-    String username = testIDArray[0];
-    String testName = testIDArray[1];
-    int testNumber = Integer.parseInt(testIDArray[2]);
-
-    ChangeBenchFlowTestStateResponse response =
-        resource.changeBenchFlowTestState(username, testName, testNumber, request);
-
-    Assert.assertNotNull(response);
-    Assert.assertEquals(RUNNING, response.getState());
-
-    request.setState(TERMINATED);
-
-    response = resource.changeBenchFlowTestState(username, testName, testNumber, request);
-
-    Assert.assertNotNull(response);
-    Assert.assertEquals(TERMINATED, response.getState());
-  }
-
-  @Test
-  public void changeBenchFlowTestStateInvalid() throws Exception {
-
-    request.setState(RUNNING);
-
-    Mockito.doThrow(BenchFlowTestIDDoesNotExistException.class).when(testModelDAOMock)
-        .setTestState(TestConstants.VALID_TEST_ID, RUNNING);
-
-    exception.expect(InvalidBenchFlowTestIDWebException.class);
-
-    String[] testIDArray = TestConstants.VALID_TEST_ID.split(MODEL_ID_DELIMITER_REGEX);
-
-    String username = testIDArray[0];
-    String testName = testIDArray[1];
-    int testNumber = Integer.parseInt(testIDArray[2]);
-
-    resource.changeBenchFlowTestState(username, testName, testNumber, request);
-  }
-
-  @Test
   public void getBenchFlowTestStatusInValid() throws Exception {
 
     String testID = TestConstants.INVALID_TEST_BENCHFLOW_ID;
@@ -240,6 +191,29 @@ public class BenchFlowTestResourceTest {
     String explorationPointURL = response.getExperimentModels().stream().findFirst().get()
         .getExplorationPointConfiguration();
     Assert.assertEquals(BenchFlowTestResource.NO_EXPLORATION_SPACE, explorationPointURL);
+
+  }
+
+  @Test
+  public void abortInvalidRunningTest() throws Exception {
+
+    String testID = TestConstants.INVALID_TEST_BENCHFLOW_ID;
+
+    Mockito.doThrow(BenchFlowTestIDDoesNotExistException.class).when(testModelDAOMock)
+        .getTestModel(testID);
+
+    exception.expect(InvalidBenchFlowTestIDWebException.class);
+
+    String[] testIDArray = TestConstants.INVALID_TEST_BENCHFLOW_ID.split(MODEL_ID_DELIMITER_REGEX);
+
+    String username = testIDArray[0];
+    String testName = testIDArray[1];
+    int testNumber = Integer.parseInt(testIDArray[2]);
+
+    resource.abortBenchFlowTest(username, testName, testNumber);
+
+    Mockito.verify(testModelDAOMock, Mockito.times(1)).getTestModel(testID);
+
 
   }
 }

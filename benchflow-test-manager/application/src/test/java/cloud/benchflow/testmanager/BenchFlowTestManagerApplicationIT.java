@@ -14,13 +14,17 @@ import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfigurat
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidTestBundleWebException;
+import cloud.benchflow.testmanager.helpers.WaitTestCheck;
+import cloud.benchflow.testmanager.helpers.WaitTestState;
 import cloud.benchflow.testmanager.helpers.constants.TestBundle;
 import cloud.benchflow.testmanager.helpers.constants.TestConstants;
 import cloud.benchflow.testmanager.helpers.constants.TestFiles;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
+import cloud.benchflow.testmanager.models.BenchFlowTestModel.TestTerminatedState;
 import cloud.benchflow.testmanager.models.User;
 import cloud.benchflow.testmanager.resources.BenchFlowTestResource;
 import cloud.benchflow.testmanager.resources.ExplorationPointResource;
+import cloud.benchflow.testmanager.services.external.BenchFlowExperimentManagerService;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
@@ -43,6 +47,8 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 
 /**
  * @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.02.17.
@@ -67,15 +73,7 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
   @Test
   public void runBenchFlowTest() throws Exception {
 
-    // needed for multipart client
-    // https://github.com/dropwizard/dropwizard/issues/1013
-    JerseyClientConfiguration configuration = new JerseyClientConfiguration();
-    configuration.setChunkedEncodingEnabled(false);
-    // needed because parsing testYaml takes more than default time
-    configuration.setTimeout(Duration.milliseconds(5000));
-
-    Client client =
-        new JerseyClientBuilder(RULE.getEnvironment()).using(configuration).build("test client");
+    Client client = getRunTestClient();
 
     String testName = TestConstants.VALID_TEST_NAME;
     User user = BenchFlowConstants.BENCHFLOW_USER;
@@ -105,15 +103,7 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
   @Test
   public void runMissingTestDefinitionTest() throws Exception {
 
-    // needed for multipart client
-    // https://github.com/dropwizard/dropwizard/issues/1013
-    JerseyClientConfiguration configuration = new JerseyClientConfiguration();
-    configuration.setChunkedEncodingEnabled(false);
-    // needed because parsing testYaml takes more than default time
-    configuration.setTimeout(Duration.milliseconds(5000));
-
-    Client client =
-        new JerseyClientBuilder(RULE.getEnvironment()).using(configuration).build("test client");
+    Client client = getRunTestClient();
 
     User user = BenchFlowConstants.BENCHFLOW_USER;
 
@@ -134,59 +124,6 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
     Assert.assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
 
     Assert.assertEquals(InvalidTestBundleWebException.message, response.readEntity(String.class));
-
-  }
-
-  @Test
-  public void changeTestStateValid() throws Exception {
-
-    BenchFlowTestModelDAO testModelDAO =
-        new BenchFlowTestModelDAO(RULE.getConfiguration().getMongoDBFactory().build());
-
-    String testID =
-        testModelDAO.addTestModel(TestConstants.LOAD_TEST_NAME, TestConstants.TEST_USER);
-
-    Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
-
-    BenchFlowTestModel.BenchFlowTestState state = BenchFlowTestModel.BenchFlowTestState.TERMINATED;
-
-    ChangeBenchFlowTestStateRequest stateRequest = new ChangeBenchFlowTestStateRequest(state);
-
-    String target = "http://localhost:" + RULE.getLocalPort();
-
-    Response response = client.target(target).path(BenchFlowConstants.getPathFromTestID(testID))
-        .path(BenchFlowTestResource.STATE_PATH).request(MediaType.APPLICATION_JSON)
-        .put(Entity.entity(stateRequest, MediaType.APPLICATION_JSON));
-
-    Assert.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-
-    ChangeBenchFlowTestStateResponse benchFlowTestStateResponse =
-        response.readEntity(ChangeBenchFlowTestStateResponse.class);
-
-    Assert.assertEquals(state, benchFlowTestStateResponse.getState());
-
-  }
-
-  @Test
-  public void changeTestStateInvalid() throws Exception {
-
-    Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
-
-    BenchFlowTestModel.BenchFlowTestState state = BenchFlowTestModel.BenchFlowTestState.TERMINATED;
-    String testID = TestConstants.LOAD_TEST_ID;
-
-    ChangeBenchFlowTestStateRequest stateRequest = new ChangeBenchFlowTestStateRequest(state);
-
-    String target = "http://localhost:" + RULE.getLocalPort();
-
-    Response response = client.target(target).path(BenchFlowConstants.getPathFromTestID(testID))
-        .path(BenchFlowTestResource.STATE_PATH).request(MediaType.APPLICATION_JSON)
-        .put(Entity.entity(stateRequest, MediaType.APPLICATION_JSON));
-
-    Assert.assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-
-    Assert.assertEquals(InvalidBenchFlowTestIDWebException.message,
-        response.readEntity(String.class));
 
   }
 
@@ -310,5 +247,90 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
 
   }
 
+  @Test
+  public void abortRunningTest() throws Exception {
 
+    // setup mock of experiment manager service
+    BenchFlowExperimentManagerService experimentManagerServiceSpy =
+        Mockito.spy(BenchFlowTestManagerApplication.getExperimentManagerService());
+    BenchFlowTestManagerApplication.setExperimentManagerService(experimentManagerServiceSpy);
+
+    Mockito.doNothing().when(experimentManagerServiceSpy)
+        .runBenchFlowExperiment(Matchers.anyString());
+
+    // check for test state timeout
+    long timeout = 30 * 1000; // 30 seconds
+
+    BenchFlowTestModelDAO testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
+    WaitTestCheck waitTestCheck = () -> Thread.sleep(100);
+
+    // ############### submit test #######################################
+
+    Client runTestClient = getRunTestClient();
+
+    User user = BenchFlowConstants.BENCHFLOW_USER;
+
+    FileDataBodyPart fileDataBodyPart = new FileDataBodyPart("benchFlowTestBundle",
+        TestBundle.getTestExplorationOneAtATimeUsersEnvironmentBundleFile(temporaryFolder),
+        MediaType.APPLICATION_OCTET_STREAM_TYPE);
+
+    MultiPart multiPart = new MultiPart();
+    multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
+    multiPart.bodyPart(fileDataBodyPart);
+
+    Response runResponse =
+        runTestClient.target(String.format("http://localhost:%d/", RULE.getLocalPort()))
+            .path(BenchFlowConstants.getPathFromUsername(user.getUsername()))
+            .path(BenchFlowConstants.TESTS_PATH).path(BenchFlowTestResource.RUN_PATH)
+            .register(MultiPartFeature.class).request(MediaType.APPLICATION_JSON)
+            .post(Entity.entity(multiPart, multiPart.getMediaType()));
+
+    Assert.assertEquals(Response.Status.OK.getStatusCode(), runResponse.getStatus());
+
+    RunBenchFlowTestResponse runTestResponse =
+        runResponse.readEntity(RunBenchFlowTestResponse.class);
+
+    String testID = runTestResponse.getTestID();
+
+    // ############### wait for test to go into running state ############
+
+    WaitTestState.waitForTestRunningWithTimeout(testID, testModelDAO, waitTestCheck, timeout);
+
+    // ############### abort test while running ##########################
+
+    JerseyClientConfiguration configuration = new JerseyClientConfiguration();
+    // needed because parsing testYaml takes more than default time
+    configuration.setTimeout(Duration.milliseconds(1000));
+
+    Client client =
+        new JerseyClientBuilder(RULE.getEnvironment()).using(configuration).build("test client");
+
+    String target = "http://localhost:" + RULE.getLocalPort();
+
+    Response response = client.target(target).path(BenchFlowConstants.getPathFromTestID(testID))
+        .path(BenchFlowTestResource.ABORT_PATH).request().post(null);
+
+    Assert.assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
+    // ############### assert test is partially complete #################
+
+    WaitTestState.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck, timeout);
+
+    TestTerminatedState terminatedState = testModelDAO.getTestTerminatedState(testID);
+
+    Assert.assertEquals(TestTerminatedState.PARTIALLY_COMPLETE, terminatedState);
+
+  }
+
+  private Client getRunTestClient() {
+    // needed for multipart client
+    // https://github.com/dropwizard/dropwizard/issues/1013
+    JerseyClientConfiguration configuration = new JerseyClientConfiguration();
+    configuration.setChunkedEncodingEnabled(false);
+    // needed because parsing testYaml takes more than default time
+    configuration.setTimeout(Duration.milliseconds(5000));
+
+    return new JerseyClientBuilder(RULE.getEnvironment()).using(configuration)
+        .build("test run client");
+  }
 }
