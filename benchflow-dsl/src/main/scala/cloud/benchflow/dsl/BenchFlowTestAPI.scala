@@ -2,7 +2,8 @@ package cloud.benchflow.dsl
 
 import cloud.benchflow.dsl.definition.BenchFlowTest
 import cloud.benchflow.dsl.definition.BenchFlowTestYamlProtocol._
-import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException
+import cloud.benchflow.dsl.definition.errorhandling.{ BenchFlowDeserializationException, BenchFlowDeserializationExceptionMessage }
+import cloud.benchflow.dsl.definition.validation.SemanticValidation
 import net.jcazevedo.moultingyaml._
 
 import scala.util.{ Failure, Success, Try }
@@ -24,19 +25,26 @@ object BenchFlowTestAPI {
    * @return
    */
   @throws(classOf[BenchFlowDeserializationException])
+  @throws(classOf[BenchFlowDeserializationExceptionMessage])
   def testFromYaml(testDefinitionYaml: String): BenchFlowTest = {
 
     // validates syntax
     // TODO - document why we wrap in a Try (e.g. because of library and deserialization)
     val triedTest: Try[BenchFlowTest] = testDefinitionYaml.parseYaml.convertTo[Try[BenchFlowTest]]
 
-    // TODO - validate semantic in separate function on the object
-
-    triedTest match {
-      case Success(test) => test
+    val test = triedTest match {
+      case Success(t) => t
       case Failure(ex) => throw ex
     }
 
+    // validate semantic in separate function on the object
+    val (isValid, validationErrorMessages) = SemanticValidation.validateTest(test)
+
+    if (!isValid) {
+      throw BenchFlowDeserializationExceptionMessage(validationErrorMessages.toString())
+    }
+
+    test
   }
 
   def testToYamlString(benchFlowTest: BenchFlowTest): String = {
@@ -48,13 +56,6 @@ object BenchFlowTestAPI {
 
     testYaml.prettyPrint
 
-  }
-
-  def validateTest(benchFlowTest: BenchFlowTest): Boolean = {
-
-    // TODO - validate semantic in separate function on the object
-
-    false
   }
 
 }
