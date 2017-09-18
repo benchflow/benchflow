@@ -242,4 +242,27 @@ public class BenchFlowTestResourceTest {
     Assert.assertEquals(BenchFlowTestResource.NO_EXPLORATION_SPACE, explorationPointURL);
 
   }
+
+  @Test
+  public void abortInvalidRunningTest() throws Exception {
+
+    String testID = TestConstants.INVALID_TEST_BENCHFLOW_ID;
+
+    Mockito.doThrow(BenchFlowTestIDDoesNotExistException.class).when(testModelDAOMock)
+        .getTestModel(testID);
+
+    exception.expect(InvalidBenchFlowTestIDWebException.class);
+
+    String[] testIDArray = TestConstants.INVALID_TEST_BENCHFLOW_ID.split(MODEL_ID_DELIMITER_REGEX);
+
+    String username = testIDArray[0];
+    String testName = testIDArray[1];
+    int testNumber = Integer.parseInt(testIDArray[2]);
+
+    resource.abortBenchFlowTest(username, testName, testNumber);
+
+    Mockito.verify(testModelDAOMock, Mockito.times(1)).getTestModel(testID);
+
+
+  }
 }

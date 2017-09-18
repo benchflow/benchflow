@@ -59,6 +59,7 @@ public class BenchFlowTestResource {
   public static String RUN_PATH = "/run";
   public static String STATE_PATH = "/state";
   public static String STATUS_PATH = "/status";
+  public static String ABORT_PATH = "/abort";
   public static String NO_EXPLORATION_SPACE = "no exploration space";
   private final BenchFlowTestModelDAO testModelDAO;
   private final UserDAO userDAO;
@@ -268,5 +269,28 @@ public class BenchFlowTestResource {
     }
 
     return benchFlowTestModel;
+  }
+
+  @POST
+  @Path("{testName}/{testNumber}/abort")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public void abortBenchFlowTest(@PathParam("username") String username,
+      @PathParam("testName") String testName, @PathParam("testNumber") int testNumber) {
+
+    String testID = BenchFlowConstants.getTestID(username, testName, testNumber);
+    logger.info(
+        "request received: POST " + BenchFlowConstants.getPathFromTestID(testID) + ABORT_PATH);
+
+    if (testModelDAO.testModelExists(testID)) {
+
+      testTaskScheduler.terminateTest(testID);
+
+    } else {
+      logger.info("abortBenchFlowTest: invalid test id - " + testID);
+      throw new InvalidBenchFlowTestIDWebException();
+
+    }
+
   }
 }

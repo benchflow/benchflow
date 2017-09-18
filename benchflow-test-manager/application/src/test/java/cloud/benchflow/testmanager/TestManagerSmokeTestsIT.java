@@ -10,7 +10,7 @@ import cloud.benchflow.testmanager.api.response.RunBenchFlowTestResponse;
 import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfiguration;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.helpers.WaitTestCheck;
-import cloud.benchflow.testmanager.helpers.WaitTestTermination;
+import cloud.benchflow.testmanager.helpers.WaitTestState;
 import cloud.benchflow.testmanager.helpers.constants.TestBundle;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.TerminatedState;
@@ -293,8 +293,8 @@ public class TestManagerSmokeTestsIT extends DockerComposeIT {
 
     };
 
-    WaitTestTermination.waitForTestTerminationWithTimeout(expectedTestID, testModelDAO,
-        waitTestCheck, timeout);
+    WaitTestState.waitForTestTerminationWithTimeout(expectedTestID, testModelDAO, waitTestCheck,
+        timeout);
 
     // assert test was terminated
     BenchFlowTestState testState = testModelDAO.getTestState(expectedTestID);
