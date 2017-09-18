@@ -5,8 +5,6 @@ import cloud.benchflow.dsl.definition.BenchFlowTest;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationExceptionMessage;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
-import cloud.benchflow.testmanager.api.request.ChangeBenchFlowTestStateRequest;
-import cloud.benchflow.testmanager.api.response.ChangeBenchFlowTestStateResponse;
 import cloud.benchflow.testmanager.api.response.RunBenchFlowTestResponse;
 import cloud.benchflow.testmanager.bundle.BenchFlowTestBundleExtractor;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
@@ -31,12 +29,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -57,7 +52,6 @@ import org.slf4j.LoggerFactory;
 public class BenchFlowTestResource {
 
   public static String RUN_PATH = "/run";
-  public static String STATE_PATH = "/state";
   public static String STATUS_PATH = "/status";
   public static String ABORT_PATH = "/abort";
   public static String NO_EXPLORATION_SPACE = "no exploration space";
@@ -185,34 +179,6 @@ public class BenchFlowTestResource {
       logger.error(e.getMessage());
       throw new InvalidTestBundleWebException(e.getMessage());
     }
-  }
-
-  @PUT
-  @Path("{testName}/{testNumber}/state")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  public ChangeBenchFlowTestStateResponse changeBenchFlowTestState(
-      @PathParam("username") String username, @PathParam("testName") String testName,
-      @PathParam("testNumber") int testNumber,
-      @NotNull @Valid final ChangeBenchFlowTestStateRequest stateRequest) {
-
-    String testID = BenchFlowConstants.getTestID(username, testName, testNumber);
-    logger
-        .info("request received: PUT " + BenchFlowConstants.getPathFromTestID(testID) + STATE_PATH);
-
-    // TODO - handle the actual state change (e.g. on Experiment Manager)
-
-    // update the state
-    BenchFlowTestModel.BenchFlowTestState newState = null;
-
-    try {
-      newState = testModelDAO.setTestState(testID, stateRequest.getState());
-    } catch (BenchFlowTestIDDoesNotExistException e) {
-      throw new InvalidBenchFlowTestIDWebException();
-    }
-
-    // return the state as saved
-    return new ChangeBenchFlowTestStateResponse(newState);
   }
 
   @Path("{testName}/{testNumber}/status")

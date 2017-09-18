@@ -128,59 +128,6 @@ public class BenchFlowTestManagerApplicationIT extends DockerComposeIT {
   }
 
   @Test
-  public void changeTestStateValid() throws Exception {
-
-    BenchFlowTestModelDAO testModelDAO =
-        new BenchFlowTestModelDAO(RULE.getConfiguration().getMongoDBFactory().build());
-
-    String testID =
-        testModelDAO.addTestModel(TestConstants.LOAD_TEST_NAME, TestConstants.TEST_USER);
-
-    Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
-
-    BenchFlowTestModel.BenchFlowTestState state = BenchFlowTestModel.BenchFlowTestState.TERMINATED;
-
-    ChangeBenchFlowTestStateRequest stateRequest = new ChangeBenchFlowTestStateRequest(state);
-
-    String target = "http://localhost:" + RULE.getLocalPort();
-
-    Response response = client.target(target).path(BenchFlowConstants.getPathFromTestID(testID))
-        .path(BenchFlowTestResource.STATE_PATH).request(MediaType.APPLICATION_JSON)
-        .put(Entity.entity(stateRequest, MediaType.APPLICATION_JSON));
-
-    Assert.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-
-    ChangeBenchFlowTestStateResponse benchFlowTestStateResponse =
-        response.readEntity(ChangeBenchFlowTestStateResponse.class);
-
-    Assert.assertEquals(state, benchFlowTestStateResponse.getState());
-
-  }
-
-  @Test
-  public void changeTestStateInvalid() throws Exception {
-
-    Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
-
-    BenchFlowTestModel.BenchFlowTestState state = BenchFlowTestModel.BenchFlowTestState.TERMINATED;
-    String testID = TestConstants.LOAD_TEST_ID;
-
-    ChangeBenchFlowTestStateRequest stateRequest = new ChangeBenchFlowTestStateRequest(state);
-
-    String target = "http://localhost:" + RULE.getLocalPort();
-
-    Response response = client.target(target).path(BenchFlowConstants.getPathFromTestID(testID))
-        .path(BenchFlowTestResource.STATE_PATH).request(MediaType.APPLICATION_JSON)
-        .put(Entity.entity(stateRequest, MediaType.APPLICATION_JSON));
-
-    Assert.assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-
-    Assert.assertEquals(InvalidBenchFlowTestIDWebException.message,
-        response.readEntity(String.class));
-
-  }
-
-  @Test
   public void getTestStatus() throws Exception {
 
     // setup the data in the DB
