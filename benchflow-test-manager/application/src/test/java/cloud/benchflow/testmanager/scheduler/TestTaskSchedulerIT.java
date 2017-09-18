@@ -9,7 +9,7 @@ import cloud.benchflow.testmanager.DockerComposeIT;
 import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfiguration;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.helpers.WaitTestCheck;
-import cloud.benchflow.testmanager.helpers.WaitTestTermination;
+import cloud.benchflow.testmanager.helpers.WaitTestState;
 import cloud.benchflow.testmanager.helpers.constants.TestBundle;
 import cloud.benchflow.testmanager.helpers.constants.TestConstants;
 import cloud.benchflow.testmanager.helpers.constants.TestFiles;
@@ -141,8 +141,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       executorService.awaitTermination(1, TimeUnit.SECONDS);
     };
 
-    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck,
-        timeout);
+    WaitTestState.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck, timeout);
 
     // assert that all experiments have been executed
     Assert.assertEquals(0, countDownLatch.getCount());
@@ -202,8 +201,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       countDownLatch.await(10, TimeUnit.SECONDS);
     };
 
-    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck,
-        timeout);
+    WaitTestState.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck, timeout);
 
     // wait for last task to finish
     executorService.awaitTermination(1, TimeUnit.SECONDS);
@@ -269,8 +267,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       executorService.awaitTermination(10, TimeUnit.SECONDS);
     };
 
-    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck,
-        timeout);
+    WaitTestState.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck, timeout);
 
     // assert that all experiments have been executed
     Assert.assertEquals(0, countDownLatch.getCount());
@@ -337,8 +334,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
       executorService.awaitTermination(1, TimeUnit.SECONDS);
     };
 
-    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck,
-        timeout);
+    WaitTestState.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck, timeout);
 
     // assert that all experiments have been executed
     Assert.assertEquals(0, countDownLatch.getCount());
@@ -411,8 +407,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
 
     };
 
-    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck,
-        timeout);
+    WaitTestState.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck, timeout);
 
     // assert that test has been set as TERMINATED
     Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
@@ -492,8 +487,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
 
     };
 
-    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck,
-        timeout);
+    WaitTestState.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck, timeout);
 
     // assert that test has been set as TERMINATED
     Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
@@ -621,7 +615,7 @@ public class TestTaskSchedulerIT extends DockerComposeIT {
   //
   //    };
   //
-  //    WaitTestTermination.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck, timeout);
+  //    WaitTestState.waitForTestTerminationWithTimeout(testID, testModelDAO, waitTestCheck, timeout);
   //
   //    // assert that test has been set as TERMINATED
   //    Assert.assertEquals(BenchFlowTestModel.BenchFlowTestState.TERMINATED,
