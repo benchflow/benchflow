@@ -239,8 +239,6 @@ public class BenchFlowTestResource {
 
   @POST
   @Path("{testName}/{testNumber}/abort")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
   public void abortBenchFlowTest(@PathParam("username") String username,
       @PathParam("testName") String testName, @PathParam("testNumber") int testNumber) {
 
