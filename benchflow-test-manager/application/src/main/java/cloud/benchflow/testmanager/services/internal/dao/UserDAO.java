@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17.
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 22.02.17.
  */
 public class UserDAO extends DAO {
 
@@ -23,6 +23,16 @@ public class UserDAO extends DAO {
   public UserDAO(MongoClient mongoClient, BenchFlowTestModelDAO benchFlowTestModelDAO) {
     super(mongoClient);
     this.testModelDAO = benchFlowTestModelDAO;
+  }
+
+  public synchronized List getUsers() {
+
+    logger.info("getUsers");
+
+    final Query<User> userModelQuery = datastore.createQuery(User.class);
+
+    return userModelQuery.asList().stream().map(User::getUsername).collect(Collectors.toList());
+
   }
 
   public synchronized User addUser(String username) throws UserIDAlreadyExistsException {

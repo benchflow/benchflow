@@ -6,6 +6,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-07-02
+ *
+ * Terminates a test when executed when scheduled after a given timeout.
+ *
  */
 public class TimeoutTask implements Runnable {
 

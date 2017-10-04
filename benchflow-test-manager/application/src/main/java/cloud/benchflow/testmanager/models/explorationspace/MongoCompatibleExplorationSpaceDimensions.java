@@ -70,6 +70,11 @@ public class MongoCompatibleExplorationSpaceDimensions {
     this.environment = environment;
   }
 
+  /**
+   * Convert this object to a JavaCompatExplorationSpaceDimensions object.
+   *
+   * @return an JavaCompatExplorationSpaceDimensions object
+   */
   public JavaCompatExplorationSpaceDimensions toJavaCompat() {
 
     return new JavaCompatExplorationSpaceDimensions(users,

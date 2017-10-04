@@ -40,10 +40,19 @@ public class ExplorationPointResource {
     this.explorationModelDAO = explorationModelDAO;
   }
 
+  /**
+   * Get the configuration of a exploration space point.
+   *
+   * @param username the name of the user
+   * @param testName the name of the test
+   * @param testNumber the number of the test
+   * @param explorationPointIndex the index of the exploration space point
+   * @return ExplorationSpacePointResponse
+   */
   @Path("/{explorationPointIndex}")
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public ExplorationSpacePointResponse getBenchFlowTestStatus(
+  public ExplorationSpacePointResponse getExplorationSpacePointConfiguration(
       @PathParam("username") String username, @PathParam("testName") String testName,
       @PathParam("testNumber") int testNumber,
       @PathParam("explorationPointIndex") int explorationPointIndex) {

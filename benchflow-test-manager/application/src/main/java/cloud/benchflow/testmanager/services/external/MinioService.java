@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16.
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 18.12.16.
  */
 public class MinioService {
 
@@ -63,6 +63,9 @@ public class MinioService {
     return id.replace(BenchFlowConstants.MODEL_ID_DELIMITER, MINIO_ID_DELIMITER);
   }
 
+  /**
+   * Initialize buckets on minio to store the files.
+   */
   public void initializeBuckets() {
 
     try {

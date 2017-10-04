@@ -19,7 +19,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 27.02.17.
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 27.02.17.
  */
 public class BenchFlowExperimentEndpointTest {
 

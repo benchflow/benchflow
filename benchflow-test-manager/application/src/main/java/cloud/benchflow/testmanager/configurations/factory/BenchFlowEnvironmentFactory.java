@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.02.17.
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 18.02.17.
  */
 public class BenchFlowEnvironmentFactory {
 

@@ -6,11 +6,11 @@ import javax.ws.rs.core.Response;
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com) created on 15.02.17.
  */
-public class InvalidBenchFlowTestIDWebException extends WebApplicationException {
+public class InvalidUsernameWebException extends WebApplicationException {
 
-  public static final String message = "Invalid BenchFlow Test ID";
+  public static final String message = "Invalid Username";
 
-  public InvalidBenchFlowTestIDWebException() {
+  public InvalidUsernameWebException() {
 
     super(Response.status(Response.Status.NOT_FOUND).entity(message).type("text/plain").build());
   }

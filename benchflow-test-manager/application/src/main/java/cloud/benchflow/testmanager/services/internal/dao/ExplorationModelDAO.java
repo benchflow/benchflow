@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-25
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-04-25
  */
 public class ExplorationModelDAO extends DAO {
 

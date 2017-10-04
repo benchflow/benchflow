@@ -35,7 +35,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-04-20
+ *
+ * Schedules test execution according to the Test Life Cycle.
+ *
  */
 public class TestTaskScheduler {
 
@@ -67,6 +70,9 @@ public class TestTaskScheduler {
     this.timeoutScheduledThreadPoolExecutor = timeoutScheduledThreadPoolExecutor;
   }
 
+  /**
+   * Call to inject dependencies before using object.
+   */
   public void initialize() {
     this.testModelDAO = BenchFlowTestManagerApplication.getTestModelDAO();
 

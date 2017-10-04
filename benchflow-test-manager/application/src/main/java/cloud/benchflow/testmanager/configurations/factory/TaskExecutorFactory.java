@@ -14,7 +14,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 19.12.16.
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 19.12.16.
  */
 public final class TaskExecutorFactory {
 

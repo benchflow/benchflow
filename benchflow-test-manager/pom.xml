@@ -38,7 +38,7 @@
         <dropwizard-swagger.version>1.0.6-1</dropwizard-swagger.version>
         <zt-zip.version>1.11</zt-zip.version>
         <benchflow-dsl.project.name>benchflow-dsl</benchflow-dsl.project.name>
-        <benchflow-dsl-jar.version>fix-dm-demo-conversion-mix_8653a4</benchflow-dsl-jar.version>
+        <benchflow-dsl-jar.version>feature-dsl-semantic-validation_feb5ca</benchflow-dsl-jar.version>
         <benchflow-dsl.version>0.1.0</benchflow-dsl.version>
         <benchflow-faban-client.project.name>benchflow-faban-client</benchflow-faban-client.project.name>
         <benchflow-faban-client-jar.version>devel_e23d01</benchflow-faban-client-jar.version>

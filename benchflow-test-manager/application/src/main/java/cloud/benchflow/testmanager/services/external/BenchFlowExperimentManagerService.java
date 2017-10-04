@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
  * uses Jersey Client: http://www.dropwizard.io/1.0.6/docs/manual/client.html
  * https://jersey.java.net/documentation/2.22.1/client.html
  *
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16.
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 18.12.16.
  */
 public class BenchFlowExperimentManagerService {
 
@@ -30,6 +30,11 @@ public class BenchFlowExperimentManagerService {
     this.experimentManagerTarget = httpClient.target("http://" + experimentManagerAddress);
   }
 
+  /**
+   * Schedule an experiment for running on the Experiment Manager.
+   *
+   * @param experimentID the experiment ID
+   */
   public void runBenchFlowExperiment(String experimentID) {
 
     logger.info("runBenchFlowExperiment: " + experimentID);
@@ -48,6 +53,11 @@ public class BenchFlowExperimentManagerService {
     }
   }
 
+  /**
+   * Abort an experiment running on the Experiment Manager.
+   *
+   * @param experimentID the experiment ID
+   */
   public void abortBenchFlowExperiment(String experimentID) {
 
     logger.info("abortBenchFlowExperiment: " + experimentID);

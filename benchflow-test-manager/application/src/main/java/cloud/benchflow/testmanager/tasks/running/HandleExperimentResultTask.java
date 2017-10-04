@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-05-05
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-05-05
  */
 public class HandleExperimentResultTask extends AbortableRunnable {
 

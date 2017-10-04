@@ -13,6 +13,14 @@ import scala.util.Try;
  */
 public class StringToTimeDeserialization extends JsonDeserializer<Time> {
 
+  /**
+   * Deserializies a time string into a Time object.
+   *
+   * @param p Parsed used for reading JSON content
+   * @param ctxt Context that can be used to access information about this deserialization
+   * activity.
+   * @return the converted Time
+   */
   @Override
   public Time deserialize(JsonParser p, DeserializationContext ctxt)
       throws IOException, JsonProcessingException {

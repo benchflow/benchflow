@@ -18,7 +18,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-17
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-04-17
  */
 public class BenchFlowExperimentResourceTest {
 

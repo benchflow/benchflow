@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-16
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-04-16
  */
 @Path("/v1/users/{username}/tests/{testName}/{testNumber}/experiments")
 @Api(value = "benchflow-experiment")
@@ -61,6 +61,16 @@ public class BenchFlowExperimentResource {
     this.testTaskScheduler = testTaskScheduler;
   }
 
+  /**
+   * Updates the state of an experiment. Used by the Experiment Manager to notify when an experiment
+   * changes state.
+   *
+   * @param username the name of the user
+   * @param testName the name of the test
+   * @param testNumber the number of the test
+   * @param experimentNumber the number of the experiment
+   * @param stateRequest the state of the experiment
+   */
   @PUT
   @Path("/{experimentNumber}/state")
   @Consumes(MediaType.APPLICATION_JSON)

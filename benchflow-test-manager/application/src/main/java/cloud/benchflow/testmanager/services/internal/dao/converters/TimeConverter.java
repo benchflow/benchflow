@@ -8,6 +8,9 @@ import scala.util.Try;
 
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-07-02
+ *
+ * Convert Time to and from String for storing/retrieving in the database.
+ *
  */
 public class TimeConverter extends TypeConverter implements SimpleValueConverter {
 

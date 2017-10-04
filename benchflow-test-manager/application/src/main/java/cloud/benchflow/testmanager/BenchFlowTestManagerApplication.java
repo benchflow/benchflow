@@ -4,6 +4,7 @@ import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfigurat
 import cloud.benchflow.testmanager.resources.BenchFlowExperimentResource;
 import cloud.benchflow.testmanager.resources.BenchFlowTestResource;
 import cloud.benchflow.testmanager.resources.BenchFlowTrialResource;
+import cloud.benchflow.testmanager.resources.BenchFlowUserResource;
 import cloud.benchflow.testmanager.resources.ExplorationPointResource;
 import cloud.benchflow.testmanager.scheduler.CustomFutureReturningExecutor;
 import cloud.benchflow.testmanager.scheduler.TestTaskScheduler;
@@ -13,6 +14,7 @@ import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentMode
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowTestModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
 import cloud.benchflow.testmanager.services.internal.dao.UserDAO;
+import com.google.common.annotations.VisibleForTesting;
 import com.mongodb.MongoClient;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
@@ -70,18 +72,18 @@ public class BenchFlowTestManagerApplication
     return experimentManagerService;
   }
 
-  // used for testing to insert mock/spy object
+  @VisibleForTesting
   public static void setTestModelDAO(BenchFlowTestModelDAO testModelDAO) {
     BenchFlowTestManagerApplication.testModelDAO = testModelDAO;
   }
 
-  // used for testing to insert mock/spy object
+  @VisibleForTesting
   public static void setExperimentManagerService(
       BenchFlowExperimentManagerService experimentManagerService) {
     BenchFlowTestManagerApplication.experimentManagerService = experimentManagerService;
   }
 
-  // used for testing to insert mock/spy object
+  @VisibleForTesting
   public static void setTestTaskScheduler(TestTaskScheduler testTaskScheduler) {
     BenchFlowTestManagerApplication.testTaskScheduler = testTaskScheduler;
   }
@@ -172,6 +174,7 @@ public class BenchFlowTestManagerApplication
     experimentResource = new BenchFlowExperimentResource();
     final BenchFlowTrialResource trialResource = new BenchFlowTrialResource();
     final ExplorationPointResource explorationPointResource = new ExplorationPointResource();
+    final BenchFlowUserResource userResource = new BenchFlowUserResource();
 
     // TODO - health checks for all services
     //        final TemplateHealthCheck healthCheck =
@@ -183,6 +186,7 @@ public class BenchFlowTestManagerApplication
     environment.jersey().register(experimentResource);
     environment.jersey().register(trialResource);
     environment.jersey().register(explorationPointResource);
+    environment.jersey().register(userResource);
 
     // add support for submitting files
     environment.jersey().register(MultiPartFeature.class);

@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-27
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-04-27
  */
 public class OneAtATimeSelectionStrategyTest {
 

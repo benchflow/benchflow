@@ -8,6 +8,7 @@ import cloud.benchflow.dsl.definition.configuration.strategy.regression.Regressi
 import cloud.benchflow.dsl.definition.configuration.strategy.selection.SelectionStrategyType;
 import cloud.benchflow.dsl.definition.configuration.strategy.validation.ValidationStrategyType;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
+import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationExceptionMessage;
 import cloud.benchflow.dsl.definition.types.time.Time;
 import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpace;
 import cloud.benchflow.dsl.explorationspace.JavaCompatExplorationSpaceConverter.JavaCompatExplorationSpaceDimensions;
@@ -27,7 +28,7 @@ import scala.Option;
 /**
  * Prepares the test for running.
  *
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-04-20
  */
 public class StartTask extends AbortableRunnable {
 
@@ -72,7 +73,6 @@ public class StartTask extends AbortableRunnable {
       // save max run time
       Time maxRunTimeTime = test.configuration().terminationCriteria().test().maxTime();
       testModelDAO.setMaxRunTime(testID, maxRunTimeTime);
-
 
       if (test.configuration().goal().explorationSpace().isDefined()) {
         // get and save exploration space
@@ -120,8 +120,8 @@ public class StartTask extends AbortableRunnable {
         explorationModelDAO.setHasRegressionModel(testID, false);
       }
 
-    } catch (BenchFlowDeserializationException | BenchFlowTestIDDoesNotExistException
-        | IOException e) {
+    } catch (BenchFlowDeserializationException | BenchFlowDeserializationExceptionMessage
+        | BenchFlowTestIDDoesNotExistException | IOException e) {
       // should not happen since it has already been tested/added
       logger.error("should not happen");
       e.printStackTrace();

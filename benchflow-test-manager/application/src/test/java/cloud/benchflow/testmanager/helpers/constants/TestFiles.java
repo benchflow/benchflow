@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-27
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-04-27
  */
 public class TestFiles {
 
@@ -38,6 +38,9 @@ public class TestFiles {
 
   private static String TEST_STEP_USERS_FILE =
       LOCAL_TESTS_FOLDER + "definition/step/users/benchflow-test.yml";
+
+  private static String TEST_EXPLORATION_MULTIPLE_SERVICES_USERS_FILE = LOCAL_TESTS_FOLDER
+      + "definition/exhaustive_exploration/one-at-a-time/multiple-services/benchflow-test.yml";
 
   private static String TEST_DEPLOYMENT_DESCRIPTOR =
       LOCAL_TESTS_FOLDER + "deployment/docker-compose.yml";
@@ -118,6 +121,10 @@ public class TestFiles {
   public static File getTestStepUsersFile() throws FileNotFoundException {
 
     return new File(TEST_STEP_USERS_FILE);
+  }
+
+  public static File getTestMultipleServicesUsersFile() throws FileNotFoundException {
+    return new File(TEST_EXPLORATION_MULTIPLE_SERVICES_USERS_FILE);
   }
 
   public static InputStream getDeploymentDescriptor() throws FileNotFoundException {

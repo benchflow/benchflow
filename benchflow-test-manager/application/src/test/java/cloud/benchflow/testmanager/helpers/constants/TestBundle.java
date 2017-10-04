@@ -20,7 +20,7 @@ import org.zeroturnaround.zip.ZipEntrySource;
 import org.zeroturnaround.zip.ZipUtil;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 14.02.17.
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 14.02.17.
  * @author vincenzoferme
  */
 public class TestBundle {
@@ -108,6 +108,17 @@ public class TestBundle {
 
     FileSource testDefinitionFileSource = new FileSource(TestFiles.getTestStepUsersFile().getName(),
         TestFiles.getTestStepUsersFile());
+
+    return createBundleFile(testDefinitionFileSource, temporaryFolder);
+
+  }
+
+  public static File getTestMultipleServicesUsersBundleFile(TemporaryFolder temporaryFolder)
+      throws IOException {
+
+    FileSource testDefinitionFileSource =
+        new FileSource(TestFiles.getTestMultipleServicesUsersFile().getName(),
+            TestFiles.getTestMultipleServicesUsersFile());
 
     return createBundleFile(testDefinitionFileSource, temporaryFolder);
 

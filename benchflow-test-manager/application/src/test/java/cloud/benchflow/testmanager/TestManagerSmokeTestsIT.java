@@ -10,7 +10,7 @@ import cloud.benchflow.testmanager.api.response.RunBenchFlowTestResponse;
 import cloud.benchflow.testmanager.configurations.BenchFlowTestManagerConfiguration;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.helpers.WaitTestCheck;
-import cloud.benchflow.testmanager.helpers.WaitTestTermination;
+import cloud.benchflow.testmanager.helpers.WaitTestState;
 import cloud.benchflow.testmanager.helpers.constants.TestBundle;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.BenchFlowExperimentState;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel.TerminatedState;
@@ -213,6 +213,20 @@ public class TestManagerSmokeTestsIT extends DockerComposeIT {
 
   }
 
+  @Test
+  public void runTestMultipleServicesUsersFile() throws Exception {
+
+    String testName = "WfMSMemoryEnvironmentStepUsersExhaustiveExplorationTest";
+    int expectedNumExperiments = 16;
+
+    FileDataBodyPart fileDataBodyPart = new FileDataBodyPart("benchFlowTestBundle",
+        TestBundle.getTestMultipleServicesUsersBundleFile(temporaryFolder),
+        MediaType.APPLICATION_OCTET_STREAM_TYPE);
+
+    runTest(testName, fileDataBodyPart, expectedNumExperiments);
+
+  }
+
   private void runTest(String testName, FileDataBodyPart fileDataBodyPart,
       int expectedNumExperiments)
       throws BenchFlowTestIDDoesNotExistException, InterruptedException {
@@ -279,8 +293,8 @@ public class TestManagerSmokeTestsIT extends DockerComposeIT {
 
     };
 
-    WaitTestTermination.waitForTestTerminationWithTimeout(expectedTestID, testModelDAO,
-        waitTestCheck, timeout);
+    WaitTestState.waitForTestTerminationWithTimeout(expectedTestID, testModelDAO, waitTestCheck,
+        timeout);
 
     // assert test was terminated
     BenchFlowTestState testState = testModelDAO.getTestState(expectedTestID);
@@ -291,6 +305,7 @@ public class TestManagerSmokeTestsIT extends DockerComposeIT {
 
     // assert all test were executed
     Set<Long> experimentNumbers = testModelDAO.getExperimentNumbers(getExpectedTestID(testName));
+    Assert.assertEquals(expectedNumExperiments, experimentNumbers.size());
     for (long i = 1; i <= expectedNumExperiments; i++) {
       Assert.assertTrue(experimentNumbers.contains(i));
     }

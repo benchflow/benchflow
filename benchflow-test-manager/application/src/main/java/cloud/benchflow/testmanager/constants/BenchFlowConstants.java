@@ -3,7 +3,7 @@ package cloud.benchflow.testmanager.constants;
 import cloud.benchflow.testmanager.models.User;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 16.02.17.
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 16.02.17.
  */
 public class BenchFlowConstants {
 
@@ -63,6 +63,12 @@ public class BenchFlowConstants {
         + trialNumber;
   }
 
+  /**
+   * Get the URL path from a username.
+   *
+   * @param username of the user
+   * @return url path
+   */
   public static String getPathFromUsername(String username) {
 
     return VERSION_1_PATH + USERS_PATH + username;
@@ -121,7 +127,13 @@ public class BenchFlowConstants {
         + EXPERIMENTS_PATH + experimentNumber + TRIALS_PATH + trialNumber;
   }
 
-  public static long getExperimentNumberfromExperimentID(String experimentID) {
+  /**
+   * Extract the experiment number from an Experiment ID.
+   *
+   * @param experimentID the id
+   * @return the experiment number
+   */
+  public static long getExperimentNumberFromExperimentID(String experimentID) {
 
     String[] trialIDArray = experimentID.split(MODEL_ID_DELIMITER_REGEX);
 

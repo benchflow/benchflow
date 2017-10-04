@@ -3,9 +3,9 @@ package cloud.benchflow.testmanager.resources;
 import cloud.benchflow.dsl.BenchFlowTestAPI;
 import cloud.benchflow.dsl.definition.BenchFlowTest;
 import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationException;
+import cloud.benchflow.dsl.definition.errorhandling.BenchFlowDeserializationExceptionMessage;
 import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
-import cloud.benchflow.testmanager.api.request.ChangeBenchFlowTestStateRequest;
-import cloud.benchflow.testmanager.api.response.ChangeBenchFlowTestStateResponse;
+import cloud.benchflow.testmanager.api.response.GetUserTestsResponse;
 import cloud.benchflow.testmanager.api.response.RunBenchFlowTestResponse;
 import cloud.benchflow.testmanager.bundle.BenchFlowTestBundleExtractor;
 import cloud.benchflow.testmanager.constants.BenchFlowConstants;
@@ -14,6 +14,7 @@ import cloud.benchflow.testmanager.exceptions.InvalidTestBundleException;
 import cloud.benchflow.testmanager.exceptions.UserIDAlreadyExistsException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidBenchFlowTestIDWebException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidTestBundleWebException;
+import cloud.benchflow.testmanager.exceptions.web.InvalidUsernameWebException;
 import cloud.benchflow.testmanager.models.BenchFlowExperimentModel;
 import cloud.benchflow.testmanager.models.BenchFlowTestModel;
 import cloud.benchflow.testmanager.models.User;
@@ -27,15 +28,14 @@ import io.swagger.annotations.Api;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -49,15 +49,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17.
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 13.02.17.
  */
 @Path("/v1/users/{username}/tests")
 @Api(value = "benchflow-test")
 public class BenchFlowTestResource {
 
+  public static String TEST_PATH = "/tests";
   public static String RUN_PATH = "/run";
-  public static String STATE_PATH = "/state";
   public static String STATUS_PATH = "/status";
+  public static String ABORT_PATH = "/abort";
   public static String NO_EXPLORATION_SPACE = "no exploration space";
   private final BenchFlowTestModelDAO testModelDAO;
   private final UserDAO userDAO;
@@ -86,6 +87,49 @@ public class BenchFlowTestResource {
     this.minioService = minioService;
   }
 
+  /**
+   * Get a list of Test IDs of tests submitted by a given user.
+   *
+   * @param username the name of the user
+   * @return a list of Test IDs
+   */
+  @GET
+  @Path("/")
+  @Produces(MediaType.APPLICATION_JSON)
+  public GetUserTestsResponse getUserTests(@PathParam("username") String username) {
+
+    logger.info(
+        "request received: GET " + BenchFlowConstants.getPathFromUsername(username) + TEST_PATH);
+
+    User user = userDAO.getUser(username);
+
+    if (user == null) {
+      throw new InvalidUsernameWebException();
+    }
+
+    List testIDsRaw = testModelDAO.getUserTestModels(user);
+
+    List<String> testIDs = new ArrayList<>();
+
+    for (Object o : testIDsRaw) {
+      testIDs.add(o.toString());
+    }
+
+    GetUserTestsResponse userTestsResponse = new GetUserTestsResponse();
+    userTestsResponse.setTestIDs(testIDs);
+
+    return userTestsResponse;
+
+  }
+
+  /**
+   * Starts the execution of a test as specified in the test bundle.
+   *
+   * @param username name of the user
+   * @param benchFlowTestBundle test bundle
+   * @param request HTTP servlet request
+   * @return RunBenchFlowTestResponse
+   */
   @POST
   @Path("/run")
   @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -94,8 +138,8 @@ public class BenchFlowTestResource {
       @FormDataParam("benchFlowTestBundle") final InputStream benchFlowTestBundle,
       @Context HttpServletRequest request) {
 
-    logger.info(
-        "request received: POST " + BenchFlowConstants.getPathFromUsername(username) + RUN_PATH);
+    logger.info("request received: POST " + BenchFlowConstants.getPathFromUsername(username)
+        + TEST_PATH + RUN_PATH);
 
     if (benchFlowTestBundle == null) {
       logger.info("runBenchFlowTest: test bundle == null");
@@ -171,7 +215,8 @@ public class BenchFlowTestResource {
 
       return new RunBenchFlowTestResponse(testID, statusURL);
 
-    } catch (IOException | InvalidTestBundleException | BenchFlowDeserializationException e) {
+    } catch (IOException | InvalidTestBundleException | BenchFlowDeserializationException
+        | BenchFlowDeserializationExceptionMessage e) {
       // TODO - throw more fine grained errors, e.g., file missing in bundle, deserialization error
       logger.error(e.getClass().getSimpleName());
       if (e.getMessage() == null) {
@@ -184,34 +229,15 @@ public class BenchFlowTestResource {
     }
   }
 
-  @PUT
-  @Path("{testName}/{testNumber}/state")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  public ChangeBenchFlowTestStateResponse changeBenchFlowTestState(
-      @PathParam("username") String username, @PathParam("testName") String testName,
-      @PathParam("testNumber") int testNumber,
-      @NotNull @Valid final ChangeBenchFlowTestStateRequest stateRequest) {
-
-    String testID = BenchFlowConstants.getTestID(username, testName, testNumber);
-    logger
-        .info("request received: PUT " + BenchFlowConstants.getPathFromTestID(testID) + STATE_PATH);
-
-    // TODO - handle the actual state change (e.g. on Experiment Manager)
-
-    // update the state
-    BenchFlowTestModel.BenchFlowTestState newState = null;
-
-    try {
-      newState = testModelDAO.setTestState(testID, stateRequest.getState());
-    } catch (BenchFlowTestIDDoesNotExistException e) {
-      throw new InvalidBenchFlowTestIDWebException();
-    }
-
-    // return the state as saved
-    return new ChangeBenchFlowTestStateResponse(newState);
-  }
-
+  /**
+   * Get the status of a test.
+   *
+   * @param username name of the user
+   * @param testName name of the test
+   * @param testNumber number of the test
+   * @param request HTTP servlet request
+   * @return BenchFlowTestModel
+   */
   @Path("{testName}/{testNumber}/status")
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -266,5 +292,33 @@ public class BenchFlowTestResource {
     }
 
     return benchFlowTestModel;
+  }
+
+  /**
+   * Abort a running test.
+   *
+   * @param username name of the user
+   * @param testName name of the test
+   * @param testNumber number of the test
+   */
+  @POST
+  @Path("{testName}/{testNumber}/abort")
+  public void abortBenchFlowTest(@PathParam("username") String username,
+      @PathParam("testName") String testName, @PathParam("testNumber") int testNumber) {
+
+    String testID = BenchFlowConstants.getTestID(username, testName, testNumber);
+    logger.info(
+        "request received: POST " + BenchFlowConstants.getPathFromTestID(testID) + ABORT_PATH);
+
+    if (testModelDAO.testModelExists(testID)) {
+
+      testTaskScheduler.terminateTest(testID);
+
+    } else {
+      logger.info("abortBenchFlowTest: invalid test id - " + testID);
+      throw new InvalidBenchFlowTestIDWebException();
+
+    }
+
   }
 }

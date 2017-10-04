@@ -11,7 +11,7 @@ import java.util.List;
 import org.mongodb.morphia.annotations.Embedded;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-25
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-04-25
  */
 @Embedded
 public class ExplorationModel {

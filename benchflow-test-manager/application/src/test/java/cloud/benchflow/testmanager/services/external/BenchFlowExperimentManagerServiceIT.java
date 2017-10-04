@@ -4,7 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 24.02.17.
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 24.02.17.
  */
 public class BenchFlowExperimentManagerServiceIT {
   @Before

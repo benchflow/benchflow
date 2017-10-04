@@ -7,6 +7,7 @@ import cloud.benchflow.testmanager.BenchFlowTestManagerApplication;
 import cloud.benchflow.testmanager.exceptions.BenchFlowTestIDDoesNotExistException;
 import cloud.benchflow.testmanager.services.external.MinioService;
 import cloud.benchflow.testmanager.services.internal.dao.ExplorationModelDAO;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -16,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-04-20
  */
 public abstract class SelectionStrategy {
 
@@ -32,7 +33,7 @@ public abstract class SelectionStrategy {
     this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();
   }
 
-  // only used for testing
+  @VisibleForTesting
   public SelectionStrategy(Logger logger, MinioService minioService,
       ExplorationModelDAO explorationModelDAO) {
     this.logger = logger;
