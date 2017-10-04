@@ -49,7 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17.
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 13.02.17.
  */
 @Path("/v1/users/{username}/tests")
 @Api(value = "benchflow-test")
@@ -87,6 +87,12 @@ public class BenchFlowTestResource {
     this.minioService = minioService;
   }
 
+  /**
+   * Get a list of Test IDs of tests submitted by a given user.
+   *
+   * @param username the name of the user
+   * @return a list of Test IDs
+   */
   @GET
   @Path("/")
   @Produces(MediaType.APPLICATION_JSON)
@@ -116,6 +122,14 @@ public class BenchFlowTestResource {
 
   }
 
+  /**
+   * Starts the execution of a test as specified in the test bundle.
+   *
+   * @param username name of the user
+   * @param benchFlowTestBundle test bundle
+   * @param request HTTP servlet request
+   * @return RunBenchFlowTestResponse
+   */
   @POST
   @Path("/run")
   @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -215,6 +229,15 @@ public class BenchFlowTestResource {
     }
   }
 
+  /**
+   * Get the status of a test.
+   *
+   * @param username name of the user
+   * @param testName name of the test
+   * @param testNumber number of the test
+   * @param request HTTP servlet request
+   * @return BenchFlowTestModel
+   */
   @Path("{testName}/{testNumber}/status")
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -271,6 +294,13 @@ public class BenchFlowTestResource {
     return benchFlowTestModel;
   }
 
+  /**
+   * Abort a running test.
+   *
+   * @param username name of the user
+   * @param testName name of the test
+   * @param testNumber number of the test
+   */
   @POST
   @Path("{testName}/{testNumber}/abort")
   public void abortBenchFlowTest(@PathParam("username") String username,

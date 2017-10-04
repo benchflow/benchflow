@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16.
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 18.12.16.
  */
 
 @Path("/v1/users")

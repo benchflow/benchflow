@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 19.12.16.
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 19.12.16.
  */
 public class BenchFlowTestModelDAO extends DAO {
 
@@ -49,7 +49,7 @@ public class BenchFlowTestModelDAO extends DAO {
   private long generateTestNumber(String testName, User user) {
 
     String benchFlowTestIdentifier =
-        BenchFlowTestNumber.generateBenchFlowTestIdentifier(user.getUsername(), testName);
+        BenchFlowTestNumber.getBenchFlowTestIdentifier(user.getUsername(), testName);
 
     Query<BenchFlowTestNumber> query = datastore.createQuery(BenchFlowTestNumber.class)
         .field(BenchFlowTestNumber.ID_FIELD_NAME).equal(benchFlowTestIdentifier);

@@ -84,6 +84,11 @@ public class MongoCompatibleExplorationSpace {
     this.environmentDimension = environmentDimension;
   }
 
+  /**
+   * Convert this object to a JavaCompatExplorationSpace object.
+   *
+   * @return JavaCompatExplorationSpace object
+   */
   public JavaCompatExplorationSpace toJavaCompat() {
 
     return new JavaCompatExplorationSpace(size,
@@ -99,6 +104,13 @@ public class MongoCompatibleExplorationSpace {
                 Collectors.toMap(Map.Entry::getKey, e1 -> new ArrayList<>(e1.getValue())))))))));
   }
 
+  /**
+   * Get the an ExplorationSpacePointResponse object for a given index of a point in the exploration
+   * space.
+   *
+   * @param index index of the point in the exploration space
+   * @return ExplorationSpacePointResponse object
+   */
   public ExplorationSpacePointResponse getExplorationSpacePointResponse(int index) {
 
     ExplorationSpacePointResponse explorationSpacePointResponse =

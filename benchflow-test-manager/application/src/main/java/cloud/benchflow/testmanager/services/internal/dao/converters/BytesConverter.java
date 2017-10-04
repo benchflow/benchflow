@@ -8,6 +8,9 @@ import scala.util.Try;
 
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-07-03
+ *
+ * Convert Byte to and from String for storing/retrieving in the database.
+ *
  */
 public class BytesConverter extends TypeConverter implements SimpleValueConverter {
 

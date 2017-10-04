@@ -28,7 +28,7 @@ import scala.Option;
 /**
  * Prepares the test for running.
  *
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-04-20
  */
 public class StartTask extends AbortableRunnable {
 

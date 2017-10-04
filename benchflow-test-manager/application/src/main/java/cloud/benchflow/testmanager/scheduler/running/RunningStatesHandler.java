@@ -61,6 +61,9 @@ public class RunningStatesHandler {
     this.testTaskScheduler = testTaskScheduler;
   }
 
+  /**
+   * Call to inject dependencies before using object.
+   */
   public void initialize() {
 
     this.explorationModelDAO = BenchFlowTestManagerApplication.getExplorationModelDAO();

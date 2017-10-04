@@ -4,7 +4,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 15.02.17.
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 15.02.17.
  */
 public class InvalidBenchFlowTestIDWebException extends WebApplicationException {
 

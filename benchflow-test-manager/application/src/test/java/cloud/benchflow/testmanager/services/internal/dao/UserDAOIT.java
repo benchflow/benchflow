@@ -17,7 +17,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 22.02.17.
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 22.02.17.
  */
 public class UserDAOIT extends DockerComposeIT {
 

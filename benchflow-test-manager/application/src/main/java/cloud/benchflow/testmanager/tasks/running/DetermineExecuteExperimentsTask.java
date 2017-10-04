@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Determines the next experiment to run and request it to be run on the experiment-manager.
  *
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-20
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-04-20
  */
 public class DetermineExecuteExperimentsTask extends AbortableRunnable {
 

@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-05-28
+ *
+ * Dispatches tests that are in the ready queue when there is a free slot for running a test.
+ *
  */
 public class TestDispatcher implements Runnable {
 

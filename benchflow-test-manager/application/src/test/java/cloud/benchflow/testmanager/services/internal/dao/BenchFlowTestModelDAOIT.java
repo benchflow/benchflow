@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 14.02.17.
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 14.02.17.
  */
 public class BenchFlowTestModelDAOIT extends DockerComposeIT {
 

@@ -23,13 +23,19 @@ import org.mongodb.morphia.annotations.Transient;
 import org.mongodb.morphia.utils.IndexType;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16.
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 18.12.16.
  */
 @Entity
 @Indexes({@Index(options = @IndexOptions(),
     fields = {@Field(value = "hashedID", type = IndexType.HASHED)})})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BenchFlowExperimentModel {
+
+  /**
+   * NOTE: This class is also annotated with Jackson annotation since we then easily can return it
+   * when the user asks for the status of a given test. This annotation is not needed to store in
+   * MongoDB.
+   */
 
   public static final String ID_FIELD_NAME = "id";
   public static final String HASHED_ID_FIELD_NAME = "hashedID";

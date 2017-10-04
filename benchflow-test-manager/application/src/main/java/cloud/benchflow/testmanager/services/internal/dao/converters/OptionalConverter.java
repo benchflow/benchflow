@@ -7,6 +7,9 @@ import org.mongodb.morphia.mapping.MappedField;
 
 /**
  * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-06-04
+ *
+ * Convert Optional to and from some value/null for storing/retrieving in the database.
+ *
  */
 public class OptionalConverter extends TypeConverter {
 

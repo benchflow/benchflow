@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 2017-04-27
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 2017-04-27
  */
 public class TestFiles {
 

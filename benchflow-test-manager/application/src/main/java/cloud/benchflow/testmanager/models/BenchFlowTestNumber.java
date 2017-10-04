@@ -6,7 +6,7 @@ import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 21.02.17.
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 21.02.17.
  */
 @Entity(noClassnameStored = true)
 public class BenchFlowTestNumber {
@@ -24,16 +24,25 @@ public class BenchFlowTestNumber {
   }
 
   public BenchFlowTestNumber(String userName, String benchFlowTestName) {
-    this.testIdentifier = generateBenchFlowTestIdentifier(userName, benchFlowTestName);
+    this.testIdentifier = getBenchFlowTestIdentifier(userName, benchFlowTestName);
+  }
+
+  /**
+   * Get the test identifier from a username and test name.
+   *
+   * @param userName the name of the user
+   * @param benchFlowTestName the name of the test
+   * @return the test identifier as a String
+   */
+  public static String getBenchFlowTestIdentifier(String userName, String benchFlowTestName) {
+
+    // TODO - consider moving to BenchFlowConstants
+
+    return userName + MODEL_ID_DELIMITER + benchFlowTestName;
   }
 
   public Long getCounter() {
     return counter;
-  }
-
-  public static String generateBenchFlowTestIdentifier(String userName, String benchFlowTestName) {
-
-    return userName + MODEL_ID_DELIMITER + benchFlowTestName;
   }
 
   public String getTestIdentifier() {

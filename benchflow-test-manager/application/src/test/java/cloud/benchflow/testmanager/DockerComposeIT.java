@@ -15,7 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch)
+ * @author Jesper Findahl (jesper.findahl@gmail.com)
  * @author Vincenzo Ferme (fermevincenzo@gmail.com) created on 02.03.17.
  */
 public class DockerComposeIT {

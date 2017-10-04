@@ -30,7 +30,7 @@ import org.mongodb.morphia.annotations.Reference;
 import org.mongodb.morphia.utils.IndexType;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 18.12.16.
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 18.12.16.
  */
 @Entity
 @Indexes({@Index(options = @IndexOptions(),
@@ -51,7 +51,7 @@ public class BenchFlowTestModel {
 
   // Annotations for MongoDB + Morphia (http://mongodb.github.io/morphia/1.3/guides/annotations/#entity)
 
-  //    userName.testName.testNumber.experimentNumber.trialNumber
+  // userName.testName.testNumber.experimentNumber.trialNumber
   // used for potential sharing in the future
   @JsonIgnoreProperties(ignoreUnknown = true)
   private String hashedID;
@@ -172,14 +172,14 @@ public class BenchFlowTestModel {
   public void addExperimentModel(BenchFlowExperimentModel experimentModel) {
 
     long experimentNumber =
-        BenchFlowConstants.getExperimentNumberfromExperimentID(experimentModel.getId());
+        BenchFlowConstants.getExperimentNumberFromExperimentID(experimentModel.getId());
 
     experiments.put(experimentNumber, experimentModel);
   }
 
   public boolean containsExperimentModel(String experimentID) {
 
-    long experimentNumber = BenchFlowConstants.getExperimentNumberfromExperimentID(experimentID);
+    long experimentNumber = BenchFlowConstants.getExperimentNumberFromExperimentID(experimentID);
 
     return experiments.containsKey(experimentNumber);
   }

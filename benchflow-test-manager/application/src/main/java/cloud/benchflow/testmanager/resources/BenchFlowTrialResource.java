@@ -6,6 +6,7 @@ import cloud.benchflow.testmanager.constants.BenchFlowConstants;
 import cloud.benchflow.testmanager.exceptions.BenchFlowExperimentIDDoesNotExistException;
 import cloud.benchflow.testmanager.exceptions.web.InvalidTrialIDWebException;
 import cloud.benchflow.testmanager.services.internal.dao.BenchFlowExperimentModelDAO;
+import com.google.common.annotations.VisibleForTesting;
 import io.swagger.annotations.Api;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -18,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Jesper Findahl (jesper.findahl@usi.ch) created on 13.02.17.
+ * @author Jesper Findahl (jesper.findahl@gmail.com) created on 13.02.17.
  */
 @Path("/v1/users/{username}/tests/{testName}/{testNumber}/experiments/{experimentNumber}/trials")
 @Api(value = "benchflow-trial")
@@ -34,11 +35,21 @@ public class BenchFlowTrialResource {
     this.experimentModelDAO = BenchFlowTestManagerApplication.getExperimentModelDAO();
   }
 
-  /* used for testing */
+  @VisibleForTesting
   public BenchFlowTrialResource(BenchFlowExperimentModelDAO experimentModelDAO) {
     this.experimentModelDAO = experimentModelDAO;
   }
 
+  /**
+   * Updates the status of a trial. NB: currently not used by any service.
+   *
+   * @param username the name of the user
+   * @param testName  the name of the test
+   * @param testNumber  the number of the test
+   * @param experimentNumber  the number of the experiment
+   * @param trialNumber the number of the trial
+   * @param statusRequest that status of the trial
+   */
   @PUT
   @Path("/{trialNumber}/status")
   @Consumes(MediaType.APPLICATION_JSON)
