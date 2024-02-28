@@ -14,7 +14,7 @@
     <artifactId>application</artifactId>
 
     <properties>
-        <scala.major>2.11.7</scala.major>
+        <scala.major>2.13.12</scala.major>
         <scala.xml.version>1.0.5</scala.xml.version>
         <scala.parser.combinators.version>1.0.4</scala.parser.combinators.version>
         <simonedavico.moultingyaml.version>v0.3</simonedavico.moultingyaml.version>
@@ -215,7 +215,7 @@
                 						</goals>
                 					</pluginExecutionFilter>
                 					<action>
-                						<ignore></ignore>
+                						<ignore/>
                 					</action>
                 				</pluginExecution>
                 			</pluginExecutions>
