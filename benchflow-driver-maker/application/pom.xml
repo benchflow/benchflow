@@ -22,10 +22,10 @@
         <snakeyaml.version>1.16</snakeyaml.version>
         <jersey.multipart.version>2.19</jersey.multipart.version>
         <zt-zip.version>1.9</zt-zip.version>
-        <commons-io.version>2.4</commons-io.version>
+        <commons-io.version>2.14.0</commons-io.version>
         <minio-java.version>2.0.1</minio-java.version>
         <ant.version>1.9.6</ant.version>
-        <spoon.core.version>5.2.0</spoon.core.version>
+        <spoon.core.version>10.4.2</spoon.core.version>
         <java.semver.version>0.9.0</java.semver.version>
         <jgrapht.core.version>0.9.2</jgrapht.core.version>
         <apache.httpclient.version>3.1</apache.httpclient.version>
@@ -215,7 +215,7 @@
                 						</goals>
                 					</pluginExecutionFilter>
                 					<action>
-                						<ignore></ignore>
+                						<ignore/>
                 					</action>
                 				</pluginExecution>
                 			</pluginExecutions>
