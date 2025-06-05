@@ -21,7 +21,7 @@
         <moultingyaml.version>0.2</moultingyaml.version>
         <snakeyaml.version>1.16</snakeyaml.version>
         <jersey.multipart.version>2.19</jersey.multipart.version>
-        <zt-zip.version>1.9</zt-zip.version>
+        <zt-zip.version>1.13</zt-zip.version>
         <commons-io.version>2.4</commons-io.version>
         <minio-java.version>2.0.1</minio-java.version>
         <ant.version>1.9.6</ant.version>
@@ -215,7 +215,7 @@
                 						</goals>
                 					</pluginExecutionFilter>
                 					<action>
-                						<ignore></ignore>
+                						<ignore/>
                 					</action>
                 				</pluginExecution>
                 			</pluginExecutions>
